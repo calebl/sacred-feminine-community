@@ -1,4 +1,7 @@
 if Rails.env.development?
+  # Coordinates are provided inline, so skip geocoding API calls.
+  User.skip_callback(:commit, :after, :enqueue_geocode)
+
   password = "password123"
 
   admin = User.find_or_create_by!(email: "admin@sacredfeminine.com") do |u|
