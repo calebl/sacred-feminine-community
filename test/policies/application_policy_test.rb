@@ -34,4 +34,9 @@ class ApplicationPolicyTest < ActiveSupport::TestCase
   test "edit delegates to update" do
     assert_equal @policy.update?, @policy.edit?
   end
+
+  test "scope raises NoMethodError when resolve is not defined" do
+    scope = ApplicationPolicy::Scope.new(@user, User)
+    assert_raises(NoMethodError) { scope.resolve }
+  end
 end

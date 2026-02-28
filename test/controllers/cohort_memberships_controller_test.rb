@@ -39,4 +39,15 @@ class CohortMembershipsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to root_path
   end
+
+  test "adding duplicate member shows error" do
+    sign_in users(:admin)
+    assert_no_difference "CohortMembership.count" do
+      post cohort_cohort_memberships_path(cohorts(:kabul_retreat)), params: {
+        user_id: users(:attendee).id
+      }
+    end
+    assert_redirected_to cohort_path(cohorts(:kabul_retreat))
+    assert_match "already a member", flash[:alert]
+  end
 end

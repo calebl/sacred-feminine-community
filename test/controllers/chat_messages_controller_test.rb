@@ -57,4 +57,17 @@ class ChatMessagesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to new_user_session_path
   end
+
+  test "blank body redirects with alert" do
+    sign_in users(:attendee)
+    cohort = cohorts(:kabul_retreat)
+
+    assert_no_difference "ChatMessage.count" do
+      post cohort_chat_messages_path(cohort), params: {
+        chat_message: { body: "" }
+      }
+    end
+    assert_redirected_to cohort_path(cohort)
+    assert_equal "Message could not be sent.", flash[:alert]
+  end
 end

@@ -1,4 +1,12 @@
 ENV["RAILS_ENV"] ||= "test"
+
+if ENV["COVERAGE"]
+  require "simplecov"
+  SimpleCov.start "rails" do
+    enable_coverage :branch
+  end
+end
+
 require_relative "../config/environment"
 require "rails/test_help"
 
@@ -11,6 +19,17 @@ Geocoder::Lookup::Test.set_default_stub(
 module ActiveSupport
   class TestCase
     parallelize(workers: :number_of_processors)
+
+    if ENV["COVERAGE"]
+      parallelize_setup do |worker|
+        SimpleCov.command_name "#{SimpleCov.command_name}-#{worker}"
+      end
+
+      parallelize_teardown do |worker|
+        SimpleCov.result
+      end
+    end
+
     fixtures :all
   end
 end

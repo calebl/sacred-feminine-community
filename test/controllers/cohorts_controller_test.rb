@@ -89,4 +89,30 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to root_path
   end
+
+  # Edit
+  test "admin can access edit form" do
+    sign_in users(:admin)
+    get edit_cohort_path(cohorts(:kabul_retreat))
+    assert_response :success
+  end
+
+  # Create with invalid params
+  test "admin sees form again on invalid create" do
+    sign_in users(:admin)
+    assert_no_difference "Cohort.count" do
+      post cohorts_path, params: { cohort: { name: "" } }
+    end
+    assert_response :unprocessable_entity
+  end
+
+  # Update with invalid params
+  test "admin sees form again on invalid update" do
+    sign_in users(:admin)
+    patch cohort_path(cohorts(:kabul_retreat)), params: {
+      cohort: { name: "" }
+    }
+    assert_response :unprocessable_entity
+    assert_not_equal "", cohorts(:kabul_retreat).reload.name
+  end
 end

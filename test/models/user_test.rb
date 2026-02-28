@@ -1,6 +1,8 @@
 require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   test "requires name" do
     user = User.new(email: "test@example.com", password: "password123")
     assert_not user.valid?
@@ -53,5 +55,33 @@ class UserTest < ActiveSupport::TestCase
   test "show_on_map defaults to false" do
     user = User.new
     assert_equal false, user.show_on_map
+  end
+
+  test "enqueues geocode job when city changes" do
+    user = users(:attendee)
+    assert_enqueued_with(job: GeocodeUserJob) do
+      user.update!(city: "Berlin")
+    end
+  end
+
+  test "enqueues geocode job when country changes" do
+    user = users(:attendee)
+    assert_enqueued_with(job: GeocodeUserJob) do
+      user.update!(country: "Germany")
+    end
+  end
+
+  test "rejects invalid avatar content type" do
+    user = users(:attendee)
+    user.avatar.attach(io: StringIO.new("fake"), filename: "test.txt", content_type: "text/plain")
+    assert_not user.valid?
+    assert_includes user.errors[:avatar], "must be a JPEG, PNG, GIF, or WebP"
+  end
+
+  test "rejects avatar over 5MB" do
+    user = users(:attendee)
+    user.avatar.attach(io: StringIO.new("x" * 6.megabytes), filename: "big.png", content_type: "image/png")
+    assert_not user.valid?
+    assert_includes user.errors[:avatar], "must be less than 5MB"
   end
 end

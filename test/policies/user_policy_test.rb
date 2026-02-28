@@ -27,4 +27,9 @@ class UserPolicyTest < ActiveSupport::TestCase
     policy = UserPolicy.new(users(:attendee), users(:admin))
     assert_not policy.update_profile?
   end
+
+  test "scope returns all users" do
+    scope = UserPolicy::Scope.new(users(:attendee), User).resolve
+    assert_equal User.count, scope.count
+  end
 end

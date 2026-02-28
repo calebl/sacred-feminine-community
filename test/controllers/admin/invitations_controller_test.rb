@@ -43,4 +43,14 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to root_path
   end
+
+  test "invalid invitation re-renders form" do
+    sign_in users(:admin)
+    assert_no_difference "User.count" do
+      post user_invitation_path, params: {
+        user: { email: "", name: "" }
+      }
+    end
+    assert_response :unprocessable_entity
+  end
 end

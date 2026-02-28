@@ -46,4 +46,12 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     assert_not_equal "Hacked", users(:admin).reload.name
   end
+
+  test "update with invalid params re-renders edit" do
+    sign_in users(:attendee)
+    patch profile_path(users(:attendee)), params: {
+      user: { name: "" }
+    }
+    assert_response :unprocessable_entity
+  end
 end
