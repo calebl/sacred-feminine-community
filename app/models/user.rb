@@ -21,6 +21,6 @@ class User < ApplicationRecord
   validates :name, presence: true
 
   def full_location
-    [city, country].compact.join(", ")
+    [ city, country ].compact.join(", ")
   end
 end
