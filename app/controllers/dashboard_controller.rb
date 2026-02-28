@@ -3,5 +3,6 @@ class DashboardController < ApplicationController
 
   def show
     skip_authorization
+    @announcement = Announcement.current.first
   end
 end
