@@ -1,0 +1,23 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white mb-6">Admin Dashboard</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700">
+      <p class="text-3xl font-bold text-sf-red"><%= @users_count %></p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Total Users</p>
+    </div>
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700">
+      <p class="text-3xl font-bold text-sf-gold"><%= @cohorts_count %></p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Cohorts</p>
+    </div>
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700">
+      <p class="text-3xl font-bold text-sf-blue"><%= @pending_invitations %></p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Pending Invitations</p>
+    </div>
+  </div>
+
+  <%= link_to new_user_invitation_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-sf-red text-white rounded-xl hover:bg-sf-red/90 font-semibold transition shadow-sm text-sm" do %>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+    Invite New Member
+  <% end %>
+</div>

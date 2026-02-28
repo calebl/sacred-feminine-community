@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Sacred Feminine Design System */
+@theme {
+  --color-sf-red: #D13835;
+  --color-sf-sand: #E4B79B;
+  --color-sf-gold: #A98747;
+  --color-sf-blue: #4B8FDE;
+  --color-sf-black: #1A1A1A;
+  --color-sf-yellow: #dba11c;
+  --color-sf-beige: #ffedcb;
+  --color-sf-green: #00e3b8;
+  --color-sf-lime: #f9f871;
+
+  --font-sans: "Mulish", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Open Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Safe area for iOS bottom nav */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Form input base styles */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+textarea,
+select {
+  @apply border-gray-300 rounded-xl shadow-sm px-4 py-3 text-sm;
+  @apply dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="date"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
+  @apply ring-sf-gold border-sf-gold;
+}

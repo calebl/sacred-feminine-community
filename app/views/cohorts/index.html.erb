@@ -1,0 +1,37 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white">My Cohorts</h1>
+    <% if current_user.admin? %>
+      <%= link_to "New Cohort", new_cohort_path, class: "px-5 py-2.5 bg-sf-red text-white rounded-xl hover:bg-sf-red/90 text-sm font-semibold transition shadow-sm" %>
+    <% end %>
+  </div>
+
+  <% if @cohorts.any? %>
+    <div class="space-y-4">
+      <% @cohorts.each do |cohort| %>
+        <%= link_to cohort_path(cohort), class: "block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6 hover:shadow-md transition" do %>
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white"><%= cohort.name %></h2>
+              <% if cohort.retreat_location.present? %>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1"><%= cohort.retreat_location %></p>
+              <% end %>
+              <% if cohort.retreat_date.present? %>
+                <p class="text-sm text-gray-400 dark:text-gray-500 mt-1"><%= cohort.retreat_date.strftime("%B %Y") %></p>
+              <% end %>
+            </div>
+            <div class="text-right">
+              <p class="text-2xl font-bold text-sf-gold"><%= cohort.members.size %></p>
+              <p class="text-xs text-gray-400 dark:text-gray-500">members</p>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-16 text-gray-400 dark:text-gray-500">
+      <p class="text-lg">No cohorts yet.</p>
+      <p class="text-sm mt-2">You'll see your retreat groups here once you're added to a cohort.</p>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,29 @@
+admin:
+  name: Admin User
+  email: admin@sacredfeminine.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  role: 1
+  invitation_accepted_at: <%= Time.current %>
+  city: Los Angeles
+  country: United States
+  show_on_map: true
+
+attendee:
+  name: Jane Attendee
+  email: jane@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  role: 0
+  invitation_accepted_at: <%= Time.current %>
+  city: Paris
+  country: France
+  show_on_map: true
+
+attendee_two:
+  name: Sarah Member
+  email: sarah@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  role: 0
+  invitation_accepted_at: <%= Time.current %>
+  city: Tokyo
+  country: Japan
+  show_on_map: false

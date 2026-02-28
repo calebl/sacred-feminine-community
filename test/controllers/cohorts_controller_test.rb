@@ -1,0 +1,92 @@
+require "test_helper"
+
+class CohortsControllerTest < ActionDispatch::IntegrationTest
+  # Index
+  test "attendee sees only their cohorts" do
+    sign_in users(:attendee)
+    get cohorts_path
+    assert_response :success
+    assert_match "Kabul Retreat", response.body
+    assert_no_match "Bali Retreat", response.body
+  end
+
+  test "admin sees all cohorts" do
+    sign_in users(:admin)
+    get cohorts_path
+    assert_response :success
+    assert_match "Kabul Retreat", response.body
+    assert_match "Bali Retreat", response.body
+  end
+
+  # Show
+  test "member can view their cohort" do
+    sign_in users(:attendee)
+    get cohort_path(cohorts(:kabul_retreat))
+    assert_response :success
+  end
+
+  test "non-member cannot view cohort" do
+    sign_in users(:attendee_two)
+    get cohort_path(cohorts(:kabul_retreat))
+    assert_redirected_to root_path
+  end
+
+  test "admin can view any cohort" do
+    sign_in users(:admin)
+    get cohort_path(cohorts(:bali_retreat))
+    assert_response :success
+  end
+
+  # Create
+  test "admin can create cohort" do
+    sign_in users(:admin)
+    assert_difference "Cohort.count" do
+      post cohorts_path, params: {
+        cohort: { name: "New Retreat", retreat_location: "Costa Rica", retreat_date: "2026-06-01" }
+      }
+    end
+    assert_redirected_to cohort_path(Cohort.last)
+  end
+
+  test "attendee cannot create cohort" do
+    sign_in users(:attendee)
+    get new_cohort_path
+    assert_redirected_to root_path
+  end
+
+  # Update
+  test "admin can update cohort" do
+    sign_in users(:admin)
+    patch cohort_path(cohorts(:kabul_retreat)), params: {
+      cohort: { name: "Updated Name" }
+    }
+    assert_redirected_to cohort_path(cohorts(:kabul_retreat))
+    assert_equal "Updated Name", cohorts(:kabul_retreat).reload.name
+  end
+
+  test "attendee cannot update cohort" do
+    sign_in users(:attendee)
+    patch cohort_path(cohorts(:kabul_retreat)), params: {
+      cohort: { name: "Hacked" }
+    }
+    assert_redirected_to root_path
+    assert_not_equal "Hacked", cohorts(:kabul_retreat).reload.name
+  end
+
+  # Destroy
+  test "admin can delete cohort" do
+    sign_in users(:admin)
+    assert_difference "Cohort.count", -1 do
+      delete cohort_path(cohorts(:bali_retreat))
+    end
+    assert_redirected_to cohorts_path
+  end
+
+  test "attendee cannot delete cohort" do
+    sign_in users(:attendee)
+    assert_no_difference "Cohort.count" do
+      delete cohort_path(cohorts(:kabul_retreat))
+    end
+    assert_redirected_to root_path
+  end
+end

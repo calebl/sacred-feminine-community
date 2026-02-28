@@ -1,0 +1,10 @@
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white mb-2">Community Map</h1>
+  <p class="text-gray-500 dark:text-gray-400 mb-6">Discover where our community members are around the world.</p>
+
+  <div
+    data-controller="map"
+    data-map-url-value="<%= api_map_pins_path(format: :json) %>"
+    class="w-full h-[600px] rounded-2xl shadow-lg border border-sf-sand/30 dark:border-gray-700"
+  ></div>
+</div>
