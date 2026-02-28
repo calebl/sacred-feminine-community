@@ -71,12 +71,12 @@ namespace :users do
 
   def prompt(label, default: nil, optional: false)
     suffix = if default
-               " [#{default}]"
-             elsif optional
-               " (optional)"
-             else
-               ""
-             end
+      " [#{default}]"
+    elsif optional
+      " (optional)"
+    else
+      ""
+    end
 
     print "#{label}#{suffix}: "
     value = $stdin.gets&.strip
