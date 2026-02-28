@@ -65,42 +65,42 @@ if Rails.env.development?
       description: "A weekend of reconnection, ceremony, and sisterhood in the Gallatin Valley.",
       retreat_location: "Bozeman, Montana",
       retreat_date: Date.new(2025, 4, 18),
-      member_indices: [0, 1, 5, 10, 14, 18]
+      member_indices: [ 0, 1, 5, 10, 14, 18 ]
     },
     {
       name: "Solstice Gathering",
       description: "Celebrating the summer solstice with fire ceremony, song, and movement.",
       retreat_location: "Livingston, Montana",
       retreat_date: Date.new(2025, 6, 21),
-      member_indices: [2, 3, 7, 8, 12, 15, 19]
+      member_indices: [ 2, 3, 7, 8, 12, 15, 19 ]
     },
     {
       name: "Mountain Women's Circle",
       description: "Monthly circle for women rooted in the Northern Rockies.",
       retreat_location: "Whitefish, Montana",
       retreat_date: Date.new(2025, 9, 5),
-      member_indices: [1, 4, 6, 9, 11, 13, 17]
+      member_indices: [ 1, 4, 6, 9, 11, 13, 17 ]
     },
     {
       name: "Desert Rose Retreat",
       description: "A deep dive into plant medicine, ceremony, and desert stillness.",
       retreat_location: "Sedona, Arizona",
       retreat_date: Date.new(2025, 10, 10),
-      member_indices: [3, 8, 12, 15, 16]
+      member_indices: [ 3, 8, 12, 15, 16 ]
     },
     {
       name: "Winter Womb Retreat 2026",
       description: "Honoring the dark season with rest, reflection, and nourishment.",
       retreat_location: "Big Sky, Montana",
       retreat_date: Date.new(2026, 1, 24),
-      member_indices: [0, 2, 5, 9, 10, 14, 17, 18, 19, 20, 22]
+      member_indices: [ 0, 2, 5, 9, 10, 14, 17, 18, 19, 20, 22 ]
     },
     {
       name: "European Sisters Circle",
       description: "Connecting women across Europe through seasonal ceremony and shared practice.",
       retreat_location: "Florence, Italy",
       retreat_date: Date.new(2026, 5, 15),
-      member_indices: [20, 21, 22, 23, 24]
+      member_indices: [ 20, 21, 22, 23, 24 ]
     }
   ]
 
