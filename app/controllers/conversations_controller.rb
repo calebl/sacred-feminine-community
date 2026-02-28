@@ -4,7 +4,7 @@ class ConversationsController < ApplicationController
   def index
     skip_authorization
     @conversations = policy_scope(Conversation)
-                       .includes(:participants, :direct_messages)
+                       .includes(:participants, :conversation_participants, direct_messages: :sender)
                        .order(updated_at: :desc)
   end
 
@@ -23,6 +23,13 @@ class ConversationsController < ApplicationController
 
   def create
     recipient = User.find(params[:recipient_id])
+
+    if recipient == current_user
+      skip_authorization
+      redirect_to conversations_path, alert: "Cannot message yourself."
+      return
+    end
+
     @conversation = Conversation.between(current_user, recipient)
     authorize @conversation, :show?
 

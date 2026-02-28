@@ -5,7 +5,7 @@ module Admin
     def show
       authorize :admin_dashboard
       @users_count = User.count
-      @cohorts_count = defined?(Cohort) ? Cohort.count : 0
+      @cohorts_count = Cohort.count
       @pending_invitations = User.invitation_not_accepted.count
     end
   end

@@ -30,7 +30,7 @@
           <h2 class="font-display font-semibold text-sf-black dark:text-white">Group Chat</h2>
         </div>
 
-        <%= turbo_stream_from "cohort_#{@cohort.id}_chat" %>
+        <%= turbo_stream_from @cohort, :chat %>
 
         <div id="chat_messages" class="h-[500px] overflow-y-auto p-4 space-y-2 flex flex-col" data-controller="scroll-bottom">
           <% if @chat_messages.present? %>
@@ -61,7 +61,7 @@
     <!-- Members sidebar -->
     <div>
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
-        <h2 class="font-display font-semibold text-sf-black dark:text-white mb-4">Members (<%= @members.size %>)</h2>
+        <h2 class="font-display font-semibold text-sf-black dark:text-white mb-4">Members (<%= @members.length %>)</h2>
         <div class="space-y-3">
           <% @members.each do |member| %>
             <div class="flex items-center justify-between">
@@ -79,7 +79,7 @@
                 </div>
               <% end %>
               <% if current_user.admin? %>
-                <%= button_to "Remove", cohort_cohort_membership_path(@cohort, member.cohort_memberships.find_by(cohort: @cohort)),
+                <%= button_to "Remove", cohort_cohort_membership_path(@cohort, @membership_ids[member.id]),
                     method: :delete,
                     class: "text-xs text-red-400 hover:text-red-600",
                     data: { turbo_confirm: "Remove #{member.name} from this cohort?" } %>
@@ -93,7 +93,7 @@
             <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">Add Member</h3>
             <%= form_with url: cohort_cohort_memberships_path(@cohort), method: :post, class: "flex gap-2" do |f| %>
               <%= f.select :user_id,
-                  User.where.not(id: @members.pluck(:id)).order(:name).pluck(:name, :id),
+                  @non_members,
                   { prompt: "Select user..." },
                   class: "flex-1 text-sm" %>
               <%= f.submit "Add", class: "px-4 py-2.5 bg-sf-red text-white rounded-xl hover:bg-sf-red/90 text-sm font-semibold transition cursor-pointer shadow-sm" %>

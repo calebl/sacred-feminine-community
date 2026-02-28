@@ -27,4 +27,14 @@ class ChatMessageTest < ActiveSupport::TestCase
     )
     assert message.valid?
   end
+
+  test "rejects body over 5000 characters" do
+    message = ChatMessage.new(
+      body: "x" * 5001,
+      cohort: cohorts(:kabul_retreat),
+      user: users(:attendee)
+    )
+    assert_not message.valid?
+    assert_includes message.errors[:body], "is too long (maximum is 5000 characters)"
+  end
 end

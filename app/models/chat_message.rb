@@ -2,11 +2,12 @@ class ChatMessage < ApplicationRecord
   belongs_to :cohort
   belongs_to :user
 
-  validates :body, presence: true
+  validates :body, presence: true, length: { maximum: 5000 }
 
   after_create_commit -> {
     broadcast_append_to(
-      "cohort_#{cohort_id}_chat",
+      cohort,
+      :chat,
       target: "chat_messages",
       partial: "chat_messages/chat_message",
       locals: { chat_message: self }

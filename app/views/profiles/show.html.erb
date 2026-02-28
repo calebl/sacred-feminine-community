@@ -27,7 +27,7 @@
       <% if @user == current_user %>
         <%= link_to "Edit Profile", edit_profile_path(@user), class: "px-5 py-2.5 bg-sf-gold text-white rounded-xl hover:bg-sf-gold/90 text-sm font-semibold transition shadow-sm" %>
       <% else %>
-        <%= link_to "Send Message", conversations_path(recipient_id: @user.id), method: :post, class: "px-5 py-2.5 bg-sf-red text-white rounded-xl hover:bg-sf-red/90 text-sm font-semibold transition shadow-sm" %>
+        <%= button_to "Send Message", conversations_path(recipient_id: @user.id), method: :post, class: "px-5 py-2.5 bg-sf-red text-white rounded-xl hover:bg-sf-red/90 text-sm font-semibold transition shadow-sm" %>
       <% end %>
     </div>
   </div>

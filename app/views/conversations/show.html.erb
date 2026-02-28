@@ -18,7 +18,7 @@
   </div>
 
   <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
-    <%= turbo_stream_from "conversation_#{@conversation.id}" %>
+    <%= turbo_stream_from @conversation %>
 
     <div id="direct_messages" class="h-[500px] overflow-y-auto p-4 space-y-2 flex flex-col" data-controller="scroll-bottom">
       <% if @messages.any? %>

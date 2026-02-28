@@ -4,11 +4,11 @@ class DirectMessage < ApplicationRecord
 
   encrypts :body
 
-  validates :body, presence: true
+  validates :body, presence: true, length: { maximum: 5000 }
 
   after_create_commit -> {
     broadcast_append_to(
-      "conversation_#{conversation_id}",
+      conversation,
       target: "direct_messages",
       partial: "direct_messages/direct_message",
       locals: { direct_message: self }

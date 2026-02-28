@@ -3,7 +3,7 @@ class ChatMessagesController < ApplicationController
   before_action :set_cohort
 
   def create
-    authorize @cohort, :show?
+    authorize @cohort, :post_message?
     @message = @cohort.chat_messages.build(message_params)
     @message.user = current_user
 

@@ -18,6 +18,11 @@ class Conversation < ApplicationRecord
         conversation
       end
     end
+  rescue ActiveRecord::RecordNotUnique
+    # Race condition: another thread created the same conversation. Retry lookup.
+    ids_a = ConversationParticipant.where(user: user_a).pluck(:conversation_id)
+    ids_b = ConversationParticipant.where(user: user_b).pluck(:conversation_id)
+    find((ids_a & ids_b).first)
   end
 
   def other_participant(user)

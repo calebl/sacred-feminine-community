@@ -16,6 +16,16 @@ class DirectMessageTest < ActiveSupport::TestCase
     assert msg.valid?
   end
 
+  test "rejects body over 5000 characters" do
+    msg = DirectMessage.new(
+      conversation: conversations(:admin_attendee_convo),
+      sender: users(:admin),
+      body: "x" * 5001
+    )
+    assert_not msg.valid?
+    assert_includes msg.errors[:body], "is too long (maximum is 5000 characters)"
+  end
+
   test "body is encrypted in the database" do
     msg = DirectMessage.create!(
       conversation: conversations(:admin_attendee_convo),

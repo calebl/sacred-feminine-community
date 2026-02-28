@@ -68,6 +68,15 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to conversation_path(Conversation.last)
   end
 
+  test "create prevents self-messaging" do
+    sign_in @admin
+    assert_no_difference "Conversation.count" do
+      post conversations_path, params: { recipient_id: @admin.id }
+    end
+    assert_redirected_to conversations_path
+    assert_equal "Cannot message yourself.", flash[:alert]
+  end
+
   test "create requires authentication" do
     post conversations_path, params: { recipient_id: @attendee.id }
     assert_redirected_to new_user_session_path

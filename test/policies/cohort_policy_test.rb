@@ -46,6 +46,16 @@ class CohortPolicyTest < ActiveSupport::TestCase
     assert_not policy.destroy?
   end
 
+  test "member can post messages" do
+    policy = CohortPolicy.new(users(:attendee), cohorts(:kabul_retreat))
+    assert policy.post_message?
+  end
+
+  test "non-member cannot post messages" do
+    policy = CohortPolicy.new(users(:attendee_two), cohorts(:kabul_retreat))
+    assert_not policy.post_message?
+  end
+
   test "admin can manage members" do
     policy = CohortPolicy.new(users(:admin), cohorts(:kabul_retreat))
     assert policy.manage_members?

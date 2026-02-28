@@ -9,11 +9,14 @@ class CohortsController < ApplicationController
 
   def show
     authorize @cohort
-    @members = @cohort.members
+    @members = @cohort.members.includes(:cohort_memberships).load
+    @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h
+    @non_members = User.where.not(id: @members.map(&:id)).order(:name).pluck(:name, :id)
     @chat_messages = @cohort.chat_messages
                             .includes(:user)
-                            .order(created_at: :asc)
-                            .last(50)
+                            .order(created_at: :desc)
+                            .limit(50)
+                            .reverse
   end
 
   def new
