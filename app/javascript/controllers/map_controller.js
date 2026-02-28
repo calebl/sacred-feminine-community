@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import L from "leaflet"
+import * as L from "leaflet"
 
 export default class extends Controller {
   static values = { url: String }
