@@ -36,5 +36,6 @@ Rails.application.routes.draw do
   # Admin
   namespace :admin do
     get "dashboard", to: "dashboard#show"
+    resource :impersonation, only: [ :create, :destroy ]
   end
 end
