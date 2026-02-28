@@ -4,7 +4,7 @@ class CohortsController < ApplicationController
 
   def index
     skip_authorization
-    @cohorts = policy_scope(Cohort).includes(:members).order(retreat_date: :desc)
+    @cohorts = policy_scope(Cohort).includes(:members).with_attached_header_image.order(retreat_date: :desc)
   end
 
   def show
@@ -62,7 +62,7 @@ class CohortsController < ApplicationController
   end
 
   def cohort_params
-    params.require(:cohort).permit(:name, :description, :retreat_location, :retreat_date)
+    params.require(:cohort).permit(:name, :description, :retreat_location, :retreat_date, :header_image)
   end
 
   def policy_scope_required?
