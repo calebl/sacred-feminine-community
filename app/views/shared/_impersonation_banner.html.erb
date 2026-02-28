@@ -1,0 +1,14 @@
+<% if impersonating? %>
+  <div class="bg-orange-500 text-white px-4 py-2 text-center text-sm font-semibold sticky top-0 z-[100] shadow-md flex items-center justify-center gap-3">
+    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+    </svg>
+    <span>
+      Impersonating <strong><%= current_user.name %></strong> (<%= current_user.email %>)
+      &mdash; signed in as <strong><%= true_current_user.name %></strong>
+    </span>
+    <%= button_to "Stop Impersonating", admin_impersonation_path, method: :delete,
+        class: "ml-2 px-3 py-1 bg-white text-orange-600 rounded-lg text-xs font-bold hover:bg-orange-50 transition-colors" %>
+  </div>
+<% end %>

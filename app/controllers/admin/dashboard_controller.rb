@@ -7,6 +7,7 @@ module Admin
       @users_count = User.count
       @cohorts_count = Cohort.count
       @pending_invitations = User.invitation_not_accepted.count
+      @users = User.order(:name) if Rails.env.local?
     end
   end
 end
