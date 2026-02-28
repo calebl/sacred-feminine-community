@@ -118,4 +118,145 @@ if Rails.env.development?
 
     puts "Seeded cohort: #{cohort.name} (#{data[:member_indices].size} members)"
   end
+
+  # --- Group Chat Messages ---
+  cohorts = Cohort.all.index_by(&:name)
+  base_time = 2.days.ago
+
+  group_chats = {
+    "Bozeman Spring Retreat 2025" => [
+      { user: attendees[0],  body: "Hey everyone! So excited for the retreat. Is anyone arriving Thursday evening?" },
+      { user: attendees[5],  body: "I'll be there Thursday! Planning to set up the altar space early Friday morning." },
+      { user: attendees[1],  body: "I won't get in until Friday around noon. Save me a spot in the opening circle?" },
+      { user: attendees[0],  body: "Of course, Sage. We'll hold space for you." },
+      { user: attendees[10], body: "I'm bringing dried lavender and rosemary from my garden if anyone wants some for their rooms." },
+      { user: attendees[14], body: "Yes please! That sounds heavenly." },
+      { user: attendees[18], body: "I can bring extra blankets and cushions for the ceremony space." },
+      { user: attendees[5],  body: "Perfect. I think we're going to have a really beautiful weekend together." },
+      { user: attendees[0],  body: "Does anyone have dietary restrictions I should know about? I'm coordinating meals." },
+      { user: attendees[1],  body: "I'm gluten-free. Thank you for checking, Luna!" }
+    ],
+    "Solstice Gathering" => [
+      { user: attendees[7],  body: "The stars are aligning beautifully for the solstice this year. Jupiter in Cancer!" },
+      { user: attendees[2],  body: "That's wonderful to hear. I've been feeling such strong energy shifts lately." },
+      { user: attendees[3],  body: "Should we plan a sunrise dance? I could lead a movement session at dawn." },
+      { user: attendees[8],  body: "I love that idea, Willow. I'll bring my hand drum." },
+      { user: attendees[12], body: "Count me in for the sunrise. I'll prepare a fire blessing beforehand." },
+      { user: attendees[15], body: "I've been painting a large canvas inspired by the solstice light. Would love to display it." },
+      { user: attendees[19], body: "This is going to be magical. What time should we gather?" },
+      { user: attendees[3],  body: "How about 5:15am? Sunrise is at 5:42 that day." },
+      { user: attendees[2],  body: "I'll bring tea and honey for everyone before we start." }
+    ],
+    "Winter Womb Retreat 2026" => [
+      { user: attendees[0],  body: "The cabin is confirmed! It has a huge fireplace and space for all of us." },
+      { user: attendees[2],  body: "That sounds so cozy. I've been craving deep rest." },
+      { user: attendees[9],  body: "I'm writing a poem for our opening ceremony. Would anyone like to share readings too?" },
+      { user: attendees[5],  body: "I have a beautiful passage about winter as a season of gestation." },
+      { user: attendees[17], body: "I can share a story about the mountain in winter. The land has so much to teach us." },
+      { user: attendees[14], body: "Has anyone done a cacao ceremony before? I'd love to facilitate one." },
+      { user: attendees[10], body: "I did one last year and it was transformative. Yes please!" },
+      { user: attendees[18], body: "I've never tried cacao ceremony but I'm very open to it." },
+      { user: attendees[0],  body: "Let's plan it for Saturday evening by the fire. Wren, can you do bodywork sessions too?" },
+      { user: attendees[14], body: "Absolutely. I'll set up a little station in the side room." },
+      { user: attendees[22], body: "Sending love from Barcelona! Can't wait to meet everyone in person." },
+      { user: attendees[20], body: "Same here from Stockholm! This will be my first retreat with this group." },
+      { user: attendees[19], body: "You're both going to love it. This community is so special." }
+    ],
+    "European Sisters Circle" => [
+      { user: attendees[24], body: "Welcome sisters! I'm so happy we're creating this European circle." },
+      { user: attendees[20], body: "Thank you for organizing this, Cosima. Florence is the perfect location." },
+      { user: attendees[21], body: "I'll be coming from Galway. Anyone want to travel together from a hub city?" },
+      { user: attendees[23], body: "I could meet in Munich and we could take the train down through the Alps." },
+      { user: attendees[22], body: "Oh that sounds lovely! I'll take the train from Barcelona too." },
+      { user: attendees[24], body: "I'll arrange a welcome dinner the evening before we officially begin." },
+      { user: attendees[20], body: "Is there anything specific I should bring? I have dried Nordic herbs." },
+      { user: attendees[24], body: "Bring whatever medicine feels right. We're weaving our traditions together." }
+    ]
+  }
+
+  group_chats.each do |cohort_name, messages|
+    cohort = cohorts[cohort_name]
+    next unless cohort
+
+    messages.each_with_index do |msg, i|
+      ChatMessage.find_or_create_by!(
+        cohort: cohort,
+        user: msg[:user],
+        body: msg[:body]
+      ) do |m|
+        m.created_at = base_time + (i * 8).minutes
+        m.updated_at = base_time + (i * 8).minutes
+      end
+    end
+
+    puts "Seeded #{messages.size} chat messages in: #{cohort_name}"
+  end
+
+  # --- Direct Message Conversations ---
+  dm_threads = [
+    {
+      between: [ attendees[0], attendees[5] ],
+      messages: [
+        { sender: attendees[0],  body: "Freya, do you have that recipe for the postpartum tea blend?" },
+        { sender: attendees[5],  body: "Yes! It's red raspberry leaf, nettle, oat straw, and a little rose petal." },
+        { sender: attendees[0],  body: "Thank you so much. My neighbor just had her baby and I want to make her a batch." },
+        { sender: attendees[5],  body: "That's so sweet. Add a pinch of chamomile too if she's having trouble sleeping." },
+        { sender: attendees[0],  body: "Will do. You're the best." },
+        { sender: attendees[5],  body: "Anytime, sister. Let me know how she likes it!" }
+      ]
+    },
+    {
+      between: [ attendees[2], attendees[3] ],
+      messages: [
+        { sender: attendees[2],  body: "Willow, I loved your movement piece at the last gathering." },
+        { sender: attendees[3],  body: "Thank you, Aria! Your meditation at the end was so grounding." },
+        { sender: attendees[2],  body: "I was thinking we could collaborate on something. Movement and acupressure combined." },
+        { sender: attendees[3],  body: "I would LOVE that. When can we meet to plan?" },
+        { sender: attendees[2],  body: "How about next Tuesday afternoon? I could come to Ashland." },
+        { sender: attendees[3],  body: "Perfect. I'll make us lunch and we can brainstorm after." },
+        { sender: attendees[2],  body: "See you then!" }
+      ]
+    },
+    {
+      between: [ attendees[20], attendees[24] ],
+      messages: [
+        { sender: attendees[20], body: "Cosima, I'm so looking forward to the Florence gathering." },
+        { sender: attendees[24], body: "Me too, Elara! I've been scouting locations around the city." },
+        { sender: attendees[20], body: "Is there anything I can help with from here?" },
+        { sender: attendees[24], body: "Actually, could you connect me with Maeve? I'd love to include some Celtic elements." },
+        { sender: attendees[20], body: "Of course! I'll introduce you two." },
+        { sender: attendees[24], body: "Wonderful. This is going to be such a rich weaving of traditions." }
+      ]
+    },
+    {
+      between: [ admin, attendees[0] ],
+      messages: [
+        { sender: admin,         body: "Luna, just wanted to check in on the Spring Retreat logistics." },
+        { sender: attendees[0],  body: "Everything's on track! Venue is confirmed, meal plan is set." },
+        { sender: admin,         body: "Great. Do you need me to send out any reminders to the group?" },
+        { sender: attendees[0],  body: "That would be helpful. Maybe a reminder about arrival times and what to bring?" },
+        { sender: admin,         body: "I'll draft something tonight and send it out tomorrow." },
+        { sender: attendees[0],  body: "Thank you for all your support with this." }
+      ]
+    }
+  ]
+
+  dm_threads.each do |thread|
+    conversation = Conversation.between(thread[:between][0], thread[:between][1])
+
+    next if conversation.direct_messages.any?
+
+    thread[:messages].each_with_index do |msg, i|
+      conversation.direct_messages.create!(
+        sender: msg[:sender],
+        body: msg[:body],
+        created_at: base_time + (i * 5).minutes,
+        updated_at: base_time + (i * 5).minutes
+      )
+    end
+
+    conversation.touch
+
+    puts "Seeded DM conversation between #{thread[:between].map(&:name).join(' and ')}"
+  end
 end

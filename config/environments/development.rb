@@ -79,4 +79,9 @@ Rails.application.configure do
   # Use Solid Queue for background jobs in development.
   config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
+
+  # Active Record encryption keys for development (mirrors test config).
+  config.active_record.encryption.primary_key = "dev-primary-key-that-is-at-least-twelve-bytes"
+  config.active_record.encryption.deterministic_key = "dev-deterministic-key-at-least-twelve-bytes"
+  config.active_record.encryption.key_derivation_salt = "dev-key-derivation-salt-value"
 end
