@@ -41,7 +41,7 @@
 
         <%= turbo_stream_from @cohort, :chat %>
 
-        <div id="chat_messages" class="h-[500px] overflow-y-auto p-4 space-y-2 flex flex-col" data-controller="scroll-bottom">
+        <div id="chat_messages" class="h-[500px] overflow-y-auto p-4 space-y-2 flex flex-col" data-controller="scroll-bottom chat-alignment" data-chat-alignment-user-id-value="<%= current_user.id %>">
           <% if @chat_messages.present? %>
             <%= render @chat_messages %>
           <% else %>
