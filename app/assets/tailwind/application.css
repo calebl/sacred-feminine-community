@@ -2,6 +2,18 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@font-face {
+  font-family: "Psych";
+  src: url("/psych.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bagnard";
+  src: url("/bagnard.otf") format("opentype");
+  font-display: swap;
+}
+
 /* Sacred Feminine Design System */
 @theme {
   --color-sf-red: #D13835;
@@ -15,8 +27,8 @@
   --color-sf-lime: #f9f871;
 
   --font-sans: "Mulish", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Open Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Psych", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Bagnard", Georgia, "Times New Roman", serif;
 }
 
 /* Safe area for iOS bottom nav */
