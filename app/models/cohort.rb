@@ -3,6 +3,7 @@ class Cohort < ApplicationRecord
   has_many :cohort_memberships, dependent: :destroy
   has_many :members, through: :cohort_memberships, source: :user
   has_many :chat_messages, dependent: :destroy
+  has_one_attached :header_image
 
   validates :name, presence: true
 

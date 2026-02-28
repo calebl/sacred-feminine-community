@@ -62,7 +62,7 @@ class CohortsController < ApplicationController
   end
 
   def cohort_params
-    params.require(:cohort).permit(:name, :description, :retreat_location, :retreat_date)
+    params.require(:cohort).permit(:name, :description, :retreat_location, :retreat_date, :header_image)
   end
 
   def policy_scope_required?
