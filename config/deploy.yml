@@ -36,8 +36,9 @@ aliases:
   dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
 
 # Persistent volume for SQLite databases and Active Storage files
+# Bind mount to Hetzner Cloud Volume at /mnt/file-storage
 volumes:
-  - "sacred-feminine_storage:/rails/storage"
+  - "/mnt/file-storage:/rails/storage"
 
 asset_path: /rails/public/assets
 
