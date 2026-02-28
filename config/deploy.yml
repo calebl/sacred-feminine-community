@@ -1,0 +1,45 @@
+service: sacred-feminine
+image: sacred-feminine
+
+servers:
+  web:
+    - 192.168.0.1
+  # job:
+  #   hosts:
+  #     - 192.168.0.1
+  #   cmd: bin/jobs
+
+proxy:
+  ssl: true
+  host: app.example.com
+
+registry:
+  server: ghcr.io
+  username:
+    - KAMAL_REGISTRY_USERNAME
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+env:
+  secret:
+    - RAILS_MASTER_KEY
+    - RESEND_API_KEY
+  clear:
+    SOLID_QUEUE_IN_PUMA: true
+    # Update with your actual domain before deploying:
+    APP_HOST: app.example.com
+
+aliases:
+  console: app exec --interactive --reuse "bin/rails console"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
+
+# Persistent volume for SQLite databases and Active Storage files
+volumes:
+  - "sacred-feminine_storage:/rails/storage"
+
+asset_path: /rails/public/assets
+
+builder:
+  arch: amd64

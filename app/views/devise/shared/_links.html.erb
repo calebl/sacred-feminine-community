@@ -1,0 +1,11 @@
+<%- if controller_name != 'sessions' %>
+  <div>
+    <%= link_to "Sign in", new_session_path(resource_name), class: "text-sm text-sf-gold hover:text-sf-gold/80 transition" %>
+  </div>
+<% end %>
+
+<%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+  <div>
+    <%= link_to "Forgot your password?", new_password_path(resource_name), class: "text-sm text-sf-gold hover:text-sf-gold/80 transition" %>
+  </div>
+<% end %>

@@ -1,0 +1,11 @@
+admin_in_kabul:
+  user: admin
+  cohort: kabul_retreat
+
+attendee_in_kabul:
+  user: attendee
+  cohort: kabul_retreat
+
+admin_in_bali:
+  user: admin
+  cohort: bali_retreat

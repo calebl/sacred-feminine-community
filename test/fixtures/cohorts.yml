@@ -1,0 +1,13 @@
+kabul_retreat:
+  name: Kabul Retreat 2025
+  description: Sacred Feminine retreat in Kabul, Morocco
+  retreat_location: Kabul, Morocco
+  retreat_date: 2025-09-15
+  created_by_id: <%= ActiveRecord::FixtureSet.identify(:admin) %>
+
+bali_retreat:
+  name: Bali Retreat 2024
+  description: Sacred Feminine retreat in Bali
+  retreat_location: Ubud, Bali
+  retreat_date: 2024-03-01
+  created_by_id: <%= ActiveRecord::FixtureSet.identify(:admin) %>

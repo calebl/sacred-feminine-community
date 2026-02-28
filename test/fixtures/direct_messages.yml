@@ -1,0 +1,2 @@
+# Direct messages fixtures intentionally empty - created in tests
+# (encrypted fields don't work well in YAML fixtures)

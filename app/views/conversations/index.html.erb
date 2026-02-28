@@ -1,0 +1,45 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white mb-6">Messages</h1>
+
+  <% if @conversations.any? %>
+    <div class="space-y-2">
+      <% @conversations.each do |conversation| %>
+        <% other = conversation.other_participant(current_user) %>
+        <% next unless other %>
+        <% last_msg = conversation.last_message %>
+        <% unread = conversation.unread_count(current_user) %>
+
+        <%= link_to conversation_path(conversation), class: "block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-4 hover:shadow-md transition" do %>
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-lg font-bold text-sf-black dark:text-white flex-shrink-0">
+              <% if other.avatar.attached? %>
+                <%= image_tag other.avatar.variant(resize_to_fill: [48, 48]), class: "w-12 h-12 rounded-full object-cover" %>
+              <% else %>
+                <%= other.name.first.upcase %>
+              <% end %>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <p class="font-semibold text-sf-black dark:text-white truncate"><%= other.name %></p>
+                <% if last_msg %>
+                  <p class="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0"><%= time_ago_in_words(last_msg.created_at) %> ago</p>
+                <% end %>
+              </div>
+              <% if last_msg %>
+                <p class="text-sm text-gray-500 dark:text-gray-400 truncate mt-1"><%= last_msg.body.truncate(80) %></p>
+              <% end %>
+            </div>
+            <% if unread > 0 %>
+              <span class="bg-sf-red text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0"><%= unread %></span>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-16 text-gray-400 dark:text-gray-500">
+      <p class="text-lg">No messages yet.</p>
+      <p class="text-sm mt-2">Start a conversation from someone's profile.</p>
+    </div>
+  <% end %>
+</div>
