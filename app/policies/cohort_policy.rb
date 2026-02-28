@@ -30,9 +30,10 @@ class CohortPolicy < ApplicationPolicy
   class Scope < ApplicationPolicy::Scope
     def resolve
       if user.admin?
-        scope.all
+        scope.kept
       else
-        scope.joins(:cohort_memberships)
+        scope.kept
+             .joins(:cohort_memberships)
              .where(cohort_memberships: { user_id: user.id })
       end
     end

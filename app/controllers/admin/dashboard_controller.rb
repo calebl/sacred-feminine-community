@@ -5,7 +5,7 @@ module Admin
     def show
       authorize :admin_dashboard
       @users_count = User.count
-      @cohorts_count = Cohort.count
+      @cohorts_count = Cohort.kept.count
       @pending_invitations = User.invitation_not_accepted.count
       @users = User.order(:name) if Rails.env.local?
     end

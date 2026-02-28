@@ -1,4 +1,6 @@
 class CohortMembership < ApplicationRecord
+  audited associated_with: :cohort
+
   belongs_to :user
   belongs_to :cohort
 

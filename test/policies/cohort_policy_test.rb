@@ -66,9 +66,9 @@ class CohortPolicyTest < ActiveSupport::TestCase
     assert_not policy.manage_members?
   end
 
-  test "scope returns all cohorts for admin" do
+  test "scope returns all kept cohorts for admin" do
     scope = CohortPolicy::Scope.new(users(:admin), Cohort).resolve
-    assert_equal Cohort.count, scope.count
+    assert_equal Cohort.kept.count, scope.count
   end
 
   test "scope returns only member cohorts for attendee" do
@@ -85,5 +85,17 @@ class CohortPolicyTest < ActiveSupport::TestCase
   test "anyone can view index" do
     policy = CohortPolicy.new(users(:attendee), Cohort.new)
     assert policy.index?
+  end
+
+  test "scope excludes soft-deleted cohorts for admin" do
+    cohorts(:bali_retreat).discard
+    scope = CohortPolicy::Scope.new(users(:admin), Cohort).resolve
+    assert_not_includes scope, cohorts(:bali_retreat)
+  end
+
+  test "scope excludes soft-deleted cohorts for attendee" do
+    cohorts(:kabul_retreat).discard
+    scope = CohortPolicy::Scope.new(users(:attendee), Cohort).resolve
+    assert_not_includes scope, cohorts(:kabul_retreat)
   end
 end
