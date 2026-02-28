@@ -9,6 +9,16 @@ services:
     volumes:
       - .:/rails
       - storage:/rails/storage
+  jobs:
+    build: .
+    command: bin/jobs
+    environment:
+      RAILS_ENV: development
+    volumes:
+      - .:/rails
+      - storage:/rails/storage
+    depends_on:
+      - web
 
 volumes:
   storage:

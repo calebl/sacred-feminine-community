@@ -8,7 +8,7 @@ Rails.application.configure do
   config.content_security_policy do |policy|
     policy.default_src :self
     policy.font_src    :self, "https://fonts.gstatic.com"
-    policy.img_src     :self, :data, :blob, "https://*.tile.openstreetmap.org"
+    policy.img_src     :self, :data, :blob, "https://*.tile.openstreetmap.org", "https://unpkg.com"
     policy.object_src  :none
     policy.script_src  :self
     policy.style_src   :self, "https://fonts.googleapis.com", "https://unpkg.com"
