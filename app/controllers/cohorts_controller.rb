@@ -51,14 +51,14 @@ class CohortsController < ApplicationController
 
   def destroy
     authorize @cohort
-    @cohort.destroy
-    redirect_to cohorts_path, notice: "Cohort deleted."
+    @cohort.discard
+    redirect_to cohorts_path, notice: "Cohort archived."
   end
 
   private
 
   def set_cohort
-    @cohort = Cohort.find(params[:id])
+    @cohort = Cohort.kept.find(params[:id])
   end
 
   def cohort_params

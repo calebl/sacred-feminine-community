@@ -73,21 +73,37 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
     assert_not_equal "Hacked", cohorts(:kabul_retreat).reload.name
   end
 
-  # Destroy
-  test "admin can delete cohort" do
+  # Destroy (soft-delete)
+  test "admin can archive cohort" do
     sign_in users(:admin)
-    assert_difference "Cohort.count", -1 do
-      delete cohort_path(cohorts(:bali_retreat))
+    cohort = cohorts(:bali_retreat)
+
+    assert_no_difference "Cohort.count" do
+      delete cohort_path(cohort)
     end
+
     assert_redirected_to cohorts_path
+    assert_equal "Cohort archived.", flash[:notice]
+    assert cohort.reload.discarded?
   end
 
-  test "attendee cannot delete cohort" do
+  test "attendee cannot archive cohort" do
     sign_in users(:attendee)
-    assert_no_difference "Cohort.count" do
-      delete cohort_path(cohorts(:kabul_retreat))
-    end
+    cohort = cohorts(:kabul_retreat)
+
+    delete cohort_path(cohort)
+
     assert_redirected_to root_path
+    assert_not cohort.reload.discarded?
+  end
+
+  test "archived cohort is not accessible" do
+    sign_in users(:admin)
+    cohort = cohorts(:bali_retreat)
+    cohort.discard
+
+    get cohort_path(cohort)
+    assert_response :not_found
   end
 
   # Edit

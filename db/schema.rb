@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_28_211719) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_28_212522) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -51,6 +51,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_28_211719) do
     t.index ["created_by_id"], name: "index_announcements_on_created_by_id"
   end
 
+  create_table "audits", force: :cascade do |t|
+    t.string "action"
+    t.integer "associated_id"
+    t.string "associated_type"
+    t.integer "auditable_id"
+    t.string "auditable_type"
+    t.json "audited_changes"
+    t.string "comment"
+    t.datetime "created_at"
+    t.string "remote_address"
+    t.string "request_uuid"
+    t.integer "user_id"
+    t.string "user_type"
+    t.string "username"
+    t.integer "version", default: 0
+    t.index ["associated_type", "associated_id"], name: "associated_index"
+    t.index ["auditable_type", "auditable_id", "version"], name: "auditable_index"
+    t.index ["created_at"], name: "index_audits_on_created_at"
+    t.index ["request_uuid"], name: "index_audits_on_request_uuid"
+    t.index ["user_id", "user_type"], name: "user_index"
+  end
+
   create_table "chat_messages", force: :cascade do |t|
     t.text "body", null: false
     t.integer "cohort_id", null: false
@@ -77,11 +99,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_28_211719) do
     t.datetime "created_at", null: false
     t.integer "created_by_id", null: false
     t.text "description"
+    t.datetime "discarded_at"
     t.string "name", null: false
     t.date "retreat_date"
     t.string "retreat_location"
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_cohorts_on_created_by_id"
+    t.index ["discarded_at"], name: "index_cohorts_on_discarded_at"
   end
 
   create_table "conversation_participants", force: :cascade do |t|

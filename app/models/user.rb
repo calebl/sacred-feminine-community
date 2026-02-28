@@ -2,10 +2,14 @@ class User < ApplicationRecord
   devise :invitable, :database_authenticatable,
          :recoverable, :rememberable, :validatable
 
+  audited except: [ :encrypted_password, :reset_password_token, :reset_password_sent_at,
+                    :remember_created_at, :invitation_token, :invitation_sent_at,
+                    :invitation_accepted_at, :invitation_created_at ]
+
   enum :role, { attendee: 0, admin: 1 }
 
   has_many :cohort_memberships, dependent: :destroy
-  has_many :cohorts, through: :cohort_memberships
+  has_many :cohorts, -> { kept }, through: :cohort_memberships
   has_many :chat_messages, dependent: :destroy
   has_many :created_cohorts, class_name: "Cohort", foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
   has_many :announcements, foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator

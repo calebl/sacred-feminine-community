@@ -44,4 +44,52 @@ class CohortTest < ActiveSupport::TestCase
     cohort.header_image.attach(io: StringIO.new("fake"), filename: "photo.jpg", content_type: "image/jpeg")
     assert cohort.valid?
   end
+
+  # Soft-delete
+  test "soft-delete sets discarded_at" do
+    cohort = cohorts(:bali_retreat)
+    assert_nil cohort.discarded_at
+    cohort.discard
+    assert_not_nil cohort.reload.discarded_at
+    assert cohort.discarded?
+  end
+
+  test "soft-deleted cohort is excluded from kept scope" do
+    cohort = cohorts(:bali_retreat)
+    assert_includes Cohort.kept, cohort
+    cohort.discard
+    assert_not_includes Cohort.kept, cohort
+  end
+
+  test "soft-delete preserves memberships" do
+    cohort = cohorts(:kabul_retreat)
+    membership_count = cohort.cohort_memberships.count
+    assert membership_count > 0
+    cohort.discard
+    assert_equal membership_count, CohortMembership.where(cohort_id: cohort.id).count
+  end
+
+  test "soft-delete preserves chat messages" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.chat_messages.create!(user: users(:admin), body: "Test message")
+    message_count = cohort.chat_messages.count
+    cohort.discard
+    assert_equal message_count, ChatMessage.where(cohort_id: cohort.id).count
+  end
+
+  test "undiscard restores cohort" do
+    cohort = cohorts(:bali_retreat)
+    cohort.discard
+    assert cohort.discarded?
+    cohort.undiscard
+    assert cohort.kept?
+    assert_nil cohort.discarded_at
+  end
+
+  # Auditing
+  test "creates audit on cohort update" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.update!(name: "Updated Name")
+    assert cohort.audits.where(action: "update").exists?
+  end
 end

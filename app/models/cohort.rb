@@ -1,8 +1,13 @@
 class Cohort < ApplicationRecord
+  include Discard::Model
+
+  audited
+  has_associated_audits
+
   belongs_to :creator, class_name: "User", foreign_key: :created_by_id, inverse_of: :created_cohorts
-  has_many :cohort_memberships, dependent: :destroy
+  has_many :cohort_memberships
   has_many :members, through: :cohort_memberships, source: :user
-  has_many :chat_messages, dependent: :destroy
+  has_many :chat_messages
   has_one_attached :header_image
 
   validates :name, presence: true

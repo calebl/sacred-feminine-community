@@ -20,7 +20,7 @@ class ChatMessagesController < ApplicationController
   private
 
   def set_cohort
-    @cohort = Cohort.find(params[:cohort_id])
+    @cohort = Cohort.kept.find(params[:cohort_id])
   end
 
   def message_params
