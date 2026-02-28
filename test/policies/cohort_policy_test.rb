@@ -81,4 +81,9 @@ class CohortPolicyTest < ActiveSupport::TestCase
     scope = CohortPolicy::Scope.new(users(:attendee_two), Cohort).resolve
     assert_empty scope
   end
+
+  test "anyone can view index" do
+    policy = CohortPolicy.new(users(:attendee), Cohort.new)
+    assert policy.index?
+  end
 end

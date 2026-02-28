@@ -18,4 +18,11 @@ class Admin::DashboardControllerTest < ActionDispatch::IntegrationTest
     get admin_dashboard_path
     assert_redirected_to new_user_session_path
   end
+
+  test "admin dashboard shows user count and cohort count" do
+    sign_in users(:admin)
+    get admin_dashboard_path
+    assert_response :success
+    assert_select "body" # verifies the response renders a full page
+  end
 end

@@ -38,4 +38,25 @@ class ConversationTest < ActiveSupport::TestCase
 
     assert_equal 1, convo.unread_count(users(:admin))
   end
+
+  test "unread_count counts all messages when last_read_at is nil" do
+    convo = conversations(:admin_attendee_convo)
+    convo.direct_messages.create!(sender: users(:attendee), body: "First message")
+    convo.direct_messages.create!(sender: users(:attendee), body: "Second message")
+
+    assert_equal 2, convo.unread_count(users(:admin))
+  end
+
+  test "last_message returns the most recent direct message" do
+    convo = conversations(:admin_attendee_convo)
+    convo.direct_messages.create!(sender: users(:admin), body: "First")
+    last = convo.direct_messages.create!(sender: users(:attendee), body: "Second")
+
+    assert_equal last, convo.last_message
+  end
+
+  test "last_message returns nil when no messages" do
+    convo = conversations(:admin_attendee_convo)
+    assert_nil convo.last_message
+  end
 end
