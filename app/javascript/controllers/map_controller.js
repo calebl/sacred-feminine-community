@@ -26,13 +26,30 @@ export default class extends Controller {
 
     pins.forEach(pin => {
       const marker = L.marker([pin.lat, pin.lng]).addTo(this.map)
-      marker.bindPopup(`
-        <div class="text-center">
-          <strong>${pin.name}</strong><br>
-          <span class="text-gray-500">${pin.city}, ${pin.country}</span><br>
-          <a href="/profiles/${pin.id}" class="text-blue-600 text-sm">View Profile</a>
-        </div>
-      `)
+
+      const container = document.createElement("div")
+      container.className = "text-center"
+
+      const name = document.createElement("strong")
+      name.textContent = pin.name
+      container.appendChild(name)
+
+      container.appendChild(document.createElement("br"))
+
+      const location = document.createElement("span")
+      location.className = "text-gray-500"
+      location.textContent = `${pin.city}, ${pin.country}`
+      container.appendChild(location)
+
+      container.appendChild(document.createElement("br"))
+
+      const link = document.createElement("a")
+      link.href = `/profiles/${encodeURIComponent(pin.id)}`
+      link.className = "text-blue-600 text-sm"
+      link.textContent = "View Profile"
+      container.appendChild(link)
+
+      marker.bindPopup(container)
     })
 
     if (pins.length > 0) {

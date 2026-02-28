@@ -82,19 +82,16 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # Configure with your actual domain before deploying:
-  # config.hosts = [
-  #   "yourdomain.com",
-  #   /.*\.yourdomain\.com/
-  # ]
+  config.hosts = [
+    ENV.fetch("APP_HOST", "app.example.com"),
+    /.*\.#{Regexp.escape(ENV.fetch("APP_HOST", "app.example.com"))}/
+  ]
 
   # Skip DNS rebinding protection for the default health check endpoint.
   config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 
   # ActionCable configuration for WebSocket connections.
-  # Update with your actual domain before deploying:
-  # config.action_cable.allowed_request_origins = [
-  #   "https://yourdomain.com",
-  #   "https://www.yourdomain.com"
-  # ]
+  config.action_cable.allowed_request_origins = [
+    "https://#{ENV.fetch("APP_HOST", "app.example.com")}"
+  ]
 end
