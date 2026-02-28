@@ -4,7 +4,7 @@ class CohortsController < ApplicationController
 
   def index
     skip_authorization
-    @cohorts = policy_scope(Cohort).includes(:members).order(retreat_date: :desc)
+    @cohorts = policy_scope(Cohort).includes(:members).with_attached_header_image.order(retreat_date: :desc)
   end
 
   def show
