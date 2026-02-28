@@ -1,0 +1,31 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white"><%= @announcement.title %></h1>
+    <% if @announcement.scheduled? %>
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Scheduled</span>
+    <% elsif @announcement.active? %>
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Live</span>
+    <% end %>
+  </div>
+
+  <%= link_to "Back to Announcements", admin_announcements_path, class: "text-sm text-sf-blue hover:underline mb-6 inline-block" %>
+
+  <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700">
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+      By <%= @announcement.creator.name %> &middot;
+      <% if @announcement.published_at %>
+        <%= @announcement.published_at.strftime("%B %d, %Y at %I:%M %p") %>
+      <% else %>
+        Draft
+      <% end %>
+    </p>
+    <div class="prose dark:prose-invert max-w-none">
+      <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= @announcement.body %></p>
+    </div>
+  </div>
+
+  <div class="mt-6 flex items-center gap-4">
+    <%= link_to "Edit", edit_admin_announcement_path(@announcement), class: "px-5 py-2.5 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white font-semibold text-sm transition shadow-sm" %>
+    <%= button_to "Delete", admin_announcement_path(@announcement), method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "px-5 py-2.5 bg-sf-red/10 text-sf-red rounded-xl hover:bg-sf-red hover:text-white font-semibold text-sm transition cursor-pointer" %>
+  </div>
+</div>
