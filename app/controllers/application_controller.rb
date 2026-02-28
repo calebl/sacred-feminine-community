@@ -9,6 +9,28 @@ class ApplicationController < ActionController::Base
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
+  helper_method :impersonating?, :true_current_user
+
+  def current_user
+    if impersonating?
+      @impersonated_user ||= User.find_by(id: session[:impersonated_user_id])
+    else
+      super
+    end
+  end
+
+  def true_current_user
+    if session[:admin_user_id].present?
+      @true_current_user ||= User.find_by(id: session[:admin_user_id])
+    else
+      warden.authenticate(scope: :user)
+    end
+  end
+
+  def impersonating?
+    Rails.env.local? && session[:impersonated_user_id].present? && session[:admin_user_id].present?
+  end
+
   private
 
   def user_not_authorized
