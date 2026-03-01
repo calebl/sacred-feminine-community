@@ -106,6 +106,19 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  # Mark as read
+  test "show marks group chat as read" do
+    sign_in users(:attendee)
+    cohort = cohorts(:kabul_retreat)
+    membership = cohort.cohort_memberships.find_by(user: users(:attendee))
+    assert_nil membership.last_read_at
+
+    get cohort_path(cohort)
+
+    membership.reload
+    assert_not_nil membership.last_read_at
+  end
+
   # Edit
   test "admin can access edit form" do
     sign_in users(:admin)

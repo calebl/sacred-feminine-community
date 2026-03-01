@@ -12,8 +12,10 @@ class ConversationsController < ApplicationController
     @conversation = Conversation.find(params[:id])
     authorize @conversation
 
-    participant = @conversation.conversation_participants.find_by(user: current_user)
-    participant&.update(last_read_at: Time.current)
+    unless request.headers["Purpose"] == "prefetch"
+      participant = @conversation.conversation_participants.find_by(user: current_user)
+      participant&.update(last_read_at: Time.current)
+    end
 
     @messages = @conversation.direct_messages
                               .includes(:sender)

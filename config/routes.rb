@@ -28,6 +28,9 @@ Rails.application.routes.draw do
     resources :chat_messages, only: [ :create ]
   end
 
+  # Notifications
+  resource :notifications, only: [ :show ]
+
   # Direct Messages
   resources :conversations, only: [ :index, :show, :create ] do
     resources :direct_messages, only: [ :create ]
