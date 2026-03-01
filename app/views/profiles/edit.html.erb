@@ -42,6 +42,11 @@
 
       <div>
         <%= f.label :avatar, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <% if @user.avatar.attached? %>
+          <div class="mb-3">
+            <%= image_tag @user.avatar.variant(:display), class: "w-16 h-16 rounded-full object-cover" %>
+          </div>
+        <% end %>
         <%= f.file_field :avatar, accept: "image/*", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sf-sand/30 file:text-sf-gold hover:file:bg-sf-sand/50 dark:file:bg-gray-700 dark:file:text-sf-sand" %>
       </div>
 
