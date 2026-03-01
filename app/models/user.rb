@@ -45,6 +45,12 @@ class User < ApplicationRecord
     discarded? ? :account_removed : super
   end
 
+  # Deliver Devise emails (invitation, password reset, etc.) asynchronously
+  # so SMTP timeouts don't cause 500 errors during requests.
+  def send_devise_notification(notification, *args)
+    devise_mailer.send(notification, self, *args).deliver_later
+  end
+
   private
 
   def enqueue_geocode
