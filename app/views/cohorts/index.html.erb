@@ -11,9 +11,9 @@
       <% @cohorts.each do |cohort| %>
         <%= link_to cohort_path(cohort), class: "block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden hover:shadow-md transition" do %>
           <% if cohort.header_image.attached? %>
-            <%= image_tag cohort.header_image.variant(resize_to_limit: [800, 200]), class: "w-full h-32 object-cover" %>
+            <%= image_tag cohort.header_image.variant(resize_to_limit: [2400, 800]), class: "w-full" %>
           <% else %>
-            <%= render "header_image_placeholder", compact: true %>
+            <%= render "header_image_placeholder" %>
           <% end %>
           <div class="p-6">
             <div class="flex items-center justify-between">
