@@ -9,6 +9,10 @@ class CohortsController < ApplicationController
 
   def show
     authorize @cohort
+    unless request.headers["Purpose"] == "prefetch"
+      membership = @cohort.cohort_memberships.find_by(user: current_user)
+      membership&.update(last_read_at: Time.current)
+    end
     @members = @cohort.members.includes(:cohort_memberships).load
     @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h
     @non_members = User.where.not(id: @members.map(&:id)).order(:name).pluck(:name, :id)

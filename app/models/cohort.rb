@@ -17,6 +17,18 @@ class Cohort < ApplicationRecord
     cohort_memberships.exists?(user_id: user.id)
   end
 
+  def unread_count(user)
+    membership = cohort_memberships.find_by(user: user)
+    return 0 unless membership
+
+    messages = chat_messages.where.not(user: user)
+    if membership.last_read_at
+      messages.where("created_at > ?", membership.last_read_at).count
+    else
+      messages.count
+    end
+  end
+
   private
 
   def acceptable_header_image

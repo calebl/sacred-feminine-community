@@ -37,10 +37,11 @@ class Conversation < ApplicationRecord
     participant = conversation_participants.find_by(user: user)
     return 0 unless participant
 
+    messages = direct_messages.where.not(sender: user)
     if participant.last_read_at
-      direct_messages.where("created_at > ?", participant.last_read_at).count
+      messages.where("created_at > ?", participant.last_read_at).count
     else
-      direct_messages.count
+      messages.count
     end
   end
 end

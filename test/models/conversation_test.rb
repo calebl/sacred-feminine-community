@@ -47,6 +47,25 @@ class ConversationTest < ActiveSupport::TestCase
     assert_equal 2, convo.unread_count(users(:admin))
   end
 
+  test "unread_count excludes messages sent by the user" do
+    convo = conversations(:admin_attendee_convo)
+    participant = convo.conversation_participants.find_by(user: users(:admin))
+    participant.update!(last_read_at: 1.hour.ago)
+
+    convo.direct_messages.create!(sender: users(:attendee), body: "From attendee")
+    convo.direct_messages.create!(sender: users(:admin), body: "From admin")
+
+    assert_equal 1, convo.unread_count(users(:admin))
+  end
+
+  test "unread_count excludes own messages when last_read_at is nil" do
+    convo = conversations(:admin_attendee_convo)
+    convo.direct_messages.create!(sender: users(:attendee), body: "From attendee")
+    convo.direct_messages.create!(sender: users(:admin), body: "From admin")
+
+    assert_equal 1, convo.unread_count(users(:admin))
+  end
+
   test "last_message returns the most recent direct message" do
     convo = conversations(:admin_attendee_convo)
     convo.direct_messages.create!(sender: users(:admin), body: "First")
