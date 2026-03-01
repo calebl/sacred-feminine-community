@@ -34,6 +34,15 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "New Member", invited.name
   end
 
+  test "invitation email is enqueued for async delivery" do
+    sign_in users(:admin)
+    assert_enqueued_emails 1 do
+      post user_invitation_path, params: {
+        user: { email: "async@example.com", name: "Async Test" }
+      }
+    end
+  end
+
   test "attendee cannot send invitation" do
     sign_in users(:attendee)
     assert_no_difference "User.count" do
