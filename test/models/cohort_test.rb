@@ -45,6 +45,64 @@ class CohortTest < ActiveSupport::TestCase
     assert cohort.valid?
   end
 
+  # Date range validation
+  test "rejects end date before start date" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.retreat_start_date = Date.new(2025, 9, 15)
+    cohort.retreat_end_date = Date.new(2025, 9, 10)
+    assert_not cohort.valid?
+    assert_includes cohort.errors[:retreat_end_date], "must be on or after the start date"
+  end
+
+  test "accepts end date equal to start date" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.retreat_start_date = Date.new(2025, 9, 15)
+    cohort.retreat_end_date = Date.new(2025, 9, 15)
+    assert cohort.valid?
+  end
+
+  test "allows blank end date" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.retreat_end_date = nil
+    assert cohort.valid?
+  end
+
+  # Date range formatting
+  test "formatted_date_range with same month" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.retreat_start_date = Date.new(2025, 10, 5)
+    cohort.retreat_end_date = Date.new(2025, 10, 7)
+    assert_equal "Oct 5 – 7, 2025", cohort.formatted_date_range
+  end
+
+  test "formatted_date_range with different months" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.retreat_start_date = Date.new(2025, 10, 30)
+    cohort.retreat_end_date = Date.new(2025, 11, 3)
+    assert_equal "Oct 30 – Nov 3, 2025", cohort.formatted_date_range
+  end
+
+  test "formatted_date_range with different years" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.retreat_start_date = Date.new(2025, 12, 30)
+    cohort.retreat_end_date = Date.new(2026, 1, 3)
+    assert_equal "Dec 30, 2025 – Jan 3, 2026", cohort.formatted_date_range
+  end
+
+  test "formatted_date_range with no end date" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.retreat_start_date = Date.new(2025, 10, 5)
+    cohort.retreat_end_date = nil
+    assert_equal "Oct 5, 2025", cohort.formatted_date_range
+  end
+
+  test "formatted_date_range with no start date" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.retreat_start_date = nil
+    cohort.retreat_end_date = nil
+    assert_nil cohort.formatted_date_range
+  end
+
   # Soft-delete
   test "soft-delete sets discarded_at" do
     cohort = cohorts(:bali_retreat)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_01_023624) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_01_024835) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -102,8 +102,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_023624) do
     t.text "description"
     t.datetime "discarded_at"
     t.string "name", null: false
-    t.date "retreat_date"
+    t.date "retreat_end_date"
     t.string "retreat_location"
+    t.date "retreat_start_date"
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_cohorts_on_created_by_id"
     t.index ["discarded_at"], name: "index_cohorts_on_discarded_at"

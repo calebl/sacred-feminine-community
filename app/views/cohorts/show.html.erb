@@ -14,8 +14,8 @@
       <% if @cohort.retreat_location.present? %>
         <p class="text-gray-500 dark:text-gray-400 mt-1"><%= @cohort.retreat_location %></p>
       <% end %>
-      <% if @cohort.retreat_date.present? %>
-        <p class="text-sm text-gray-400 dark:text-gray-500"><%= @cohort.retreat_date.strftime("%B %d, %Y") %></p>
+      <% if @cohort.formatted_date_range %>
+        <p class="text-sm text-gray-400 dark:text-gray-500"><%= @cohort.formatted_date_range %></p>
       <% end %>
     </div>
     <% if current_user.admin? %>
