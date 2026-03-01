@@ -91,4 +91,16 @@ class UserTest < ActiveSupport::TestCase
     assert_not user.valid?
     assert_includes user.errors[:avatar], "must be less than 5MB"
   end
+
+  test "avatar has a display variant" do
+    user = users(:attendee)
+    user.avatar.attach(
+      io: file_fixture("avatar.png").open,
+      filename: "avatar.png",
+      content_type: "image/png"
+    )
+    assert user.avatar.attached?
+    variant = user.avatar.variant(:display)
+    assert_not_nil variant
+  end
 end

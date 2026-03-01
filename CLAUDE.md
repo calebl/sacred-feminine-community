@@ -78,6 +78,7 @@ rake users:list
 - Fixtures for all models
 - Geocoder is stubbed in test_helper.rb (returns NYC coordinates)
 - Devise test helpers included for integration tests
+- All new changes in PRs must include test coverage for the introduced behavior
 
 ## Code Style
 

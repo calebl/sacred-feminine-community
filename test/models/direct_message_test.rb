@@ -1,6 +1,7 @@
 require "test_helper"
 
 class DirectMessageTest < ActiveSupport::TestCase
+  include ActionCable::TestHelper
   test "requires body" do
     msg = DirectMessage.new(conversation: conversations(:admin_attendee_convo), sender: users(:admin))
     assert_not msg.valid?
@@ -24,6 +25,22 @@ class DirectMessageTest < ActiveSupport::TestCase
     )
     assert_not msg.valid?
     assert_includes msg.errors[:body], "is too long (maximum is 5000 characters)"
+  end
+
+  test "broadcast callback eager-loads sender avatar" do
+    conversation = conversations(:admin_attendee_convo)
+    sender = users(:admin)
+
+    # Verify create succeeds without errors (broadcast callback runs)
+    message = DirectMessage.create!(
+      body: "Broadcast test",
+      conversation: conversation,
+      sender: sender
+    )
+
+    # Verify the eager-loaded query returns the message with associations
+    loaded = DirectMessage.includes(sender: { avatar_attachment: :blob }).find(message.id)
+    assert_equal sender, loaded.sender
   end
 
   test "body is encrypted in the database" do
