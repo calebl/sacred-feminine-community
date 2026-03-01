@@ -1,9 +1,9 @@
 service: sacred-feminine
-image: sacred-feminine
+image: calebl/sacred-feminine
 
 servers:
   web:
-    - 192.168.0.1
+    - 5.78.143.38
   # job:
   #   hosts:
   #     - 192.168.0.1
@@ -11,7 +11,7 @@ servers:
 
 proxy:
   ssl: true
-  host: app.example.com
+  host: sfn.caleblenoir.com
 
 registry:
   server: ghcr.io
@@ -27,7 +27,7 @@ env:
   clear:
     SOLID_QUEUE_IN_PUMA: true
     # Update with your actual domain before deploying:
-    APP_HOST: app.example.com
+    APP_HOST: sfn.caleblenoir.com
 
 aliases:
   console: app exec --interactive --reuse "bin/rails console"
