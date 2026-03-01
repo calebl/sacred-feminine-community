@@ -3,7 +3,7 @@
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700">
-      <p class="text-3xl font-bold text-sf-red"><%= @users_count %></p>
+      <p class="text-3xl font-bold text-sf-gold"><%= @users_count %></p>
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Total Users</p>
     </div>
     <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700">
@@ -58,7 +58,7 @@
                     <% if user != current_user %>
                       <%= button_to "Impersonate", admin_impersonation_path, params: { user_id: user.id },
                           method: :post,
-                          class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer" %>
+                          class: "text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer" %>
                     <% else %>
                       <span class="text-gray-400 text-sm italic">Current user</span>
                     <% end %>
