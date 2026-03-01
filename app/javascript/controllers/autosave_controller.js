@@ -40,7 +40,8 @@ export default class extends Controller {
         body: new FormData(form)
       })
 
-      this.statusTarget.textContent = "Draft saved"
+      const time = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+      this.statusTarget.textContent = `Draft saved at ${time}`
     } catch {
       this.statusTarget.textContent = "Save failed"
     }

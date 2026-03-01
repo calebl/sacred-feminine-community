@@ -38,8 +38,8 @@
       <div class="flex justify-end gap-3">
         <%= f.submit "Save Draft",
             class: "px-6 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 font-semibold transition cursor-pointer shadow-sm text-sm" %>
-        <%= f.submit "Publish", name: "publish", value: "1",
-            class: "px-6 py-2.5 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white font-semibold transition cursor-pointer shadow-sm text-sm" %>
+        <button type="submit" name="publish" value="1"
+            class="px-6 py-2.5 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white font-semibold transition cursor-pointer shadow-sm text-sm">Publish</button>
       </div>
     <% end %>
   </div>
