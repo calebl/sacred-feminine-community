@@ -1,0 +1,17 @@
+pinned_announcement_body:
+  record_type: Post
+  record_id: <%= ActiveRecord::FixtureSet.identify(:pinned_announcement) %>
+  name: body
+  body: <div>Welcome to our retreat! We are excited to have you.</div>
+
+attendee_post_body:
+  record_type: Post
+  record_id: <%= ActiveRecord::FixtureSet.identify(:attendee_post) %>
+  name: body
+  body: <div>This is my first post in the cohort.</div>
+
+bali_post_body:
+  record_type: Post
+  record_id: <%= ActiveRecord::FixtureSet.identify(:bali_post) %>
+  name: body
+  body: <div>Here is an update on the Bali retreat plans.</div>

@@ -7,3 +7,5 @@ pin "@hotwired/stimulus-loading", to: "stimulus-loading.js"
 pin_all_from "app/javascript/controllers", under: "controllers"
 pin "leaflet" # @1.9.4
 pin "leaflet.markercluster", to: "leaflet-markercluster.js" # @1.5.3
+pin "trix"
+pin "@rails/actiontext", to: "actiontext.esm.js"

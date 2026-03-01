@@ -36,11 +36,36 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:admin)
     # Mark conversations as read
     ConversationParticipant.where(user: users(:admin)).update_all(last_read_at: Time.current)
-    # Mark cohort chats as read
-    CohortMembership.where(user: users(:admin)).update_all(last_read_at: Time.current)
+    # Mark cohort chats and posts as read
+    CohortMembership.where(user: users(:admin)).update_all(last_read_at: Time.current, posts_last_read_at: Time.current)
+    # Mark all posts as read for comment notifications
+    Post.joins(:post_comments).where(post_comments: { user_id: users(:admin).id }).distinct.each do |post|
+      PostRead.find_or_create_by(post: post, user: users(:admin)).update(last_read_at: Time.current)
+    end
 
     get notifications_path
     assert_response :success
     assert_match "All caught up", response.body
+  end
+
+  test "show lists unread posts" do
+    sign_in users(:attendee)
+    cohort = cohorts(:kabul_retreat)
+    cohort.posts.create!(title: "New post", user: users(:admin)) { |p| p.body = "Content" }
+
+    get notifications_path
+    assert_response :success
+    assert_match "New Posts", response.body
+  end
+
+  test "show lists unread comments on posts user commented on" do
+    sign_in users(:attendee)
+    # attendee has commented on pinned_announcement
+    post_record = posts(:pinned_announcement)
+    post_record.post_comments.create!(user: users(:admin), body: "New reply")
+
+    get notifications_path
+    assert_response :success
+    assert_match "New Comments", response.body
   end
 end

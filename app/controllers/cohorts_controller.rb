@@ -9,9 +9,14 @@ class CohortsController < ApplicationController
 
   def show
     authorize @cohort
+    @active_tab = params[:tab].presence || "feed"
     unless request.headers["Purpose"] == "prefetch"
       membership = @cohort.cohort_memberships.find_by(user: current_user)
-      membership&.update(last_read_at: Time.current)
+      if membership
+        updates = { last_read_at: Time.current }
+        updates[:posts_last_read_at] = Time.current if @active_tab == "feed"
+        membership.update(updates)
+      end
     end
     @members = @cohort.members.includes(:cohort_memberships).load
     @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h
@@ -21,6 +26,8 @@ class CohortsController < ApplicationController
                             .order(created_at: :desc)
                             .limit(50)
                             .reverse
+    @posts = @cohort.posts.published.pinned_first.includes(:user, :post_comments)
+    @draft = @cohort.posts.drafts.find_by(user: current_user)
   end
 
   def new

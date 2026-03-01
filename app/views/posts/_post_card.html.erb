@@ -1,0 +1,27 @@
+<%= link_to cohort_post_path(cohort, post), class: "block" do %>
+  <div class="p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700 hover:border-sf-gold/30 transition bg-white dark:bg-gray-800">
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <% if post.pinned? %>
+            <span class="inline-flex items-center text-xs font-semibold text-sf-gold flex-shrink-0">
+              <svg class="w-3.5 h-3.5 mr-0.5" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M4.146.146A.5.5 0 0 1 4.5 0h7a.5.5 0 0 1 .5.5c0 .68-.342 1.174-.646 1.479-.126.125-.25.224-.354.298v4.431l.078.048c.203.127.476.314.751.555C12.36 7.775 13 8.527 13 9.5a.5.5 0 0 1-.5.5h-4v4.5c0 .276-.224 1.5-.5 1.5s-.5-1.224-.5-1.5V10h-4a.5.5 0 0 1-.5-.5c0-.973.64-1.725 1.17-2.189A6 6 0 0 1 5 6.708V2.277a3 3 0 0 1-.354-.298C4.342 1.674 4 1.179 4 .5a.5.5 0 0 1 .146-.354z"/>
+              </svg>
+              Pinned
+            </span>
+          <% end %>
+          <h3 class="font-semibold text-sf-black dark:text-white truncate"><%= post.title %></h3>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2"><%= post.body.to_plain_text.truncate(150) %></p>
+        <div class="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-gray-500">
+          <span><%= post.user.name %></span>
+          <span>&middot;</span>
+          <span><%= time_ago_in_words(post.created_at) %> ago</span>
+          <span>&middot;</span>
+          <span><%= post.post_comments.size %> <%= "comment".pluralize(post.post_comments.size) %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
