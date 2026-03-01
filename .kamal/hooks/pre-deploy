@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Pre-deploy hook: runs tests and blocks deployment if any fail.
+#
+# Available environment variables:
+# KAMAL_RECORDED_AT, KAMAL_PERFORMER, KAMAL_VERSION, KAMAL_HOSTS,
+# KAMAL_COMMAND, KAMAL_SUBCOMMAND, KAMAL_ROLES, KAMAL_DESTINATION
+
+# Skip test gate on rollbacks
+if [ "$KAMAL_COMMAND" = "rollback" ]; then
+  echo "Rollback detected, skipping tests."
+  exit 0
+fi
+
+echo "Running tests before deploy..."
+
+if bin/rails test; then
+  echo "All tests passed. Proceeding with deploy."
+else
+  echo "Tests failed! Aborting deploy." >&2
+  exit 1
+fi
