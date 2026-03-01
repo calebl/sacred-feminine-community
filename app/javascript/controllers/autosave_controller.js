@@ -6,12 +6,22 @@ export default class extends Controller {
 
   connect() {
     this.lastData = this.currentFormData()
+    this.dirty = false
     this.timer = setInterval(() => this.save(), this.intervalValue)
+    this.formTarget.addEventListener("input", this.markDirty)
   }
 
   disconnect() {
+    this.formTarget.removeEventListener("input", this.markDirty)
     clearInterval(this.timer)
     this.save()
+  }
+
+  markDirty = () => {
+    if (!this.dirty) {
+      this.dirty = true
+      this.statusTarget.textContent = "Unsaved changes"
+    }
   }
 
   currentFormData() {
@@ -40,6 +50,7 @@ export default class extends Controller {
         body: new FormData(form)
       })
 
+      this.dirty = false
       const time = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
       this.statusTarget.textContent = `Draft saved at ${time}`
     } catch {
