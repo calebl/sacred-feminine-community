@@ -21,13 +21,13 @@ class User < ApplicationRecord
   has_one_attached :avatar
 
   geocoded_by :full_location
-  after_commit :enqueue_geocode, if: -> { saved_change_to_city? || saved_change_to_country? }
+  after_commit :enqueue_geocode, if: -> { saved_change_to_city? || saved_change_to_state? || saved_change_to_country? }
 
   validates :name, presence: true
   validate :acceptable_avatar
 
   def full_location
-    [ city, country ].compact.join(", ")
+    [ city, state, country ].compact.join(", ")
   end
 
   private

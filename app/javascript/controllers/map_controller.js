@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
-import * as L from "leaflet"
+import L from "leaflet"
+import "leaflet.markercluster"
 
 export default class extends Controller {
   static values = { url: String }
@@ -24,8 +25,10 @@ export default class extends Controller {
     })
     const pins = await response.json()
 
+    const markers = L.markerClusterGroup()
+
     pins.forEach(pin => {
-      const marker = L.marker([pin.lat, pin.lng]).addTo(this.map)
+      const marker = L.marker([pin.lat, pin.lng])
 
       const container = document.createElement("div")
       container.className = "text-center"
@@ -38,7 +41,7 @@ export default class extends Controller {
 
       const location = document.createElement("span")
       location.className = "text-gray-500"
-      location.textContent = `${pin.city}, ${pin.country}`
+      location.textContent = [pin.city, pin.state, pin.country].filter(Boolean).join(", ")
       container.appendChild(location)
 
       container.appendChild(document.createElement("br"))
@@ -50,7 +53,10 @@ export default class extends Controller {
       container.appendChild(link)
 
       marker.bindPopup(container)
+      markers.addLayer(marker)
     })
+
+    this.map.addLayer(markers)
 
     if (pins.length > 0) {
       const bounds = L.latLngBounds(pins.map(p => [p.lat, p.lng]))

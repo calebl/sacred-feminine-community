@@ -8,13 +8,14 @@ module Api
       users = policy_scope(User).where(show_on_map: true)
                    .where.not(latitude: nil)
                    .where.not(longitude: nil)
-                   .select(:id, :name, :city, :country, :latitude, :longitude)
+                   .select(:id, :name, :city, :state, :country, :latitude, :longitude)
 
       render json: users.map { |u|
         {
           id: u.id,
           name: u.name,
           city: u.city,
+          state: u.state,
           country: u.country,
           lat: u.latitude.to_f,
           lng: u.longitude.to_f
