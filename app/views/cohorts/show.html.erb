@@ -2,7 +2,7 @@
   <!-- Header Image -->
   <div class="mb-6 rounded-2xl overflow-hidden shadow-sm border border-sf-sand/20 dark:border-gray-700">
     <% if @cohort.header_image.attached? %>
-      <%= image_tag @cohort.header_image.variant(resize_to_limit: [1200, 400]), class: "w-full h-56 object-cover" %>
+      <%= image_tag @cohort.header_image.variant(resize_to_limit: [2400, 800]), class: "w-full" %>
     <% else %>
       <%= render "header_image_placeholder" %>
     <% end %>
