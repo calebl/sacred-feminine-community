@@ -1,5 +1,5 @@
 namespace :users do
-  desc "Create a new user account. Usage: rake users:create [-- --email=EMAIL --name=NAME --password=PASS --role=ROLE --city=CITY --country=COUNTRY]"
+  desc "Create a new user account. Usage: rake users:create [-- --email=EMAIL --name=NAME --password=PASS --role=ROLE --city=CITY --state=STATE --country=COUNTRY]"
   task create: :environment do
     args = parse_cli_args
 
@@ -8,6 +8,7 @@ namespace :users do
     password = args["password"] || prompt_secret("Password (min 6 chars)")
     role     = args["role"]     || prompt("Role (attendee/admin)", default: "attendee")
     city     = args["city"]     || prompt("City", optional: true)
+    state    = args["state"]    || prompt("State/Province", optional: true)
     country  = args["country"]  || prompt("Country", optional: true)
 
     user = User.new(
@@ -17,6 +18,7 @@ namespace :users do
       password_confirmation: password,
       role: role,
       city: city.presence,
+      state: state.presence,
       country: country.presence
     )
 
@@ -116,6 +118,7 @@ namespace :users do
     puts "  Email:   #{user.email}"
     puts "  Role:    #{user.role}"
     puts "  City:    #{user.city}" if user.city.present?
+    puts "  State:   #{user.state}" if user.state.present?
     puts "  Country: #{user.country}" if user.country.present?
   end
 end

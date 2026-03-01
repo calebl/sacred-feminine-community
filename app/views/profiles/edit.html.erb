@@ -25,10 +25,14 @@
         <%= f.text_area :bio, rows: 4, class: "w-full" %>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <%= f.label :city, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
           <%= f.text_field :city, class: "w-full" %>
+        </div>
+        <div>
+          <%= f.label :state, "State / Province", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+          <%= f.text_field :state, class: "w-full" %>
         </div>
         <div>
           <%= f.label :country, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>

@@ -32,9 +32,9 @@ class UserTest < ActiveSupport::TestCase
     assert users(:attendee).attendee?
   end
 
-  test "full_location combines city and country" do
+  test "full_location combines city, state, and country" do
     user = users(:admin)
-    assert_equal "Los Angeles, United States", user.full_location
+    assert_equal "Los Angeles, California, United States", user.full_location
   end
 
   test "full_location handles nil city" do
@@ -68,6 +68,13 @@ class UserTest < ActiveSupport::TestCase
     user = users(:attendee)
     assert_enqueued_with(job: GeocodeUserJob) do
       user.update!(country: "Germany")
+    end
+  end
+
+  test "enqueues geocode job when state changes" do
+    user = users(:attendee)
+    assert_enqueued_with(job: GeocodeUserJob) do
+      user.update!(state: "Ile-de-France")
     end
   end
 
