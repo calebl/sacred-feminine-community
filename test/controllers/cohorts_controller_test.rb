@@ -42,7 +42,7 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:admin)
     assert_difference "Cohort.count" do
       post cohorts_path, params: {
-        cohort: { name: "New Retreat", retreat_location: "Costa Rica", retreat_date: "2026-06-01" }
+        cohort: { name: "New Retreat", retreat_location: "Costa Rica", retreat_start_date: "2026-06-01", retreat_end_date: "2026-06-04" }
       }
     end
     assert_redirected_to cohort_path(Cohort.last)
@@ -117,6 +117,20 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
 
     membership.reload
     assert_not_nil membership.last_read_at
+  end
+
+  # Image removal
+  test "admin can remove header image" do
+    sign_in users(:admin)
+    cohort = cohorts(:kabul_retreat)
+    cohort.header_image.attach(io: StringIO.new("fake"), filename: "photo.jpg", content_type: "image/jpeg")
+    assert cohort.header_image.attached?
+
+    patch cohort_path(cohort), params: {
+      cohort: { remove_header_image: "1" }
+    }
+    assert_redirected_to cohort_path(cohort)
+    assert_not cohort.reload.header_image.attached?
   end
 
   # Edit

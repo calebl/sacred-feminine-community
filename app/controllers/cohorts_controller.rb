@@ -4,7 +4,7 @@ class CohortsController < ApplicationController
 
   def index
     skip_authorization
-    @cohorts = policy_scope(Cohort).includes(:members).with_attached_header_image.order(retreat_date: :desc)
+    @cohorts = policy_scope(Cohort).includes(:members).with_attached_header_image.order(retreat_start_date: :desc)
   end
 
   def show
@@ -46,6 +46,7 @@ class CohortsController < ApplicationController
 
   def update
     authorize @cohort
+    @cohort.header_image.purge if params[:cohort][:remove_header_image] == "1"
     if @cohort.update(cohort_params)
       redirect_to @cohort, notice: "Cohort updated."
     else
@@ -66,7 +67,7 @@ class CohortsController < ApplicationController
   end
 
   def cohort_params
-    params.require(:cohort).permit(:name, :description, :retreat_location, :retreat_date, :header_image)
+    params.require(:cohort).permit(:name, :description, :retreat_location, :retreat_start_date, :retreat_end_date, :header_image)
   end
 
   def policy_scope_required?

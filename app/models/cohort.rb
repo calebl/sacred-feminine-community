@@ -12,6 +12,7 @@ class Cohort < ApplicationRecord
 
   validates :name, presence: true
   validate :acceptable_header_image
+  validate :end_date_after_start_date
 
   def member?(user)
     cohort_memberships.exists?(user_id: user.id)
@@ -29,7 +30,27 @@ class Cohort < ApplicationRecord
     end
   end
 
+  def formatted_date_range
+    return nil unless retreat_start_date.present?
+    return retreat_start_date.strftime("%b %-d, %Y") unless retreat_end_date.present?
+
+    if retreat_start_date.month == retreat_end_date.month && retreat_start_date.year == retreat_end_date.year
+      "#{retreat_start_date.strftime('%b %-d')} – #{retreat_end_date.strftime('%-d, %Y')}"
+    elsif retreat_start_date.year != retreat_end_date.year
+      "#{retreat_start_date.strftime('%b %-d, %Y')} – #{retreat_end_date.strftime('%b %-d, %Y')}"
+    else
+      "#{retreat_start_date.strftime('%b %-d')} – #{retreat_end_date.strftime('%b %-d, %Y')}"
+    end
+  end
+
   private
+
+  def end_date_after_start_date
+    return unless retreat_start_date.present? && retreat_end_date.present?
+    if retreat_end_date < retreat_start_date
+      errors.add(:retreat_end_date, "must be on or after the start date")
+    end
+  end
 
   def acceptable_header_image
     return unless header_image.attached?
