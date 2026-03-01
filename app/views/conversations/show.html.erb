@@ -6,7 +6,7 @@
     <% if @other_user %>
       <div class="w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-lg font-bold text-sf-black dark:text-white">
         <% if @other_user.avatar.attached? %>
-          <%= image_tag @other_user.avatar.variant(resize_to_fill: [40, 40]), class: "w-10 h-10 rounded-full object-cover" %>
+          <%= image_tag @other_user.avatar.variant(:display), class: "w-10 h-10 rounded-full object-cover" %>
         <% else %>
           <%= @other_user.name.first.upcase %>
         <% end %>
@@ -26,7 +26,7 @@
           <%= render "direct_messages/direct_message", direct_message: message %>
         <% end %>
       <% else %>
-        <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No messages yet. Say hello!</p>
+        <p id="no_messages_placeholder" class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No messages yet. Say hello!</p>
       <% end %>
     </div>
 

@@ -18,7 +18,9 @@ class User < ApplicationRecord
   has_many :conversations, through: :conversation_participants
   has_many :sent_direct_messages, class_name: "DirectMessage", foreign_key: :sender_id, dependent: :destroy, inverse_of: :sender
 
-  has_one_attached :avatar
+  has_one_attached :avatar do |attachable|
+    attachable.variant :display, resize_to_fill: [ 200, 200 ]
+  end
 
   geocoded_by :full_location
   after_commit :enqueue_geocode, if: -> { saved_change_to_city? || saved_change_to_state? || saved_change_to_country? }

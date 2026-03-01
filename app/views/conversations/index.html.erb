@@ -13,7 +13,7 @@
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-lg font-bold text-sf-black dark:text-white flex-shrink-0">
               <% if other.avatar.attached? %>
-                <%= image_tag other.avatar.variant(resize_to_fill: [48, 48]), class: "w-12 h-12 rounded-full object-cover" %>
+                <%= image_tag other.avatar.variant(:display), class: "w-12 h-12 rounded-full object-cover" %>
               <% else %>
                 <%= other.name.first.upcase %>
               <% end %>

@@ -77,7 +77,7 @@
               <%= link_to profile_path(member), class: "flex items-center gap-3 hover:opacity-80 transition" do %>
                 <div class="w-8 h-8 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
                   <% if member.avatar.attached? %>
-                    <%= image_tag member.avatar.variant(resize_to_fill: [32, 32]), class: "w-8 h-8 rounded-full object-cover" %>
+                    <%= image_tag member.avatar.variant(:display), class: "w-8 h-8 rounded-full object-cover" %>
                   <% else %>
                     <%= member.name.first.upcase %>
                   <% end %>
