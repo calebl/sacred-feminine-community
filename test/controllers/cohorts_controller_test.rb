@@ -140,6 +140,22 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "edit form includes image cropper" do
+    sign_in users(:admin)
+    get edit_cohort_path(cohorts(:kabul_retreat))
+    assert_select "[data-controller='image-cropper']"
+    assert_select "[data-image-cropper-target='fileInput']"
+    assert_select "[data-image-cropper-target='cropperWrap']"
+    assert_select "[data-image-cropper-target='preview']"
+  end
+
+  test "new form includes image cropper" do
+    sign_in users(:admin)
+    get new_cohort_path
+    assert_select "[data-controller='image-cropper']"
+    assert_select "[data-image-cropper-target='fileInput']"
+  end
+
   # Create with invalid params
   test "admin sees form again on invalid create" do
     sign_in users(:admin)

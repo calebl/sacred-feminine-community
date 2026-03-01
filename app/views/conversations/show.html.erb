@@ -1,6 +1,6 @@
 <div class="max-w-2xl mx-auto px-4 py-8">
   <div class="flex items-center gap-4 mb-6">
-    <%= link_to conversations_path, class: "p-2 rounded-lg text-gray-400 hover:text-sf-red hover:bg-sf-sand/20 dark:hover:bg-gray-700 transition" do %>
+    <%= link_to conversations_path, class: "p-2 rounded-lg text-gray-400 hover:text-sf-gold hover:bg-sf-gold/10 dark:hover:bg-gray-700 transition" do %>
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
     <% end %>
     <% if @other_user %>
@@ -13,7 +13,7 @@
       </div>
       <div>
         <% if @other_user.kept? %>
-          <%= link_to @other_user.name, profile_path(@other_user), class: "font-display font-semibold text-sf-black dark:text-white hover:text-sf-red transition" %>
+          <%= link_to @other_user.name, profile_path(@other_user), class: "font-display font-semibold text-sf-black dark:text-white hover:text-sf-gold transition" %>
         <% else %>
           <span class="font-display font-semibold text-gray-400 dark:text-gray-500"><%= @other_user.name %></span>
           <span class="text-xs text-gray-400 dark:text-gray-500 ml-1">(removed)</span>
