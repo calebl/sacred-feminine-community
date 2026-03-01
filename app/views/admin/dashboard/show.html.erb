@@ -85,7 +85,7 @@
           <tbody class="divide-y divide-sf-sand/10 dark:divide-gray-700">
             <% @active_users.each do |user| %>
               <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-sf-black dark:text-white"><%= user.name %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><%= link_to user.name, profile_path(user), class: "text-sf-black dark:text-white hover:text-sf-red transition" %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= user.email %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= user.admin? ? 'bg-sf-gold/20 text-sf-gold' : 'bg-sf-blue/20 text-sf-blue' %>">

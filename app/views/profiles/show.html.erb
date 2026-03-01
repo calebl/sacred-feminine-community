@@ -40,6 +40,13 @@
         <%= link_to "Edit Profile", edit_profile_path(@user), class: "px-5 py-2.5 bg-sf-gold text-white rounded-xl hover:bg-sf-gold/90 text-sm font-semibold transition shadow-sm" %>
       <% else %>
         <%= button_to "Send Message", conversations_path(recipient_id: @user.id), method: :post, class: "px-5 py-2.5 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white text-sm font-semibold transition shadow-sm" %>
+        <% if current_user.admin? %>
+          <%= button_to "Remove User",
+              admin_user_path(@user),
+              method: :delete,
+              class: "px-5 py-2.5 bg-sf-red/10 text-sf-red rounded-xl hover:bg-sf-red hover:text-white text-sm font-semibold transition shadow-sm",
+              data: { turbo_confirm: "Remove #{@user.name}? They will no longer be able to sign in." } %>
+        <% end %>
       <% end %>
     </div>
   </div>
