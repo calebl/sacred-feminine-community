@@ -28,8 +28,10 @@ class UserPolicyTest < ActiveSupport::TestCase
     assert_not policy.update_profile?
   end
 
-  test "scope returns all users" do
+  test "scope returns only kept users" do
+    users(:attendee_two).discard
     scope = UserPolicy::Scope.new(users(:attendee), User).resolve
-    assert_equal User.count, scope.count
+    assert_equal User.kept.count, scope.count
+    assert_not_includes scope, users(:attendee_two)
   end
 end

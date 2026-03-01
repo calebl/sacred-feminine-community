@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
 
   def current_user
     if impersonating?
-      @impersonated_user ||= User.find_by(id: session[:impersonated_user_id])
+      @impersonated_user ||= User.kept.find_by(id: session[:impersonated_user_id])
     else
       super
     end

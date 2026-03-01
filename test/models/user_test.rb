@@ -92,6 +92,28 @@ class UserTest < ActiveSupport::TestCase
     assert_includes user.errors[:avatar], "must be less than 5MB"
   end
 
+  test "discarded user is not active for authentication" do
+    user = users(:attendee)
+    user.discard
+    assert_not user.active_for_authentication?
+  end
+
+  test "kept user is active for authentication" do
+    user = users(:attendee)
+    assert user.active_for_authentication?
+  end
+
+  test "inactive message returns account_removed for discarded user" do
+    user = users(:attendee)
+    user.discard
+    assert_equal :account_removed, user.inactive_message
+  end
+
+  test "inactive message returns default for kept user" do
+    user = users(:attendee)
+    assert_not_equal :account_removed, user.inactive_message
+  end
+
   test "avatar has a display variant" do
     user = users(:attendee)
     user.avatar.attach(

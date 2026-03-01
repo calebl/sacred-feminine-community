@@ -1,5 +1,21 @@
 <div class="max-w-2xl mx-auto px-4 py-8">
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8 relative">
+    <% if current_user.admin? && @user != current_user %>
+      <div class="absolute top-6 right-6" data-controller="dropdown" data-action="click@window->dropdown#close">
+        <button data-action="dropdown#toggle" class="p-2 rounded-lg text-gray-400 hover:text-sf-gold hover:bg-sf-gold/10 dark:hover:bg-gray-700 transition cursor-pointer">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+        </button>
+        <div data-dropdown-target="menu" class="hidden absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-sf-sand/20 dark:border-gray-700 py-1 z-10">
+          <%= button_to admin_user_path(@user),
+              method: :delete,
+              class: "w-full text-left px-4 py-2 text-sm text-sf-red hover:bg-sf-red/10 transition cursor-pointer",
+              data: { turbo_confirm: "Remove #{@user.name}? They will no longer be able to sign in." } do %>
+            Remove User
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
     <div class="flex items-center gap-6 mb-6">
       <div class="w-20 h-20 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-2xl font-bold text-sf-black dark:text-white flex-shrink-0">
         <% if @user.avatar.attached? %>
@@ -39,7 +55,7 @@
       <% if @user == current_user %>
         <%= link_to "Edit Profile", edit_profile_path(@user), class: "px-5 py-2.5 bg-sf-gold text-white rounded-xl hover:bg-sf-gold/90 text-sm font-semibold transition shadow-sm" %>
       <% else %>
-        <%= button_to "Send Message", conversations_path(recipient_id: @user.id), method: :post, class: "px-5 py-2.5 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white text-sm font-semibold transition shadow-sm" %>
+        <%= button_to "Send Message", conversations_path(recipient_id: @user.id), method: :post, class: "px-5 py-2.5 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white text-sm font-semibold transition shadow-sm cursor-pointer" %>
       <% end %>
     </div>
   </div>

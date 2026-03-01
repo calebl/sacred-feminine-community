@@ -11,7 +11,7 @@ module Admin
         return
       end
 
-      user = User.find(params[:user_id])
+      user = User.kept.find(params[:user_id])
 
       if user == current_user
         redirect_to admin_dashboard_path, alert: "Cannot impersonate yourself."

@@ -45,5 +45,6 @@ Rails.application.routes.draw do
     get "dashboard", to: "dashboard#show"
     resource :impersonation, only: [ :create, :destroy ]
     resources :announcements
+    resources :users, only: [ :index, :update, :destroy ]
   end
 end

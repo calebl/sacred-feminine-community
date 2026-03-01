@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  include Discard::Model
+
   devise :invitable, :database_authenticatable,
          :recoverable, :rememberable, :validatable
 
@@ -33,6 +35,14 @@ class User < ApplicationRecord
 
   def full_location
     [ city, state, country ].compact.join(", ")
+  end
+
+  def active_for_authentication?
+    super && !discarded?
+  end
+
+  def inactive_message
+    discarded? ? :account_removed : super
   end
 
   private
