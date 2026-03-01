@@ -82,6 +82,13 @@ class CohortTest < ActiveSupport::TestCase
     assert_equal "Oct 30 – Nov 3, 2025", cohort.formatted_date_range
   end
 
+  test "formatted_date_range with different years" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.retreat_start_date = Date.new(2025, 12, 30)
+    cohort.retreat_end_date = Date.new(2026, 1, 3)
+    assert_equal "Dec 30, 2025 – Jan 3, 2026", cohort.formatted_date_range
+  end
+
   test "formatted_date_range with no end date" do
     cohort = cohorts(:kabul_retreat)
     cohort.retreat_start_date = Date.new(2025, 10, 5)

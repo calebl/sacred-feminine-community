@@ -46,8 +46,8 @@ class CohortsController < ApplicationController
 
   def update
     authorize @cohort
-    @cohort.header_image.purge if params[:cohort][:remove_header_image] == "1"
     if @cohort.update(cohort_params)
+      @cohort.header_image.purge if params[:cohort][:remove_header_image] == "1"
       redirect_to @cohort, notice: "Cohort updated."
     else
       render :edit, status: :unprocessable_entity
