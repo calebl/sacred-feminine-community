@@ -64,6 +64,19 @@ select:focus {
   @apply ring-sf-gold border-sf-gold;
 }
 
+/* Button base styles */
+.btn-primary {
+  @apply px-6 py-3 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white font-semibold transition cursor-pointer shadow-sm text-sm;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-sf-gold text-white rounded-xl hover:bg-sf-gold/90 font-semibold transition cursor-pointer shadow-sm text-sm;
+}
+
+.btn-tertiary {
+  @apply px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 font-semibold transition cursor-pointer shadow-sm text-sm;
+}
+
 /* Trix editor styles */
 trix-editor {
   @apply border-gray-300 rounded-xl shadow-sm px-4 py-3 text-sm min-h-[200px];

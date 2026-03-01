@@ -20,7 +20,7 @@
     </div>
     <% if current_user.admin? %>
       <div class="flex gap-2">
-        <%= link_to "Edit", edit_cohort_path(@cohort), class: "px-4 py-2 bg-sf-gold text-white rounded-xl hover:bg-sf-gold/90 text-sm font-semibold transition shadow-sm" %>
+        <%= link_to "Edit", edit_cohort_path(@cohort), class: "btn-secondary px-4 py-2" %>
       </div>
     <% end %>
   </div>
@@ -56,10 +56,10 @@
               <h3 class="font-display font-semibold text-sf-black dark:text-white">Posts</h3>
               <% if @draft %>
                 <%= link_to "Continue Draft", edit_cohort_post_path(@cohort, @draft),
-                    class: "px-4 py-2 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white text-sm font-semibold transition shadow-sm" %>
+                    class: "btn-primary px-4 py-2" %>
               <% else %>
                 <%= link_to "New Post", new_cohort_post_path(@cohort),
-                    class: "px-4 py-2 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white text-sm font-semibold transition shadow-sm" %>
+                    class: "btn-primary px-4 py-2" %>
               <% end %>
             </div>
 
@@ -98,7 +98,7 @@
                 autocomplete: "off",
                 required: true %>
               <%= f.submit "Send",
-                class: "px-6 py-2.5 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white font-semibold transition cursor-pointer shadow-sm text-sm" %>
+                class: "btn-primary py-2.5" %>
             <% end %>
           </div>
         </div>
@@ -143,7 +143,7 @@
                   @non_members,
                   { prompt: "Select user..." },
                   class: "flex-1 text-sm" %>
-              <%= f.submit "Add", class: "px-4 py-2.5 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white text-sm font-semibold transition cursor-pointer shadow-sm" %>
+              <%= f.submit "Add", class: "btn-primary px-4 py-2.5" %>
             <% end %>
           </div>
         <% end %>
