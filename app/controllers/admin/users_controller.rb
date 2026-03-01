@@ -3,20 +3,20 @@ module Admin
     before_action :authenticate_user!
 
     def index
-      authorize [:admin, User]
+      authorize [ :admin, User ]
       @users = User.discarded.order(:name)
     end
 
     def update
       @user = User.discarded.find(params[:id])
-      authorize [:admin, @user]
+      authorize [ :admin, @user ]
       @user.undiscard!
       redirect_to admin_dashboard_path, notice: "#{@user.name} has been restored."
     end
 
     def destroy
       @user = User.find(params[:id])
-      authorize [:admin, @user]
+      authorize [ :admin, @user ]
 
       if @user == current_user
         redirect_to admin_dashboard_path, alert: "You cannot remove yourself."
