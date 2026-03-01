@@ -2,7 +2,7 @@
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white">My Cohorts</h1>
     <% if current_user.admin? %>
-      <%= link_to "New Cohort", new_cohort_path, class: "px-5 py-2.5 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white text-sm font-semibold transition shadow-sm" %>
+      <%= link_to "New Cohort", new_cohort_path, class: "btn-primary px-5 py-2.5" %>
     <% end %>
   </div>
 

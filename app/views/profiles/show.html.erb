@@ -53,9 +53,9 @@
 
     <div class="flex gap-3">
       <% if @user == current_user %>
-        <%= link_to "Edit Profile", edit_profile_path(@user), class: "px-5 py-2.5 bg-sf-gold text-white rounded-xl hover:bg-sf-gold/90 text-sm font-semibold transition shadow-sm" %>
+        <%= link_to "Edit Profile", edit_profile_path(@user), class: "btn-secondary px-5 py-2.5" %>
       <% else %>
-        <%= button_to "Send Message", conversations_path(recipient_id: @user.id), method: :post, class: "px-5 py-2.5 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white text-sm font-semibold transition shadow-sm cursor-pointer" %>
+        <%= button_to "Send Message", conversations_path(recipient_id: @user.id), method: :post, class: "btn-primary px-5 py-2.5" %>
       <% end %>
     </div>
   </div>
