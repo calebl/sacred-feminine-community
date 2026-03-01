@@ -1,5 +1,5 @@
 service: sacred-feminine
-image: sacred-feminine
+image: calebl/sacred-feminine
 
 servers:
   web:
@@ -27,7 +27,7 @@ env:
   clear:
     SOLID_QUEUE_IN_PUMA: true
     # Update with your actual domain before deploying:
-    APP_HOST: app.example.com
+    APP_HOST: sfn.caleblenoir.com
 
 aliases:
   console: app exec --interactive --reuse "bin/rails console"
