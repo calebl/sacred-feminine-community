@@ -8,6 +8,7 @@ class Cohort < ApplicationRecord
   has_many :cohort_memberships
   has_many :members, through: :cohort_memberships, source: :user
   has_many :chat_messages
+  has_many :posts, dependent: :destroy
   has_one_attached :header_image
 
   validates :name, presence: true
@@ -27,6 +28,18 @@ class Cohort < ApplicationRecord
       messages.where("created_at > ?", membership.last_read_at).count
     else
       messages.count
+    end
+  end
+
+  def unread_post_count(user)
+    membership = cohort_memberships.find_by(user: user)
+    return 0 unless membership
+
+    new_posts = posts.published.where.not(user: user)
+    if membership.posts_last_read_at
+      new_posts.where("posts.created_at > ?", membership.posts_last_read_at).count
+    else
+      new_posts.count
     end
   end
 

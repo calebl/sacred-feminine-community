@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_01_113709) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_01_120228) do
+  create_table "action_text_rich_texts", force: :cascade do |t|
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "record_id", null: false
+    t.string "record_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["record_type", "record_id", "name"], name: "index_action_text_rich_texts_uniqueness", unique: true
+  end
+
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -89,6 +99,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_113709) do
     t.datetime "created_at", null: false
     t.datetime "joined_at", default: -> { "CURRENT_TIMESTAMP" }
     t.datetime "last_read_at"
+    t.datetime "posts_last_read_at"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["cohort_id"], name: "index_cohort_memberships_on_cohort_id"
@@ -137,6 +148,41 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_113709) do
     t.index ["sender_id"], name: "index_direct_messages_on_sender_id"
   end
 
+  create_table "post_comments", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.integer "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["post_id"], name: "index_post_comments_on_post_id"
+    t.index ["user_id"], name: "index_post_comments_on_user_id"
+  end
+
+  create_table "post_reads", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "last_read_at"
+    t.integer "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["post_id"], name: "index_post_reads_on_post_id"
+    t.index ["user_id", "post_id"], name: "index_post_reads_on_user_id_and_post_id", unique: true
+    t.index ["user_id"], name: "index_post_reads_on_user_id"
+  end
+
+  create_table "posts", force: :cascade do |t|
+    t.integer "cohort_id", null: false
+    t.datetime "created_at", null: false
+    t.boolean "draft", default: false, null: false
+    t.boolean "pinned", default: false, null: false
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["cohort_id", "pinned", "created_at"], name: "index_posts_on_cohort_pinned_created"
+    t.index ["cohort_id", "user_id", "draft"], name: "index_posts_on_cohort_user_draft"
+    t.index ["cohort_id"], name: "index_posts_on_cohort_id"
+    t.index ["user_id"], name: "index_posts_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.text "bio"
     t.string "city"
@@ -182,4 +228,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_113709) do
   add_foreign_key "conversation_participants", "users"
   add_foreign_key "direct_messages", "conversations"
   add_foreign_key "direct_messages", "users", column: "sender_id"
+  add_foreign_key "post_comments", "posts"
+  add_foreign_key "post_comments", "users"
+  add_foreign_key "post_reads", "posts"
+  add_foreign_key "post_reads", "users"
+  add_foreign_key "posts", "cohorts"
+  add_foreign_key "posts", "users"
 end

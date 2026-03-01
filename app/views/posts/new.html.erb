@@ -1,0 +1,38 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="mb-6">
+    <%= link_to cohort_path(@cohort, tab: :feed), class: "text-sm text-sf-gold hover:text-sf-gold/80 transition" do %>
+      &larr; Back to <%= @cohort.name %>
+    <% end %>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
+    <h1 class="text-2xl font-display font-bold text-sf-black dark:text-white mb-6">New Post</h1>
+
+    <%= form_with(model: [@cohort, @post], class: "space-y-4") do |f| %>
+      <% if @post.errors.any? %>
+        <div class="rounded-xl p-4 bg-sf-red/10 text-red-800 dark:text-red-300 border border-sf-red/20">
+          <ul class="list-disc list-inside text-sm">
+            <% @post.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :title, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.text_field :title, class: "w-full", placeholder: "Give your post a title...", required: true %>
+      </div>
+
+      <div>
+        <%= f.label :body, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.rich_text_area :body %>
+      </div>
+
+      <div class="flex justify-end">
+        <%= f.submit "Publish Post",
+            class: "px-6 py-2.5 bg-sf-gold text-black rounded-xl hover:bg-sf-blue hover:text-white font-semibold transition cursor-pointer shadow-sm text-sm" %>
+      </div>
+    <% end %>
+  </div>
+</div>

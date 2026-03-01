@@ -26,6 +26,10 @@ Rails.application.routes.draw do
   resources :cohorts do
     resources :cohort_memberships, only: [ :create, :destroy ]
     resources :chat_messages, only: [ :create ]
+    resources :posts, only: [ :show, :new, :create, :edit, :update, :destroy ] do
+      patch :pin, on: :member
+      resources :post_comments, only: [ :create, :destroy ]
+    end
   end
 
   # Notifications

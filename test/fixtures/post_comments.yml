@@ -1,0 +1,11 @@
+admin_comment:
+  post: attendee_post
+  user: admin
+  body: Great first post!
+  created_at: <%= 1.hour.ago %>
+
+attendee_comment:
+  post: pinned_announcement
+  user: attendee
+  body: Thank you for the welcome!
+  created_at: <%= 30.minutes.ago %>
