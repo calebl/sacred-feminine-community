@@ -27,6 +27,18 @@ class DirectMessagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "turbo_stream response removes no_messages_placeholder" do
+    sign_in @admin
+
+    post conversation_direct_messages_path(@conversation),
+      params: { direct_message: { body: "First message!" } },
+      as: :turbo_stream
+
+    assert_response :success
+    assert_includes response.body, "no_messages_placeholder"
+    assert_includes response.body, "remove"
+  end
+
   test "message is assigned to current user as sender" do
     sign_in @attendee
     post conversation_direct_messages_path(@conversation),

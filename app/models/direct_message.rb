@@ -7,11 +7,12 @@ class DirectMessage < ApplicationRecord
   validates :body, presence: true, length: { maximum: 5000 }
 
   after_create_commit -> {
+    message = DirectMessage.includes(sender: { avatar_attachment: :blob }).find(id)
     broadcast_append_to(
       conversation,
       target: "direct_messages",
       partial: "direct_messages/direct_message",
-      locals: { direct_message: self }
+      locals: { direct_message: message }
     )
   }
 end

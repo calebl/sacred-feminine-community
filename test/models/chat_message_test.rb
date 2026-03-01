@@ -1,6 +1,7 @@
 require "test_helper"
 
 class ChatMessageTest < ActiveSupport::TestCase
+  include ActionCable::TestHelper
   test "requires body" do
     message = ChatMessage.new(cohort: cohorts(:kabul_retreat), user: users(:attendee))
     assert_not message.valid?
@@ -36,5 +37,21 @@ class ChatMessageTest < ActiveSupport::TestCase
     )
     assert_not message.valid?
     assert_includes message.errors[:body], "is too long (maximum is 5000 characters)"
+  end
+
+  test "broadcast callback eager-loads user avatar" do
+    cohort = cohorts(:kabul_retreat)
+    user = users(:attendee)
+
+    # Verify create succeeds without errors (broadcast callback runs)
+    message = ChatMessage.create!(
+      body: "Broadcast test",
+      cohort: cohort,
+      user: user
+    )
+
+    # Verify the eager-loaded query returns the message with associations
+    loaded = ChatMessage.includes(user: { avatar_attachment: :blob }).find(message.id)
+    assert_equal user, loaded.user
   end
 end

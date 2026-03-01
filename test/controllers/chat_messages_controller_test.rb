@@ -25,6 +25,19 @@ class ChatMessagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "turbo_stream response removes no_messages_placeholder" do
+    sign_in users(:attendee)
+    cohort = cohorts(:kabul_retreat)
+
+    post cohort_chat_messages_path(cohort),
+      params: { chat_message: { body: "First message!" } },
+      as: :turbo_stream
+
+    assert_response :success
+    assert_includes response.body, "no_messages_placeholder"
+    assert_includes response.body, "remove"
+  end
+
   test "non-member cannot send a chat message" do
     sign_in users(:attendee_two)
     cohort = cohorts(:kabul_retreat)
