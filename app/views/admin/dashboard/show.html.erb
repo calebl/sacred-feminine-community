@@ -4,14 +4,14 @@
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700">
       <p class="text-3xl font-bold text-sf-red"><%= @users_count %></p>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Total Users</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Active Users</p>
     </div>
     <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700">
       <p class="text-3xl font-bold text-sf-gold"><%= @cohorts_count %></p>
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Cohorts</p>
     </div>
     <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700">
-      <p class="text-3xl font-bold text-sf-blue"><%= @pending_invitations %></p>
+      <p class="text-3xl font-bold text-sf-blue"><%= @pending_invitations_count %></p>
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Pending Invitations</p>
     </div>
   </div>
@@ -26,9 +26,50 @@
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
       Manage Announcements
     <% end %>
+
+    <% if @removed_users_count > 0 %>
+      <%= link_to admin_users_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 font-semibold transition shadow-sm text-sm" do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+        Removed Users (<%= @removed_users_count %>)
+      <% end %>
+    <% end %>
   </div>
 
-  <% if @users.present? %>
+  <% if @pending_users.present? %>
+    <div class="mt-8">
+      <h2 class="text-xl font-display font-semibold text-sf-black dark:text-white mb-4">Pending Invitations</h2>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
+        <table class="min-w-full divide-y divide-sf-sand/20 dark:divide-gray-700">
+          <thead class="bg-sf-beige/30 dark:bg-gray-700">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Invited</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-sf-sand/10 dark:divide-gray-700">
+            <% @pending_users.each do |user| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-sf-black dark:text-white"><%= user.name %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= user.email %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= time_ago_in_words(user.invitation_sent_at || user.created_at) %> ago</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <%= button_to "Cancel",
+                      admin_user_path(user),
+                      method: :delete,
+                      class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
+                      data: { turbo_confirm: "Cancel invitation for #{user.email}? This will permanently delete the invitation." } %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @active_users.present? %>
     <div class="mt-8">
       <h2 class="text-xl font-display font-semibold text-sf-black dark:text-white mb-4">Users</h2>
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
@@ -38,13 +79,11 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
-              <% if Rails.env.local? %>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
-              <% end %>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-sf-sand/10 dark:divide-gray-700">
-            <% @users.each do |user| %>
+            <% @active_users.each do |user| %>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-sf-black dark:text-white"><%= user.name %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= user.email %></td>
@@ -53,17 +92,25 @@
                     <%= user.role.capitalize %>
                   </span>
                 </td>
-                <% if Rails.env.local? %>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <div class="flex items-center gap-3">
                     <% if user != current_user %>
+                      <%= button_to "Remove",
+                          admin_user_path(user),
+                          method: :delete,
+                          class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
+                          data: { turbo_confirm: "Remove #{user.name}? They will no longer be able to sign in." } %>
+                    <% end %>
+                    <% if Rails.env.local? && user != current_user %>
                       <%= button_to "Impersonate", admin_impersonation_path, params: { user_id: user.id },
                           method: :post,
-                          class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer" %>
-                    <% else %>
+                          class: "text-sf-blue hover:text-sf-blue/80 font-medium text-sm transition-colors cursor-pointer" %>
+                    <% end %>
+                    <% if user == current_user %>
                       <span class="text-gray-400 text-sm italic">Current user</span>
                     <% end %>
-                  </td>
-                <% end %>
+                  </div>
+                </td>
               </tr>
             <% end %>
           </tbody>

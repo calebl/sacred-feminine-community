@@ -4,7 +4,7 @@ class CohortMembershipsController < ApplicationController
 
   def create
     authorize @cohort, :manage_members?
-    user = User.find(params[:user_id])
+    user = User.kept.find(params[:user_id])
     membership = @cohort.cohort_memberships.build(user: user)
 
     if membership.save

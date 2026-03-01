@@ -4,10 +4,12 @@ module Admin
 
     def show
       authorize :admin_dashboard
-      @users_count = User.count
+      @users_count = User.kept.where.not(invitation_accepted_at: nil).count
       @cohorts_count = Cohort.kept.count
-      @pending_invitations = User.invitation_not_accepted.count
-      @users = User.order(:name)
+      @pending_invitations_count = User.kept.invitation_not_accepted.count
+      @removed_users_count = User.discarded.count
+      @active_users = User.kept.where.not(invitation_accepted_at: nil).order(:name)
+      @pending_users = User.kept.invitation_not_accepted.order(:created_at)
     end
   end
 end

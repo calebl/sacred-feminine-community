@@ -24,7 +24,7 @@ class ConversationsController < ApplicationController
   end
 
   def create
-    recipient = User.find(params[:recipient_id])
+    recipient = User.kept.find(params[:recipient_id])
 
     if recipient == current_user
       skip_authorization

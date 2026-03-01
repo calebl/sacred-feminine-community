@@ -5,6 +5,12 @@ class DirectMessagesController < ApplicationController
     @conversation = Conversation.find(params[:conversation_id])
     authorize @conversation, :show?
 
+    other_user = @conversation.other_participant(current_user)
+    if other_user&.discarded?
+      redirect_to conversations_path, alert: "This conversation is no longer available."
+      return
+    end
+
     @message = @conversation.direct_messages.build(message_params)
     @message.sender = current_user
 

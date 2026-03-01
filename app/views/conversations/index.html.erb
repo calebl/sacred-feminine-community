@@ -20,7 +20,9 @@
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between">
-                <p class="font-semibold text-sf-black dark:text-white truncate"><%= other.name %></p>
+                <p class="font-semibold <%= other.discarded? ? 'text-gray-400 dark:text-gray-500' : 'text-sf-black dark:text-white' %> truncate">
+                  <%= other.name %><% if other.discarded? %> <span class="text-xs font-normal">(removed)</span><% end %>
+                </p>
                 <% if last_msg %>
                   <p class="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0"><%= time_ago_in_words(last_msg.created_at) %> ago</p>
                 <% end %>

@@ -28,3 +28,12 @@ attendee_two:
   city: Tokyo
   country: Japan
   show_on_map: false
+
+pending_invite:
+  name: Pending User
+  email: pending@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  role: 0
+  invitation_token: <%= Devise.token_generator.generate(User, :invitation_token).last %>
+  invitation_created_at: <%= Time.current %>
+  invitation_sent_at: <%= Time.current %>
