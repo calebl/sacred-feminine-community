@@ -50,6 +50,8 @@ Rails.application.routes.draw do
     get "dashboard", to: "dashboard#show"
     resource :impersonation, only: [ :create, :destroy ]
     resources :announcements
-    resources :users, only: [ :index, :update, :destroy ]
+    resources :users, only: [ :index, :update, :destroy ] do
+      resource :role, only: [ :update ], module: :users
+    end
   end
 end
