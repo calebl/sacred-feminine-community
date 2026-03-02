@@ -8,11 +8,23 @@ module Admin
     end
 
     def create
-      self.resource = resource_class.invite!(invite_params, current_user)
+      skip_email = params[:delivery_method] == "link"
+      self.resource = resource_class.invite!(invite_params, current_user) do |u|
+        u.skip_invitation = skip_email
+      end
+
       if resource.errors.empty?
-        redirect_to admin_dashboard_path, notice: "Invitation sent to #{resource.email}."
+        if skip_email
+          render json: { url: accept_user_invitation_url(invitation_token: resource.raw_invitation_token) }
+        else
+          redirect_to admin_dashboard_path, notice: "Invitation sent to #{resource.email}."
+        end
       else
-        render :new, status: :unprocessable_entity
+        if skip_email
+          render json: { errors: resource.errors.full_messages }, status: :unprocessable_entity
+        else
+          render :new, status: :unprocessable_entity
+        end
       end
     end
 

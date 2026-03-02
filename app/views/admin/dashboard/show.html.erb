@@ -35,9 +35,57 @@
     <% end %>
   </div>
 
+  <% if @admin_users.present? %>
+    <div class="mt-8">
+      <h2 class="text-xl font-display font-semibold text-sf-black dark:text-white mb-4">Admins</h2>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
+        <table class="min-w-full divide-y divide-sf-sand/20 dark:divide-gray-700">
+          <thead class="bg-sf-beige/30 dark:bg-gray-700">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-sf-sand/10 dark:divide-gray-700">
+            <% @admin_users.each do |user| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><%= link_to user.name, profile_path(user), class: "text-sf-black dark:text-white hover:text-sf-red transition" %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= user.email %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <div class="flex items-center gap-3">
+                    <% if user != current_user %>
+                      <%= button_to "Make Attendee",
+                          admin_user_role_path(user),
+                          method: :patch,
+                          class: "text-sf-blue hover:text-sf-blue/80 font-medium text-sm transition-colors cursor-pointer",
+                          data: { turbo_confirm: "Remove admin privileges from #{user.name}?" } %>
+                      <%= button_to "Remove",
+                          admin_user_path(user),
+                          method: :delete,
+                          class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
+                          data: { turbo_confirm: "Remove #{user.name}? They will no longer be able to sign in." } %>
+                    <% end %>
+                    <% if Rails.env.local? && user != current_user %>
+                      <%= button_to "Impersonate", admin_impersonation_path, params: { user_id: user.id },
+                          method: :post,
+                          class: "text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer" %>
+                    <% else %>
+                      <span class="text-gray-400 text-sm italic">Current user</span>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+
   <% if @pending_users.present? %>
     <div class="mt-8">
-      <h2 class="text-xl font-display font-semibold text-sf-black dark:text-white mb-4">Pending Invitations</h2>
+      <h2 class="text-xl font-display font-semibold text-sf-black dark:text-white mb-4">Invited Users</h2>
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
         <table class="min-w-full divide-y divide-sf-sand/20 dark:divide-gray-700">
           <thead class="bg-sf-beige/30 dark:bg-gray-700">
@@ -55,11 +103,21 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= user.email %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= time_ago_in_words(user.invitation_sent_at || user.created_at) %> ago</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <%= button_to "Cancel",
-                      admin_user_path(user),
-                      method: :delete,
-                      class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
-                      data: { turbo_confirm: "Cancel invitation for #{user.email}? This will permanently delete the invitation." } %>
+                  <div class="flex items-center gap-3">
+                    <button type="button"
+                        data-controller="clipboard"
+                        data-clipboard-url-value="<%= admin_user_invite_link_path(user) %>"
+                        data-clipboard-confirm-value="This will generate a new invite link and invalidate the one previously sent via email. Continue?"
+                        data-action="click->clipboard#copy"
+                        class="text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer">
+                      Copy Invite Link
+                    </button>
+                    <%= button_to "Cancel Invite",
+                        admin_user_path(user),
+                        method: :delete,
+                        class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
+                        data: { turbo_confirm: "Cancel invitation for #{user.email}? This will permanently delete the invitation." } %>
+                  </div>
                 </td>
               </tr>
             <% end %>
@@ -78,7 +136,6 @@
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -88,38 +145,21 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><%= link_to user.name, profile_path(user), class: "text-sf-black dark:text-white hover:text-sf-red transition" %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= user.email %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= user.admin? ? 'bg-sf-gold/20 text-sf-gold' : 'bg-sf-blue/20 text-sf-blue' %>">
-                    <%= user.role.capitalize %>
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <div class="flex items-center gap-3">
-                    <% if user != current_user %>
-                      <% if user.attendee? %>
-                        <%= button_to "Make Admin",
-                            admin_user_role_path(user),
-                            method: :patch,
-                            class: "text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer",
-                            data: { turbo_confirm: "Make #{user.name} an admin?\n\nAdmins can:\n• Invite and remove members\n• Restore removed members\n• Change user roles\n• Create and manage announcements\n• Access the admin dashboard" } %>
-                      <% else %>
-                        <%= button_to "Make Attendee",
-                            admin_user_role_path(user),
-                            method: :patch,
-                            class: "text-sf-blue hover:text-sf-blue/80 font-medium text-sm transition-colors cursor-pointer",
-                            data: { turbo_confirm: "Remove admin privileges from #{user.name}?" } %>
-                      <% end %>
-                      <%= button_to "Remove",
-                          admin_user_path(user),
-                          method: :delete,
-                          class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
-                          data: { turbo_confirm: "Remove #{user.name}? They will no longer be able to sign in." } %>
-                    <% end %>
-                    <% if Rails.env.local? && user != current_user %>
+                    <%= button_to "Make Admin",
+                        admin_user_role_path(user),
+                        method: :patch,
+                        class: "text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer",
+                        data: { turbo_confirm: "Make #{user.name} an admin?\n\nAdmins can:\n• Invite and remove members\n• Restore removed members\n• Change user roles\n• Create and manage announcements\n• Access the admin dashboard" } %>
+                    <%= button_to "Remove",
+                        admin_user_path(user),
+                        method: :delete,
+                        class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
+                        data: { turbo_confirm: "Remove #{user.name}? They will no longer be able to sign in." } %>
+                    <% if Rails.env.local? %>
                       <%= button_to "Impersonate", admin_impersonation_path, params: { user_id: user.id },
                           method: :post,
                           class: "text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer" %>
-                    <% else %>
-                      <span class="text-gray-400 text-sm italic">Current user</span>
                     <% end %>
                   </div>
                 </td>
