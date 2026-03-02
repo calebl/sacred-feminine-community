@@ -61,15 +61,8 @@ Rails.application.configure do
   # Update with your actual domain before deploying:
   config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "example.com"), protocol: "https" }
 
-  # Resend.com SMTP for transactional email
-  config.action_mailer.smtp_settings = {
-    address: "smtp.resend.com",
-    port: 465,
-    user_name: "resend",
-    password: ENV["RESEND_API_KEY"],
-    authentication: :plain,
-    tls: true
-  }
+  # Resend.com HTTP API for transactional email (avoids SMTP port blocking)
+  config.action_mailer.delivery_method = :resend
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
