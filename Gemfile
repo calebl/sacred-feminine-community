@@ -46,6 +46,9 @@ gem "devise", "~> 5.0"
 gem "devise_invitable", "~> 2.0"
 gem "pundit", "~> 2.4"
 
+# Transactional email via Resend HTTP API
+gem "resend", "~> 0.17"
+
 # Geocoding
 gem "geocoder", "~> 1.8"
 
