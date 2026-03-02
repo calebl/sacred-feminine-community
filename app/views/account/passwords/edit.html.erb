@@ -1,0 +1,35 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <%= render "shared/back_header", path: edit_profile_path(current_user), title: "Change Password" %>
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8">
+    <%= form_with(model: @user, url: account_password_path, method: :patch, class: "space-y-6") do |f| %>
+      <% if @user.errors.any? %>
+        <div class="p-4 bg-sf-red/10 border border-sf-red/20 rounded-xl">
+          <% @user.errors.full_messages.each do |message| %>
+            <p class="text-sm text-red-800 dark:text-red-300"><%= message %></p>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :current_password, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.password_field :current_password, class: "w-full", autocomplete: "current-password" %>
+      </div>
+
+      <div>
+        <%= f.label :password, "New Password", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.password_field :password, class: "w-full", autocomplete: "new-password" %>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Minimum 6 characters</p>
+      </div>
+
+      <div>
+        <%= f.label :password_confirmation, "Confirm New Password", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.password_field :password_confirmation, class: "w-full", autocomplete: "new-password" %>
+      </div>
+
+      <div>
+        <%= f.submit "Update Password", class: "btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

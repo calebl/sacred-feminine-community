@@ -14,6 +14,7 @@ class ProfilesController < ApplicationController
     authorize @user, :update_profile?
 
     if @user.update(profile_params)
+      @user.avatar.purge if params[:user][:remove_avatar] == "1"
       redirect_to profile_path(@user), notice: "Profile updated."
     else
       render :edit, status: :unprocessable_entity

@@ -42,6 +42,10 @@
           <div class="mb-3">
             <%= image_tag @user.avatar.variant(:display), class: "w-16 h-16 rounded-full object-cover" %>
           </div>
+          <label class="flex items-center gap-2 mb-3 text-sm text-gray-600 dark:text-gray-400">
+            <%= check_box_tag "user[remove_avatar]", "1", false %>
+            Remove current photo
+          </label>
         <% end %>
         <%= f.file_field :avatar, accept: "image/*", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sf-sand/30 file:text-sf-gold hover:file:bg-sf-sand/50 dark:file:bg-gray-700 dark:file:text-sf-sand" %>
       </div>
@@ -55,5 +59,13 @@
         <%= f.submit "Save Profile", class: "btn-primary" %>
       </div>
     <% end %>
+
+    <div class="mt-8 pt-6 border-t border-sf-sand/20 dark:border-gray-700">
+      <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">Account Settings</h2>
+      <div class="flex gap-3">
+        <%= link_to "Change Email", edit_account_email_path, class: "text-sm text-sf-gold hover:text-sf-blue transition" %>
+        <%= link_to "Change Password", edit_account_password_path, class: "text-sm text-sf-gold hover:text-sf-blue transition" %>
+      </div>
+    </div>
   </div>
 </div>

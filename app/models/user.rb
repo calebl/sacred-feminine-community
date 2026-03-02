@@ -4,9 +4,11 @@ class User < ApplicationRecord
   devise :invitable, :database_authenticatable,
          :recoverable, :rememberable, :validatable
 
+  attr_accessor :current_password
+
   audited except: [ :encrypted_password, :reset_password_token, :reset_password_sent_at,
                     :remember_created_at, :invitation_token, :invitation_sent_at,
-                    :invitation_accepted_at, :invitation_created_at ]
+                    :invitation_accepted_at, :invitation_created_at, :current_password ]
 
   enum :role, { attendee: 0, admin: 1 }
 
