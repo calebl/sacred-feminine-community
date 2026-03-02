@@ -58,6 +58,7 @@ Rails.application.routes.draw do
     resources :announcements
     resources :users, only: [ :index, :update, :destroy ] do
       resource :role, only: [ :update ], module: :users
+      resource :invite_link, only: [ :create ], module: :users
     end
   end
 end

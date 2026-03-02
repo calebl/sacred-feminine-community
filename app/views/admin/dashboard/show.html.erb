@@ -103,11 +103,21 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= user.email %></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= time_ago_in_words(user.invitation_sent_at || user.created_at) %> ago</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <%= button_to "Cancel",
-                      admin_user_path(user),
-                      method: :delete,
-                      class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
-                      data: { turbo_confirm: "Cancel invitation for #{user.email}? This will permanently delete the invitation." } %>
+                  <div class="flex items-center gap-3">
+                    <button type="button"
+                        data-controller="clipboard"
+                        data-clipboard-url-value="<%= admin_user_invite_link_path(user) %>"
+                        data-clipboard-confirm-value="This will generate a new invite link and invalidate the one previously sent via email. Continue?"
+                        data-action="click->clipboard#copy"
+                        class="text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer">
+                      Copy Invite Link
+                    </button>
+                    <%= button_to "Cancel",
+                        admin_user_path(user),
+                        method: :delete,
+                        class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
+                        data: { turbo_confirm: "Cancel invitation for #{user.email}? This will permanently delete the invitation." } %>
+                  </div>
                 </td>
               </tr>
             <% end %>
