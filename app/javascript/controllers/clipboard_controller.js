@@ -4,7 +4,13 @@ export default class extends Controller {
   static values = { url: String, confirm: String }
 
   async copy() {
-    if (this.hasConfirmValue && !window.confirm(this.confirmValue)) return
+    if (this.hasConfirmValue) {
+      const el = document.getElementById("confirm-dialog")
+      const controller = el && window.Stimulus.getControllerForElementAndIdentifier(el, "confirm-dialog")
+      const confirmed = controller ? await controller.show(this.confirmValue) : window.confirm(this.confirmValue)
+      if (!confirmed) return
+    }
+
     const csrfToken = document.querySelector("meta[name='csrf-token']")?.content
 
     try {
