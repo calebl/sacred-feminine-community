@@ -91,6 +91,18 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_not user.reload.avatar.attached?
   end
 
+  test "edit profile page includes image cropper for avatar" do
+    sign_in users(:attendee)
+    get edit_profile_path(users(:attendee))
+    assert_response :success
+    assert_select "[data-controller='image-cropper']" do
+      assert_select "[data-image-cropper-aspect-ratio-value='1']"
+      assert_select "[data-image-cropper-target='fileInput']"
+      assert_select "[data-image-cropper-target='cropperWrap']"
+      assert_select "[data-image-cropper-target='preview']"
+    end
+  end
+
   test "update with invalid params re-renders edit" do
     sign_in users(:attendee)
     patch profile_path(users(:attendee)), params: {

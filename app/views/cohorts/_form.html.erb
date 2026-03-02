@@ -33,7 +33,7 @@
     </div>
   </div>
 
-  <div data-controller="image-cropper" data-image-cropper-aspect-ratio-value="3">
+  <div data-controller="image-cropper" data-image-cropper-aspect-ratio-value="3" data-image-cropper-file-name-value="cropped_header.jpg">
     <%= f.label :header_image, "Header Image", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
 
     <% if cohort.header_image.attached? %>
