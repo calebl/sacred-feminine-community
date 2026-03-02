@@ -1,7 +1,7 @@
 module Admin
   class InvitationsController < Devise::InvitationsController
-    before_action :authenticate_user!
-    before_action :authorize_admin!
+    before_action :authenticate_user!, except: [ :edit, :update ]
+    before_action :authorize_admin!, except: [ :edit, :update ]
 
     def new
       self.resource = resource_class.new
