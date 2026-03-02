@@ -1,8 +1,9 @@
 <div class="max-w-md mx-auto px-4 py-8">
   <h1 class="text-2xl font-display font-bold text-sf-black dark:text-white mb-6">Invite a New Member</h1>
 
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8">
-    <%= form_for(resource, as: resource_name, url: user_invitation_path, html: { method: :post, class: "space-y-6" }) do |f| %>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8"
+       data-controller="invite-form">
+    <%= form_for(resource, as: resource_name, url: user_invitation_path, html: { method: :post, class: "space-y-6", data: { invite_form_target: "form", dashboard_url: admin_dashboard_path } }) do |f| %>
       <% if resource.errors.any? %>
         <div class="p-4 bg-sf-red/10 border border-sf-red/20 rounded-xl">
           <% resource.errors.full_messages.each do |message| %>
@@ -21,8 +22,13 @@
         <%= f.email_field :email, class: "w-full", required: true, placeholder: "email@example.com" %>
       </div>
 
-      <div>
-        <%= f.submit "Send Invitation", class: "w-full btn-primary" %>
+      <div class="flex gap-3">
+        <%= f.submit "Send Invitation Email", class: "flex-1 btn-primary" %>
+        <button type="button"
+                data-action="invite-form#copyLink"
+                class="flex-1 px-6 py-3 bg-sf-gold/10 text-sf-gold rounded-xl hover:bg-sf-gold hover:text-white font-semibold transition shadow-sm text-sm cursor-pointer">
+          Copy Invite Link
+        </button>
       </div>
     <% end %>
   </div>

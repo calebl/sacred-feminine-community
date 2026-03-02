@@ -88,6 +88,42 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
+  test "admin can create invitation via copy link and get JSON response" do
+    sign_in users(:admin)
+    assert_difference "User.count" do
+      post user_invitation_path, params: {
+        user: { email: "copylink@example.com", name: "Copy Link User" },
+        delivery_method: "link"
+      }, headers: { "Accept" => "application/json" }
+    end
+    assert_response :success
+
+    json = JSON.parse(response.body)
+    assert json["url"].include?("invitation_token=")
+  end
+
+  test "copy link delivery method does not send email" do
+    sign_in users(:admin)
+    assert_no_enqueued_emails do
+      post user_invitation_path, params: {
+        user: { email: "nomail@example.com", name: "No Mail" },
+        delivery_method: "link"
+      }, headers: { "Accept" => "application/json" }
+    end
+  end
+
+  test "copy link with invalid params returns JSON errors" do
+    sign_in users(:admin)
+    post user_invitation_path, params: {
+      user: { email: "", name: "" },
+      delivery_method: "link"
+    }, headers: { "Accept" => "application/json" }
+    assert_response :unprocessable_entity
+
+    json = JSON.parse(response.body)
+    assert json["errors"].any?
+  end
+
   test "accepted invitation token cannot be reused" do
     user = User.invite!({ email: "reuse@example.com", name: "Reuse Test" }, users(:admin))
     raw_token = user.raw_invitation_token
