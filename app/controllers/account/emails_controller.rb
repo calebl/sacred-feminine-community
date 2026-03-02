@@ -17,7 +17,7 @@ module Account
       end
 
       if @user.update(email: params[:user][:email])
-        redirect_to edit_account_email_path, notice: "Email updated successfully."
+        redirect_to edit_profile_path(@user), notice: "Email updated successfully."
       else
         render :edit, status: :unprocessable_entity
       end

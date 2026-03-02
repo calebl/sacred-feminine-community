@@ -27,7 +27,7 @@ class Account::EmailsControllerTest < ActionDispatch::IntegrationTest
     patch account_email_path, params: {
       user: { email: "newemail@example.com", current_password: "password123" }
     }
-    assert_redirected_to edit_account_email_path
+    assert_redirected_to edit_profile_path(user)
     assert_equal "newemail@example.com", user.reload.email
   end
 

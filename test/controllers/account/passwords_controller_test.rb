@@ -22,7 +22,7 @@ class Account::PasswordsControllerTest < ActionDispatch::IntegrationTest
         password_confirmation: "newsecurepassword"
       }
     }
-    assert_redirected_to edit_account_password_path
+    assert_redirected_to edit_profile_path(user)
     assert user.reload.valid_password?("newsecurepassword")
   end
 
@@ -78,7 +78,7 @@ class Account::PasswordsControllerTest < ActionDispatch::IntegrationTest
         password_confirmation: "newsecurepassword"
       }
     }
-    assert_redirected_to edit_account_password_path
+    assert_redirected_to edit_profile_path(user)
     get authenticated_root_path
     assert_response :success
   end

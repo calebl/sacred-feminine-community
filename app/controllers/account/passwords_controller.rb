@@ -18,7 +18,7 @@ module Account
 
       if @user.update(password: params[:user][:password], password_confirmation: params[:user][:password_confirmation])
         bypass_sign_in(@user)
-        redirect_to edit_account_password_path, notice: "Password updated successfully."
+        redirect_to edit_profile_path(@user), notice: "Password updated successfully."
       else
         render :edit, status: :unprocessable_entity
       end
