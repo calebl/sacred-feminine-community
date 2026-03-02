@@ -12,6 +12,8 @@ class User < ApplicationRecord
 
   enum :role, { attendee: 0, admin: 1 }
 
+  scope :active_users, -> { kept.where.not(invitation_accepted_at: nil) }
+
   has_many :cohort_memberships, dependent: :destroy
   has_many :cohorts, -> { kept }, through: :cohort_memberships
   has_many :chat_messages, dependent: :destroy
