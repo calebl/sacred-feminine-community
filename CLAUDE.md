@@ -86,3 +86,4 @@ rake users:list
 - ERB templates (not Haml/Slim)
 - Pundit `authorize`/`policy_scope` in every controller action
 - Rails encrypted credentials (`bin/rails credentials:edit`), not .env files
+- Keep controllers slim with only standard CRUD actions (`index`, `show`, `new`, `create`, `edit`, `update`, `destroy`). For non-CRUD operations, extract a new controller with its own CRUD action (e.g., `Admin::Users::RolesController#update` instead of `Admin::UsersController#change_role`).

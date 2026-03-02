@@ -40,6 +40,7 @@ Code review from Vanilla Rails philosophy perspective.
 - [ ] Controllers only handle HTTP concerns
 - [ ] Controllers call rich model methods directly
 - [ ] No business logic in controllers
+- [ ] Controllers only use standard CRUD actions (index, show, new, create, edit, update, destroy) — extract a new controller for non-CRUD operations
 
 ### Model Health (Warning)
 - [ ] Models contain business logic
@@ -69,6 +70,7 @@ Code review from Vanilla Rails philosophy perspective.
 - Controller with business logic
 - Controller coordinating multiple services
 - Controller doing data transformation
+- Custom non-CRUD actions (extract to a dedicated controller instead)
 
 **Warning: Service Explosion**
 - Service for every controller action
