@@ -1,0 +1,34 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <%= render "shared/back_header", path: edit_profile_path(current_user), title: "Change Email" %>
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8">
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+      Your current email is <strong class="text-sf-black dark:text-white"><%= @user.email %></strong>
+    </p>
+
+    <%= form_with(model: @user, url: account_email_path, method: :patch, class: "space-y-6") do |f| %>
+      <% if @user.errors.any? %>
+        <div class="p-4 bg-sf-red/10 border border-sf-red/20 rounded-xl">
+          <% @user.errors.full_messages.each do |message| %>
+            <p class="text-sm text-red-800 dark:text-red-300"><%= message %></p>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :email, "New Email", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.email_field :email, class: "w-full", autofocus: true %>
+      </div>
+
+      <div>
+        <%= f.label :current_password, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.password_field :current_password, class: "w-full", autocomplete: "current-password" %>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Enter your current password to confirm this change</p>
+      </div>
+
+      <div>
+        <%= f.submit "Update Email", class: "btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

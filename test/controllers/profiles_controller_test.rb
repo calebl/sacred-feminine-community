@@ -74,6 +74,23 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller='profile-map']", count: 0
   end
 
+  test "user can remove avatar" do
+    user = users(:attendee)
+    user.avatar.attach(
+      io: file_fixture("avatar.png").open,
+      filename: "avatar.png",
+      content_type: "image/png"
+    )
+    assert user.avatar.attached?
+
+    sign_in user
+    patch profile_path(user), params: {
+      user: { name: user.name, remove_avatar: "1" }
+    }
+    assert_redirected_to profile_path(user)
+    assert_not user.reload.avatar.attached?
+  end
+
   test "update with invalid params re-renders edit" do
     sign_in users(:attendee)
     patch profile_path(users(:attendee)), params: {
