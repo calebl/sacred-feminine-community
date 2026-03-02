@@ -40,6 +40,11 @@ Rails.application.routes.draw do
     resources :direct_messages, only: [ :create ]
   end
 
+  # Solid Queue dashboard (admin only)
+  authenticate :user, ->(user) { user.admin? } do
+    mount MissionControl::Jobs::Engine, at: "/admin/jobs"
+  end
+
   # Admin
   namespace :admin do
     get "dashboard", to: "dashboard#show"

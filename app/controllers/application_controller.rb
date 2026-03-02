@@ -39,7 +39,7 @@ class ApplicationController < ActionController::Base
   end
 
   def skip_pundit?
-    devise_controller? || params[:controller] =~ /^rails\//
+    devise_controller? || params[:controller] =~ /^rails\// || params[:controller] =~ /^mission_control\//
   end
 
   def policy_scope_required?
