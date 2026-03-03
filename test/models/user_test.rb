@@ -114,6 +114,56 @@ class UserTest < ActiveSupport::TestCase
     assert_not_equal :account_removed, user.inactive_message
   end
 
+  test "dm_privacy defaults to cohort_members" do
+    user = User.new
+    assert_equal "cohort_members", user.dm_privacy
+  end
+
+  test "accepts_direct_messages_from? returns true when privacy is everyone" do
+    recipient = users(:attendee)
+    sender = users(:attendee_two)
+    recipient.update_column(:dm_privacy, 2) # everyone
+    assert recipient.accepts_direct_messages_from?(sender)
+  end
+
+  test "accepts_direct_messages_from? returns false when privacy is nobody" do
+    recipient = users(:attendee)
+    sender = users(:attendee_two)
+    recipient.update_column(:dm_privacy, 0) # nobody
+    assert_not recipient.accepts_direct_messages_from?(sender)
+  end
+
+  test "accepts_direct_messages_from? returns true for cohort member when privacy is cohort_members" do
+    recipient = users(:attendee)
+    sender = users(:attendee_two)
+    recipient.update_column(:dm_privacy, 1) # cohort_members
+    # put both in the same cohort
+    CohortMembership.find_or_create_by!(cohort: cohorts(:kabul_retreat), user: sender)
+    assert recipient.accepts_direct_messages_from?(sender)
+  end
+
+  test "accepts_direct_messages_from? returns false for non-cohort member when privacy is cohort_members" do
+    recipient = users(:attendee)
+    sender = users(:attendee_two)
+    recipient.update_column(:dm_privacy, 1) # cohort_members
+    # attendee_two is not in any shared cohort with attendee
+    assert_not recipient.accepts_direct_messages_from?(sender)
+  end
+
+  test "accepts_direct_messages_from? returns true when sender is admin regardless of privacy" do
+    recipient = users(:attendee)
+    sender = users(:admin)
+    recipient.update_column(:dm_privacy, 0) # nobody
+    assert recipient.accepts_direct_messages_from?(sender)
+  end
+
+  test "accepts_direct_messages_from? returns true when recipient is admin regardless of privacy" do
+    recipient = users(:admin)
+    sender = users(:attendee_two)
+    recipient.update_column(:dm_privacy, 0) # nobody
+    assert recipient.accepts_direct_messages_from?(sender)
+  end
+
   test "avatar has a display variant" do
     user = users(:attendee)
     user.avatar.attach(

@@ -32,6 +32,12 @@ class ConversationsController < ApplicationController
       return
     end
 
+    unless recipient.accepts_direct_messages_from?(current_user)
+      skip_authorization
+      redirect_to profile_path(recipient), alert: "This member is not accepting direct messages."
+      return
+    end
+
     @conversation = Conversation.between(current_user, recipient)
     authorize @conversation, :show?
 

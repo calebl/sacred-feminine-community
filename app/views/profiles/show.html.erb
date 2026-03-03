@@ -54,7 +54,7 @@
     <div class="flex gap-3">
       <% if @user == current_user %>
         <%= link_to "Edit Profile", edit_profile_path(@user), class: "btn-secondary px-5 py-2.5" %>
-      <% else %>
+      <% elsif @user.accepts_direct_messages_from?(current_user) %>
         <%= button_to "Send Message", conversations_path(recipient_id: @user.id), method: :post, class: "btn-primary px-5 py-2.5" %>
       <% end %>
     </div>

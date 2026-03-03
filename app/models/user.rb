@@ -11,6 +11,7 @@ class User < ApplicationRecord
                     :invitation_accepted_at, :invitation_created_at, :current_password ]
 
   enum :role, { attendee: 0, admin: 1 }
+  enum :dm_privacy, { nobody: 0, cohort_members: 1, everyone: 2 }, prefix: true
 
   # Includes users who accepted an invitation OR were created manually (no invitation token or accepted_at)
   scope :active_users, -> { kept.where.not(invitation_accepted_at: nil).or(kept.where(invitation_token: nil, invitation_accepted_at: nil)) }
@@ -54,6 +55,19 @@ class User < ApplicationRecord
   # so SMTP timeouts don't cause 500 errors during requests.
   def send_devise_notification(notification, *args)
     devise_mailer.send(notification, self, *args).deliver_later
+  end
+
+  def accepts_direct_messages_from?(sender)
+    return true if admin? || sender.admin?
+
+    case dm_privacy
+    when "everyone"
+      true
+    when "cohort_members"
+      (cohort_ids & sender.cohort_ids).any?
+    when "nobody"
+      false
+    end
   end
 
   private

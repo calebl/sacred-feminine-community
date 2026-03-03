@@ -61,6 +61,7 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create makes new conversation with new recipient" do
+    @attendee_two.update_column(:dm_privacy, 2) # everyone
     sign_in @admin
     assert_difference "Conversation.count" do
       post conversations_path, params: { recipient_id: @attendee_two.id }
@@ -80,5 +81,50 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
   test "create requires authentication" do
     post conversations_path, params: { recipient_id: @attendee.id }
     assert_redirected_to new_user_session_path
+  end
+
+  # DM privacy
+
+  test "create is blocked when recipient privacy is nobody" do
+    @attendee.update_column(:dm_privacy, 0) # nobody
+    sign_in @attendee_two
+    assert_no_difference "Conversation.count" do
+      post conversations_path, params: { recipient_id: @attendee.id }
+    end
+    assert_redirected_to profile_path(@attendee)
+    assert_equal "This member is not accepting direct messages.", flash[:alert]
+  end
+
+  test "create is blocked when recipient privacy is cohort_members and sender is not in shared cohort" do
+    @attendee.update_column(:dm_privacy, 1) # cohort_members
+    sign_in @attendee_two # attendee_two shares no cohort with attendee
+    assert_no_difference "Conversation.count" do
+      post conversations_path, params: { recipient_id: @attendee.id }
+    end
+    assert_redirected_to profile_path(@attendee)
+    assert_equal "This member is not accepting direct messages.", flash[:alert]
+  end
+
+  test "create succeeds when recipient privacy is cohort_members and sender shares a cohort" do
+    @attendee.update_column(:dm_privacy, 1) # cohort_members
+    sign_in @admin # admin and attendee share kabul_retreat
+    post conversations_path, params: { recipient_id: @attendee.id }
+    assert_redirected_to conversation_path(@conversation)
+  end
+
+  test "create succeeds when recipient privacy is everyone" do
+    @attendee_two.update_column(:dm_privacy, 2) # everyone
+    sign_in @admin
+    post conversations_path, params: { recipient_id: @attendee_two.id }
+    assert_response :redirect
+    assert_nil flash[:alert]
+  end
+
+  test "admin can message recipient regardless of privacy setting" do
+    @attendee.update_column(:dm_privacy, 0) # nobody
+    sign_in @admin
+    post conversations_path, params: { recipient_id: @attendee.id }
+    assert_redirected_to conversation_path(@conversation)
+    assert_nil flash[:alert]
   end
 end

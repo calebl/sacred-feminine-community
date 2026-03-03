@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_01_193824) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_03_110858) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -189,6 +189,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_193824) do
     t.string "country"
     t.datetime "created_at", null: false
     t.datetime "discarded_at"
+    t.integer "dm_privacy", default: 1, null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.datetime "invitation_accepted_at"
