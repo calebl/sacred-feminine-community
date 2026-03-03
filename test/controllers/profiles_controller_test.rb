@@ -111,6 +111,34 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "profile shows cohorts the user belongs to" do
+    sign_in users(:admin)
+    get profile_path(users(:attendee))
+    assert_response :success
+    assert_select "h2", text: "Cohorts"
+    assert_select "h2", text: cohorts(:kabul_retreat).name
+  end
+
+  test "profile cohorts are clickable for users with access" do
+    sign_in users(:admin)
+    get profile_path(users(:attendee))
+    assert_select "a[href=?]", cohort_path(cohorts(:kabul_retreat)), text: /#{cohorts(:kabul_retreat).name}/
+  end
+
+  test "profile cohorts are not clickable for users without access" do
+    sign_in users(:attendee_two)
+    get profile_path(users(:attendee))
+    assert_select "a[href=?]", cohort_path(cohorts(:kabul_retreat)), count: 0
+    assert_select "h2", text: cohorts(:kabul_retreat).name
+  end
+
+  test "profile hides cohorts section when user has no cohorts" do
+    sign_in users(:admin)
+    get profile_path(users(:attendee_two))
+    assert_response :success
+    assert_select "h2", text: "Cohorts", count: 0
+  end
+
   test "user can update dm_privacy setting" do
     user = users(:attendee)
     sign_in user

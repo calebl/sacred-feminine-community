@@ -59,4 +59,15 @@
       <% end %>
     </div>
   </div>
+
+  <% if @cohorts.any? %>
+    <div class="mt-6">
+      <h2 class="text-sm font-semibold text-sf-gold mb-3">Cohorts</h2>
+      <div class="space-y-3">
+        <% @cohorts.each do |cohort| %>
+          <%= render "cohorts/cohort_card", cohort: cohort, show_image: false %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 </div>
