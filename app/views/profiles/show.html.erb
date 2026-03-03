@@ -40,7 +40,7 @@
     <% end %>
 
     <% if @user.show_on_map && @user.latitude.present? && @user.longitude.present? %>
-      <div class="mb-6">
+      <div class="mb-6 relative z-0">
         <h2 class="text-sm font-semibold text-sf-gold mb-2">Location</h2>
         <div
           data-controller="profile-map"

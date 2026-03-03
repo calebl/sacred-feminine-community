@@ -57,6 +57,22 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller='profile-map']"
   end
 
+  test "profile map container has z-index below navbar to prevent overlap" do
+    user = users(:admin)
+    user.update_columns(latitude: 34.0522, longitude: -118.2437, show_on_map: true)
+    sign_in users(:attendee)
+    get profile_path(user)
+
+    navbar = css_select("nav.sticky.top-0").first
+    map_container = css_select("[data-controller='profile-map']").first.parent
+
+    navbar_z = navbar["class"][/\bz-(\d+)\b/, 1].to_i
+    map_z = map_container["class"][/\bz-(\d+)\b/, 1].to_i
+
+    assert map_z < navbar_z,
+      "Profile map z-index (#{map_z}) must be less than navbar z-index (#{navbar_z})"
+  end
+
   test "hides mini map when show_on_map is false" do
     user = users(:attendee_two)
     user.update_columns(latitude: 35.6762, longitude: 139.6503)
