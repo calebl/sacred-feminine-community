@@ -9,3 +9,17 @@ attendee_comment:
   user: attendee
   body: Thank you for the welcome!
   created_at: <%= 30.minutes.ago %>
+
+reply_to_admin_comment:
+  post: attendee_post
+  user: attendee
+  parent: admin_comment
+  body: Thanks for the feedback!
+  created_at: <%= 30.minutes.ago %>
+
+nested_reply:
+  post: attendee_post
+  user: admin
+  parent: reply_to_admin_comment
+  body: You're welcome!
+  created_at: <%= 15.minutes.ago %>

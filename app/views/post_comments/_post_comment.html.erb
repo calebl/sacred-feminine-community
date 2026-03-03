@@ -1,26 +1,59 @@
-<div id="<%= dom_id(comment) %>" class="flex items-start gap-3 p-3 rounded-xl bg-sf-beige/30 dark:bg-gray-700/50">
-  <div class="flex-shrink-0 w-8 h-8 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white">
-    <% if comment.user.avatar.attached? %>
-      <%= image_tag comment.user.avatar.variant(resize_to_fill: [32, 32]), class: "w-8 h-8 rounded-full object-cover" %>
-    <% else %>
-      <%= comment.user.name.first.upcase %>
-    <% end %>
-  </div>
-  <div class="flex-1 min-w-0">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-semibold text-sf-black dark:text-white"><%= comment.user.name %></span>
-        <span class="text-xs text-gray-400 dark:text-gray-500"><%= time_ago_in_words(comment.created_at) %> ago</span>
-      </div>
-      <% if policy(comment).destroy? %>
-        <%= button_to cohort_post_post_comment_path(cohort, post, comment),
-            method: :delete,
-            class: "text-xs text-red-400 hover:text-red-600 transition cursor-pointer",
-            data: { turbo_confirm: "Delete this comment?" } do %>
-          Delete
-        <% end %>
+<div id="<%= dom_id(comment) %>">
+  <div class="flex items-start gap-3 p-3 rounded-xl bg-sf-beige/30 dark:bg-gray-700/50">
+    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white">
+      <% if comment.user.avatar.attached? %>
+        <%= image_tag comment.user.avatar.variant(resize_to_fill: [32, 32]), class: "w-8 h-8 rounded-full object-cover" %>
+      <% else %>
+        <%= comment.user.name.first.upcase %>
       <% end %>
     </div>
-    <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"><%= comment.body %></p>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-semibold text-sf-black dark:text-white"><%= comment.user.name %></span>
+          <span class="text-xs text-gray-400 dark:text-gray-500"><%= time_ago_in_words(comment.created_at) %> ago</span>
+        </div>
+        <% if policy(comment).destroy? %>
+          <%= button_to cohort_post_post_comment_path(cohort, post, comment),
+              method: :delete,
+              class: "text-xs text-red-400 hover:text-red-600 transition cursor-pointer",
+              data: { turbo_confirm: "Delete this comment?" } do %>
+            Delete
+          <% end %>
+        <% end %>
+      </div>
+      <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"><%= comment.body %></p>
+      <div data-controller="reply-form">
+        <button type="button"
+                data-action="reply-form#toggle"
+                class="text-xs text-sf-gold hover:text-sf-gold/80 mt-1 cursor-pointer transition">
+          Reply
+        </button>
+
+        <%# Reply form (hidden by default, toggled by Stimulus) %>
+        <div data-reply-form-target="form" class="mt-2 hidden">
+          <%= form_with(
+            model: [cohort, post, PostComment.new],
+            class: "flex gap-2 items-start",
+            data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
+          ) do |f| %>
+            <%= f.hidden_field :parent_id, value: comment.id %>
+            <%= f.text_area :body,
+                placeholder: "Reply to #{comment.user.name}...",
+                class: "flex-1 min-h-[60px] resize-none text-sm",
+                required: true %>
+            <%= f.submit "Reply",
+                class: "self-end btn-primary py-2 text-sm" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Nested replies %>
+  <div id="replies_for_<%= comment.id %>" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2 <%= 'hidden' unless comment.replies.any? %>">
+    <% comment.replies.sort_by(&:created_at).each do |reply| %>
+      <%= render "post_comments/post_comment", comment: reply, cohort: cohort, post: post %>
+    <% end %>
   </div>
 </div>

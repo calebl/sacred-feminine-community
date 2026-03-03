@@ -18,6 +18,7 @@ class PostCommentsController < ApplicationController
     end
   end
 
+
   def destroy
     @comment = @post.post_comments.find(params[:id])
     authorize @comment
@@ -40,6 +41,6 @@ class PostCommentsController < ApplicationController
   end
 
   def comment_params
-    params.require(:post_comment).permit(:body)
+    params.require(:post_comment).permit(:body, :parent_id)
   end
 end
