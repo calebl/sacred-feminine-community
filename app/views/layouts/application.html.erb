@@ -132,20 +132,7 @@
       </nav>
     <% end %>
 
-    <% if notice.present? || alert.present? %>
-      <div class="max-w-7xl mx-auto px-4 mt-4">
-        <% if notice.present? %>
-          <div class="rounded-xl p-4 bg-sf-green/10 text-green-800 dark:text-green-300 border border-sf-green/20 mb-2">
-            <p class="text-sm font-medium"><%= notice %></p>
-          </div>
-        <% end %>
-        <% if alert.present? %>
-          <div class="rounded-xl p-4 bg-sf-red/10 text-red-800 dark:text-red-300 border border-sf-red/20 mb-2">
-            <p class="text-sm font-medium"><%= alert %></p>
-          </div>
-        <% end %>
-      </div>
-    <% end %>
+    <%# Flash messages hidden — keeping controller notices/alerts intact for now %>
 
     <main class="flex-1 pb-20 md:pb-0">
       <%= yield %>
