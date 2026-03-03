@@ -12,7 +12,8 @@ export default class extends Controller {
   ]
 
   static values = {
-    aspectRatio: { type: Number, default: 3 }
+    aspectRatio: { type: Number, default: 3 },
+    fileName: { type: String, default: "cropped_image.jpg" }
   }
 
   connect() {
@@ -92,7 +93,7 @@ export default class extends Controller {
     if (!canvas) return
 
     const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.92))
-    const file = new File([blob], "cropped_header.jpg", { type: "image/jpeg" })
+    const file = new File([blob], this.fileNameValue, { type: "image/jpeg" })
     const dt = new DataTransfer()
     dt.items.add(file)
     this.fileInputTarget.files = dt.files
