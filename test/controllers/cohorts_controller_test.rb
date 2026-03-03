@@ -17,10 +17,10 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "attendee cannot click cohorts they do not belong to" do
-    sign_in users(:attendee)
+    sign_in users(:attendee_two)
     get cohorts_path
-    assert_select "a[href=?]", cohort_path(cohorts(:bali_retreat)), count: 0
-    assert_match "Bali Retreat", response.body
+    assert_select "a[href=?]", cohort_path(cohorts(:kabul_retreat)), count: 0
+    assert_match "Kabul Retreat", response.body
   end
 
   test "admin can click all cohorts" do

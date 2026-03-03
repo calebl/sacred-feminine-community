@@ -12,7 +12,7 @@ class CohortMembershipTest < ActiveSupport::TestCase
 
   test "allows same user in different cohorts" do
     membership = CohortMembership.new(
-      user: users(:attendee),
+      user: users(:attendee_two),
       cohort: cohorts(:bali_retreat)
     )
     assert membership.valid?
