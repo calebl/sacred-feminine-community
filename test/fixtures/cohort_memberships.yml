@@ -9,3 +9,7 @@ attendee_in_kabul:
 admin_in_bali:
   user: admin
   cohort: bali_retreat
+
+attendee_in_bali:
+  user: attendee
+  cohort: bali_retreat
