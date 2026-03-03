@@ -50,7 +50,9 @@ if Rails.env.development?
     { name: "Anja Müller", email: "anja@example.com", city: "Berlin", country: "Germany", bio: "Dance therapist and women's circle keeper.", latitude: 52.5200, longitude: 13.4050, show_on_map: true }
   ]
 
-  attendees = attendees_data.map do |data|
+  dm_privacy_options = User.dm_privacies.keys
+
+  attendees = attendees_data.each_with_index.map do |data, i|
     User.find_or_create_by!(email: data[:email]) do |u|
       u.name = data[:name]
       u.password = password
@@ -63,6 +65,7 @@ if Rails.env.development?
       u.latitude = data[:latitude]
       u.longitude = data[:longitude]
       u.show_on_map = data[:show_on_map]
+      u.dm_privacy = dm_privacy_options[i % dm_privacy_options.size]
       u.invitation_accepted_at = Time.current
     end
   end

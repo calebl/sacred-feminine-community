@@ -110,4 +110,69 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     }
     assert_response :unprocessable_entity
   end
+
+  test "user can update dm_privacy setting" do
+    user = users(:attendee)
+    sign_in user
+    patch profile_path(user), params: {
+      user: { name: user.name, dm_privacy: "nobody" }
+    }
+    assert_redirected_to profile_path(user)
+    assert_equal "nobody", user.reload.dm_privacy
+  end
+
+  test "profile shows send message button when recipient allows DMs" do
+    sign_in users(:admin)
+    user = users(:attendee)
+    user.update_column(:dm_privacy, 2) # everyone
+    get profile_path(user)
+    assert_select "button", text: "Send Message"
+  end
+
+  test "profile hides send message button when recipient blocks DMs" do
+    sign_in users(:attendee_two)
+    user = users(:attendee)
+    user.update_column(:dm_privacy, 0) # nobody
+    get profile_path(user)
+    assert_select "button", text: "Send Message", count: 0
+  end
+
+  test "profile shows send message button for admin even when recipient blocks DMs" do
+    sign_in users(:admin)
+    user = users(:attendee)
+    user.update_column(:dm_privacy, 0) # nobody
+    get profile_path(user)
+    assert_select "button", text: "Send Message"
+  end
+
+  test "edit profile displays dm_privacy radio buttons" do
+    sign_in users(:attendee)
+    get edit_profile_path(users(:attendee))
+    assert_response :success
+    assert_select "input[type=radio][name='user[dm_privacy]']", count: 3
+  end
+
+  test "edit profile shows admin note when dm_privacy is nobody" do
+    user = users(:attendee)
+    user.update_column(:dm_privacy, 0) # nobody
+    sign_in user
+    get edit_profile_path(user)
+    assert_select "p", text: /admins can still send you messages/
+  end
+
+  test "edit profile hides admin note when dm_privacy is not nobody" do
+    user = users(:attendee)
+    user.update_column(:dm_privacy, 2) # everyone
+    sign_in user
+    get edit_profile_path(user)
+    assert_select "p", text: /admins can still send you messages/, count: 0
+  end
+
+  test "edit profile hides dm_privacy radios for admin and shows explanation" do
+    sign_in users(:admin)
+    get edit_profile_path(users(:admin))
+    assert_response :success
+    assert_select "input[type=radio][name='user[dm_privacy]']", count: 0
+    assert_select "p", text: /As an admin, all community members can message you/
+  end
 end
