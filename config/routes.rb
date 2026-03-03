@@ -21,9 +21,6 @@ Rails.application.routes.draw do
     resource :password, only: [ :edit, :update ]
   end
 
-  # Map
-  get "map", to: "map#index"
-
   namespace :api do
     resources :map_pins, only: [ :index ]
   end
