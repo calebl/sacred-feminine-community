@@ -50,7 +50,7 @@
 
             <div class="hidden md:flex items-center gap-1">
               <%= link_to "Home", authenticated_root_path, class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors #{request.path == '/' ? 'bg-sf-gold/10 text-sf-gold' : 'text-gray-600 dark:text-gray-300 hover:bg-sf-gold/10 dark:hover:bg-gray-700 hover:text-sf-gold'}" %>
-              <%= link_to "My Cohorts", cohorts_path, class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors #{request.path.start_with?('/cohorts') ? 'bg-sf-gold/10 text-sf-gold' : 'text-gray-600 dark:text-gray-300 hover:bg-sf-gold/10 dark:hover:bg-gray-700 hover:text-sf-gold'}" %>
+              <%= link_to "Cohorts", cohorts_path, class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors #{request.path.start_with?('/cohorts') ? 'bg-sf-gold/10 text-sf-gold' : 'text-gray-600 dark:text-gray-300 hover:bg-sf-gold/10 dark:hover:bg-gray-700 hover:text-sf-gold'}" %>
               <%= link_to "Messages", conversations_path, class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors #{request.path.start_with?('/conversations') ? 'bg-sf-gold/10 text-sf-gold' : 'text-gray-600 dark:text-gray-300 hover:bg-sf-gold/10 dark:hover:bg-gray-700 hover:text-sf-gold'}" %>
               <% if current_user.admin? %>
                 <%= link_to "Admin", admin_dashboard_path, class: "px-4 py-2 rounded-lg text-sm font-medium text-sf-gold hover:bg-sf-gold/10 transition-colors" %>

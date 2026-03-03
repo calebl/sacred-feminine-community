@@ -1,0 +1,36 @@
+<% show_image = local_assigns.fetch(:show_image, true) %>
+<% can_view = policy(cohort).show? %>
+<% card_classes = "bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden block" %>
+
+<% card_content = capture do %>
+  <% if show_image %>
+    <% if cohort.header_image.attached? %>
+      <%= image_tag cohort.header_image.variant(resize_to_limit: [2400, 800]), class: "w-full" %>
+    <% else %>
+      <%= render "header_image_placeholder" %>
+    <% end %>
+  <% end %>
+  <div class="<%= show_image ? 'p-6' : 'p-5' %>">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white"><%= cohort.name %></h2>
+        <% if cohort.retreat_location.present? %>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1"><%= cohort.retreat_location %></p>
+        <% end %>
+        <% if cohort.formatted_date_range %>
+          <p class="text-sm text-gray-400 dark:text-gray-500 mt-1"><%= cohort.formatted_date_range %></p>
+        <% end %>
+      </div>
+      <div class="text-right">
+        <p class="text-2xl font-bold text-sf-gold"><%= cohort.members.size %></p>
+        <p class="text-xs text-gray-400 dark:text-gray-500">members</p>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% if can_view %>
+  <%= link_to card_content, cohort_path(cohort), class: "#{card_classes} hover:shadow-md transition" %>
+<% else %>
+  <div class="<%= card_classes %>"><%= card_content %></div>
+<% end %>

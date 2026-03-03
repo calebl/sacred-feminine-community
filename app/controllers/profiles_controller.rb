@@ -4,6 +4,7 @@ class ProfilesController < ApplicationController
 
   def show
     authorize @user, :show_profile?
+    @cohorts = @user.cohorts.includes(:members)
   end
 
   def edit

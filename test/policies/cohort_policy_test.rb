@@ -71,15 +71,14 @@ class CohortPolicyTest < ActiveSupport::TestCase
     assert_equal Cohort.kept.count, scope.count
   end
 
-  test "scope returns only member cohorts for attendee" do
+  test "scope returns all kept cohorts for attendee" do
     scope = CohortPolicy::Scope.new(users(:attendee), Cohort).resolve
-    assert_includes scope, cohorts(:kabul_retreat)
-    assert_not_includes scope, cohorts(:bali_retreat)
+    assert_equal Cohort.kept.count, scope.count
   end
 
-  test "scope returns nothing for non-member" do
+  test "scope returns all kept cohorts for non-member" do
     scope = CohortPolicy::Scope.new(users(:attendee_two), Cohort).resolve
-    assert_empty scope
+    assert_equal Cohort.kept.count, scope.count
   end
 
   test "anyone can view index" do
