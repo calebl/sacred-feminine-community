@@ -5,11 +5,11 @@ class CohortMembershipsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:admin)
     assert_difference "CohortMembership.count" do
       post cohort_cohort_memberships_path(cohorts(:bali_retreat)), params: {
-        user_id: users(:attendee).id
+        user_id: users(:attendee_two).id
       }
     end
     assert_redirected_to cohort_path(cohorts(:bali_retreat))
-    assert cohorts(:bali_retreat).member?(users(:attendee))
+    assert cohorts(:bali_retreat).member?(users(:attendee_two))
   end
 
   test "admin can remove member from cohort" do

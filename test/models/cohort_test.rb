@@ -12,7 +12,7 @@ class CohortTest < ActiveSupport::TestCase
   end
 
   test "member? returns false for a non-member" do
-    assert_not cohorts(:bali_retreat).member?(users(:attendee))
+    assert_not cohorts(:bali_retreat).member?(users(:attendee_two))
   end
 
   test "has many members through cohort_memberships" do

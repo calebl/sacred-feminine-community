@@ -4,7 +4,7 @@ class ProfilesController < ApplicationController
 
   def show
     authorize @user, :show_profile?
-    @cohorts = @user.cohorts.includes(:members)
+    @cohorts = @user.cohorts.includes(:members).order(created_at: :asc)
   end
 
   def edit
