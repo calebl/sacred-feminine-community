@@ -49,8 +49,8 @@
       </div>
 
       <!-- Members panel -->
-      <div data-tabs-target="panel" data-panel-name="members" class="p-4 min-h-[500px]" data-controller="member-search">
-        <div class="mb-4">
+      <div data-tabs-target="panel" data-panel-name="members" class="p-4 h-[532px] flex flex-col" data-controller="member-search">
+        <div class="mb-4 flex-shrink-0">
           <input type="text"
                  data-member-search-target="input"
                  data-action="input->member-search#filter"
@@ -58,7 +58,7 @@
                  class="w-full px-4 py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm bg-white dark:bg-gray-700 text-sf-black dark:text-white placeholder-gray-400 focus:ring-sf-gold focus:border-sf-gold">
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto flex-1 min-h-0">
           <% @members.each do |member| %>
             <%= link_to profile_path(member),
                         class: "flex items-center gap-3 p-4 rounded-xl hover:bg-sf-sand/10 dark:hover:bg-gray-700 transition",
@@ -86,7 +86,7 @@
       </div>
 
       <!-- Announcements panel -->
-      <div data-tabs-target="panel" data-panel-name="announcements" class="p-4 min-h-[500px]">
+      <div data-tabs-target="panel" data-panel-name="announcements" class="p-4 h-[532px] overflow-y-auto">
         <% if @announcements.any? %>
           <div class="space-y-4">
             <% @announcements.each do |announcement| %>
