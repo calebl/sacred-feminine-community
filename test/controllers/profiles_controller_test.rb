@@ -148,20 +148,18 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: cohorts(:kabul_retreat).name
   end
 
-  test "profile lists cohorts ordered from oldest to newest" do
+  test "profile lists cohorts ordered by retreat_start_date newest first" do
     user = users(:attendee)
-    older = cohorts(:bali_retreat)
-    newer = cohorts(:kabul_retreat)
-    older.update_column(:created_at, 2.years.ago)
-    newer.update_column(:created_at, 1.year.ago)
+    newer = cohorts(:kabul_retreat)  # retreat_start_date: 2025-09-15
+    older = cohorts(:bali_retreat)   # retreat_start_date: 2024-03-01
 
     sign_in users(:admin)
     get profile_path(user)
     assert_response :success
 
     response_body = response.body
-    assert response_body.index(older.name) < response_body.index(newer.name),
-      "Expected #{older.name} to appear before #{newer.name}"
+    assert response_body.index(newer.name) < response_body.index(older.name),
+      "Expected #{newer.name} to appear before #{older.name}"
   end
 
   test "profile hides cohorts section when user has no cohorts" do
