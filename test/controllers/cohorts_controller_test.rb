@@ -2,20 +2,33 @@ require "test_helper"
 
 class CohortsControllerTest < ActionDispatch::IntegrationTest
   # Index
-  test "attendee sees only their cohorts" do
+  test "attendee sees all cohorts on index" do
     sign_in users(:attendee)
     get cohorts_path
     assert_response :success
     assert_match "Kabul Retreat", response.body
-    assert_no_match "Bali Retreat", response.body
+    assert_match "Bali Retreat", response.body
   end
 
-  test "admin sees all cohorts" do
+  test "attendee can click cohorts they belong to" do
+    sign_in users(:attendee)
+    get cohorts_path
+    assert_select "a[href=?]", cohort_path(cohorts(:kabul_retreat)), text: /Kabul Retreat/
+  end
+
+  test "attendee cannot click cohorts they do not belong to" do
+    sign_in users(:attendee)
+    get cohorts_path
+    assert_select "a[href=?]", cohort_path(cohorts(:bali_retreat)), count: 0
+    assert_match "Bali Retreat", response.body
+  end
+
+  test "admin can click all cohorts" do
     sign_in users(:admin)
     get cohorts_path
     assert_response :success
-    assert_match "Kabul Retreat", response.body
-    assert_match "Bali Retreat", response.body
+    assert_select "a[href=?]", cohort_path(cohorts(:kabul_retreat))
+    assert_select "a[href=?]", cohort_path(cohorts(:bali_retreat))
   end
 
   # Show
