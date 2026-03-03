@@ -31,6 +31,6 @@ export default class extends Controller {
   updateUrl(name) {
     const url = new URL(window.location)
     url.searchParams.set("tab", name)
-    history.replaceState({}, "", url)
+    history.replaceState(history.state, "", url)
   }
 }

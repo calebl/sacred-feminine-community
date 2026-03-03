@@ -24,11 +24,23 @@ export default class extends Controller {
     }).addTo(this.map)
 
     L.marker([this.latitudeValue, this.longitudeValue]).addTo(this.map)
+
+    this.boundBeforeCache = this.beforeCache.bind(this)
+    document.addEventListener("turbo:before-cache", this.boundBeforeCache)
+  }
+
+  beforeCache() {
+    if (this.map) {
+      this.map.remove()
+      this.map = null
+    }
   }
 
   disconnect() {
+    document.removeEventListener("turbo:before-cache", this.boundBeforeCache)
     if (this.map) {
       this.map.remove()
+      this.map = null
     }
   }
 }

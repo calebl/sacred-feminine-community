@@ -17,13 +17,93 @@
     </div>
   <% end %>
 
-  <div class="mb-8">
-    <h2 class="text-xl font-display font-semibold text-sf-black dark:text-white mb-4">Community Map</h2>
-    <div
-      data-controller="map"
-      data-map-url-value="<%= api_map_pins_path(format: :json) %>"
-      class="w-full h-[400px] rounded-2xl shadow-lg border border-sf-sand/30 dark:border-gray-700"
-    ></div>
+  <!-- Tabbed content -->
+  <div class="mb-8" data-controller="tabs" data-tabs-active-tab-value="<%= @active_tab %>">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
+      <!-- Tab headers -->
+      <div class="flex border-b border-sf-sand/20 dark:border-gray-700">
+        <button data-tabs-target="tab" data-action="click->tabs#select"
+                data-tab-name="map"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+          Map
+        </button>
+        <button data-tabs-target="tab" data-action="click->tabs#select"
+                data-tab-name="members"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+          Members
+        </button>
+        <button data-tabs-target="tab" data-action="click->tabs#select"
+                data-tab-name="announcements"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+          Announcements
+        </button>
+      </div>
+
+      <!-- Map panel -->
+      <div data-tabs-target="panel" data-panel-name="map" class="p-4">
+        <div
+          data-controller="map"
+          data-map-url-value="<%= api_map_pins_path(format: :json) %>"
+          class="w-full h-[500px] rounded-xl"
+        ></div>
+      </div>
+
+      <!-- Members panel -->
+      <div data-tabs-target="panel" data-panel-name="members" class="p-4 min-h-[500px]" data-controller="member-search">
+        <div class="mb-4">
+          <input type="text"
+                 data-member-search-target="input"
+                 data-action="input->member-search#filter"
+                 placeholder="Search by name or city..."
+                 class="w-full px-4 py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm bg-white dark:bg-gray-700 text-sf-black dark:text-white placeholder-gray-400 focus:ring-sf-gold focus:border-sf-gold">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% @members.each do |member| %>
+            <%= link_to profile_path(member),
+                        class: "flex items-center gap-3 p-4 rounded-xl hover:bg-sf-sand/10 dark:hover:bg-gray-700 transition",
+                        data: { member_search_target: "card", name: member.name, location: member.full_location } do %>
+              <div class="w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-600 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
+                <% if member.avatar.attached? %>
+                  <%= image_tag member.avatar.variant(:display), class: "w-10 h-10 rounded-full object-cover" %>
+                <% else %>
+                  <%= member.name.first.upcase %>
+                <% end %>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-semibold text-sf-black dark:text-white truncate"><%= member.name %></p>
+                <% if member.full_location.present? %>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate"><%= member.full_location %></p>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+
+        <p data-member-search-target="empty" class="hidden text-center text-gray-400 dark:text-gray-500 py-8">
+          No members found matching your search.
+        </p>
+      </div>
+
+      <!-- Announcements panel -->
+      <div data-tabs-target="panel" data-panel-name="announcements" class="p-4 min-h-[500px]">
+        <% if @announcements.any? %>
+          <div class="space-y-4">
+            <% @announcements.each do |announcement| %>
+              <div class="p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700">
+                <h3 class="font-display font-semibold text-sf-black dark:text-white mb-1"><%= announcement.title %></h3>
+                <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= announcement.body %></p>
+                <% if announcement.published_at %>
+                  <p class="text-xs text-gray-400 dark:text-gray-500 mt-2"><%= announcement.published_at.strftime("%B %d, %Y") %></p>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-center text-gray-400 dark:text-gray-500 py-8">No announcements yet.</p>
+        <% end %>
+      </div>
+    </div>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

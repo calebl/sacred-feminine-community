@@ -14,6 +14,27 @@ export default class extends Controller {
     }).addTo(this.map)
 
     this.loadPins()
+
+    this.hasFittedBounds = false
+    this.resizeObserver = new ResizeObserver(() => {
+      if (!this.map) return
+      this.map.invalidateSize()
+      if (this.pinBounds && !this.hasFittedBounds) {
+        this.map.fitBounds(this.pinBounds, { padding: [50, 50] })
+        this.hasFittedBounds = true
+      }
+    })
+    this.resizeObserver.observe(this.element)
+
+    this.boundBeforeCache = this.beforeCache.bind(this)
+    document.addEventListener("turbo:before-cache", this.boundBeforeCache)
+  }
+
+  beforeCache() {
+    if (this.map) {
+      this.map.remove()
+      this.map = null
+    }
   }
 
   async loadPins() {
@@ -56,17 +77,25 @@ export default class extends Controller {
       markers.addLayer(marker)
     })
 
+    if (!this.map) return
+
     this.map.addLayer(markers)
 
     if (pins.length > 0) {
-      const bounds = L.latLngBounds(pins.map(p => [p.lat, p.lng]))
-      this.map.fitBounds(bounds, { padding: [50, 50] })
+      this.pinBounds = L.latLngBounds(pins.map(p => [p.lat, p.lng]))
+      if (this.element.offsetWidth > 0) {
+        this.map.fitBounds(this.pinBounds, { padding: [50, 50] })
+        this.hasFittedBounds = true
+      }
     }
   }
 
   disconnect() {
+    this.resizeObserver.disconnect()
+    document.removeEventListener("turbo:before-cache", this.boundBeforeCache)
     if (this.map) {
       this.map.remove()
+      this.map = null
     }
   }
 }
