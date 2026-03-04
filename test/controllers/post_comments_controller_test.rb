@@ -76,4 +76,47 @@ class PostCommentsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to new_user_session_path
   end
+
+  test "member can reply to a comment" do
+    sign_in users(:attendee)
+    parent = post_comments(:admin_comment)
+    assert_difference "PostComment.count" do
+      post cohort_post_post_comments_path(cohorts(:kabul_retreat), posts(:attendee_post)), params: {
+        post_comment: { body: "Great reply!", parent_id: parent.id }
+      }
+    end
+    reply = PostComment.last
+    assert_equal parent, reply.parent
+    assert_redirected_to cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_post))
+  end
+
+  test "reply via turbo_stream targets parent replies container" do
+    sign_in users(:attendee)
+    parent = post_comments(:admin_comment)
+    assert_difference "PostComment.count" do
+      post cohort_post_post_comments_path(cohorts(:kabul_retreat), posts(:attendee_post)),
+        params: { post_comment: { body: "Turbo reply!", parent_id: parent.id } },
+        as: :turbo_stream
+    end
+    assert_response :success
+    assert_includes response.body, "replies_for_#{parent.id}"
+  end
+
+  test "reply via turbo_stream updates reply count" do
+    sign_in users(:attendee)
+    parent = post_comments(:admin_comment)
+    post cohort_post_post_comments_path(cohorts(:kabul_retreat), posts(:attendee_post)),
+      params: { post_comment: { body: "Another reply!", parent_id: parent.id } },
+      as: :turbo_stream
+    assert_includes response.body, "reply_count_for_#{parent.id}"
+    assert_includes response.body, "#{parent.replies.count} replies"
+  end
+
+  test "deleting comment with replies cascades" do
+    sign_in users(:admin)
+    parent = post_comments(:admin_comment)
+    assert_difference "PostComment.count", -3 do
+      delete cohort_post_post_comment_path(cohorts(:kabul_retreat), posts(:attendee_post), parent)
+    end
+  end
 end

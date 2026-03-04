@@ -151,9 +151,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_210940) do
   create_table "post_comments", force: :cascade do |t|
     t.text "body", null: false
     t.datetime "created_at", null: false
+    t.integer "parent_id"
     t.integer "post_id", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.index ["parent_id"], name: "index_post_comments_on_parent_id"
     t.index ["post_id"], name: "index_post_comments_on_post_id"
     t.index ["user_id"], name: "index_post_comments_on_user_id"
   end
@@ -232,6 +234,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_210940) do
   add_foreign_key "conversation_participants", "users"
   add_foreign_key "direct_messages", "conversations"
   add_foreign_key "direct_messages", "users", column: "sender_id"
+  add_foreign_key "post_comments", "post_comments", column: "parent_id"
   add_foreign_key "post_comments", "posts"
   add_foreign_key "post_comments", "users"
   add_foreign_key "post_reads", "posts"

@@ -9,7 +9,7 @@ class PostsController < ApplicationController
       PostRead.find_or_initialize_by(post: @post, user: current_user)
               .update(last_read_at: Time.current)
     end
-    @comments = @post.post_comments.includes(:user).order(created_at: :asc)
+    @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
     @new_comment = @post.post_comments.build
   end
 

@@ -51,7 +51,7 @@
 
   <!-- Comments section -->
   <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
-    <h2 class="font-display font-semibold text-sf-black dark:text-white mb-4">Comments (<%= @comments.size %>)</h2>
+    <h2 class="font-display font-semibold text-sf-black dark:text-white mb-4">Comments (<%= @post.post_comments.count %>)</h2>
 
     <div id="post_comments" class="space-y-4 mb-6">
       <% @comments.each do |comment| %>
