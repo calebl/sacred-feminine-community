@@ -6,9 +6,12 @@ class User < ApplicationRecord
 
   attr_accessor :current_password
 
+  serialize :invited_cohort_ids, coder: JSON, type: Array
+
   audited except: [ :encrypted_password, :reset_password_token, :reset_password_sent_at,
                     :remember_created_at, :invitation_token, :invitation_sent_at,
-                    :invitation_accepted_at, :invitation_created_at, :current_password ]
+                    :invitation_accepted_at, :invitation_created_at, :current_password,
+                    :invited_cohort_ids ]
 
   enum :role, { attendee: 0, admin: 1 }
   enum :dm_privacy, { nobody: 0, cohort_members: 1, everyone: 2 }, prefix: true
@@ -32,6 +35,8 @@ class User < ApplicationRecord
   has_one_attached :avatar do |attachable|
     attachable.variant :display, resize_to_fill: [ 200, 200 ]
   end
+
+  after_invitation_accepted :create_invited_cohort_memberships
 
   geocoded_by :full_location
   after_commit :enqueue_geocode, if: -> { saved_change_to_city? || saved_change_to_state? || saved_change_to_country? }
@@ -71,6 +76,16 @@ class User < ApplicationRecord
   end
 
   private
+
+  def create_invited_cohort_memberships
+    return if invited_cohort_ids.blank?
+
+    Cohort.kept.where(id: invited_cohort_ids).find_each do |cohort|
+      cohort_memberships.create(cohort: cohort)
+    end
+
+    update_column(:invited_cohort_ids, nil)
+  end
 
   def enqueue_geocode
     GeocodeUserJob.perform_later(id)
