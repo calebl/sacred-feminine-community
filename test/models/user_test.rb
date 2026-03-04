@@ -164,6 +164,40 @@ class UserTest < ActiveSupport::TestCase
     assert recipient.accepts_direct_messages_from?(sender)
   end
 
+  test "create_invited_cohort_memberships creates memberships for stored cohort ids" do
+    kabul = cohorts(:kabul_retreat)
+    bali = cohorts(:bali_retreat)
+
+    user = User.invite!({ email: "model-test@example.com", name: "Model Test", invited_cohort_ids: [ kabul.id, bali.id ] }, users(:admin))
+    assert_equal [ kabul.id, bali.id ].sort, user.invited_cohort_ids.map(&:to_i).sort
+
+    user.accept_invitation!
+    user.reload
+
+    assert_includes user.cohorts, kabul
+    assert_includes user.cohorts, bali
+    assert_empty user.invited_cohort_ids
+  end
+
+  test "create_invited_cohort_memberships ignores discarded cohorts" do
+    kabul = cohorts(:kabul_retreat)
+    kabul.discard
+
+    user = User.invite!({ email: "discard-test@example.com", name: "Discard Test", invited_cohort_ids: [ kabul.id ] }, users(:admin))
+    user.accept_invitation!
+    user.reload
+
+    assert_not_includes user.cohorts, kabul
+  end
+
+  test "create_invited_cohort_memberships does nothing when no cohort ids" do
+    user = User.invite!({ email: "no-cohorts@example.com", name: "No Cohorts" }, users(:admin))
+
+    assert_no_difference "CohortMembership.count" do
+      user.accept_invitation!
+    end
+  end
+
   test "avatar has a display variant" do
     user = users(:attendee)
     user.avatar.attach(

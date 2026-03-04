@@ -5,6 +5,7 @@ module Admin
 
     def new
       self.resource = resource_class.new
+      @cohorts = Cohort.kept.order(:retreat_start_date)
     end
 
     def create
@@ -20,6 +21,7 @@ module Admin
           redirect_to admin_dashboard_path, notice: "Invitation sent to #{resource.email}."
         end
       else
+        @cohorts = Cohort.kept.order(:retreat_start_date)
         if skip_email
           render json: { errors: resource.errors.full_messages }, status: :unprocessable_entity
         else
@@ -37,7 +39,7 @@ module Admin
     end
 
     def invite_params
-      params.require(:user).permit(:email, :name)
+      params.require(:user).permit(:email, :name, invited_cohort_ids: [])
     end
   end
 end

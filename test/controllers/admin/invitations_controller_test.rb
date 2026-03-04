@@ -124,6 +124,65 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
     assert json["errors"].any?
   end
 
+  test "invitation form displays available cohorts" do
+    sign_in users(:admin)
+    get new_user_invitation_path
+    assert_response :success
+    assert_select "input[name='user[invited_cohort_ids][]']", count: Cohort.kept.count
+  end
+
+  test "admin can send invitation with cohort selections" do
+    sign_in users(:admin)
+    kabul = cohorts(:kabul_retreat)
+    bali = cohorts(:bali_retreat)
+
+    assert_difference "User.count" do
+      post user_invitation_path, params: {
+        user: { email: "cohort-invite@example.com", name: "Cohort User", invited_cohort_ids: [ kabul.id.to_s, bali.id.to_s ] }
+      }
+    end
+
+    invited = User.find_by(email: "cohort-invite@example.com")
+    assert_equal [ kabul.id, bali.id ].sort, invited.invited_cohort_ids.map(&:to_i).sort
+  end
+
+  test "cohort memberships are created when invitation is accepted" do
+    kabul = cohorts(:kabul_retreat)
+    bali = cohorts(:bali_retreat)
+
+    user = User.invite!({ email: "cohort-accept@example.com", name: "Cohort Accept", invited_cohort_ids: [ kabul.id, bali.id ] }, users(:admin))
+    raw_token = user.raw_invitation_token
+
+    assert_difference "CohortMembership.count", 2 do
+      put user_invitation_path, params: {
+        user: {
+          invitation_token: raw_token,
+          password: "newpassword123",
+          password_confirmation: "newpassword123"
+        }
+      }
+    end
+
+    user.reload
+    assert_includes user.cohorts, kabul
+    assert_includes user.cohorts, bali
+    assert_empty user.invited_cohort_ids
+  end
+
+  test "copy link invitation preserves cohort selections" do
+    sign_in users(:admin)
+    kabul = cohorts(:kabul_retreat)
+
+    post user_invitation_path, params: {
+      user: { email: "link-cohort@example.com", name: "Link Cohort", invited_cohort_ids: [ kabul.id.to_s ] },
+      delivery_method: "link"
+    }, headers: { "Accept" => "application/json" }
+    assert_response :success
+
+    invited = User.find_by(email: "link-cohort@example.com")
+    assert_equal [ kabul.id ], invited.invited_cohort_ids.map(&:to_i)
+  end
+
   test "accepted invitation token cannot be reused" do
     user = User.invite!({ email: "reuse@example.com", name: "Reuse Test" }, users(:admin))
     raw_token = user.raw_invitation_token
