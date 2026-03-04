@@ -22,6 +22,20 @@
         <%= f.email_field :email, class: "w-full", required: true, placeholder: "email@example.com" %>
       </div>
 
+      <% if @cohorts.any? %>
+        <div>
+          <p class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Add to Cohorts</p>
+          <div class="space-y-2 max-h-48 overflow-y-auto rounded-xl border border-sf-sand/20 dark:border-gray-600 p-3">
+            <% @cohorts.each do |cohort| %>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <%= check_box_tag "user[invited_cohort_ids][]", cohort.id, false, id: "cohort_#{cohort.id}", class: "rounded border-gray-300 dark:border-gray-600 text-sf-gold focus:ring-sf-gold" %>
+                <span class="text-sm text-gray-700 dark:text-gray-300"><%= cohort.name %></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
       <div class="flex gap-3">
         <%= f.submit "Send Invitation Email", class: "flex-1 btn-primary" %>
         <button type="button"

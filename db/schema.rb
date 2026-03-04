@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_03_110858) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_04_210940) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -200,6 +200,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_03_110858) do
     t.integer "invitations_count", default: 0
     t.integer "invited_by_id"
     t.string "invited_by_type"
+    t.text "invited_cohort_ids"
     t.decimal "latitude", precision: 10, scale: 6
     t.decimal "longitude", precision: 10, scale: 6
     t.string "name", null: false
