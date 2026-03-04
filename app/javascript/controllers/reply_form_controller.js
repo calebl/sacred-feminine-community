@@ -10,4 +10,8 @@ export default class extends Controller {
       if (textarea) textarea.focus()
     }
   }
+
+  hide() {
+    this.formTarget.classList.add("hidden")
+  }
 }

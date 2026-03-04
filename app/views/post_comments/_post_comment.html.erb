@@ -1,4 +1,4 @@
-<div id="<%= dom_id(comment) %>">
+<div id="<%= dom_id(comment) %>" data-controller="replies-toggle">
   <div class="flex items-start gap-3 p-3 rounded-xl bg-sf-beige/30 dark:bg-gray-700/50">
     <div class="flex-shrink-0 w-8 h-8 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white">
       <% if comment.user.avatar.attached? %>
@@ -24,18 +24,29 @@
       </div>
       <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"><%= comment.body %></p>
       <div data-controller="reply-form">
-        <button type="button"
-                data-action="reply-form#toggle"
-                class="text-xs text-sf-gold hover:text-sf-gold/80 mt-1 cursor-pointer transition">
-          Reply
-        </button>
+        <div class="flex items-center gap-3">
+          <button type="button"
+                  data-action="reply-form#toggle"
+                  class="text-xs text-sf-gold hover:text-sf-gold/80 mt-1 cursor-pointer transition">
+            Reply
+          </button>
+          <span id="reply_count_for_<%= comment.id %>">
+            <% if comment.replies.any? %>
+              <button type="button"
+                      data-action="replies-toggle#toggle"
+                      class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 mt-1 cursor-pointer transition">
+                <%= pluralize(comment.replies.size, "reply") %>
+              </button>
+            <% end %>
+          </span>
+        </div>
 
         <%# Reply form (hidden by default, toggled by Stimulus) %>
         <div data-reply-form-target="form" class="mt-2 hidden">
           <%= form_with(
             model: [cohort, post, PostComment.new],
             class: "flex gap-2 items-start",
-            data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
+            data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset turbo:submit-end->reply-form#hide" }
           ) do |f| %>
             <%= f.hidden_field :parent_id, value: comment.id %>
             <%= f.text_area :body,
@@ -51,7 +62,7 @@
   </div>
 
   <%# Nested replies %>
-  <div id="replies_for_<%= comment.id %>" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2 <%= 'hidden' unless comment.replies.any? %>">
+  <div id="replies_for_<%= comment.id %>" data-replies-toggle-target="replies" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2 hidden">
     <% comment.replies.sort_by(&:created_at).each do |reply| %>
       <%= render "post_comments/post_comment", comment: reply, cohort: cohort, post: post %>
     <% end %>

@@ -99,6 +99,17 @@ class PostCommentsControllerTest < ActionDispatch::IntegrationTest
         as: :turbo_stream
     end
     assert_response :success
+    assert_includes response.body, "replies_for_#{parent.id}"
+  end
+
+  test "reply via turbo_stream updates reply count" do
+    sign_in users(:attendee)
+    parent = post_comments(:admin_comment)
+    post cohort_post_post_comments_path(cohorts(:kabul_retreat), posts(:attendee_post)),
+      params: { post_comment: { body: "Another reply!", parent_id: parent.id } },
+      as: :turbo_stream
+    assert_includes response.body, "reply_count_for_#{parent.id}"
+    assert_includes response.body, "#{parent.replies.count} replies"
   end
 
   test "deleting comment with replies cascades" do
