@@ -73,6 +73,33 @@ class ConversationTest < ActiveSupport::TestCase
     assert_includes name, "Sarah Member"
   end
 
+  test "display_name marks discarded participants as removed" do
+    convo = conversations(:admin_attendee_convo)
+    users(:attendee).discard
+    assert_equal "Jane Attendee (removed)", convo.display_name(users(:admin))
+  end
+
+  test "send_message creates a direct message and touches the conversation" do
+    convo = conversations(:admin_attendee_convo)
+    original_updated_at = convo.updated_at
+
+    travel_to 1.minute.from_now do
+      convo.send_message(from: users(:admin), body: "Hello!")
+    end
+
+    assert_equal "Hello!", convo.direct_messages.last.body
+    assert_equal users(:admin), convo.direct_messages.last.sender
+    assert convo.reload.updated_at > original_updated_at
+  end
+
+  test "send_message does nothing when body is blank" do
+    convo = conversations(:admin_attendee_convo)
+    assert_no_difference "DirectMessage.count" do
+      convo.send_message(from: users(:admin), body: "")
+      convo.send_message(from: users(:admin), body: nil)
+    end
+  end
+
   test "unread_count returns 0 with no messages" do
     convo = conversations(:admin_attendee_convo)
     assert_equal 0, convo.unread_count(users(:admin))

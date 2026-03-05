@@ -31,7 +31,16 @@ class Conversation < ApplicationRecord
       conversation
     end
   rescue ActiveRecord::RecordNotUnique
-    retry
+    retries ||= 0
+    retry if (retries += 1) < 3
+    raise
+  end
+
+  def send_message(from:, body:)
+    return if body.blank?
+
+    direct_messages.create!(sender: from, body: body)
+    touch
   end
 
   def other_participants(user)
@@ -39,7 +48,9 @@ class Conversation < ApplicationRecord
   end
 
   def display_name(current_user)
-    other_participants(current_user).map(&:name).sort.join(", ")
+    participants.reject { |p| p.id == current_user.id }.map { |p|
+      p.discarded? ? "#{p.name} (removed)" : p.name
+    }.sort.join(", ")
   end
 
   def last_message

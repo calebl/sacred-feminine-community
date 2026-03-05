@@ -81,4 +81,28 @@ class DirectMessagesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to conversation_path(@conversation)
   end
+
+  test "redirects when all other participants are discarded" do
+    sign_in @admin
+    @attendee.discard
+
+    assert_no_difference "DirectMessage.count" do
+      post conversation_direct_messages_path(@conversation),
+        params: { direct_message: { body: "Should not send" } }
+    end
+    assert_redirected_to conversations_path
+    assert_equal "This conversation is no longer available.", flash[:alert]
+  end
+
+  test "allows messaging when some participants are discarded in group conversation" do
+    group_convo = Conversation.between(@admin, @attendee, @attendee_two)
+    @attendee.discard
+
+    sign_in @admin
+    assert_difference "DirectMessage.count" do
+      post conversation_direct_messages_path(group_convo),
+        params: { direct_message: { body: "Still works" } }
+    end
+    assert_response :redirect
+  end
 end

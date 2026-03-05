@@ -18,6 +18,14 @@ class User < ApplicationRecord
 
   # Includes users who accepted an invitation OR were created manually (no invitation token or accepted_at)
   scope :active_users, -> { kept.where.not(invitation_accepted_at: nil).or(kept.where(invitation_token: nil, invitation_accepted_at: nil)) }
+  scope :search_by_name, ->(query, exclude:) {
+    active_users
+      .with_attached_avatar
+      .where.not(id: exclude.id)
+      .where("name LIKE ?", "%#{sanitize_sql_like(query.strip)}%")
+      .order(:name)
+      .limit(10)
+  }
 
   has_many :cohort_memberships, dependent: :destroy
   has_many :cohorts, -> { kept }, through: :cohort_memberships

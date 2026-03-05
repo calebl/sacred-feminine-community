@@ -30,6 +30,28 @@ class ConversationsController < ApplicationController
   end
 
   def create
+    recipients = resolve_recipients
+    return unless recipients
+
+    blocked = recipients.reject { |r| r.accepts_direct_messages_from?(current_user) }
+    if blocked.any?
+      skip_authorization
+      names = blocked.map(&:name).join(", ")
+      redirect_back fallback_location: new_conversation_path,
+        alert: "#{names} #{blocked.size == 1 ? 'is' : 'are'} not accepting direct messages."
+      return
+    end
+
+    @conversation = Conversation.between([ current_user ] + recipients.to_a)
+    authorize @conversation, :show?
+    @conversation.send_message(from: current_user, body: params[:body])
+
+    redirect_to @conversation
+  end
+
+  private
+
+  def resolve_recipients
     recipient_ids = params[:recipient_ids].present? ? Array(params[:recipient_ids]) : [ params[:recipient_id] ]
     recipients = User.kept.where(id: recipient_ids)
 
@@ -45,26 +67,6 @@ class ConversationsController < ApplicationController
       return
     end
 
-    recipients = recipients.where.not(id: current_user.id)
-
-    blocked = recipients.reject { |r| r.accepts_direct_messages_from?(current_user) }
-    if blocked.any?
-      skip_authorization
-      names = blocked.map(&:name).join(", ")
-      redirect_back fallback_location: new_conversation_path,
-        alert: "#{names} #{blocked.size == 1 ? 'is' : 'are'} not accepting direct messages."
-      return
-    end
-
-    all_participants = [ current_user ] + recipients.to_a
-    @conversation = Conversation.between(all_participants)
-    authorize @conversation, :show?
-
-    if params[:body].present?
-      @conversation.direct_messages.create!(sender: current_user, body: params[:body])
-      @conversation.touch
-    end
-
-    redirect_to @conversation
+    recipients.where.not(id: current_user.id)
   end
 end
