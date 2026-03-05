@@ -1,0 +1,20 @@
+book_club_pinned:
+  body: Welcome to our book club! Share your favorite reads.
+  group: book_club
+  user: attendee
+  pinned: true
+  created_at: <%= 2.days.ago %>
+
+book_club_post:
+  body: Just finished an amazing novel.
+  group: book_club
+  user: admin
+  pinned: false
+  created_at: <%= 1.day.ago %>
+
+yoga_post:
+  body: Morning yoga session was wonderful today.
+  group: yoga_group
+  user: admin
+  pinned: false
+  created_at: <%= 1.hour.ago %>

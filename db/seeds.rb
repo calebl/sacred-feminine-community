@@ -642,6 +642,271 @@ if Rails.env.development?
     puts "Seeded #{posts.size} posts with comments in: #{cohort_name}"
   end
 
+  # --- Groups ---
+  groups_data = [
+    {
+      name: "Herbal Medicine Circle",
+      description: "A space for sharing plant wisdom, recipes, and seasonal herbal practices.",
+      member_indices: [ 0, 5, 10, 13 ]
+    },
+    {
+      name: "Morning Breathwork",
+      description: "Daily breathwork practice and accountability. Share your practice, ask questions, and grow together.",
+      member_indices: [ 2, 4, 16 ]
+    },
+    {
+      name: "Creative Arts & Expression",
+      description: "For those called to express through art, dance, music, and craft. Share your creations and inspire each other.",
+      member_indices: [ 3, 8, 15 ]
+    },
+    {
+      name: "Book Club: Women Who Run With the Wolves",
+      description: "Reading and discussing Clarissa Pinkola Estés' classic together, one chapter at a time.",
+      member_indices: [ 1, 9, 11, 14 ]
+    },
+    {
+      name: "European Traditions Exchange",
+      description: "Connecting across borders to share folk healing, seasonal rituals, and ancestral practices from European traditions.",
+      member_indices: [ 20, 21 ]
+    }
+  ]
+
+  groups_data.each do |data|
+    group = Group.find_or_create_by!(name: data[:name]) do |g|
+      g.description = data[:description]
+      g.creator = admin
+    end
+
+    data[:member_indices].each do |i|
+      GroupMembership.find_or_create_by!(group: group, user: attendees[i])
+    end
+
+    puts "Seeded group: #{group.name} (#{data[:member_indices].size} members)"
+  end
+
+  # --- Group Chat Messages ---
+  groups = Group.all.index_by(&:name)
+  group_chat_base_time = 3.days.ago
+
+  group_chats_data = {
+    "Herbal Medicine Circle" => [
+      { user: attendees[0],  body: "Has anyone worked with oat straw infusions? I've been drinking one daily and my nervous system feels so much calmer." },
+      { user: attendees[10], body: "Yes! Oat straw is one of my favorites. I combine it with nettle and red clover for a really nourishing blend." },
+      { user: attendees[5],  body: "I've been making fire cider this week. Apple cider vinegar, horseradish, garlic, onion, ginger, turmeric, and hot peppers. Perfect for immune season." },
+      { user: attendees[13], body: "Fire cider is a staple in my house. I add a splash of raw honey before taking it." },
+      { user: attendees[0],  body: "Freya, would you share your fire cider recipe in detail? I'd love to make a big batch." },
+      { user: attendees[5],  body: "Of course! I'll write it up as a post so everyone can reference it." },
+      { user: attendees[10], body: "I just harvested a huge batch of elderberries. Making syrup this weekend if anyone wants to join." },
+      { user: attendees[13], body: "I'm in! I'll bring some of my raw honey from the bees." }
+    ],
+    "Morning Breathwork" => [
+      { user: attendees[4],  body: "Good morning! Just finished 20 minutes of holotropic breathwork. Feeling electric." },
+      { user: attendees[2],  body: "I did a gentler pranayama practice this morning. Alternate nostril breathing for 10 minutes. So balancing." },
+      { user: attendees[16], body: "I tried the Wim Hof method for the first time today. Three rounds. My hands were tingling!" },
+      { user: attendees[4],  body: "Soleil, that's wonderful! How did you feel afterward?" },
+      { user: attendees[16], body: "Incredibly clear and energized. Like my whole body was humming." },
+      { user: attendees[2],  body: "I find combining breathwork with acupressure points really amplifies the effect. Happy to share some points." },
+      { user: attendees[4],  body: "Yes please, Aria! That sounds like a perfect integration." }
+    ],
+    "Creative Arts & Expression" => [
+      { user: attendees[15], body: "I spent the morning painting the sunrise over the mesas. The colors this time of year are unreal." },
+      { user: attendees[3],  body: "There's something about moving the body first thing in the morning that makes the whole day feel like art." },
+      { user: attendees[8],  body: "I finished a new ceramic piece yesterday. It's a vessel shaped like a womb, glazed in deep red. I'll share a photo soon." },
+      { user: attendees[15], body: "Dahlia, that sounds stunning. Your ceramic work always carries so much intention." },
+      { user: attendees[3],  body: "Has anyone tried ecstatic dance as a creative practice? I've been using it to unlock creative blocks." },
+      { user: attendees[8],  body: "I haven't but I'm curious. Do you use specific music?" },
+      { user: attendees[3],  body: "I start with slow ambient sounds and gradually build to more rhythmic music. The key is no choreography, just letting the body lead." },
+      { user: attendees[15], body: "I paint right after dance sometimes. The marks are completely different. More alive." }
+    ],
+    "Book Club: Women Who Run With the Wolves" => [
+      { user: attendees[9],  body: "Just finished the chapter on La Llorona. The idea that grief can become a creative force really moved me." },
+      { user: attendees[1],  body: "That chapter wrecked me in the best way. I kept underlining passages about reclaiming the wild self." },
+      { user: attendees[11], body: "The section on the Life/Death/Life nature really shifted something in my understanding of cycles." },
+      { user: attendees[14], body: "I love how Estés uses stories as medicine. Each tale feels like it's working on you even after you close the book." },
+      { user: attendees[9],  body: "Should we move on to the Bluebeard chapter next week? It's a heavy one but so important." },
+      { user: attendees[1],  body: "Yes. I've read it before but I know it'll hit differently now. Ready to go deep." },
+      { user: attendees[11], body: "I'll prepare some discussion questions to guide our conversation." },
+      { user: attendees[14], body: "Perfect. Maybe we can also share what personal stories came up while reading?" },
+      { user: attendees[9],  body: "I'd love that. This book has a way of pulling things to the surface that need to be seen." }
+    ],
+    "European Traditions Exchange" => [
+      { user: attendees[20], body: "In Sweden, we just passed the first day of spring according to the folk calendar. We lit candles and ate semla buns." },
+      { user: attendees[21], body: "In Ireland, we celebrated Imbolc last month. I made a Brigid's cross from rushes I gathered by the river." },
+      { user: attendees[20], body: "I'd love to learn how to make one! Could you teach us at the Florence gathering?" },
+      { user: attendees[21], body: "Absolutely! I'll bring extra rushes. It's a beautiful meditative craft." },
+      { user: attendees[20], body: "I've been reading about how many European folk traditions have common roots. The spring celebrations especially." },
+      { user: attendees[21], body: "Yes! The Celtic and Nordic traditions share so many symbols. The birch tree appears in both as a sign of new beginnings." }
+    ]
+  }
+
+  group_chats_data.each do |group_name, messages|
+    group = groups[group_name]
+    next unless group
+
+    messages.each_with_index do |msg, i|
+      GroupChatMessage.find_or_create_by!(
+        group: group,
+        user: msg[:user],
+        body: msg[:body]
+      ) do |m|
+        m.created_at = group_chat_base_time + (i * 10).minutes
+        m.updated_at = group_chat_base_time + (i * 10).minutes
+      end
+    end
+
+    puts "Seeded #{messages.size} group chat messages in: #{group_name}"
+  end
+
+  # --- Group Posts & Comments ---
+  group_posts_data = {
+    "Herbal Medicine Circle" => [
+      {
+        author: attendees[5],
+        pinned: true,
+        body: "Welcome to the Herbal Medicine Circle! This is a space to share recipes, ask questions, and deepen our relationship with plant allies.\n\nSome ideas for what to share:\n- Seasonal herbal preparations\n- Wildcrafting finds\n- Book recommendations\n- Questions about herbs and dosages\n\nLet's learn from each other!",
+        comments: [
+          { user: attendees[0], body: "So happy this group exists. I've been wanting a dedicated space for herbal conversation." },
+          { user: attendees[10], body: "This is wonderful. I'll share my spring tonic recipe soon." },
+          { user: attendees[13], body: "Excited to be here! I have so many questions about tincture ratios." }
+        ]
+      },
+      {
+        author: attendees[5],
+        pinned: false,
+        body: "Here's my fire cider recipe as promised:\n\n- 1 quart raw apple cider vinegar\n- 1/2 cup fresh horseradish root, grated\n- 1/4 cup garlic, minced\n- 1/2 cup onion, diced\n- 1/4 cup fresh ginger, grated\n- 2 tbsp turmeric root, grated\n- 2-3 hot peppers, sliced\n- 1 lemon, zested and juiced\n- 2 sprigs fresh rosemary\n\nCombine everything in a jar. Let it infuse for 4-6 weeks, shaking daily. Strain and add raw honey to taste.\n\nTake a tablespoon daily or use it as a salad dressing base!",
+        comments: [
+          { user: attendees[0], body: "This is incredible. Starting a batch today." },
+          { user: attendees[13], body: "I add a handful of rose hips to mine for extra vitamin C. Highly recommend!" },
+          { user: attendees[10], body: "The rosemary is a nice touch. I've never added that before." }
+        ]
+      },
+      {
+        author: attendees[10],
+        pinned: false,
+        body: "Question for the group: what are your go-to herbs for supporting someone through grief?\n\nI have a friend who recently lost her mother and I want to make her a care package. Thinking hawthorn berry, lemon balm, and rose petal. What else would you add?",
+        comments: [
+          { user: attendees[5], body: "Motherwort is beautiful for grief that sits in the chest. A few drops of tincture can really help." },
+          { user: attendees[0], body: "I'd add mimosa bark. It's sometimes called the 'tree of collective happiness' and it's wonderful for deep sadness." },
+          { user: attendees[13], body: "Holy basil (tulsi) is also really comforting. It helps the heart feel held." }
+        ]
+      }
+    ],
+    "Morning Breathwork" => [
+      {
+        author: attendees[4],
+        pinned: true,
+        body: "Welcome to Morning Breathwork! Let's use this space to share our daily practices, support each other's consistency, and explore different techniques.\n\nFeel free to post:\n- What you practiced today\n- How you're feeling\n- Questions about technique\n- Resources and recommendations\n\nNo pressure to practice every day. Show up when you can.",
+        comments: [
+          { user: attendees[2], body: "Love this! Consistency has been my biggest challenge. Having a group helps so much." },
+          { user: attendees[16], body: "I'm newer to breathwork so I might have lots of questions. Thanks for creating this space!" }
+        ]
+      },
+      {
+        author: attendees[2],
+        pinned: false,
+        body: "Sharing some acupressure points that pair beautifully with breathwork:\n\n1. Lung 7 (Lieque) - inside of the wrist, above the thumb. Opens the chest and supports the lungs.\n2. Conception Vessel 17 (Shanzhong) - center of the chest between the nipples. The 'sea of qi' point.\n3. Kidney 1 (Yongquan) - bottom of the foot. Grounds energy and calms the mind.\n\nTry pressing each point gently for 30 seconds before your breathwork practice. You'll notice a deeper, more open breath.",
+        comments: [
+          { user: attendees[4], body: "I tried the chest point this morning and it completely changed the quality of my breath. Thank you, Aria!" },
+          { user: attendees[16], body: "This is exactly the kind of integration I've been looking for. So helpful." }
+        ]
+      }
+    ],
+    "Creative Arts & Expression" => [
+      {
+        author: attendees[3],
+        pinned: true,
+        body: "Welcome to Creative Arts & Expression! This group is for anyone who creates, wants to create, or is curious about creativity as a spiritual practice.\n\nAll forms welcome: visual art, dance, music, writing, fiber arts, ceramics, whatever calls to you.\n\nShare your work, your process, and your questions. There is no judgment here, only encouragement.",
+        comments: [
+          { user: attendees[15], body: "Thank you for starting this, Willow. Creativity thrives in community." },
+          { user: attendees[8], body: "So glad to have a space for this. Art-making can feel solitary. This helps." }
+        ]
+      },
+      {
+        author: attendees[15],
+        pinned: false,
+        body: "I've been experimenting with natural pigments made from local earth and plants. Yesterday I ground red ochre from clay I dug near my studio and mixed it with egg yolk to make a tempera paint.\n\nThe color is rich and warm in a way that manufactured paint never captures. There's something about painting with the actual earth that changes the energy of the work.\n\nHas anyone else worked with natural pigments?",
+        comments: [
+          { user: attendees[3], body: "I use natural dyes for fabric but never thought about painting. The earth-as-medium idea is beautiful." },
+          { user: attendees[8], body: "In ceramics, I use local clay bodies and they always have more character than commercial clay. Same principle!" }
+        ]
+      }
+    ],
+    "Book Club: Women Who Run With the Wolves" => [
+      {
+        author: attendees[9],
+        pinned: true,
+        body: "Welcome to our book club! We're reading 'Women Who Run With the Wolves' by Clarissa Pinkola Estés.\n\nPace: One chapter every two weeks.\n\nHow it works:\n- Read the chapter on your own\n- Share reflections, underlined passages, and personal stories here\n- We'll have a deeper discussion thread each time we finish a chapter\n\nCurrently reading: Chapter 3 - Nosing Out the Facts: The Retrieval of Intuition as Initiation",
+        comments: [
+          { user: attendees[1], body: "Perfect pace. This book needs slow digestion." },
+          { user: attendees[11], body: "I read this years ago but it hits completely differently now. Excited to revisit it with all of you." },
+          { user: attendees[14], body: "First time reading it. Already hooked after the introduction." }
+        ]
+      },
+      {
+        author: attendees[11],
+        pinned: false,
+        body: "Discussion questions for the Bluebeard chapter:\n\n1. What does the 'key' represent in your own life? What doors have you been afraid to open?\n2. Estés writes about the 'naive woman' who must die so the 'knowing woman' can live. When have you experienced this death/rebirth?\n3. How do you recognize the 'predator' energy in your own psyche or relationships?\n\nTake your time with these. They're meant to be sat with, not rushed through.",
+        comments: [
+          { user: attendees[9], body: "Question 2 stopped me in my tracks. I'm journaling on it before I respond here." },
+          { user: attendees[14], body: "The predator question is so important. I think we often externalize it but it lives inside too." },
+          { user: attendees[1], body: "I've been carrying question 1 with me all week. The key for me right now is my creative voice. I keep holding it back." }
+        ]
+      },
+      {
+        author: attendees[14],
+        pinned: false,
+        body: "A passage that keeps echoing in me:\n\n'The doors to the world of the wild Self are few but precious. If you have a deep scar, that is a door. If you have an old, old story, that is a door.'\n\nI've been thinking about my scars as doorways rather than wounds. It's completely reframing how I see my own history.",
+        comments: [
+          { user: attendees[9], body: "This passage changed something in me the first time I read it. Scars as doorways. So powerful." },
+          { user: attendees[11], body: "In my doula work, I see this in birth stories all the time. The hardest births often crack open the deepest wisdom." }
+        ]
+      }
+    ],
+    "European Traditions Exchange" => [
+      {
+        author: attendees[20],
+        pinned: true,
+        body: "Welcome to the European Traditions Exchange! This group is for sharing folk healing practices, seasonal rituals, and ancestral wisdom from our European roots.\n\nWhether your traditions are Celtic, Nordic, Mediterranean, Germanic, Slavic, or anything in between, there is room here.\n\nLet's learn from each other and rediscover the old ways together.",
+        comments: [
+          { user: attendees[21], body: "What a beautiful intention. I have so much to share from the Irish tradition and so much to learn from yours." }
+        ]
+      },
+      {
+        author: attendees[21],
+        pinned: false,
+        body: "In the Celtic tradition, the hawthorn tree is sacred to the goddess and marks the boundary between worlds. In Ireland, lone hawthorn trees in fields are never cut down, as they're believed to be fairy trees.\n\nHawthorn berries are also wonderful heart medicine. I make a tincture every autumn and take it through the winter.\n\nDoes the hawthorn have significance in Nordic traditions too, Elara?",
+        comments: [
+          { user: attendees[20], body: "In Scandinavian folklore, the hawthorn is also associated with protection and fertility. We use the berries similarly in folk medicine. Such a beautiful cross-cultural thread!" }
+        ]
+      }
+    ]
+  }
+
+  group_post_base_time = 4.days.ago
+
+  group_posts_data.each do |group_name, posts|
+    group = groups[group_name]
+    next unless group
+
+    posts.each_with_index do |post_data, i|
+      post = group.group_posts.find_or_create_by!(body: post_data[:body]) do |p|
+        p.user = post_data[:author]
+        p.pinned = post_data[:pinned]
+        p.created_at = group_post_base_time + (i * 14).hours
+        p.updated_at = group_post_base_time + (i * 14).hours
+      end
+
+      post_data[:comments].each_with_index do |comment_data, j|
+        post.group_post_comments.find_or_create_by!(user: comment_data[:user], body: comment_data[:body]) do |c|
+          c.created_at = post.created_at + ((j + 1) * 3).hours
+          c.updated_at = post.created_at + ((j + 1) * 3).hours
+        end
+      end
+    end
+
+    puts "Seeded #{posts.size} group posts with comments in: #{group_name}"
+  end
+
   dm_threads = [
     {
       between: [ attendees[0], attendees[5] ],

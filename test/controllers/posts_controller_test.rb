@@ -19,29 +19,6 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "new with existing draft redirects to edit" do
-    sign_in users(:attendee)
-    draft = posts(:attendee_draft)
-    get new_cohort_post_path(cohorts(:kabul_retreat))
-    assert_redirected_to edit_cohort_post_path(cohorts(:kabul_retreat), draft)
-  end
-
-  test "new without existing draft creates draft and redirects to edit" do
-    sign_in users(:admin)
-    assert_difference "Post.count" do
-      get new_cohort_post_path(cohorts(:kabul_retreat))
-    end
-    new_draft = Post.last
-    assert new_draft.draft?
-    assert_redirected_to edit_cohort_post_path(cohorts(:kabul_retreat), new_draft)
-  end
-
-  test "non-member cannot access new post form" do
-    sign_in users(:attendee_two)
-    get new_cohort_post_path(cohorts(:kabul_retreat))
-    assert_redirected_to root_path
-  end
-
   test "member can create post" do
     sign_in users(:attendee)
     assert_difference "Post.count" do
@@ -71,10 +48,11 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "invalid post re-renders form" do
+  test "invalid inline post renders cohort show" do
     sign_in users(:attendee)
     assert_no_difference "Post.count" do
       post cohort_posts_path(cohorts(:kabul_retreat)), params: {
+        inline_feed: "1",
         post: { body: "" }
       }
     end
@@ -133,62 +111,6 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "edit shows draft form" do
-    sign_in users(:attendee)
-    get edit_cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_draft))
-    assert_response :success
-  end
-
-  test "edit redirects to show for published posts" do
-    sign_in users(:attendee)
-    get edit_cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_post))
-    assert_redirected_to cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_post))
-  end
-
-  test "update saves draft fields" do
-    sign_in users(:attendee)
-    draft = posts(:attendee_draft)
-    patch cohort_post_path(cohorts(:kabul_retreat), draft), params: {
-      post: { body: "Updated draft body" }
-    }
-    assert_redirected_to edit_cohort_post_path(cohorts(:kabul_retreat), draft)
-    draft.reload
-    assert_equal "Updated draft body", draft.body
-    assert draft.draft?
-  end
-
-  test "update with publish publishes the post" do
-    sign_in users(:attendee)
-    draft = posts(:attendee_draft)
-    patch cohort_post_path(cohorts(:kabul_retreat), draft), params: {
-      publish: "1",
-      post: { body: "Published body" }
-    }
-    assert_redirected_to cohort_post_path(cohorts(:kabul_retreat), draft)
-    draft.reload
-    assert_not draft.draft?
-    assert_equal "Published body", draft.body
-  end
-
-  test "publish fails without body" do
-    sign_in users(:attendee)
-    draft = posts(:attendee_draft)
-    patch cohort_post_path(cohorts(:kabul_retreat), draft), params: {
-      publish: "1",
-      post: { body: "" }
-    }
-    assert_response :unprocessable_entity
-    draft.reload
-    assert draft.draft?
-  end
-
-  test "drafts do not appear in cohort feed" do
-    sign_in users(:attendee)
-    get cohort_path(cohorts(:kabul_retreat), tab: :feed)
-    assert_response :success
-    assert_select ".line-clamp-2", text: /My draft post in progress/, count: 0
-  end
-
   test "inline create redirects to cohort on success" do
     sign_in users(:attendee)
     assert_difference "Post.count" do
@@ -210,32 +132,5 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :unprocessable_entity
     assert_select "[data-controller='inline-post-form']"
-  end
-
-  test "inline publish redirects to cohort on success" do
-    sign_in users(:attendee)
-    draft = posts(:attendee_draft)
-    patch cohort_post_path(cohorts(:kabul_retreat), draft), params: {
-      publish: "1",
-      inline_feed: "1",
-      post: { body: "Content" }
-    }
-    assert_redirected_to cohort_path(cohorts(:kabul_retreat), tab: :feed)
-    draft.reload
-    assert_not draft.draft?
-  end
-
-  test "inline publish renders cohort show on validation failure" do
-    sign_in users(:attendee)
-    draft = posts(:attendee_draft)
-    patch cohort_post_path(cohorts(:kabul_retreat), draft), params: {
-      publish: "1",
-      inline_feed: "1",
-      post: { body: "" }
-    }
-    assert_response :unprocessable_entity
-    assert_select "[data-controller='inline-post-form']"
-    draft.reload
-    assert draft.draft?
   end
 end

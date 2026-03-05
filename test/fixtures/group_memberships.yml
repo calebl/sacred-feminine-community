@@ -1,0 +1,15 @@
+attendee_in_book_club:
+  user: attendee
+  group: book_club
+
+admin_in_book_club:
+  user: admin
+  group: book_club
+
+admin_in_yoga:
+  user: admin
+  group: yoga_group
+
+attendee_in_yoga:
+  user: attendee
+  group: yoga_group

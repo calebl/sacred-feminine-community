@@ -12,6 +12,7 @@ class CohortsController < ApplicationController
     authorize @cohort
     @active_tab = params[:tab].presence || "feed"
     @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
+    @sidebar_groups = current_user.groups.order(:name)
     @active_cohort_id = @cohort.id
     unless request.headers["Purpose"] == "prefetch"
       membership = @cohort.cohort_memberships.find_by(user: current_user)
@@ -29,13 +30,7 @@ class CohortsController < ApplicationController
                             .order(created_at: :desc)
                             .limit(50)
                             .reverse
-    @posts = @cohort.posts.published.pinned_first.includes(:user, :post_comments)
-    draft = @cohort.posts.drafts.find_by(user: current_user)
-    if draft&.has_content?
-      @draft = draft
-    elsif draft
-      draft.destroy
-    end
+    @posts = @cohort.posts.pinned_first.includes(:user, :post_comments)
   end
 
   def new

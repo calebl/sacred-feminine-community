@@ -3,7 +3,7 @@
   <% if @cohort.header_image.attached? %>
     <%= image_tag @cohort.header_image.variant(resize_to_limit: [2400, 800]), class: "w-full" %>
   <% else %>
-    <%= render "cohorts/header_image_placeholder" %>
+    <%= render "shared/header_image_placeholder" %>
   <% end %>
 </div>
 
@@ -57,17 +57,17 @@
         <div class="flex justify-between items-center mb-4">
           <h3 class="font-display font-semibold text-sf-black dark:text-white">Posts</h3>
           <button data-action="click->inline-post-form#toggle" class="btn-primary px-4 py-2">
-            <%= @draft ? "Continue Draft" : "New Post" %>
+            New Post
           </button>
         </div>
 
         <div data-inline-post-form-target="form" class="<%= @show_form ? '' : 'hidden' %>">
-          <%= render "cohorts/inline_post_form", cohort: @cohort, post: @cohort.posts.build, draft: @draft %>
+          <%= render "shared/inline_post_form", post: @cohort.posts.build, form_url: cohort_posts_path(@cohort) %>
         </div>
 
         <div class="space-y-3">
           <% @posts.each do |post| %>
-            <%= render "posts/post_card", post: post, cohort: @cohort %>
+            <%= render "shared/post_card", post: post, post_path: cohort_post_path(@cohort, post), comments: post.post_comments %>
           <% end %>
           <% if @posts.empty? %>
             <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No posts yet. Be the first to share!</p>
@@ -82,7 +82,7 @@
 
       <div id="chat_messages" class="h-[500px] overflow-y-auto p-4 space-y-2 flex flex-col" data-controller="scroll-bottom chat-alignment" data-chat-alignment-user-id-value="<%= current_user.id %>">
         <% if @chat_messages.present? %>
-          <%= render @chat_messages %>
+          <%= render partial: "shared/chat_message", collection: @chat_messages, as: :message %>
         <% else %>
           <p id="no_messages_placeholder" class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No messages yet. Start the conversation!</p>
         <% end %>

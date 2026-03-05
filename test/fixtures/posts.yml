@@ -18,11 +18,3 @@ bali_post:
   user: admin
   pinned: false
   created_at: <%= 1.hour.ago %>
-
-attendee_draft:
-  body: My draft post in progress
-  cohort: kabul_retreat
-  user: attendee
-  pinned: false
-  draft: true
-  created_at: <%= 1.minute.ago %>

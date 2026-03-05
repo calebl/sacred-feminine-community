@@ -132,33 +132,8 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
     assert_not_nil membership.last_read_at
   end
 
-  # Draft button
-  test "show displays Continue Draft when user has draft with content" do
+  test "show displays New Post button" do
     sign_in users(:attendee)
-    cohort = cohorts(:kabul_retreat)
-    # attendee_draft fixture has a title
-    get cohort_path(cohort, tab: :feed)
-    assert_response :success
-    assert_match "Continue Draft", response.body
-  end
-
-  test "show displays New Post and deletes empty draft" do
-    sign_in users(:attendee)
-    cohort = cohorts(:kabul_retreat)
-    # Replace the fixture draft with an empty one
-    posts(:attendee_draft).destroy
-    empty_draft = cohort.posts.create!(user: users(:attendee), draft: true)
-
-    assert_difference "Post.count", -1 do
-      get cohort_path(cohort, tab: :feed)
-    end
-    assert_response :success
-    assert_match "New Post", response.body
-    assert_not Post.exists?(empty_draft.id)
-  end
-
-  test "show displays New Post when user has no draft" do
-    sign_in users(:admin)
     cohort = cohorts(:kabul_retreat)
     get cohort_path(cohort, tab: :feed)
     assert_response :success

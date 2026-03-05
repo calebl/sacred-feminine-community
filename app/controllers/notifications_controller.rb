@@ -18,7 +18,7 @@ class NotificationsController < ApplicationController
 
     # Posts where the user has commented and there are new comments from others
     commented_post_ids = current_user.post_comments.select(:post_id).distinct
-    @unread_comment_posts = Post.published.where(id: commented_post_ids)
+    @unread_comment_posts = Post.where(id: commented_post_ids)
                                 .includes(:post_comments, :post_reads, :user, :cohort)
                                 .select { |p| p.unread_comment_count(current_user) > 0 }
   end

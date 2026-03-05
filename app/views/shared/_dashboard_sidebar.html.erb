@@ -35,10 +35,20 @@
   <% end %>
 </div>
 
-<%# Groups section (placeholder) %>
+<%# Groups section %>
 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-5">
   <h3 class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Groups</h3>
-  <p class="text-sm text-gray-400 dark:text-gray-500">Coming soon.</p>
+  <% if @sidebar_groups&.any? %>
+    <div class="space-y-1">
+      <% @sidebar_groups.each do |group| %>
+        <% active = defined?(@active_group_id) && @active_group_id == group.id %>
+        <%= link_to group.name, group_path(group),
+            class: "block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors #{active ? 'bg-sf-gold/10 text-sf-gold font-semibold' : 'text-gray-700 dark:text-gray-300 hover:bg-sf-gold/10 hover:text-sf-gold'}" %>
+      <% end %>
+    </div>
+  <% end %>
+  <%= link_to "Explore Groups", groups_path,
+      class: "block w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-sf-gold/10 hover:text-sf-gold transition-colors mt-1" %>
 </div>
 
 <% if current_user.admin? %>
