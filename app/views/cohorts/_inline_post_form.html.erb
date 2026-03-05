@@ -24,13 +24,7 @@
     <% end %>
 
     <div>
-      <%= f.label :title, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
-      <%= f.text_field :title, class: "w-full", placeholder: "Give your post a title..." %>
-    </div>
-
-    <div>
-      <%= f.label :body, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
-      <%= f.rich_text_area :body %>
+      <%= f.text_area :body, class: "w-full min-h-[200px] resize-y", placeholder: "Write your post...", required: true %>
     </div>
 
     <div class="flex justify-end gap-3">
