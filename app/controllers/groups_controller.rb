@@ -1,10 +1,11 @@
 class GroupsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_group, only: [ :show, :edit, :update, :destroy ]
-  layout "dashboard", only: :show
+  layout "dashboard"
 
   def index
     skip_authorization
+    load_sidebar
     @groups = policy_scope(Group).includes(:members).with_attached_header_image.order(:name)
   end
 
@@ -38,6 +39,7 @@ class GroupsController < ApplicationController
   def new
     @group = Group.new
     authorize @group
+    load_sidebar
   end
 
   def create
@@ -49,12 +51,15 @@ class GroupsController < ApplicationController
       @group.group_memberships.create!(user: current_user)
       redirect_to @group, notice: "Group created."
     else
+      load_sidebar
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
     authorize @group
+    load_sidebar
+    @active_group_id = @group.id
   end
 
   def update
@@ -63,6 +68,8 @@ class GroupsController < ApplicationController
       @group.header_image.purge if params[:group][:remove_header_image] == "1" && !params[:group][:header_image].present?
       redirect_to @group, notice: "Group updated."
     else
+      load_sidebar
+      @active_group_id = @group.id
       render :edit, status: :unprocessable_entity
     end
   end
@@ -77,6 +84,11 @@ class GroupsController < ApplicationController
 
   def set_group
     @group = Group.kept.find(params[:id])
+  end
+
+  def load_sidebar
+    @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
+    @sidebar_groups = current_user.groups.order(:name)
   end
 
   def group_params

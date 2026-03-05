@@ -1,19 +1,17 @@
-<div class="max-w-4xl mx-auto px-4 py-8">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white">Groups</h1>
-    <%= link_to "New Group", new_group_path, class: "btn-primary px-5 py-2.5" %>
-  </div>
-
-  <% if @groups.any? %>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <% @groups.each do |group| %>
-        <%= render "group_card", group: group %>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="text-center py-16 text-gray-400 dark:text-gray-500">
-      <p class="text-lg">No groups yet.</p>
-      <p class="text-sm mt-2">Create a group to start connecting with others!</p>
-    </div>
-  <% end %>
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white">Groups</h1>
+  <%= link_to "New Group", new_group_path, class: "btn-primary px-5 py-2.5" %>
 </div>
+
+<% if @groups.any? %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <% @groups.each do |group| %>
+      <%= render "group_card", group: group %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="text-center py-16 text-gray-400 dark:text-gray-500">
+    <p class="text-lg">No groups yet.</p>
+    <p class="text-sm mt-2">Create a group to start connecting with others!</p>
+  </div>
+<% end %>
