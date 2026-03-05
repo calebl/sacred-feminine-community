@@ -27,6 +27,7 @@ class User < ApplicationRecord
   has_many :post_reads, dependent: :destroy
   has_many :created_cohorts, class_name: "Cohort", foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
   has_many :announcements, foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
+  has_many :faqs, foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
 
   has_many :conversation_participants, dependent: :destroy
   has_many :conversations, through: :conversation_participants

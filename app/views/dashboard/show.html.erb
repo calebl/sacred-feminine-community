@@ -15,7 +15,7 @@
       </div>
     <% when "faqs" %>
       <div class="p-6">
-        <%= render "dashboard/faqs_panel" %>
+        <%= turbo_frame_tag "faqs_panel", src: faqs_path, loading: :lazy %>
       </div>
     <% else %>
       <div class="p-4 h-[600px] overflow-y-auto">
@@ -45,6 +45,11 @@
               class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
         Members
       </button>
+      <button data-tabs-target="tab" data-action="click->tabs#select"
+              data-tab-name="faqs"
+              class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+        FAQs
+      </button>
     </div>
 
     <%# Announcements panel %>
@@ -60,6 +65,11 @@
     <%# Members panel %>
     <div data-tabs-target="panel" data-panel-name="members" class="p-4 h-[532px] flex flex-col" data-controller="member-search">
       <%= render "dashboard/members_panel" %>
+    </div>
+
+    <%# FAQs panel %>
+    <div data-tabs-target="panel" data-panel-name="faqs" class="p-6">
+      <%= turbo_frame_tag "faqs_panel", src: faqs_path, loading: :lazy %>
     </div>
   </div>
 </div>
