@@ -6,7 +6,7 @@
     <div class="flex items-center gap-2">
       <% if policy(@post).pin? %>
         <%= button_to @post.pinned? ? "Unpin" : "Pin",
-            pin_group_group_post_path(@group, @post),
+            group_group_post_pin_path(@group, @post),
             method: :patch,
             class: "px-3 py-1.5 text-xs font-semibold rounded-lg border #{@post.pinned? ? 'border-sf-gold text-sf-gold' : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'} hover:bg-sf-gold/10 transition cursor-pointer" %>
       <% end %>

@@ -66,7 +66,7 @@ class GroupsController < ApplicationController
   def update
     authorize @group
     if @group.update(group_params)
-      @group.header_image.purge if params[:group][:remove_header_image] == "1"
+      @group.header_image.purge if params[:group][:remove_header_image] == "1" && !params[:group][:header_image].present?
       redirect_to @group, notice: "Group updated."
     else
       render :edit, status: :unprocessable_entity

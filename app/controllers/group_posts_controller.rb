@@ -1,7 +1,7 @@
 class GroupPostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_group
-  before_action :set_post, only: [ :show, :edit, :update, :destroy, :pin ]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
 
   def show
     authorize @post
@@ -53,8 +53,12 @@ class GroupPostsController < ApplicationController
         end
       end
     else
-      @post.assign_attributes(post_params)
-      @post.save(validate: false)
+      unless @post.draft?
+        redirect_to group_group_post_path(@group, @post)
+        return
+      end
+
+      @post.update(post_params)
 
       respond_to do |format|
         format.turbo_stream
@@ -88,12 +92,6 @@ class GroupPostsController < ApplicationController
     authorize @post
     @post.destroy
     redirect_to group_path(@group, tab: :feed), notice: "Post deleted."
-  end
-
-  def pin
-    authorize @post
-    @post.update(pinned: !@post.pinned)
-    redirect_to group_path(@group, tab: :feed), notice: @post.pinned? ? "Post pinned." : "Post unpinned."
   end
 
   private

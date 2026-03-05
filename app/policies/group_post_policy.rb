@@ -1,6 +1,6 @@
 class GroupPostPolicy < ApplicationPolicy
   def show?
-    record.group.member?(user)
+    record.group.member?(user) && (!record.draft? || record.user == user)
   end
 
   def create?

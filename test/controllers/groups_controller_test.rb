@@ -189,6 +189,21 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_not group.reload.header_image.attached?
   end
 
+  test "remove header image is skipped when new image is also uploaded" do
+    sign_in users(:attendee)
+    group = groups(:book_club)
+    group.header_image.attach(io: StringIO.new("fake"), filename: "photo.jpg", content_type: "image/jpeg")
+
+    patch group_path(group), params: {
+      group: {
+        remove_header_image: "1",
+        header_image: fixture_file_upload("avatar.png", "image/png")
+      }
+    }
+    assert_redirected_to group_path(group)
+    assert group.reload.header_image.attached?
+  end
+
   # Leave button
   test "member sees leave button" do
     sign_in users(:admin)

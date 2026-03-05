@@ -40,7 +40,7 @@ Rails.application.routes.draw do
     resource :group_membership, only: [ :create, :destroy ]
     resources :group_chat_messages, only: [ :create ]
     resources :group_posts, only: [ :show, :new, :create, :edit, :update, :destroy ] do
-      patch :pin, on: :member
+      resource :pin, only: [ :update ], module: :group_posts
       resources :group_post_comments, only: [ :create, :destroy ]
     end
   end
