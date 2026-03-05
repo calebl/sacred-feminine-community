@@ -1,0 +1,20 @@
+active_faq:
+  question: How do I join a cohort?
+  answer: You will be invited to a cohort by an admin. Once invited, it will appear in your dashboard sidebar.
+  position: 0
+  active: true
+  created_by_id: <%= ActiveRecord::FixtureSet.identify(:admin) %>
+
+second_faq:
+  question: How do I send a direct message?
+  answer: Navigate to Messages from your dashboard and start a new conversation with any community member.
+  position: 1
+  active: true
+  created_by_id: <%= ActiveRecord::FixtureSet.identify(:admin) %>
+
+inactive_faq:
+  question: What is the retreat schedule?
+  answer: Retreat schedules are shared within each cohort.
+  position: 2
+  active: false
+  created_by_id: <%= ActiveRecord::FixtureSet.identify(:admin) %>
