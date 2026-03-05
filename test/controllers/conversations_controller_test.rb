@@ -52,6 +52,20 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_user_session_path
   end
 
+  # New
+
+  test "new renders the new message page" do
+    sign_in @admin
+    get new_conversation_path
+    assert_response :success
+    assert_match "New Message", response.body
+  end
+
+  test "new requires authentication" do
+    get new_conversation_path
+    assert_redirected_to new_user_session_path
+  end
+
   # Create
 
   test "create finds or creates conversation and redirects" do
@@ -67,6 +81,26 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
       post conversations_path, params: { recipient_id: @attendee_two.id }
     end
     assert_redirected_to conversation_path(Conversation.last)
+  end
+
+  test "create with body creates conversation and first message" do
+    @attendee_two.update_column(:dm_privacy, 2)
+    sign_in @admin
+    assert_difference [ "Conversation.count", "DirectMessage.count" ] do
+      post conversations_path, params: { recipient_id: @attendee_two.id, body: "Hello there!" }
+    end
+    conversation = Conversation.last
+    assert_redirected_to conversation_path(conversation)
+    assert_equal "Hello there!", conversation.direct_messages.last.body
+    assert_equal @admin, conversation.direct_messages.last.sender
+  end
+
+  test "create without body does not create a message" do
+    sign_in @admin
+    assert_no_difference "DirectMessage.count" do
+      post conversations_path, params: { recipient_id: @attendee.id }
+    end
+    assert_redirected_to conversation_path(@conversation)
   end
 
   test "create prevents self-messaging" do
@@ -91,7 +125,7 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference "Conversation.count" do
       post conversations_path, params: { recipient_id: @attendee.id }
     end
-    assert_redirected_to profile_path(@attendee)
+    assert_redirected_to new_conversation_path
     assert_equal "This member is not accepting direct messages.", flash[:alert]
   end
 
@@ -101,7 +135,7 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference "Conversation.count" do
       post conversations_path, params: { recipient_id: @attendee.id }
     end
-    assert_redirected_to profile_path(@attendee)
+    assert_redirected_to new_conversation_path
     assert_equal "This member is not accepting direct messages.", flash[:alert]
   end
 

@@ -4,8 +4,10 @@ class ConversationsController < ApplicationController
   def index
     skip_authorization
     @conversations = policy_scope(Conversation)
+                       .joins(:direct_messages)
                        .includes(:participants, :conversation_participants, direct_messages: :sender)
                        .order(updated_at: :desc)
+                       .distinct
   end
 
   def show
@@ -23,6 +25,10 @@ class ConversationsController < ApplicationController
     @other_user = @conversation.other_participant(current_user)
   end
 
+  def new
+    skip_authorization
+  end
+
   def create
     recipient = User.kept.find(params[:recipient_id])
 
@@ -34,12 +40,17 @@ class ConversationsController < ApplicationController
 
     unless recipient.accepts_direct_messages_from?(current_user)
       skip_authorization
-      redirect_to profile_path(recipient), alert: "This member is not accepting direct messages."
+      redirect_back fallback_location: new_conversation_path, alert: "This member is not accepting direct messages."
       return
     end
 
     @conversation = Conversation.between(current_user, recipient)
     authorize @conversation, :show?
+
+    if params[:body].present?
+      @conversation.direct_messages.create!(sender: current_user, body: params[:body])
+      @conversation.touch
+    end
 
     redirect_to @conversation
   end

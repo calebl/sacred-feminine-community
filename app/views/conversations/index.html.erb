@@ -1,5 +1,10 @@
 <div class="max-w-2xl mx-auto px-4 py-8">
-  <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white mb-6">Messages</h1>
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white">Messages</h1>
+    <%= link_to new_conversation_path, class: "bg-sf-gold hover:bg-sf-gold/90 text-white text-sm font-semibold py-2.5 px-4 rounded-lg transition" do %>
+      New Message
+    <% end %>
+  </div>
 
   <% if @conversations.any? %>
     <div class="space-y-2">
@@ -41,7 +46,7 @@
   <% else %>
     <div class="text-center py-16 text-gray-400 dark:text-gray-500">
       <p class="text-lg">No messages yet.</p>
-      <p class="text-sm mt-2">Start a conversation from someone's profile.</p>
+      <p class="text-sm mt-2">Tap "New Message" to start a conversation.</p>
     </div>
   <% end %>
 </div>

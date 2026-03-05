@@ -1,0 +1,43 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <%= render layout: "shared/back_header", locals: { path: conversations_path, title: "New Message" } do %>
+  <% end %>
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden"
+       data-controller="conversation-search"
+       data-conversation-search-url-value="<%= conversations_member_searches_path %>">
+
+    <%# Recipient selection %>
+    <div class="p-4 border-b border-sf-sand/20 dark:border-gray-700">
+      <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block">To</label>
+
+      <div data-conversation-search-target="selected" class="hidden mb-2">
+        <span class="inline-flex items-center gap-2 bg-sf-gold/10 text-sf-gold text-sm font-semibold px-3 py-1.5 rounded-full">
+          <span data-conversation-search-target="selectedName"></span>
+          <button type="button" data-action="conversation-search#deselect" class="hover:text-sf-gold/70 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </span>
+      </div>
+
+      <div class="relative" data-conversation-search-target="searchWrapper">
+        <input type="text"
+               data-conversation-search-target="input"
+               data-action="input->conversation-search#search blur->conversation-search#hide"
+               placeholder="Search for a member..."
+               class="w-full px-4 py-3 pr-12 text-sm border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-sf-black dark:text-white placeholder-gray-400 focus:ring-sf-gold focus:border-sf-gold"
+               autocomplete="off">
+        <svg class="absolute right-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <%= turbo_frame_tag "member_search_results" %>
+      </div>
+    </div>
+
+    <%# Message form %>
+    <%= form_with url: conversations_path, method: :post, class: "p-4 flex gap-2", data: { conversation_search_target: "form" } do |f| %>
+      <input type="hidden" name="recipient_id" value="" data-conversation-search-target="recipientId">
+      <input type="text" name="body" placeholder="Type a message..." class="flex-1 px-4 py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-sf-black dark:text-white placeholder-gray-400 focus:ring-sf-gold focus:border-sf-gold" autocomplete="off" required data-conversation-search-target="body">
+      <button type="submit" class="bg-sf-gold hover:bg-sf-gold/90 text-white text-sm font-semibold py-2.5 px-5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" disabled data-conversation-search-target="submit">Send</button>
+    <% end %>
+  </div>
+</div>
