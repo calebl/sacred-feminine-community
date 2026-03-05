@@ -37,7 +37,7 @@ class FaqsControllerTest < ActionDispatch::IntegrationTest
         faq: { question: "New question?", answer: "New answer.", position: 0, active: true }
       }
     end
-    assert_redirected_to authenticated_root_path(tab: "faqs")
+    assert_redirected_to faqs_path
   end
 
   test "attendee cannot create faq" do
@@ -57,7 +57,7 @@ class FaqsControllerTest < ActionDispatch::IntegrationTest
         faq: { question: "", answer: "" }
       }
     end
-    assert_redirected_to authenticated_root_path(tab: "faqs")
+    assert_redirected_to faqs_path
     assert_equal "Question can't be blank and Answer can't be blank", flash[:alert]
   end
 
@@ -80,7 +80,7 @@ class FaqsControllerTest < ActionDispatch::IntegrationTest
     patch faq_path(faqs(:active_faq)), params: {
       faq: { question: "Updated question?" }
     }
-    assert_redirected_to authenticated_root_path(tab: "faqs")
+    assert_redirected_to faqs_path
     assert_equal "Updated question?", faqs(:active_faq).reload.question
   end
 
@@ -99,7 +99,7 @@ class FaqsControllerTest < ActionDispatch::IntegrationTest
     assert_difference "Faq.count", -1 do
       delete faq_path(faqs(:inactive_faq))
     end
-    assert_redirected_to authenticated_root_path(tab: "faqs")
+    assert_redirected_to faqs_path
   end
 
   test "attendee cannot delete faq" do

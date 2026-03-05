@@ -15,9 +15,9 @@ class FaqsController < ApplicationController
     authorize @faq
 
     if @faq.save
-      redirect_to authenticated_root_path(tab: "faqs"), notice: "FAQ created."
+      redirect_to faqs_path, notice: "FAQ created."
     else
-      redirect_to authenticated_root_path(tab: "faqs"), alert: @faq.errors.full_messages.to_sentence
+      redirect_to faqs_path, alert: @faq.errors.full_messages.to_sentence
     end
   end
 
@@ -28,7 +28,7 @@ class FaqsController < ApplicationController
   def update
     authorize @faq
     if @faq.update(faq_params)
-      redirect_to authenticated_root_path(tab: "faqs"), notice: "FAQ updated."
+      redirect_to faqs_path, notice: "FAQ updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -37,7 +37,7 @@ class FaqsController < ApplicationController
   def destroy
     authorize @faq
     @faq.destroy
-    redirect_to authenticated_root_path(tab: "faqs"), notice: "FAQ deleted."
+    redirect_to faqs_path, notice: "FAQ deleted."
   end
 
   private
