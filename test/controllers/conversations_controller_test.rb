@@ -103,6 +103,28 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to conversation_path(@conversation)
   end
 
+  test "create with recipient_ids creates group conversation" do
+    @attendee_two.update_column(:dm_privacy, 2)
+    sign_in @admin
+    assert_difference "Conversation.count" do
+      post conversations_path, params: { recipient_ids: [ @attendee.id, @attendee_two.id ], body: "Hello group!" }
+    end
+    conversation = Conversation.last
+    assert_redirected_to conversation_path(conversation)
+    assert_equal 3, conversation.participants.count
+    assert_equal "Hello group!", conversation.direct_messages.last.body
+  end
+
+  test "create with recipient_ids reuses existing group conversation" do
+    @attendee_two.update_column(:dm_privacy, 2)
+    sign_in @admin
+    convo = Conversation.between(@admin, @attendee, @attendee_two)
+    assert_no_difference "Conversation.count" do
+      post conversations_path, params: { recipient_ids: [ @attendee.id, @attendee_two.id ] }
+    end
+    assert_redirected_to conversation_path(convo)
+  end
+
   test "create prevents self-messaging" do
     sign_in @admin
     assert_no_difference "Conversation.count" do
@@ -126,7 +148,7 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
       post conversations_path, params: { recipient_id: @attendee.id }
     end
     assert_redirected_to new_conversation_path
-    assert_equal "This member is not accepting direct messages.", flash[:alert]
+    assert_match "not accepting direct messages", flash[:alert]
   end
 
   test "create is blocked when recipient privacy is cohort_members and sender is not in shared cohort" do
@@ -136,7 +158,7 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
       post conversations_path, params: { recipient_id: @attendee.id }
     end
     assert_redirected_to new_conversation_path
-    assert_equal "This member is not accepting direct messages.", flash[:alert]
+    assert_match "not accepting direct messages", flash[:alert]
   end
 
   test "create succeeds when recipient privacy is cohort_members and sender shares a cohort" do

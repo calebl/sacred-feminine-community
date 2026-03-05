@@ -1,11 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "selected", "selectedName", "searchWrapper", "recipientId", "body", "submit"]
+  static targets = ["input", "chips", "hiddenInputs", "body", "submit"]
   static values = { url: String }
 
   connect() {
     this.timeout = null
+    this.selectedUsers = []
   }
 
   search() {
@@ -37,48 +38,51 @@ export default class extends Controller {
     const userId = button.dataset.userId
     const userName = button.dataset.userName
 
-    if (this.hasRecipientIdTarget) {
-      this.recipientIdTarget.value = userId
-    }
+    if (this.selectedUsers.some(u => u.id === userId)) return
 
-    if (this.hasSelectedNameTarget) {
-      this.selectedNameTarget.textContent = userName
-    }
+    this.selectedUsers.push({ id: userId, name: userName })
 
-    if (this.hasSelectedTarget) {
-      this.selectedTarget.classList.remove("hidden")
-    }
-
-    if (this.hasSearchWrapperTarget) {
-      this.searchWrapperTarget.classList.add("hidden")
-    }
+    this.renderChips()
+    this.renderHiddenInputs()
+    this.updateSubmitState()
 
     this.inputTarget.value = ""
     const frame = document.getElementById("member_search_results")
     if (frame) frame.innerHTML = ""
 
-    this.updateSubmitState()
-
-    if (this.hasBodyTarget) {
-      this.bodyTarget.focus()
-    }
+    this.inputTarget.focus()
   }
 
-  deselect() {
-    if (this.hasRecipientIdTarget) {
-      this.recipientIdTarget.value = ""
-    }
+  deselect(event) {
+    const userId = event.currentTarget.dataset.userId
+    this.selectedUsers = this.selectedUsers.filter(u => u.id !== userId)
 
-    if (this.hasSelectedTarget) {
-      this.selectedTarget.classList.add("hidden")
-    }
-
-    if (this.hasSearchWrapperTarget) {
-      this.searchWrapperTarget.classList.remove("hidden")
-    }
-
+    this.renderChips()
+    this.renderHiddenInputs()
     this.updateSubmitState()
+
     this.inputTarget.focus()
+  }
+
+  renderChips() {
+    if (!this.hasChipsTarget) return
+
+    this.chipsTarget.innerHTML = this.selectedUsers.map(user => `
+      <span class="inline-flex items-center gap-2 bg-sf-gold/10 text-sf-gold text-sm font-semibold px-3 py-1.5 rounded-full">
+        ${this.escapeHtml(user.name)}
+        <button type="button" data-action="conversation-search#deselect" data-user-id="${user.id}" class="hover:text-sf-gold/70 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </span>
+    `).join("")
+  }
+
+  renderHiddenInputs() {
+    if (!this.hasHiddenInputsTarget) return
+
+    this.hiddenInputsTarget.innerHTML = this.selectedUsers.map(user =>
+      `<input type="hidden" name="recipient_ids[]" value="${user.id}">`
+    ).join("")
   }
 
   hide() {
@@ -89,9 +93,15 @@ export default class extends Controller {
   }
 
   updateSubmitState() {
-    if (this.hasSubmitTarget && this.hasRecipientIdTarget) {
-      this.submitTarget.disabled = !this.recipientIdTarget.value
+    if (this.hasSubmitTarget) {
+      this.submitTarget.disabled = this.selectedUsers.length === 0
     }
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement("div")
+    div.textContent = text
+    return div.innerHTML
   }
 
   disconnect() {

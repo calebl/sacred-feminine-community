@@ -3,30 +3,43 @@ class Conversation < ApplicationRecord
   has_many :participants, through: :conversation_participants, source: :user
   has_many :direct_messages, dependent: :destroy
 
-  def self.between(user_a, user_b)
-    ids_a = ConversationParticipant.where(user: user_a).pluck(:conversation_id)
-    ids_b = ConversationParticipant.where(user: user_b).pluck(:conversation_id)
-    common = ids_a & ids_b
+  def self.between(*users)
+    users = users.flatten
+    user_ids = users.map(&:id).sort
 
-    if common.any?
-      find(common.first)
-    else
-      transaction do
-        conversation = create!
-        conversation.conversation_participants.create!(user: user_a)
-        conversation.conversation_participants.create!(user: user_b)
-        conversation
-      end
+    # Find conversations that include ALL specified users
+    candidate_ids = ConversationParticipant
+      .where(user_id: user_ids)
+      .group(:conversation_id)
+      .having("COUNT(DISTINCT user_id) = ?", users.size)
+      .pluck(:conversation_id)
+
+    # Among those, find one with EXACTLY that many participants
+    if candidate_ids.any?
+      existing = joins(:conversation_participants)
+        .where(id: candidate_ids)
+        .group("conversations.id")
+        .having("COUNT(conversation_participants.id) = ?", users.size)
+        .first
+
+      return existing if existing
+    end
+
+    transaction do
+      conversation = create!
+      users.each { |u| conversation.conversation_participants.create!(user: u) }
+      conversation
     end
   rescue ActiveRecord::RecordNotUnique
-    # Race condition: another thread created the same conversation. Retry lookup.
-    ids_a = ConversationParticipant.where(user: user_a).pluck(:conversation_id)
-    ids_b = ConversationParticipant.where(user: user_b).pluck(:conversation_id)
-    find((ids_a & ids_b).first)
+    retry
   end
 
-  def other_participant(user)
-    participants.where.not(id: user.id).first
+  def other_participants(user)
+    participants.where.not(id: user.id)
+  end
+
+  def display_name(current_user)
+    other_participants(current_user).map(&:name).sort.join(", ")
   end
 
   def last_message

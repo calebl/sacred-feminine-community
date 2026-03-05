@@ -5,8 +5,8 @@ class DirectMessagesController < ApplicationController
     @conversation = Conversation.find(params[:conversation_id])
     authorize @conversation, :show?
 
-    other_user = @conversation.other_participant(current_user)
-    if other_user&.discarded?
+    other_users = @conversation.other_participants(current_user)
+    if other_users.all?(&:discarded?)
       redirect_to conversations_path, alert: "This conversation is no longer available."
       return
     end
