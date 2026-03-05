@@ -1,26 +1,26 @@
 pinned_announcement:
-  title: Welcome to Kabul Retreat
+  body: Welcome to our retreat! We are excited to have you.
   cohort: kabul_retreat
   user: admin
   pinned: true
   created_at: <%= 2.days.ago %>
 
 attendee_post:
-  title: My first post
+  body: This is my first post in the cohort.
   cohort: kabul_retreat
   user: attendee
   pinned: false
   created_at: <%= 1.day.ago %>
 
 bali_post:
-  title: Bali Retreat Update
+  body: Here is an update on the Bali retreat plans.
   cohort: bali_retreat
   user: admin
   pinned: false
   created_at: <%= 1.hour.ago %>
 
 attendee_draft:
-  title: My Draft Post In Progress
+  body: My draft post in progress
   cohort: kabul_retreat
   user: attendee
   pinned: false

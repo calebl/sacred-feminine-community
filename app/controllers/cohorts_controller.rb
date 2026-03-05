@@ -27,7 +27,12 @@ class CohortsController < ApplicationController
                             .limit(50)
                             .reverse
     @posts = @cohort.posts.published.pinned_first.includes(:user, :post_comments)
-    @draft = @cohort.posts.drafts.find_by(user: current_user)
+    draft = @cohort.posts.drafts.find_by(user: current_user)
+    if draft&.has_content?
+      @draft = draft
+    elsif draft
+      draft.destroy
+    end
   end
 
   def new

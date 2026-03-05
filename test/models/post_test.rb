@@ -1,28 +1,14 @@
 require "test_helper"
 
 class PostTest < ActiveSupport::TestCase
-  test "requires title" do
-    post = Post.new(cohort: cohorts(:kabul_retreat), user: users(:attendee))
-    post.body = "Some content"
-    assert_not post.valid?
-    assert_includes post.errors[:title], "can't be blank"
-  end
-
-  test "rejects title over 200 characters" do
-    post = Post.new(title: "x" * 201, cohort: cohorts(:kabul_retreat), user: users(:attendee))
-    post.body = "Content"
-    assert_not post.valid?
-  end
-
   test "requires body" do
-    post = Post.new(title: "Test", cohort: cohorts(:kabul_retreat), user: users(:attendee))
+    post = Post.new(cohort: cohorts(:kabul_retreat), user: users(:attendee))
     assert_not post.valid?
     assert_includes post.errors[:body], "can't be blank"
   end
 
-  test "valid with all attributes" do
-    post = Post.new(title: "Test Post", cohort: cohorts(:kabul_retreat), user: users(:attendee))
-    post.body = "Hello world"
+  test "valid with body" do
+    post = Post.new(cohort: cohorts(:kabul_retreat), user: users(:attendee), body: "Hello world")
     assert post.valid?
   end
 
@@ -44,7 +30,7 @@ class PostTest < ActiveSupport::TestCase
     end
   end
 
-  test "draft can save without title or body" do
+  test "draft can save without body" do
     post = Post.new(cohort: cohorts(:bali_retreat), user: users(:admin), draft: true)
     assert post.valid?
     assert post.save
@@ -54,6 +40,16 @@ class PostTest < ActiveSupport::TestCase
     duplicate = Post.new(cohort: cohorts(:kabul_retreat), user: users(:attendee), draft: true)
     assert_not duplicate.valid?
     assert duplicate.errors[:base].any?
+  end
+
+  test "has_content? is true when body is present" do
+    post = Post.new(body: "Some content")
+    assert post.has_content?
+  end
+
+  test "has_content? is false when body is blank" do
+    post = Post.new
+    assert_not post.has_content?
   end
 
   test "published scope excludes drafts" do

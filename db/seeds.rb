@@ -218,10 +218,9 @@ if Rails.env.development?
   posts_data = {
     "Bozeman Spring Retreat 2025" => [
       {
-        title: "What to bring for the retreat",
         author: attendees[0],
         pinned: true,
-        body: "<div><h1>Packing List for the Spring Retreat</h1><p>Hey beautiful souls! Here's a suggested packing list:</p><ul><li>Comfortable layers (mornings are still cool in April)</li><li>Journal and pen</li><li>A sacred object for the altar</li><li>Reusable water bottle</li><li>Yoga mat or blanket for floor work</li></ul><p>Please also bring <strong>any medicines, herbs, or offerings</strong> you'd like to share with the group. We'll have a community table set up.</p><blockquote>Remember: this is a tech-free retreat. Please plan to leave devices in your room.</blockquote></div>",
+        body: "Hey beautiful souls! Here's a suggested packing list for the spring retreat:\n\n- Comfortable layers (mornings are still cool in April)\n- Journal and pen\n- A sacred object for the altar\n- Reusable water bottle\n- Yoga mat or blanket for floor work\n\nPlease also bring any medicines, herbs, or offerings you'd like to share with the group. We'll have a community table set up.\n\nRemember: this is a tech-free retreat. Please plan to leave devices in your room.",
         comments: [
           { user: attendees[5], body: "Great list! I'll also bring extra sage bundles for anyone who wants one." },
           { user: attendees[10], body: "Should we bring our own towels or are they provided?" },
@@ -231,10 +230,9 @@ if Rails.env.development?
         ]
       },
       {
-        title: "Gratitude for this community",
         author: attendees[1],
         pinned: false,
-        body: "<div><p>I just wanted to take a moment to say how grateful I am for each of you. This circle has changed my life in ways I couldn't have imagined when I first joined.</p><p>The wilderness has always been my teacher, but learning alongside all of you has deepened that relationship in beautiful ways. Looking forward to our time together in April.</p><p>With love,<br>Sage</p></div>",
+        body: "I just wanted to take a moment to say how grateful I am for each of you. This circle has changed my life in ways I couldn't have imagined when I first joined.\n\nThe wilderness has always been my teacher, but learning alongside all of you has deepened that relationship in beautiful ways. Looking forward to our time together in April.\n\nWith love,\nSage",
         comments: [
           { user: attendees[0], body: "This made me tear up. We're so lucky to have you in this circle, Sage." },
           { user: attendees[18], body: "The feeling is so mutual. This group is home." },
@@ -242,10 +240,9 @@ if Rails.env.development?
         ]
       },
       {
-        title: "Herbal preparation for spring",
         author: attendees[10],
         pinned: false,
-        body: "<div><p>Spring is the perfect time for liver-supporting herbs. I've been making a daily infusion of:</p><ol><li>Dandelion root</li><li>Burdock root</li><li>Nettle leaf</li><li>A squeeze of lemon</li></ol><p>Let it steep overnight in a mason jar and drink it throughout the morning. Your body will thank you after winter.</p><p>I'll bring some dried blends to share at the retreat!</p></div>",
+        body: "Spring is the perfect time for liver-supporting herbs. I've been making a daily infusion of:\n\n1. Dandelion root\n2. Burdock root\n3. Nettle leaf\n4. A squeeze of lemon\n\nLet it steep overnight in a mason jar and drink it throughout the morning. Your body will thank you after winter.\n\nI'll bring some dried blends to share at the retreat!",
         comments: [
           { user: attendees[5], body: "This is exactly what I needed. My body has been craving greens and bitters." },
           { user: attendees[14], body: "Would this work well combined with a morning breathwork practice?" },
@@ -255,10 +252,9 @@ if Rails.env.development?
     ],
     "Solstice Gathering" => [
       {
-        title: "Solstice ceremony outline",
         author: attendees[3],
         pinned: true,
-        body: "<div><h1>Summer Solstice Ceremony Plan</h1><p>Here's what I'm envisioning for our ceremony:</p><h2>Dawn (5:15 AM)</h2><p>Gather in silence. Sunrise movement meditation led by me, with Dahlia on drums.</p><h2>Morning (8 AM)</h2><p>Breakfast together, then a sharing circle.</p><h2>Afternoon</h2><p>Free time for rest, art, or nature walks.</p><h2>Evening</h2><p>Fire ceremony led by Ember, followed by singing and stargazing.</p><p>Please feel free to suggest additions or changes!</p></div>",
+        body: "Here's what I'm envisioning for our solstice ceremony:\n\nDawn (5:15 AM) - Gather in silence. Sunrise movement meditation led by me, with Dahlia on drums.\n\nMorning (8 AM) - Breakfast together, then a sharing circle.\n\nAfternoon - Free time for rest, art, or nature walks.\n\nEvening - Fire ceremony led by Ember, followed by singing and stargazing.\n\nPlease feel free to suggest additions or changes!",
         comments: [
           { user: attendees[12], body: "This is beautiful, Willow. I'll prepare the fire space the evening before." },
           { user: attendees[7], body: "Could I do a brief star reading during the stargazing portion?" },
@@ -267,10 +263,9 @@ if Rails.env.development?
         ]
       },
       {
-        title: "Solstice art project",
         author: attendees[15],
         pinned: false,
-        body: "<div><p>I've been working on a collaborative art piece for our gathering. The idea is a large sun mandala that we each contribute to during the retreat.</p><p>I'll bring:</p><ul><li>A 4-foot canvas with the base design</li><li>Acrylic paints in warm tones</li><li>Brushes for everyone</li></ul><p>Each person paints a ray of the sun with whatever colors and symbols feel right. By the end of the retreat, we'll have created something together.</p></div>",
+        body: "I've been working on a collaborative art piece for our gathering. The idea is a large sun mandala that we each contribute to during the retreat.\n\nI'll bring:\n- A 4-foot canvas with the base design\n- Acrylic paints in warm tones\n- Brushes for everyone\n\nEach person paints a ray of the sun with whatever colors and symbols feel right. By the end of the retreat, we'll have created something together.",
         comments: [
           { user: attendees[19], body: "I love this idea! Can we add dried flowers to the canvas too?" },
           { user: attendees[15], body: "Yes! Pressed flowers would be gorgeous. Bring whatever natural materials inspire you." },
@@ -280,10 +275,9 @@ if Rails.env.development?
     ],
     "Winter Womb Retreat 2026" => [
       {
-        title: "Cabin details and arrival info",
         author: admin,
         pinned: true,
-        body: "<div><h1>Welcome to the Winter Womb Retreat!</h1><p>Here are the logistics for our gathering:</p><p><strong>Location:</strong> Mountain Spirit Lodge, Big Sky, MT<br><strong>Check-in:</strong> Friday, January 24th, 3:00 PM<br><strong>Check-out:</strong> Monday, January 27th, 11:00 AM</p><p>The cabin has 6 bedrooms (shared), a large gathering room with fireplace, a fully equipped kitchen, and a covered hot tub.</p><p><strong>Driving conditions:</strong> The road to the cabin is plowed but can be icy. 4WD or chains recommended. I'll send GPS coordinates closer to the date.</p><p>Reach out if you need help with transportation!</p></div>",
+        body: "Welcome to the Winter Womb Retreat! Here are the logistics:\n\nLocation: Mountain Spirit Lodge, Big Sky, MT\nCheck-in: Friday, January 24th, 3:00 PM\nCheck-out: Monday, January 27th, 11:00 AM\n\nThe cabin has 6 bedrooms (shared), a large gathering room with fireplace, a fully equipped kitchen, and a covered hot tub.\n\nDriving conditions: The road to the cabin is plowed but can be icy. 4WD or chains recommended. I'll send GPS coordinates closer to the date.\n\nReach out if you need help with transportation!",
         comments: [
           { user: attendees[0], body: "This looks amazing! I can offer rides from Bozeman for anyone who needs them." },
           { user: attendees[9], body: "Is there a place to do outdoor meditation? Even in the cold, I love sitting outside." },
@@ -293,10 +287,9 @@ if Rails.env.development?
         ]
       },
       {
-        title: "Cacao ceremony preparation",
         author: attendees[14],
         pinned: false,
-        body: "<div><p>For those who haven't experienced a cacao ceremony before, here's a little about what to expect:</p><p>Ceremonial cacao is different from regular chocolate. It's minimally processed and contains theobromine, which gently opens the heart and enhances introspection.</p><p>To prepare:</p><ul><li>Eat lightly the day of the ceremony</li><li>Hydrate well</li><li>Set an intention for what you'd like to release or invite in</li></ul><p>I'll be using organic Guatemalan ceremonial-grade cacao. The ceremony will last about 90 minutes.</p></div>",
+        body: "For those who haven't experienced a cacao ceremony before, here's a little about what to expect:\n\nCeremonial cacao is different from regular chocolate. It's minimally processed and contains theobromine, which gently opens the heart and enhances introspection.\n\nTo prepare:\n- Eat lightly the day of the ceremony\n- Hydrate well\n- Set an intention for what you'd like to release or invite in\n\nI'll be using organic Guatemalan ceremonial-grade cacao. The ceremony will last about 90 minutes.",
         comments: [
           { user: attendees[18], body: "Thank you for explaining this, Wren. I've been curious and a little nervous. This helps!" },
           { user: attendees[14], body: "No need to be nervous at all. It's very gentle. You'll feel supported the whole time." },
@@ -305,10 +298,9 @@ if Rails.env.development?
         ]
       },
       {
-        title: "Poetry for the opening circle",
         author: attendees[9],
         pinned: false,
-        body: "<div><p>I've been working on a piece for our opening ceremony. Here's a preview:</p><blockquote><em>In the hush of winter's hold,<br>we gather close, we gather bold.<br>Root to root beneath the snow,<br>the seeds of spring already know.</em></blockquote><p>Would anyone else like to share a reading or poem? I think it would be powerful to have multiple voices in our opening.</p></div>",
+        body: "I've been working on a piece for our opening ceremony. Here's a preview:\n\n\"In the hush of winter's hold,\nwe gather close, we gather bold.\nRoot to root beneath the snow,\nthe seeds of spring already know.\"\n\nWould anyone else like to share a reading or poem? I think it would be powerful to have multiple voices in our opening.",
         comments: [
           { user: attendees[5], body: "This is gorgeous, Celeste. I have a passage from a Mary Oliver poem I'd love to share." },
           { user: attendees[2], body: "I'd like to share a short meditation verse. Can I go after you?" },
@@ -318,10 +310,9 @@ if Rails.env.development?
     ],
     "European Sisters Circle" => [
       {
-        title: "Florence gathering venue",
         author: attendees[24],
         pinned: true,
-        body: "<div><h1>Our Gathering Space in Florence</h1><p>I've secured a beautiful villa just outside the city center. It has:</p><ul><li>A garden with olive trees perfect for outdoor ceremony</li><li>A large open room with natural light for our circle</li><li>A kitchen where we can cook together</li><li>Views of the Tuscan hills</li></ul><p>The villa is a 20-minute bus ride from Santa Maria Novella train station. I'll share the exact address and directions soon.</p><p>I'm planning to source food from the local market for our meals. If anyone has dietary needs, please let me know!</p></div>",
+        body: "I've secured a beautiful villa just outside the city center for our Florence gathering. It has:\n\n- A garden with olive trees perfect for outdoor ceremony\n- A large open room with natural light for our circle\n- A kitchen where we can cook together\n- Views of the Tuscan hills\n\nThe villa is a 20-minute bus ride from Santa Maria Novella train station. I'll share the exact address and directions soon.\n\nI'm planning to source food from the local market for our meals. If anyone has dietary needs, please let me know!",
         comments: [
           { user: attendees[20], body: "This sounds absolutely dreamy, Cosima! I can help with cooking." },
           { user: attendees[21], body: "I'm vegetarian but very flexible. I can bring Irish soda bread recipe to share!" },
@@ -330,10 +321,9 @@ if Rails.env.development?
         ]
       },
       {
-        title: "Weaving our traditions together",
         author: attendees[20],
         pinned: false,
-        body: "<div><p>One thing I love about this circle is that we each carry different folk traditions. I'd love for us to each share a practice from our heritage:</p><p><strong>My offering:</strong> I'll lead a Nordic herb walk and teach about Scandinavian plant folk wisdom. In Sweden, we believe the forest has its own intelligence, and I'd love to share how my grandmother taught me to listen to it.</p><p>What traditions would each of you like to share?</p></div>",
+        body: "One thing I love about this circle is that we each carry different folk traditions. I'd love for us to each share a practice from our heritage:\n\nMy offering: I'll lead a Nordic herb walk and teach about Scandinavian plant folk wisdom. In Sweden, we believe the forest has its own intelligence, and I'd love to share how my grandmother taught me to listen to it.\n\nWhat traditions would each of you like to share?",
         comments: [
           { user: attendees[21], body: "I'd love to lead a Celtic blessing ceremony. The Brigid traditions are so relevant for women's circles." },
           { user: attendees[24], body: "I can share Italian herbal remedies passed down in my family. My nonna was a village healer." },
@@ -352,10 +342,9 @@ if Rails.env.development?
     next unless cohort
 
     posts.each_with_index do |post_data, i|
-      post = cohort.posts.find_or_create_by!(title: post_data[:title]) do |p|
+      post = cohort.posts.find_or_create_by!(body: post_data[:body]) do |p|
         p.user = post_data[:author]
         p.pinned = post_data[:pinned]
-        p.body = post_data[:body]
         p.created_at = post_base_time + (i * 12).hours
         p.updated_at = post_base_time + (i * 12).hours
       end

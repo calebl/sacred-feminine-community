@@ -46,7 +46,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:attendee)
     assert_difference "Post.count" do
       post cohort_posts_path(cohorts(:kabul_retreat)), params: {
-        post: { title: "New post", body: "Some rich text content" }
+        post: { body: "Some post content" }
       }
     end
     assert_redirected_to cohort_post_path(cohorts(:kabul_retreat), Post.last)
@@ -56,7 +56,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:admin)
     assert_difference "Post.count" do
       post cohort_posts_path(cohorts(:kabul_retreat)), params: {
-        post: { title: "Admin post", body: "Admin content" }
+        post: { body: "Admin content" }
       }
     end
   end
@@ -65,7 +65,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:attendee_two)
     assert_no_difference "Post.count" do
       post cohort_posts_path(cohorts(:kabul_retreat)), params: {
-        post: { title: "Sneaky post", body: "Content" }
+        post: { body: "Content" }
       }
     end
     assert_redirected_to root_path
@@ -75,7 +75,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:attendee)
     assert_no_difference "Post.count" do
       post cohort_posts_path(cohorts(:kabul_retreat)), params: {
-        post: { title: "", body: "Content" }
+        post: { body: "" }
       }
     end
     assert_response :unprocessable_entity
@@ -149,11 +149,11 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:attendee)
     draft = posts(:attendee_draft)
     patch cohort_post_path(cohorts(:kabul_retreat), draft), params: {
-      post: { title: "Draft title", body: "Draft body" }
+      post: { body: "Updated draft body" }
     }
     assert_redirected_to edit_cohort_post_path(cohorts(:kabul_retreat), draft)
     draft.reload
-    assert_equal "Draft title", draft.title
+    assert_equal "Updated draft body", draft.body
     assert draft.draft?
   end
 
@@ -162,20 +162,20 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     draft = posts(:attendee_draft)
     patch cohort_post_path(cohorts(:kabul_retreat), draft), params: {
       publish: "1",
-      post: { title: "Published title", body: "Published body" }
+      post: { body: "Published body" }
     }
     assert_redirected_to cohort_post_path(cohorts(:kabul_retreat), draft)
     draft.reload
     assert_not draft.draft?
-    assert_equal "Published title", draft.title
+    assert_equal "Published body", draft.body
   end
 
-  test "publish fails without title" do
+  test "publish fails without body" do
     sign_in users(:attendee)
     draft = posts(:attendee_draft)
     patch cohort_post_path(cohorts(:kabul_retreat), draft), params: {
       publish: "1",
-      post: { title: "", body: "Content" }
+      post: { body: "" }
     }
     assert_response :unprocessable_entity
     draft.reload
@@ -186,6 +186,6 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:attendee)
     get cohort_path(cohorts(:kabul_retreat), tab: :feed)
     assert_response :success
-    assert_no_match(/My Draft Post In Progress/, response.body)
+    assert_no_match(/My draft post in progress/, response.body)
   end
 end
