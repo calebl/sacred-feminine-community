@@ -98,18 +98,23 @@
       <div class="space-y-2 mb-8">
         <% @unread_mentions.each do |mention| %>
           <%
-            link_path = case mention.mentionable
-                        when DirectMessage
-                          conversation_path(mention.mentionable.conversation)
-                        when ChatMessage
-                          cohort_path(mention.mentionable.cohort)
-                        when GroupChatMessage
-                          group_path(mention.mentionable.group)
-                        when PostComment
-                          cohort_post_path(mention.mentionable.post.cohort, mention.mentionable.post)
-                        when GroupPostComment
-                          group_group_post_path(mention.mentionable.group_post.group, mention.mentionable.group_post)
-                        end
+            case mention.mentionable
+            when DirectMessage
+              link_path = conversation_path(mention.mentionable.conversation)
+              location = "in a private message"
+            when ChatMessage
+              link_path = cohort_path(mention.mentionable.cohort)
+              location = "in #{mention.mentionable.cohort.name} chat"
+            when GroupChatMessage
+              link_path = group_path(mention.mentionable.group)
+              location = "in #{mention.mentionable.group.name} chat"
+            when PostComment
+              link_path = cohort_post_path(mention.mentionable.post.cohort, mention.mentionable.post)
+              location = "in a comment in #{mention.mentionable.post.cohort.name}"
+            when GroupPostComment
+              link_path = group_group_post_path(mention.mentionable.group_post.group, mention.mentionable.group_post)
+              location = "in a comment in #{mention.mentionable.group_post.group.name}"
+            end
           %>
           <% next unless link_path %>
           <%= link_to link_path,
@@ -121,7 +126,7 @@
               </div>
               <div class="flex-1 min-w-0">
                 <p class="font-semibold text-sf-black dark:text-white truncate"><%= mention.mentioner.name %> mentioned you</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400"><%= time_ago_in_words(mention.created_at) %> ago</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400"><%= location %> &middot; <%= time_ago_in_words(mention.created_at) %> ago</p>
               </div>
             </div>
           <% end %>
