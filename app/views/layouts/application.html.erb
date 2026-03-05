@@ -124,7 +124,7 @@
     <%# Flash messages hidden — keeping controller notices/alerts intact for now %>
 
     <main class="flex-1 pb-20 md:pb-0">
-      <%= yield %>
+      <%= content_for?(:content) ? yield(:content) : yield %>
     </main>
 
     <%# Custom confirm dialog - replaces browser native confirm() %>

@@ -1,6 +1,7 @@
 class CohortsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_cohort, only: [ :show, :edit, :update, :destroy ]
+  layout "dashboard", only: :show
 
   def index
     skip_authorization
@@ -10,6 +11,8 @@ class CohortsController < ApplicationController
   def show
     authorize @cohort
     @active_tab = params[:tab].presence || "feed"
+    @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
+    @active_cohort_id = @cohort.id
     unless request.headers["Purpose"] == "prefetch"
       membership = @cohort.cohort_memberships.find_by(user: current_user)
       if membership
