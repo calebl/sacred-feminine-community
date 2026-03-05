@@ -26,6 +26,10 @@ class GroupsController < ApplicationController
         updates[:posts_last_read_at] = Time.current if @active_tab == "feed"
         membership.update(updates)
       end
+      Mention.unread
+             .where(user: current_user, mentionable_type: "GroupChatMessage")
+             .where(mentionable_id: @group.group_chat_messages.select(:id))
+             .update_all(read_at: Time.current)
     end
     @members = @group.members.kept.includes(:group_memberships).load
     @chat_messages = @group.group_chat_messages

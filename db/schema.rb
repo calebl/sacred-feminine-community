@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_05_143232) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_05_215509) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -232,6 +232,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_05_143232) do
     t.index ["discarded_at"], name: "index_groups_on_discarded_at"
   end
 
+  create_table "mentions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "mentionable_id", null: false
+    t.string "mentionable_type", null: false
+    t.integer "mentioner_id", null: false
+    t.datetime "read_at"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["mentionable_type", "mentionable_id", "user_id"], name: "index_mentions_on_mentionable_and_user", unique: true
+    t.index ["mentionable_type", "mentionable_id"], name: "index_mentions_on_mentionable"
+    t.index ["mentioner_id"], name: "index_mentions_on_mentioner_id"
+    t.index ["user_id", "read_at"], name: "index_mentions_on_user_id_and_read_at"
+    t.index ["user_id"], name: "index_mentions_on_user_id"
+  end
+
   create_table "post_comments", force: :cascade do |t|
     t.text "body", null: false
     t.datetime "created_at", null: false
@@ -329,6 +344,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_05_143232) do
   add_foreign_key "group_posts", "groups"
   add_foreign_key "group_posts", "users"
   add_foreign_key "groups", "users", column: "created_by_id"
+  add_foreign_key "mentions", "users"
+  add_foreign_key "mentions", "users", column: "mentioner_id"
   add_foreign_key "post_comments", "post_comments", column: "parent_id"
   add_foreign_key "post_comments", "posts"
   add_foreign_key "post_comments", "users"

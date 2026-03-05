@@ -68,4 +68,39 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match "New Comments", response.body
   end
+
+  test "show lists unread mentions" do
+    sign_in users(:admin)
+    cohort = cohorts(:kabul_retreat)
+    cohort.chat_messages.create!(
+      body: "@[#{users(:admin).name}](#{users(:admin).id})",
+      user: users(:attendee)
+    )
+
+    get notifications_path
+    assert_response :success
+    assert_match "Mentions", response.body
+    assert_match "mentioned you", response.body
+  end
+
+  test "show does not list read mentions" do
+    sign_in users(:admin)
+    cohort = cohorts(:kabul_retreat)
+    cohort.chat_messages.create!(
+      body: "@[#{users(:admin).name}](#{users(:admin).id})",
+      user: users(:attendee)
+    )
+    Mention.where(user: users(:admin)).update_all(read_at: Time.current)
+
+    # Mark all other unreads as read
+    ConversationParticipant.where(user: users(:admin)).update_all(last_read_at: Time.current)
+    CohortMembership.where(user: users(:admin)).update_all(last_read_at: Time.current, posts_last_read_at: Time.current)
+    Post.joins(:post_comments).where(post_comments: { user_id: users(:admin).id }).distinct.each do |post|
+      PostRead.find_or_create_by(post: post, user: users(:admin)).update(last_read_at: Time.current)
+    end
+
+    get notifications_path
+    assert_response :success
+    assert_no_match "Mentions", response.body
+  end
 end

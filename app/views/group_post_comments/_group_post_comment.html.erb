@@ -22,7 +22,7 @@
           <% end %>
         <% end %>
       </div>
-      <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"><%= comment.body %></p>
+      <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"><%= render_with_mentions(comment.body) %></p>
       <div data-controller="reply-form">
         <div class="flex items-center gap-3">
           <button type="button"
@@ -43,19 +43,26 @@
 
         <%# Reply form (hidden by default, toggled by Stimulus) %>
         <div data-reply-form-target="form" class="mt-2 hidden">
-          <%= form_with(
-            model: [group, group_post, GroupPostComment.new],
-            class: "flex gap-2 items-start",
-            data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset turbo:submit-end->reply-form#hide" }
-          ) do |f| %>
-            <%= f.hidden_field :parent_id, value: comment.id %>
-            <%= f.text_area :body,
-                placeholder: "Reply to #{comment.user.name}...",
-                class: "flex-1 min-h-[60px] resize-none text-sm",
-                required: true %>
-            <%= f.submit "Reply",
-                class: "self-end btn-primary py-2 text-sm" %>
-          <% end %>
+          <div data-controller="mention"
+               data-mention-url-value="<%= mention_searches_path %>"
+               data-mention-group-id-value="<%= group.id %>"
+               class="relative">
+            <%= form_with(
+              model: [group, group_post, GroupPostComment.new],
+              class: "flex gap-2 items-start",
+              data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset turbo:submit-end->reply-form#hide" }
+            ) do |f| %>
+              <%= f.hidden_field :parent_id, value: comment.id %>
+              <%= f.text_area :body,
+                  placeholder: "Reply to #{comment.user.name}...",
+                  class: "flex-1 min-h-[60px] resize-none text-sm",
+                  required: true,
+                  data: { mention_target: "input", action: "input->mention#onInput keydown->mention#onKeydown blur->mention#hide" } %>
+              <%= f.submit "Reply",
+                  class: "self-end btn-primary py-2 text-sm" %>
+            <% end %>
+            <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>
+          </div>
         </div>
       </div>
     </div>

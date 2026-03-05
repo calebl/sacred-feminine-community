@@ -1,0 +1,3 @@
+# Mentions are created inline in tests since they depend on
+# message records that are also created inline (encrypted fields
+# don't work well in YAML fixtures)

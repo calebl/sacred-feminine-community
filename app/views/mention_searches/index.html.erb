@@ -1,0 +1,23 @@
+<% if params[:q].present? && @users.any? %>
+  <% @users.each do |user| %>
+    <button type="button"
+            class="w-full flex items-center gap-3 px-3 py-2 hover:bg-sf-sand/10 dark:hover:bg-gray-700 transition text-left"
+            data-action="mousedown->mention#select"
+            data-mention-user-id-param="<%= user.id %>"
+            data-mention-user-name-param="<%= user.name %>">
+      <div class="w-8 h-8 rounded-full bg-sf-sand/50 dark:bg-gray-600 flex items-center justify-center text-xs font-bold text-sf-black dark:text-white flex-shrink-0">
+        <% if user.avatar.attached? %>
+          <%= image_tag user.avatar.variant(:display), class: "w-8 h-8 rounded-full object-cover" %>
+        <% else %>
+          <%= user.name.first.upcase %>
+        <% end %>
+      </div>
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-sf-black dark:text-white truncate"><%= user.name %></p>
+        <% if user.full_location.present? %>
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate"><%= user.full_location %></p>
+        <% end %>
+      </div>
+    </button>
+  <% end %>
+<% end %>

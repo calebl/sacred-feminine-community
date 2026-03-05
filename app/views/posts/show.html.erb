@@ -62,17 +62,24 @@
     </div>
 
     <!-- Comment form -->
-    <%= form_with(
-      model: [@cohort, @post, @new_comment],
-      class: "flex gap-2 items-start",
-      data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
-    ) do |f| %>
-      <%= f.text_area :body,
-          placeholder: "Add a comment...",
-          class: "flex-1 min-h-[80px] resize-none",
-          required: true %>
-      <%= f.submit "Comment",
-          class: "self-end btn-primary py-2.5" %>
-    <% end %>
+    <div data-controller="mention"
+         data-mention-url-value="<%= mention_searches_path %>"
+         data-mention-cohort-id-value="<%= @cohort.id %>"
+         class="relative">
+      <%= form_with(
+        model: [@cohort, @post, @new_comment],
+        class: "flex gap-2 items-start",
+        data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
+      ) do |f| %>
+        <%= f.text_area :body,
+            placeholder: "Add a comment... (@ to mention)",
+            class: "flex-1 min-h-[80px] resize-none",
+            required: true,
+            data: { mention_target: "input", action: "input->mention#onInput keydown->mention#onKeydown blur->mention#hide" } %>
+        <%= f.submit "Comment",
+            class: "self-end btn-primary py-2.5" %>
+      <% end %>
+      <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>
+    </div>
   </div>
 </div>

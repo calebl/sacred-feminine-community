@@ -49,6 +49,9 @@ class User < ApplicationRecord
   has_many :conversations, through: :conversation_participants
   has_many :sent_direct_messages, class_name: "DirectMessage", foreign_key: :sender_id, dependent: :destroy, inverse_of: :sender
 
+  has_many :mentions, dependent: :destroy
+  has_many :created_mentions, class_name: "Mention", foreign_key: :mentioner_id, dependent: :destroy, inverse_of: :mentioner
+
   has_one_attached :avatar do |attachable|
     attachable.variant :display, resize_to_fill: [ 200, 200 ]
   end
