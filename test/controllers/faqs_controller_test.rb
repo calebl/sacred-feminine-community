@@ -1,6 +1,34 @@
 require "test_helper"
 
 class FaqsControllerTest < ActionDispatch::IntegrationTest
+  # Index
+  test "authenticated user can access faqs index" do
+    sign_in users(:attendee)
+    get faqs_path
+    assert_response :success
+    assert_match "How do I join a cohort?", response.body
+  end
+
+  test "admin sees new faq form on index" do
+    sign_in users(:admin)
+    get faqs_path
+    assert_response :success
+    assert_select "details summary", text: /New FAQ/
+  end
+
+  test "attendee does not see new faq form on index" do
+    sign_in users(:attendee)
+    get faqs_path
+    assert_response :success
+    assert_select "details summary", text: /New FAQ/, count: 0
+  end
+
+  test "index renders inside turbo frame" do
+    sign_in users(:attendee)
+    get faqs_path
+    assert_select "turbo-frame#faqs_panel"
+  end
+
   # Create
   test "admin can create faq" do
     sign_in users(:admin)
@@ -82,25 +110,11 @@ class FaqsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  # Dashboard display
-  test "faqs are visible on dashboard for all users" do
+  # Dashboard integration
+  test "dashboard faqs tab renders turbo frame placeholder" do
     sign_in users(:attendee)
     get authenticated_root_path(tab: "faqs")
     assert_response :success
-    assert_match "How do I join a cohort?", response.body
-  end
-
-  test "admin sees new faq form on dashboard" do
-    sign_in users(:admin)
-    get authenticated_root_path(tab: "faqs")
-    assert_response :success
-    assert_select "details summary", text: /New FAQ/
-  end
-
-  test "attendee does not see new faq form on dashboard" do
-    sign_in users(:attendee)
-    get authenticated_root_path(tab: "faqs")
-    assert_response :success
-    assert_select "details summary", text: /New FAQ/, count: 0
+    assert_select "turbo-frame#faqs_panel[src='#{faqs_path}']"
   end
 end

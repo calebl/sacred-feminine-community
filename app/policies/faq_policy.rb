@@ -1,5 +1,13 @@
 class FaqPolicy < ApplicationPolicy
+  def index?
+    true
+  end
+
   def create?
+    user.admin?
+  end
+
+  def edit?
     user.admin?
   end
 

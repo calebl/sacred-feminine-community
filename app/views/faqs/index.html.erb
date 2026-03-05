@@ -1,0 +1,65 @@
+<%= turbo_frame_tag "faqs_panel" do %>
+  <h2 class="font-display font-semibold text-sf-black dark:text-white text-xl mb-4">Frequently Asked Questions</h2>
+
+  <% if current_user.admin? && @new_faq %>
+    <div class="mb-6">
+      <details class="group">
+        <summary class="inline-flex items-center gap-2 btn-primary px-4 py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+          New FAQ
+        </summary>
+
+        <div class="mt-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-sf-sand/20 dark:border-gray-700">
+          <%= form_with(model: @new_faq, class: "space-y-4") do |f| %>
+            <div>
+              <%= f.label :question, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.text_field :question, class: "w-full", required: true %>
+            </div>
+
+            <div>
+              <%= f.label :answer, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.text_area :answer, rows: 3, class: "w-full", required: true %>
+            </div>
+
+            <div>
+              <%= f.label :position, "Display Order", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.number_field :position, class: "w-full", min: 0 %>
+              <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Lower numbers appear first.</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <%= f.check_box :active, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold", checked: true %>
+              <%= f.label :active, "Visible to members", class: "text-sm font-medium text-gray-700 dark:text-gray-300" %>
+            </div>
+
+            <div>
+              <%= f.submit "Create FAQ", class: "btn-primary px-5 py-2.5" %>
+            </div>
+          <% end %>
+        </div>
+      </details>
+    </div>
+  <% end %>
+
+  <% if @faqs.any? %>
+    <div class="space-y-3">
+      <% @faqs.each do |faq| %>
+        <details class="group p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700">
+          <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between">
+            <span class="font-display font-semibold text-sf-black dark:text-white"><%= faq.question %></span>
+            <svg class="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="mt-3 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= faq.answer %></div>
+          <% if current_user.admin? %>
+            <div class="mt-3 pt-3 border-t border-sf-sand/20 dark:border-gray-700 flex items-center gap-3">
+              <%= link_to "Edit", edit_faq_path(faq), class: "text-sm text-sf-blue hover:underline" %>
+              <%= button_to "Delete", faq_path(faq), method: :delete, data: { turbo_confirm: "Delete this FAQ?" }, class: "text-sm text-sf-red hover:underline cursor-pointer" %>
+            </div>
+          <% end %>
+        </details>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-gray-400 dark:text-gray-500 text-center py-12">No FAQs yet.</p>
+  <% end %>
+<% end %>

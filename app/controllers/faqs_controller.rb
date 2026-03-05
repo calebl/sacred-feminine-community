@@ -2,6 +2,13 @@ class FaqsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_faq, only: [ :edit, :update, :destroy ]
 
+  def index
+    skip_authorization
+    @faqs = policy_scope(Faq).active.ordered
+    @new_faq = Faq.new if current_user.admin?
+    render layout: false
+  end
+
   def create
     @faq = Faq.new(faq_params)
     @faq.creator = current_user
