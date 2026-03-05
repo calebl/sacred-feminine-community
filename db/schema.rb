@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_04_210940) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_05_011424) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -172,11 +172,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_210940) do
   end
 
   create_table "posts", force: :cascade do |t|
+    t.text "body"
     t.integer "cohort_id", null: false
     t.datetime "created_at", null: false
     t.boolean "draft", default: false, null: false
     t.boolean "pinned", default: false, null: false
-    t.string "title"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["cohort_id", "pinned", "created_at"], name: "index_posts_on_cohort_pinned_created"

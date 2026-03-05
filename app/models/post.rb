@@ -2,7 +2,6 @@ class Post < ApplicationRecord
   belongs_to :cohort
   belongs_to :user
 
-  has_rich_text :body
   has_many :post_comments, dependent: :destroy
   has_many :post_reads, dependent: :destroy
 
@@ -10,9 +9,12 @@ class Post < ApplicationRecord
   scope :drafts, -> { where(draft: true) }
   scope :pinned_first, -> { order(pinned: :desc, created_at: :desc) }
 
-  validates :title, presence: true, length: { maximum: 200 }, unless: :draft?
   validates :body, presence: true, unless: :draft?
   validate :one_draft_per_cohort_per_user, if: :draft?
+
+  def has_content?
+    body.present?
+  end
 
   def unread_comment_count(user)
     post_read = post_reads.find_by(user: user)

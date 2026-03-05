@@ -51,7 +51,7 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
   test "show lists unread posts" do
     sign_in users(:attendee)
     cohort = cohorts(:kabul_retreat)
-    cohort.posts.create!(title: "New post", user: users(:admin)) { |p| p.body = "Content" }
+    cohort.posts.create!(body: "New post content", user: users(:admin))
 
     get notifications_path
     assert_response :success

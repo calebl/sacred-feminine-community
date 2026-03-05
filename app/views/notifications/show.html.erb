@@ -108,7 +108,7 @@
                 </svg>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="font-semibold text-sf-black dark:text-white truncate"><%= post.title %></p>
+                <p class="font-semibold text-sf-black dark:text-white truncate"><%= post.body&.truncate(60) %></p>
                 <p class="text-sm text-gray-500 dark:text-gray-400"><%= "new comment".pluralize(unread) %> in <%= post.cohort.name %></p>
               </div>
               <span class="bg-sf-red text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0"><%= unread %></span>
