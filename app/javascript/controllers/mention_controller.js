@@ -179,6 +179,79 @@ export default class extends Controller {
       const form = this.inputTarget.closest("form")
       if (form) form.requestSubmit()
     }
+    if (event.key === "Backspace" || event.key === "Delete") {
+      this.handleMentionDeletion(event)
+    }
+  }
+
+  handleMentionDeletion(event) {
+    const sel = window.getSelection()
+    if (!sel.rangeCount) return
+
+    const range = sel.getRangeAt(0)
+
+    // If a mention span is fully selected (user-select: all), remove it
+    if (!range.collapsed) {
+      const selected = range.commonAncestorContainer
+      const mention = selected.nodeType === Node.ELEMENT_NODE && selected.classList?.contains("mention-tag")
+        ? selected
+        : selected.parentElement?.closest?.(".mention-tag")
+      if (mention) {
+        event.preventDefault()
+        mention.remove()
+        this.syncHidden()
+        return
+      }
+    }
+
+    const node = range.startContainer
+    const offset = range.startOffset
+
+    if (event.key === "Backspace") {
+      // Cursor at start of a text node — check if previous sibling is a mention
+      if (node.nodeType === Node.TEXT_NODE && offset === 0) {
+        const prev = node.previousSibling
+        if (prev?.classList?.contains("mention-tag")) {
+          event.preventDefault()
+          prev.remove()
+          this.syncHidden()
+          return
+        }
+      }
+      // Cursor in element node (between child nodes) — check child before cursor
+      if (node.nodeType === Node.ELEMENT_NODE && offset > 0) {
+        const child = node.childNodes[offset - 1]
+        if (child?.classList?.contains("mention-tag")) {
+          event.preventDefault()
+          child.remove()
+          this.syncHidden()
+          return
+        }
+      }
+    }
+
+    if (event.key === "Delete") {
+      // Cursor at end of a text node — check if next sibling is a mention
+      if (node.nodeType === Node.TEXT_NODE && offset === node.textContent.length) {
+        const next = node.nextSibling
+        if (next?.classList?.contains("mention-tag")) {
+          event.preventDefault()
+          next.remove()
+          this.syncHidden()
+          return
+        }
+      }
+      // Cursor in element node — check child at cursor position
+      if (node.nodeType === Node.ELEMENT_NODE && offset < node.childNodes.length) {
+        const child = node.childNodes[offset]
+        if (child?.classList?.contains("mention-tag")) {
+          event.preventDefault()
+          child.remove()
+          this.syncHidden()
+          return
+        }
+      }
+    }
   }
 
   onPaste(event) {

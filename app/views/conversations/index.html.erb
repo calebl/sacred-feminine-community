@@ -34,7 +34,7 @@
                 <% end %>
               </div>
               <% if last_msg %>
-                <p class="text-sm text-gray-500 dark:text-gray-400 truncate mt-1"><%= last_msg.body.truncate(80) %></p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 truncate mt-1"><%= strip_mentions(last_msg.body).truncate(80) %></p>
               <% end %>
             </div>
             <% if unread > 0 %>

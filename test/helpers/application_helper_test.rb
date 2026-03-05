@@ -39,4 +39,17 @@ class ApplicationHelperTest < ActionView::TestCase
     result = render_with_mentions("@[Jane](42)")
     assert_includes result, "/profiles/42"
   end
+
+  test "strip_mentions replaces mention syntax with plain @Name" do
+    assert_equal "Hello @Jane!", strip_mentions("Hello @[Jane](1)!")
+  end
+
+  test "strip_mentions handles multiple mentions" do
+    assert_equal "@Jane and @Bob", strip_mentions("@[Jane](1) and @[Bob](2)")
+  end
+
+  test "strip_mentions handles nil and blank" do
+    assert_equal "", strip_mentions(nil)
+    assert_equal "", strip_mentions("")
+  end
 end

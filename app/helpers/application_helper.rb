@@ -1,6 +1,11 @@
 module ApplicationHelper
   MENTION_PATTERN = /@\[([^\]]+)\]\((\d+)\)/
 
+  def strip_mentions(text)
+    return "" if text.blank?
+    text.gsub(MENTION_PATTERN) { "@#{$1}" }
+  end
+
   def render_with_mentions(text)
     return "".html_safe if text.blank?
 
