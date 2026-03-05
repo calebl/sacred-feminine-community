@@ -18,11 +18,3 @@ yoga_post:
   user: admin
   pinned: false
   created_at: <%= 1.hour.ago %>
-
-book_club_draft:
-  body: My draft post about a book
-  group: book_club
-  user: attendee
-  pinned: false
-  draft: true
-  created_at: <%= 1.minute.ago %>

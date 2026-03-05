@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_05_031732) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_05_143232) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -200,13 +200,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_05_031732) do
   create_table "group_posts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
-    t.boolean "draft", default: false, null: false
     t.integer "group_id", null: false
     t.boolean "pinned", default: false, null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["group_id", "pinned", "created_at"], name: "index_group_posts_on_group_pinned_created"
-    t.index ["group_id", "user_id", "draft"], name: "index_group_posts_on_group_user_draft"
     t.index ["group_id"], name: "index_group_posts_on_group_id"
     t.index ["user_id"], name: "index_group_posts_on_user_id"
   end
@@ -249,12 +247,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_05_031732) do
     t.text "body"
     t.integer "cohort_id", null: false
     t.datetime "created_at", null: false
-    t.boolean "draft", default: false, null: false
     t.boolean "pinned", default: false, null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["cohort_id", "pinned", "created_at"], name: "index_posts_on_cohort_pinned_created"
-    t.index ["cohort_id", "user_id", "draft"], name: "index_posts_on_cohort_user_draft"
     t.index ["cohort_id"], name: "index_posts_on_cohort_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end

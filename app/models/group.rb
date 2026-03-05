@@ -38,7 +38,7 @@ class Group < ApplicationRecord
     membership = group_memberships.find_by(user: user)
     return 0 unless membership
 
-    new_posts = group_posts.published.where.not(user: user)
+    new_posts = group_posts.where.not(user: user)
     if membership.posts_last_read_at
       new_posts.where("group_posts.created_at > ?", membership.posts_last_read_at).count
     else

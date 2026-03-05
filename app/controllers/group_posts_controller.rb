@@ -1,7 +1,7 @@
 class GroupPostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_group
-  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_post, only: [ :show, :destroy ]
 
   def show
     authorize @post
@@ -11,60 +11,6 @@ class GroupPostsController < ApplicationController
     end
     @comments = @post.group_post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
     @new_comment = @post.group_post_comments.build
-  end
-
-  def new
-    @post = @group.group_posts.build
-    authorize @post
-
-    draft = @group.group_posts.drafts.find_by(user: current_user)
-    if draft
-      redirect_to edit_group_group_post_path(@group, draft)
-    else
-      draft = @group.group_posts.create!(user: current_user, draft: true)
-      redirect_to edit_group_group_post_path(@group, draft)
-    end
-  end
-
-  def edit
-    authorize @post
-    redirect_to group_group_post_path(@group, @post) unless @post.draft?
-  end
-
-  def update
-    authorize @post
-
-    if params[:publish]
-      @post.draft = false
-      if @post.update(post_params)
-        if params[:inline_feed]
-          redirect_to group_path(@group, tab: :feed), notice: "Post published."
-        else
-          redirect_to group_group_post_path(@group, @post), notice: "Post published."
-        end
-      else
-        @post.draft = true
-        if params[:inline_feed]
-          load_group_show_data
-          @show_form = true
-          render "groups/show", layout: "dashboard", status: :unprocessable_entity
-        else
-          render :edit, status: :unprocessable_entity
-        end
-      end
-    else
-      unless @post.draft?
-        redirect_to group_group_post_path(@group, @post)
-        return
-      end
-
-      @post.update(post_params)
-
-      respond_to do |format|
-        format.turbo_stream
-        format.html { redirect_to edit_group_group_post_path(@group, @post), notice: "Draft saved." }
-      end
-    end
   end
 
   def create
@@ -82,8 +28,6 @@ class GroupPostsController < ApplicationController
       if params[:inline_feed]
         load_group_show_data
         render "groups/show", layout: "dashboard", status: :unprocessable_entity
-      else
-        render :new, status: :unprocessable_entity
       end
     end
   end
@@ -116,8 +60,7 @@ class GroupPostsController < ApplicationController
     @is_member = true
     @members = @group.members.kept.includes(:group_memberships).load
     @chat_messages = @group.group_chat_messages.includes(:user).order(created_at: :desc).limit(50).reverse
-    @posts = @group.group_posts.published.pinned_first.includes(:user, :group_post_comments)
-    @draft = @group.group_posts.drafts.find_by(user: current_user)
+    @posts = @group.group_posts.pinned_first.includes(:user, :group_post_comments)
     @show_form = true
   end
 end

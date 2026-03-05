@@ -60,13 +60,12 @@
           <div class="flex justify-between items-center mb-4">
             <h3 class="font-display font-semibold text-sf-black dark:text-white">Posts</h3>
             <button data-action="click->inline-post-form#toggle" class="btn-primary px-4 py-2">
-              <%= @draft ? "Continue Draft" : "New Post" %>
+              New Post
             </button>
           </div>
 
           <div data-inline-post-form-target="form" class="<%= @show_form ? '' : 'hidden' %>">
-            <% inline_url = @draft ? group_group_post_path(@group, @draft) : group_group_posts_path(@group) %>
-            <%= render "shared/inline_post_form", post: @group.group_posts.build, draft: @draft, form_url: inline_url %>
+            <%= render "shared/inline_post_form", post: @group.group_posts.build, form_url: group_group_posts_path(@group) %>
           </div>
 
           <div class="space-y-3">

@@ -13,41 +13,6 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "member cannot view another users draft" do
-    sign_in users(:admin)
-    get group_group_post_path(groups(:book_club), group_posts(:book_club_draft))
-    assert_redirected_to root_path
-  end
-
-  test "author can view own draft" do
-    sign_in users(:attendee)
-    get group_group_post_path(groups(:book_club), group_posts(:book_club_draft))
-    assert_response :success
-  end
-
-  test "new with existing draft redirects to edit" do
-    sign_in users(:attendee)
-    draft = group_posts(:book_club_draft)
-    get new_group_group_post_path(groups(:book_club))
-    assert_redirected_to edit_group_group_post_path(groups(:book_club), draft)
-  end
-
-  test "new without existing draft creates draft and redirects to edit" do
-    sign_in users(:admin)
-    assert_difference "GroupPost.count" do
-      get new_group_group_post_path(groups(:book_club))
-    end
-    new_draft = GroupPost.last
-    assert new_draft.draft?
-    assert_redirected_to edit_group_group_post_path(groups(:book_club), new_draft)
-  end
-
-  test "non-member cannot access new post form" do
-    sign_in users(:attendee_two)
-    get new_group_group_post_path(groups(:book_club))
-    assert_redirected_to root_path
-  end
-
   test "member can create post" do
     sign_in users(:attendee)
     assert_difference "GroupPost.count" do
@@ -68,10 +33,11 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "invalid post re-renders form" do
+  test "invalid inline post renders group show" do
     sign_in users(:attendee)
     assert_no_difference "GroupPost.count" do
       post group_group_posts_path(groups(:book_club)), params: {
+        inline_feed: "1",
         group_post: { body: "" }
       }
     end
@@ -105,55 +71,6 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "edit shows draft form" do
-    sign_in users(:attendee)
-    get edit_group_group_post_path(groups(:book_club), group_posts(:book_club_draft))
-    assert_response :success
-  end
-
-  test "edit redirects to show for published posts" do
-    sign_in users(:attendee)
-    get edit_group_group_post_path(groups(:book_club), group_posts(:book_club_pinned))
-    assert_redirected_to group_group_post_path(groups(:book_club), group_posts(:book_club_pinned))
-  end
-
-  test "update saves draft fields" do
-    sign_in users(:attendee)
-    draft = group_posts(:book_club_draft)
-    patch group_group_post_path(groups(:book_club), draft), params: {
-      group_post: { body: "Updated draft body" }
-    }
-    assert_redirected_to edit_group_group_post_path(groups(:book_club), draft)
-    draft.reload
-    assert_equal "Updated draft body", draft.body
-    assert draft.draft?
-  end
-
-  test "update with publish publishes the post" do
-    sign_in users(:attendee)
-    draft = group_posts(:book_club_draft)
-    patch group_group_post_path(groups(:book_club), draft), params: {
-      publish: "1",
-      group_post: { body: "Published body" }
-    }
-    assert_redirected_to group_group_post_path(groups(:book_club), draft)
-    draft.reload
-    assert_not draft.draft?
-    assert_equal "Published body", draft.body
-  end
-
-  test "publish fails without body" do
-    sign_in users(:attendee)
-    draft = group_posts(:book_club_draft)
-    patch group_group_post_path(groups(:book_club), draft), params: {
-      publish: "1",
-      group_post: { body: "" }
-    }
-    assert_response :unprocessable_entity
-    draft.reload
-    assert draft.draft?
-  end
-
   test "inline create redirects to group on success" do
     sign_in users(:attendee)
     assert_difference "GroupPost.count" do
@@ -175,32 +92,5 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :unprocessable_entity
     assert_select "[data-controller='inline-post-form']"
-  end
-
-  test "inline publish redirects to group on success" do
-    sign_in users(:attendee)
-    draft = group_posts(:book_club_draft)
-    patch group_group_post_path(groups(:book_club), draft), params: {
-      publish: "1",
-      inline_feed: "1",
-      group_post: { body: "Content" }
-    }
-    assert_redirected_to group_path(groups(:book_club), tab: :feed)
-    draft.reload
-    assert_not draft.draft?
-  end
-
-  test "inline publish renders group show on validation failure" do
-    sign_in users(:attendee)
-    draft = group_posts(:book_club_draft)
-    patch group_group_post_path(groups(:book_club), draft), params: {
-      publish: "1",
-      inline_feed: "1",
-      group_post: { body: "" }
-    }
-    assert_response :unprocessable_entity
-    assert_select "[data-controller='inline-post-form']"
-    draft.reload
-    assert draft.draft?
   end
 end

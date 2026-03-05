@@ -141,16 +141,8 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_not_nil membership.last_read_at
   end
 
-  # Draft button
-  test "show displays Continue Draft when user has draft with content" do
+  test "show displays New Post button" do
     sign_in users(:attendee)
-    get group_path(groups(:book_club), tab: :feed)
-    assert_response :success
-    assert_match "Continue Draft", response.body
-  end
-
-  test "show displays New Post when user has no draft" do
-    sign_in users(:admin)
     get group_path(groups(:book_club), tab: :feed)
     assert_response :success
     assert_match "New Post", response.body

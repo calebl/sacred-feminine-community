@@ -57,13 +57,12 @@
         <div class="flex justify-between items-center mb-4">
           <h3 class="font-display font-semibold text-sf-black dark:text-white">Posts</h3>
           <button data-action="click->inline-post-form#toggle" class="btn-primary px-4 py-2">
-            <%= @draft ? "Continue Draft" : "New Post" %>
+            New Post
           </button>
         </div>
 
         <div data-inline-post-form-target="form" class="<%= @show_form ? '' : 'hidden' %>">
-          <% inline_url = @draft ? cohort_post_path(@cohort, @draft) : cohort_posts_path(@cohort) %>
-          <%= render "shared/inline_post_form", post: @cohort.posts.build, draft: @draft, form_url: inline_url %>
+          <%= render "shared/inline_post_form", post: @cohort.posts.build, form_url: cohort_posts_path(@cohort) %>
         </div>
 
         <div class="space-y-3">

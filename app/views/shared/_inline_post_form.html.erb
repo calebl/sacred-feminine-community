@@ -1,22 +1,16 @@
 <div class="mb-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-sf-sand/20 dark:border-gray-700">
-  <% form_post = draft || post %>
-  <% is_draft = draft.present? %>
-
   <%= form_with(
-    model: form_post,
-    method: is_draft ? :patch : :post,
+    model: post,
+    method: :post,
     url: form_url,
     class: "space-y-4"
   ) do |f| %>
-    <% if is_draft %>
-      <input type="hidden" name="publish" value="1">
-    <% end %>
     <input type="hidden" name="inline_feed" value="1">
 
-    <% if form_post.errors.any? %>
+    <% if post.errors.any? %>
       <div class="rounded-xl p-4 bg-sf-red/10 text-red-800 dark:text-red-300 border border-sf-red/20">
         <ul class="list-disc list-inside text-sm">
-          <% form_post.errors.full_messages.each do |msg| %>
+          <% post.errors.full_messages.each do |msg| %>
             <li><%= msg %></li>
           <% end %>
         </ul>

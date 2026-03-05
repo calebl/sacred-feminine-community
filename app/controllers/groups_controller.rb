@@ -32,13 +32,7 @@ class GroupsController < ApplicationController
                            .order(created_at: :desc)
                            .limit(50)
                            .reverse
-    @posts = @group.group_posts.published.pinned_first.includes(:user, :group_post_comments)
-    draft = @group.group_posts.drafts.find_by(user: current_user)
-    if draft&.has_content?
-      @draft = draft
-    elsif draft
-      draft.destroy
-    end
+    @posts = @group.group_posts.pinned_first.includes(:user, :group_post_comments)
   end
 
   def new

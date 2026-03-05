@@ -35,7 +35,7 @@ class Cohort < ApplicationRecord
     membership = cohort_memberships.find_by(user: user)
     return 0 unless membership
 
-    new_posts = posts.published.where.not(user: user)
+    new_posts = posts.where.not(user: user)
     if membership.posts_last_read_at
       new_posts.where("posts.created_at > ?", membership.posts_last_read_at).count
     else
