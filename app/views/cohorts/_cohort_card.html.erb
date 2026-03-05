@@ -7,7 +7,7 @@
     <% if cohort.header_image.attached? %>
       <%= image_tag cohort.header_image.variant(resize_to_limit: [2400, 800]), class: "w-full" %>
     <% else %>
-      <%= render "header_image_placeholder" %>
+      <%= render "shared/header_image_placeholder" %>
     <% end %>
   <% end %>
   <div class="<%= show_image ? 'p-6' : 'p-5' %>">

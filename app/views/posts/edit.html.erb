@@ -1,36 +1,5 @@
-<div class="max-w-4xl mx-auto px-4 py-8">
-  <%= render "shared/back_header", path: cohort_path(@cohort, tab: :feed), title: "Edit Draft" %>
-
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6"
-       data-controller="autosave"
-       data-autosave-url-value="<%= cohort_post_path(@cohort, @post) %>"
-       data-autosave-interval-value="5000">
-    <div class="flex items-center justify-end mb-6">
-      <span id="autosave-status" class="text-sm text-gray-400 dark:text-gray-500" data-autosave-target="status"></span>
-    </div>
-
-    <%= form_with(model: [@cohort, @post], method: :patch, id: "post-form", data: { autosave_target: "form" }, class: "space-y-4") do |f| %>
-      <% if @post.errors.any? %>
-        <div class="rounded-xl p-4 bg-sf-red/10 text-red-800 dark:text-red-300 border border-sf-red/20">
-          <ul class="list-disc list-inside text-sm">
-            <% @post.errors.full_messages.each do |msg| %>
-              <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
-
-      <div>
-        <%= f.label :body, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
-        <%= f.text_area :body, class: "w-full min-h-[200px] resize-y", placeholder: "Write your post..." %>
-      </div>
-
-      <div class="flex justify-end gap-3">
-        <%= f.submit "Save Draft",
-            class: "btn-tertiary py-2.5" %>
-        <button type="submit" name="publish" value="1"
-            class="btn-primary py-2.5">Publish</button>
-      </div>
-    <% end %>
-  </div>
-</div>
+<%= render "shared/post_edit_form",
+    post: @post,
+    back_path: cohort_path(@cohort, tab: :feed),
+    autosave_url: cohort_post_path(@cohort, @post),
+    form_url: cohort_post_path(@cohort, @post) %>

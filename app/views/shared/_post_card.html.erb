@@ -1,4 +1,4 @@
-<%= link_to cohort_post_path(cohort, post), class: "block", data: { turbo_frame: "_top" } do %>
+<%= link_to post_path, class: "block", data: { turbo_frame: "_top" } do %>
   <div class="p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700 hover:border-sf-gold/30 transition bg-white dark:bg-gray-800">
     <div class="flex items-start justify-between gap-3">
       <div class="flex-1 min-w-0">
@@ -18,7 +18,7 @@
           <span>&middot;</span>
           <span><%= time_ago_in_words(post.created_at) %> ago</span>
           <span>&middot;</span>
-          <span><%= post.post_comments.size %> <%= "comment".pluralize(post.post_comments.size) %></span>
+          <span><%= comments.size %> <%= "comment".pluralize(comments.size) %></span>
         </div>
       </div>
     </div>

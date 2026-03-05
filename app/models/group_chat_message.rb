@@ -10,8 +10,8 @@ class GroupChatMessage < ApplicationRecord
       group,
       :chat,
       target: "chat_messages",
-      partial: "group_chat_messages/group_chat_message",
-      locals: { group_chat_message: message }
+      partial: "shared/chat_message",
+      locals: { message: message }
     )
   }
 end

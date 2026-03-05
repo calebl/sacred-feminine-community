@@ -2,7 +2,7 @@
   <% if group.header_image.attached? %>
     <%= image_tag group.header_image.variant(resize_to_limit: [2400, 800]), class: "w-full" %>
   <% else %>
-    <%= render "groups/header_image_placeholder", compact: true %>
+    <%= render "shared/header_image_placeholder", compact: true %>
   <% end %>
   <div class="p-5">
     <div class="flex items-center justify-between">

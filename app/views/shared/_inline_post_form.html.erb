@@ -3,9 +3,9 @@
   <% is_draft = draft.present? %>
 
   <%= form_with(
-    model: [group, form_post],
+    model: form_post,
     method: is_draft ? :patch : :post,
-    url: is_draft ? group_group_post_path(group, form_post) : group_group_posts_path(group),
+    url: form_url,
     class: "space-y-4"
   ) do |f| %>
     <% if is_draft %>

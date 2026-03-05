@@ -10,8 +10,8 @@ class ChatMessage < ApplicationRecord
       cohort,
       :chat,
       target: "chat_messages",
-      partial: "chat_messages/chat_message",
-      locals: { chat_message: message }
+      partial: "shared/chat_message",
+      locals: { message: message }
     )
   }
 end

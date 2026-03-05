@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_05_022539) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_05_031732) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -87,6 +87,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_05_022539) do
     t.text "body", null: false
     t.integer "cohort_id", null: false
     t.datetime "created_at", null: false
+    t.boolean "system_message", default: false, null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["cohort_id", "created_at"], name: "index_chat_messages_on_cohort_id_and_created_at"
