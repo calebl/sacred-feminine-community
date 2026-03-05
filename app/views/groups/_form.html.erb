@@ -1,0 +1,59 @@
+<%= form_with(model: group, class: "space-y-6") do |f| %>
+  <% if group.errors.any? %>
+    <div class="p-4 bg-sf-red/10 border border-sf-red/20 rounded-xl">
+      <% group.errors.full_messages.each do |message| %>
+        <p class="text-sm text-red-800 dark:text-red-300"><%= message %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :name, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+    <%= f.text_field :name, class: "w-full", required: true %>
+  </div>
+
+  <div>
+    <%= f.label :description, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+    <%= f.text_area :description, rows: 3, class: "w-full" %>
+  </div>
+
+  <div data-controller="image-cropper" data-image-cropper-aspect-ratio-value="3" data-image-cropper-file-name-value="cropped_header.jpg">
+    <%= f.label :header_image, "Header Image", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+
+    <% if group.header_image.attached? %>
+      <div data-image-cropper-target="existingImage" class="mb-3 rounded-xl overflow-hidden">
+        <%= image_tag group.header_image.variant(resize_to_limit: [2400, 800]), class: "w-full rounded-xl" %>
+      </div>
+      <% if group.persisted? %>
+        <label class="flex items-center gap-2 mb-3 text-sm text-gray-600 dark:text-gray-400">
+          <%= check_box_tag "group[remove_header_image]", "1", false %>
+          Remove current image
+        </label>
+      <% end %>
+    <% end %>
+
+    <%= f.file_field :header_image, accept: "image/*",
+        data: { image_cropper_target: "fileInput", action: "change->image-cropper#fileSelected" },
+        class: "w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sf-sand/30 file:text-sf-black hover:file:bg-sf-sand/50 dark:file:bg-gray-700 dark:file:text-white" %>
+
+    <div data-image-cropper-target="cropperWrap" class="hidden mt-3">
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Drag to reposition. The highlighted area will be displayed as the header.</p>
+      <div class="rounded-xl overflow-hidden border border-sf-sand/20 dark:border-gray-700" style="max-height: 400px;">
+        <img data-image-cropper-target="source" class="max-w-full" alt="Crop source" />
+      </div>
+    </div>
+
+    <div data-image-cropper-target="preview" class="hidden mt-3">
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Preview (as it will appear):</p>
+      <div class="rounded-xl overflow-hidden border border-sf-sand/20 dark:border-gray-700">
+        <img data-image-cropper-target="previewImage" class="w-full rounded-xl" alt="Cropped preview" />
+      </div>
+    </div>
+
+    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Upload a group photo or banner image. You can crop it after selecting.</p>
+  </div>
+
+  <div>
+    <%= f.submit class: "w-full btn-primary" %>
+  </div>
+<% end %>

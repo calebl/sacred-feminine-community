@@ -1,0 +1,13 @@
+welcome_message:
+  body: Welcome to the Book Club!
+  group: book_club
+  user: attendee
+  system_message: false
+  created_at: <%= 1.hour.ago %>
+
+join_announcement:
+  body: Admin User joined the group
+  group: book_club
+  user: admin
+  system_message: true
+  created_at: <%= 30.minutes.ago %>

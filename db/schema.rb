@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_05_011424) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_05_022539) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -148,6 +148,79 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_05_011424) do
     t.index ["sender_id"], name: "index_direct_messages_on_sender_id"
   end
 
+  create_table "group_chat_messages", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.integer "group_id", null: false
+    t.boolean "system_message", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["group_id", "created_at"], name: "index_group_chat_messages_on_group_id_and_created_at"
+    t.index ["group_id"], name: "index_group_chat_messages_on_group_id"
+    t.index ["user_id"], name: "index_group_chat_messages_on_user_id"
+  end
+
+  create_table "group_memberships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "group_id", null: false
+    t.datetime "joined_at", default: -> { "CURRENT_TIMESTAMP" }
+    t.datetime "last_read_at"
+    t.datetime "posts_last_read_at"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["group_id"], name: "index_group_memberships_on_group_id"
+    t.index ["user_id", "group_id"], name: "index_group_memberships_on_user_id_and_group_id", unique: true
+    t.index ["user_id"], name: "index_group_memberships_on_user_id"
+  end
+
+  create_table "group_post_comments", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.integer "group_post_id", null: false
+    t.integer "parent_id"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["group_post_id"], name: "index_group_post_comments_on_group_post_id"
+    t.index ["parent_id"], name: "index_group_post_comments_on_parent_id"
+    t.index ["user_id"], name: "index_group_post_comments_on_user_id"
+  end
+
+  create_table "group_post_reads", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "group_post_id", null: false
+    t.datetime "last_read_at"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["group_post_id"], name: "index_group_post_reads_on_group_post_id"
+    t.index ["user_id", "group_post_id"], name: "index_group_post_reads_on_user_and_post", unique: true
+    t.index ["user_id"], name: "index_group_post_reads_on_user_id"
+  end
+
+  create_table "group_posts", force: :cascade do |t|
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.boolean "draft", default: false, null: false
+    t.integer "group_id", null: false
+    t.boolean "pinned", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["group_id", "pinned", "created_at"], name: "index_group_posts_on_group_pinned_created"
+    t.index ["group_id", "user_id", "draft"], name: "index_group_posts_on_group_user_draft"
+    t.index ["group_id"], name: "index_group_posts_on_group_id"
+    t.index ["user_id"], name: "index_group_posts_on_user_id"
+  end
+
+  create_table "groups", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "created_by_id", null: false
+    t.text "description"
+    t.datetime "discarded_at"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_groups_on_created_by_id"
+    t.index ["discarded_at"], name: "index_groups_on_discarded_at"
+  end
+
   create_table "post_comments", force: :cascade do |t|
     t.text "body", null: false
     t.datetime "created_at", null: false
@@ -234,6 +307,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_05_011424) do
   add_foreign_key "conversation_participants", "users"
   add_foreign_key "direct_messages", "conversations"
   add_foreign_key "direct_messages", "users", column: "sender_id"
+  add_foreign_key "group_chat_messages", "groups"
+  add_foreign_key "group_chat_messages", "users"
+  add_foreign_key "group_memberships", "groups"
+  add_foreign_key "group_memberships", "users"
+  add_foreign_key "group_post_comments", "group_post_comments", column: "parent_id"
+  add_foreign_key "group_post_comments", "group_posts"
+  add_foreign_key "group_post_comments", "users"
+  add_foreign_key "group_post_reads", "group_posts"
+  add_foreign_key "group_post_reads", "users"
+  add_foreign_key "group_posts", "groups"
+  add_foreign_key "group_posts", "users"
+  add_foreign_key "groups", "users", column: "created_by_id"
   add_foreign_key "post_comments", "post_comments", column: "parent_id"
   add_foreign_key "post_comments", "posts"
   add_foreign_key "post_comments", "users"

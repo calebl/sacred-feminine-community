@@ -1,0 +1,144 @@
+<!-- Header Image -->
+<div class="mb-6 rounded-2xl overflow-hidden shadow-sm border border-sf-sand/20 dark:border-gray-700">
+  <% if @group.header_image.attached? %>
+    <%= image_tag @group.header_image.variant(resize_to_limit: [2400, 800]), class: "w-full" %>
+  <% else %>
+    <%= render "groups/header_image_placeholder" %>
+  <% end %>
+</div>
+
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white"><%= @group.name %></h1>
+    <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Created by <%= @group.creator.name %></p>
+  </div>
+  <div class="flex gap-2">
+    <% if policy(@group).update? %>
+      <%= link_to "Edit", edit_group_path(@group), class: "btn-secondary px-4 py-2" %>
+    <% end %>
+    <% if !@is_member %>
+      <%= button_to "Join Group", group_group_membership_path(@group), method: :post, class: "btn-primary px-4 py-2" %>
+    <% elsif policy(@group).leave? %>
+      <%= button_to "Leave", group_group_membership_path(@group), method: :delete,
+          class: "btn-tertiary px-4 py-2",
+          data: { turbo_confirm: "Leave this group?" } %>
+    <% end %>
+  </div>
+</div>
+
+<% if @group.description.present? %>
+  <div class="mb-8 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
+    <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= @group.description %></p>
+  </div>
+<% end %>
+
+<% if @is_member %>
+  <div data-controller="tabs" data-tabs-active-tab-value="<%= @active_tab %>">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
+      <!-- Tab headers -->
+      <div class="flex border-b border-sf-sand/20 dark:border-gray-700">
+        <button data-tabs-target="tab" data-action="click->tabs#select"
+                data-tab-name="feed"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+          Feed
+        </button>
+        <button data-tabs-target="tab" data-action="click->tabs#select"
+                data-tab-name="chat"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+          Group Chat
+        </button>
+        <button data-tabs-target="tab" data-action="click->tabs#select"
+                data-tab-name="members"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+          Members (<%= @members.length %>)
+        </button>
+      </div>
+
+      <!-- Feed panel -->
+      <div data-tabs-target="panel" data-panel-name="feed">
+        <div class="p-4" data-controller="inline-post-form">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-display font-semibold text-sf-black dark:text-white">Posts</h3>
+            <button data-action="click->inline-post-form#toggle" class="btn-primary px-4 py-2">
+              <%= @draft ? "Continue Draft" : "New Post" %>
+            </button>
+          </div>
+
+          <div data-inline-post-form-target="form" class="<%= @show_form ? '' : 'hidden' %>">
+            <%= render "groups/inline_post_form", group: @group, post: @group.group_posts.build, draft: @draft %>
+          </div>
+
+          <div class="space-y-3">
+            <% @posts.each do |post| %>
+              <%= render "group_posts/post_card", post: post, group: @group %>
+            <% end %>
+            <% if @posts.empty? %>
+              <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No posts yet. Be the first to share!</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat panel -->
+      <div data-tabs-target="panel" data-panel-name="chat" class="hidden">
+        <%= turbo_stream_from @group, :chat %>
+
+        <div id="chat_messages" class="h-[500px] overflow-y-auto p-4 space-y-2 flex flex-col" data-controller="scroll-bottom chat-alignment" data-chat-alignment-user-id-value="<%= current_user.id %>">
+          <% if @chat_messages.present? %>
+            <%= render @chat_messages %>
+          <% else %>
+            <p id="no_messages_placeholder" class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No messages yet. Start the conversation!</p>
+          <% end %>
+        </div>
+
+        <div class="p-4 border-t border-sf-sand/20 dark:border-gray-700">
+          <%= form_with(
+            model: [@group, GroupChatMessage.new],
+            class: "flex gap-2",
+            data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
+          ) do |f| %>
+            <%= f.text_field :body,
+              placeholder: "Type a message...",
+              class: "flex-1",
+              autocomplete: "off",
+              required: true %>
+            <%= f.submit "Send",
+              class: "btn-primary py-2.5" %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Members panel -->
+      <div data-tabs-target="panel" data-panel-name="members" class="hidden">
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @members.each do |member| %>
+              <div class="flex items-center justify-between">
+                <%= link_to profile_path(member), class: "flex items-center gap-3 hover:opacity-80 transition" do %>
+                  <div class="w-8 h-8 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
+                    <% if member.avatar.attached? %>
+                      <%= image_tag member.avatar.variant(:display), class: "w-8 h-8 rounded-full object-cover" %>
+                    <% else %>
+                      <%= member.name.first.upcase %>
+                    <% end %>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-sf-black dark:text-white"><%= member.name %></p>
+                    <% if @group.creator?(member) %>
+                      <p class="text-xs text-sf-gold">Creator</p>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8 text-center">
+    <p class="text-gray-500 dark:text-gray-400 mb-4"><%= @group.members.size %> <%= "member".pluralize(@group.members.size) %></p>
+    <p class="text-sm text-gray-400 dark:text-gray-500">Join this group to see posts, chat, and connect with members.</p>
+  </div>
+<% end %>

@@ -1,0 +1,11 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <%= render "shared/back_header", path: group_path(@group), title: "Edit Group" %>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8">
+    <%= render "form", group: @group %>
+    <div class="mt-6 pt-6 border-t border-sf-sand/20 dark:border-gray-700">
+      <%= button_to "Delete Group", group_path(@group), method: :delete,
+          class: "text-sm text-red-500 hover:text-red-700",
+          data: { turbo_confirm: "Are you sure? This will delete the group and all its messages." } %>
+    </div>
+  </div>
+</div>

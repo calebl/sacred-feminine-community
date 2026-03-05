@@ -113,6 +113,7 @@ class PostsController < ApplicationController
   def load_cohort_show_data
     @active_tab = "feed"
     @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
+    @sidebar_groups = current_user.groups.order(:name)
     @active_cohort_id = @cohort.id
     @members = @cohort.members.kept.includes(:cohort_memberships).load
     @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h

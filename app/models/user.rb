@@ -28,6 +28,14 @@ class User < ApplicationRecord
   has_many :created_cohorts, class_name: "Cohort", foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
   has_many :announcements, foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
 
+  has_many :group_memberships, dependent: :destroy
+  has_many :groups, -> { kept }, through: :group_memberships
+  has_many :group_chat_messages, dependent: :destroy
+  has_many :group_posts, dependent: :destroy
+  has_many :group_post_comments, dependent: :destroy
+  has_many :group_post_reads, dependent: :destroy
+  has_many :created_groups, class_name: "Group", foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
+
   has_many :conversation_participants, dependent: :destroy
   has_many :conversations, through: :conversation_participants
   has_many :sent_direct_messages, class_name: "DirectMessage", foreign_key: :sender_id, dependent: :destroy, inverse_of: :sender

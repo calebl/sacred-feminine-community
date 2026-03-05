@@ -35,6 +35,16 @@ Rails.application.routes.draw do
     end
   end
 
+  # Groups
+  resources :groups do
+    resource :group_membership, only: [ :create, :destroy ]
+    resources :group_chat_messages, only: [ :create ]
+    resources :group_posts, only: [ :show, :new, :create, :edit, :update, :destroy ] do
+      patch :pin, on: :member
+      resources :group_post_comments, only: [ :create, :destroy ]
+    end
+  end
+
   # Notifications
   resource :notifications, only: [ :show ]
 

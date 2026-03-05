@@ -1,0 +1,95 @@
+class GroupsController < ApplicationController
+  before_action :authenticate_user!
+  before_action :set_group, only: [ :show, :edit, :update, :destroy ]
+  layout "dashboard", only: :show
+
+  def index
+    skip_authorization
+    @groups = policy_scope(Group).includes(:members).with_attached_header_image.order(:name)
+  end
+
+  def show
+    authorize @group
+    @active_tab = params[:tab].presence || "feed"
+    @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
+    @sidebar_groups = current_user.groups.order(:name)
+    @active_group_id = @group.id
+    @is_member = @group.member?(current_user)
+
+    return unless @is_member
+
+    unless request.headers["Purpose"] == "prefetch"
+      membership = @group.group_memberships.find_by(user: current_user)
+      if membership
+        updates = { last_read_at: Time.current }
+        updates[:posts_last_read_at] = Time.current if @active_tab == "feed"
+        membership.update(updates)
+      end
+    end
+    @members = @group.members.kept.includes(:group_memberships).load
+    @chat_messages = @group.group_chat_messages
+                           .includes(:user)
+                           .order(created_at: :desc)
+                           .limit(50)
+                           .reverse
+    @posts = @group.group_posts.published.pinned_first.includes(:user, :group_post_comments)
+    draft = @group.group_posts.drafts.find_by(user: current_user)
+    if draft&.has_content?
+      @draft = draft
+    elsif draft
+      draft.destroy
+    end
+  end
+
+  def new
+    @group = Group.new
+    authorize @group
+  end
+
+  def create
+    @group = Group.new(group_params)
+    @group.creator = current_user
+    authorize @group
+
+    if @group.save
+      @group.group_memberships.create!(user: current_user)
+      redirect_to @group, notice: "Group created."
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def edit
+    authorize @group
+  end
+
+  def update
+    authorize @group
+    if @group.update(group_params)
+      @group.header_image.purge if params[:group][:remove_header_image] == "1"
+      redirect_to @group, notice: "Group updated."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    authorize @group
+    @group.discard
+    redirect_to groups_path, notice: "Group archived."
+  end
+
+  private
+
+  def set_group
+    @group = Group.kept.find(params[:id])
+  end
+
+  def group_params
+    params.require(:group).permit(:name, :description, :header_image)
+  end
+
+  def policy_scope_required?
+    action_name == "index"
+  end
+end

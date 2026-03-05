@@ -12,6 +12,7 @@ class CohortsController < ApplicationController
     authorize @cohort
     @active_tab = params[:tab].presence || "feed"
     @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
+    @sidebar_groups = current_user.groups.order(:name)
     @active_cohort_id = @cohort.id
     unless request.headers["Purpose"] == "prefetch"
       membership = @cohort.cohort_memberships.find_by(user: current_user)

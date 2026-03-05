@@ -1,0 +1,9 @@
+book_club:
+  name: Book Club
+  description: A group for discussing books
+  created_by_id: <%= ActiveRecord::FixtureSet.identify(:attendee) %>
+
+yoga_group:
+  name: Yoga Circle
+  description: Daily yoga practice and mindfulness
+  created_by_id: <%= ActiveRecord::FixtureSet.identify(:admin) %>
