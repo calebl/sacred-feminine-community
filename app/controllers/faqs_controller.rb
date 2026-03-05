@@ -30,7 +30,7 @@ class FaqsController < ApplicationController
     if @faq.update(faq_params)
       redirect_to faqs_path, notice: "FAQ updated."
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, layout: false, status: :unprocessable_entity
     end
   end
 

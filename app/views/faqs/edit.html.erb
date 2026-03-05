@@ -1,5 +1,40 @@
-<div class="max-w-2xl mx-auto px-4 py-8">
-  <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white mb-6">Edit FAQ</h1>
-  <%= link_to "Back to FAQs", authenticated_root_path(tab: "faqs"), class: "text-sm text-sf-blue hover:underline mb-6 inline-block" %>
-  <%= render "form", faq: @faq %>
-</div>
+<%= turbo_frame_tag dom_id(@faq) do %>
+  <div class="p-4 rounded-xl border border-sf-blue/30 dark:border-sf-blue/20 bg-sf-blue/5 dark:bg-sf-blue/10">
+    <h3 class="font-display font-semibold text-sf-black dark:text-white mb-4">Edit FAQ</h3>
+    <%= form_with(model: @faq, class: "space-y-4") do |f| %>
+      <% if @faq.errors.any? %>
+        <div class="p-4 bg-sf-red/10 border border-sf-red/20 rounded-xl">
+          <% @faq.errors.full_messages.each do |message| %>
+            <p class="text-sm text-red-800 dark:text-red-300"><%= message %></p>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :question, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.text_field :question, class: "w-full", required: true %>
+      </div>
+
+      <div>
+        <%= f.label :answer, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.text_area :answer, rows: 3, class: "w-full", required: true %>
+      </div>
+
+      <div>
+        <%= f.label :position, "Display Order", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.number_field :position, class: "w-full", min: 0 %>
+        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Lower numbers appear first.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <%= f.check_box :active, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold" %>
+        <%= f.label :active, "Visible to members", class: "text-sm font-medium text-gray-700 dark:text-gray-300" %>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <%= f.submit "Update FAQ", class: "btn-primary px-5 py-2.5" %>
+        <%= link_to "Cancel", faqs_path, class: "px-4 py-2.5 text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
