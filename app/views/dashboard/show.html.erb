@@ -1,135 +1,93 @@
-<div class="max-w-7xl mx-auto px-4 py-8">
-  <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white mb-2">Welcome, <%= current_user.name %></h1>
-  <p class="text-gray-500 dark:text-gray-400 mb-8">Sacred Feminine Community</p>
+<h1 class="text-3xl font-display font-bold text-sf-black dark:text-white mb-2">Welcome, <%= current_user.name %></h1>
+<p class="text-gray-500 dark:text-gray-400 mb-8">Sacred Feminine Community</p>
 
-  <% if @announcement %>
-    <div class="mb-8 p-6 bg-sf-gold/10 dark:bg-sf-gold/5 rounded-2xl border border-sf-gold/30 dark:border-sf-gold/20">
-      <div class="flex items-start gap-3">
-        <svg class="w-6 h-6 text-sf-gold flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
-        <div>
-          <h2 class="font-display font-semibold text-sf-black dark:text-white text-lg mb-1"><%= @announcement.title %></h2>
-          <p class="text-gray-700 dark:text-gray-300 text-sm whitespace-pre-wrap"><%= @announcement.body %></p>
-          <% if @announcement.published_at %>
-            <p class="text-xs text-gray-400 dark:text-gray-500 mt-2"><%= @announcement.published_at.strftime("%B %d, %Y") %></p>
-          <% end %>
-        </div>
+<%# === DESKTOP: Server-side panel selection === %>
+<div class="hidden lg:block mb-8">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
+    <% case @active_tab %>
+    <% when "map" %>
+      <div class="p-4 relative z-0">
+        <%= render "dashboard/map_panel" %>
       </div>
+    <% when "members" %>
+      <div class="p-4 h-[600px] flex flex-col" data-controller="member-search">
+        <%= render "dashboard/members_panel" %>
+      </div>
+    <% when "faqs" %>
+      <div class="p-6">
+        <%= render "dashboard/faqs_panel" %>
+      </div>
+    <% else %>
+      <div class="p-4 h-[600px] overflow-y-auto">
+        <%= render "dashboard/announcements_panel" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# === MOBILE: Tab layout === %>
+<div class="lg:hidden mb-8" data-controller="tabs" data-tabs-active-tab-value="<%= @active_tab %>">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
+    <%# Tab headers %>
+    <div class="flex border-b border-sf-sand/20 dark:border-gray-700">
+      <button data-tabs-target="tab" data-action="click->tabs#select"
+              data-tab-name="announcements"
+              class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+        Announcements
+      </button>
+      <button data-tabs-target="tab" data-action="click->tabs#select"
+              data-tab-name="map"
+              class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+        Map
+      </button>
+      <button data-tabs-target="tab" data-action="click->tabs#select"
+              data-tab-name="members"
+              class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+        Members
+      </button>
     </div>
+
+    <%# Announcements panel %>
+    <div data-tabs-target="panel" data-panel-name="announcements" class="p-4 h-[532px] overflow-y-auto">
+      <%= render "dashboard/announcements_panel" %>
+    </div>
+
+    <%# Map panel %>
+    <div data-tabs-target="panel" data-panel-name="map" class="p-4 relative z-0">
+      <%= render "dashboard/map_panel" %>
+    </div>
+
+    <%# Members panel %>
+    <div data-tabs-target="panel" data-panel-name="members" class="p-4 h-[532px] flex flex-col" data-controller="member-search">
+      <%= render "dashboard/members_panel" %>
+    </div>
+  </div>
+</div>
+
+<%# Mobile quick-access cards %>
+<div class="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+  <%= link_to cohorts_path, class: "block p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 hover:shadow-md transition group" do %>
+    <div class="w-12 h-12 rounded-xl bg-sf-gold/10 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+      <svg class="w-6 h-6 text-sf-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    </div>
+    <h3 class="font-display font-semibold text-sf-black dark:text-white mb-1">My Cohorts</h3>
+    <p class="text-sm text-gray-500 dark:text-gray-400">Connect with your retreat groups.</p>
   <% end %>
 
-  <!-- Tabbed content -->
-  <div class="mb-8" data-controller="tabs" data-tabs-active-tab-value="<%= @active_tab %>">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
-      <!-- Tab headers -->
-      <div class="flex border-b border-sf-sand/20 dark:border-gray-700">
-        <button data-tabs-target="tab" data-action="click->tabs#select"
-                data-tab-name="map"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
-          Map
-        </button>
-        <button data-tabs-target="tab" data-action="click->tabs#select"
-                data-tab-name="members"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
-          Members
-        </button>
-        <button data-tabs-target="tab" data-action="click->tabs#select"
-                data-tab-name="announcements"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
-          Announcements
-        </button>
-      </div>
-
-      <!-- Map panel -->
-      <div data-tabs-target="panel" data-panel-name="map" class="p-4 relative z-0">
-        <div
-          data-controller="map"
-          data-map-url-value="<%= api_map_pins_path(format: :json) %>"
-          class="w-full h-[500px] rounded-xl"
-        ></div>
-      </div>
-
-      <!-- Members panel -->
-      <div data-tabs-target="panel" data-panel-name="members" class="p-4 h-[532px] flex flex-col" data-controller="member-search">
-        <div class="mb-4 flex-shrink-0">
-          <input type="text"
-                 data-member-search-target="input"
-                 data-action="input->member-search#filter"
-                 placeholder="Search by name or city..."
-                 class="w-full px-4 py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm bg-white dark:bg-gray-700 text-sf-black dark:text-white placeholder-gray-400 focus:ring-sf-gold focus:border-sf-gold">
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto flex-1 min-h-0">
-          <% @members.each do |member| %>
-            <%= link_to profile_path(member),
-                        class: "flex items-center gap-3 p-4 rounded-xl hover:bg-sf-sand/10 dark:hover:bg-gray-700 transition",
-                        data: { member_search_target: "card", name: member.name, location: member.full_location } do %>
-              <div class="w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-600 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
-                <% if member.avatar.attached? %>
-                  <%= image_tag member.avatar.variant(:display), class: "w-10 h-10 rounded-full object-cover" %>
-                <% else %>
-                  <%= member.name.first.upcase %>
-                <% end %>
-              </div>
-              <div class="min-w-0">
-                <p class="text-sm font-semibold text-sf-black dark:text-white truncate"><%= member.name %></p>
-                <% if member.full_location.present? %>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate"><%= member.full_location %></p>
-                <% end %>
-              </div>
-            <% end %>
-          <% end %>
-        </div>
-
-        <p data-member-search-target="empty" class="hidden text-center text-gray-400 dark:text-gray-500 py-8">
-          No members found matching your search.
-        </p>
-      </div>
-
-      <!-- Announcements panel -->
-      <div data-tabs-target="panel" data-panel-name="announcements" class="p-4 h-[532px] overflow-y-auto">
-        <% if @announcements.any? %>
-          <div class="space-y-4">
-            <% @announcements.each do |announcement| %>
-              <div class="p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700">
-                <h3 class="font-display font-semibold text-sf-black dark:text-white mb-1"><%= announcement.title %></h3>
-                <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= announcement.body %></p>
-                <% if announcement.published_at %>
-                  <p class="text-xs text-gray-400 dark:text-gray-500 mt-2"><%= announcement.published_at.strftime("%B %d, %Y") %></p>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-        <% else %>
-          <p class="text-center text-gray-400 dark:text-gray-500 py-8">No announcements yet.</p>
-        <% end %>
-      </div>
+  <%= link_to conversations_path, class: "block p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 hover:shadow-md transition group" do %>
+    <div class="w-12 h-12 rounded-xl bg-sf-red/10 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+      <svg class="w-6 h-6 text-sf-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
     </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <%= link_to cohorts_path, class: "block p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 hover:shadow-md transition group" do %>
-      <div class="w-12 h-12 rounded-xl bg-sf-gold/10 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-        <svg class="w-6 h-6 text-sf-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-      </div>
-      <h3 class="font-display font-semibold text-sf-black dark:text-white mb-1">My Cohorts</h3>
-      <p class="text-sm text-gray-500 dark:text-gray-400">Connect with your retreat groups.</p>
-    <% end %>
-
-    <%= link_to conversations_path, class: "block p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 hover:shadow-md transition group" do %>
-      <div class="w-12 h-12 rounded-xl bg-sf-red/10 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-        <svg class="w-6 h-6 text-sf-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-      </div>
-      <h3 class="font-display font-semibold text-sf-black dark:text-white mb-1">Messages</h3>
-      <p class="text-sm text-gray-500 dark:text-gray-400">Private conversations with community members.</p>
-    <% end %>
-  </div>
-
-  <% if current_user.admin? %>
-    <div class="mt-8">
-      <%= link_to admin_dashboard_path, class: "inline-flex items-center gap-2 px-5 py-2.5 bg-sf-gold/10 text-sf-gold rounded-xl hover:bg-sf-gold/20 font-semibold text-sm transition" do %>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        Admin Dashboard
-      <% end %>
-    </div>
+    <h3 class="font-display font-semibold text-sf-black dark:text-white mb-1">Messages</h3>
+    <p class="text-sm text-gray-500 dark:text-gray-400">Private conversations with community members.</p>
   <% end %>
 </div>
+
+<% if current_user.admin? %>
+  <div class="mt-8 lg:hidden">
+    <%= link_to admin_dashboard_path, class: "inline-flex items-center gap-2 px-5 py-2.5 bg-sf-gold/10 text-sf-gold rounded-xl hover:bg-sf-gold/20 font-semibold text-sm transition" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Admin Dashboard
+    <% end %>
+  </div>
+<% end %>

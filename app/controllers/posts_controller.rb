@@ -37,10 +37,20 @@ class PostsController < ApplicationController
     if params[:publish]
       @post.draft = false
       if @post.update(post_params)
-        redirect_to cohort_post_path(@cohort, @post), notice: "Post published."
+        if params[:inline_feed]
+          redirect_to cohort_path(@cohort, tab: :feed), notice: "Post published."
+        else
+          redirect_to cohort_post_path(@cohort, @post), notice: "Post published."
+        end
       else
         @post.draft = true
-        render :edit, status: :unprocessable_entity
+        if params[:inline_feed]
+          load_cohort_show_data
+          @show_form = true
+          render "cohorts/show", layout: "dashboard", status: :unprocessable_entity
+        else
+          render :edit, status: :unprocessable_entity
+        end
       end
     else
       @post.assign_attributes(post_params)
@@ -59,9 +69,18 @@ class PostsController < ApplicationController
     authorize @post
 
     if @post.save
-      redirect_to cohort_post_path(@cohort, @post), notice: "Post created."
+      if params[:inline_feed]
+        redirect_to cohort_path(@cohort, tab: :feed), notice: "Post published."
+      else
+        redirect_to cohort_post_path(@cohort, @post), notice: "Post created."
+      end
     else
-      render :new, status: :unprocessable_entity
+      if params[:inline_feed]
+        load_cohort_show_data
+        render "cohorts/show", layout: "dashboard", status: :unprocessable_entity
+      else
+        render :new, status: :unprocessable_entity
+      end
     end
   end
 
@@ -89,5 +108,18 @@ class PostsController < ApplicationController
 
   def post_params
     params.require(:post).permit(:body)
+  end
+
+  def load_cohort_show_data
+    @active_tab = "feed"
+    @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
+    @active_cohort_id = @cohort.id
+    @members = @cohort.members.kept.includes(:cohort_memberships).load
+    @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h
+    @non_members = User.kept.where.not(id: @members.map(&:id)).where.not(invitation_accepted_at: nil).order(:name).pluck(:name, :id)
+    @chat_messages = @cohort.chat_messages.includes(:user).order(created_at: :desc).limit(50).reverse
+    @posts = @cohort.posts.published.pinned_first.includes(:user, :post_comments)
+    @draft = @cohort.posts.drafts.find_by(user: current_user)
+    @show_form = true
   end
 end

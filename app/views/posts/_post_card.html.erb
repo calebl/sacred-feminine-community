@@ -1,4 +1,4 @@
-<%= link_to cohort_post_path(cohort, post), class: "block" do %>
+<%= link_to cohort_post_path(cohort, post), class: "block", data: { turbo_frame: "_top" } do %>
   <div class="p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700 hover:border-sf-gold/30 transition bg-white dark:bg-gray-800">
     <div class="flex items-start justify-between gap-3">
       <div class="flex-1 min-w-0">
@@ -12,7 +12,7 @@
             </span>
           <% end %>
         </div>
-        <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2"><%= post.body&.truncate(150) %></p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2"><%= post.body&.truncate(500) %></p>
         <div class="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-gray-500">
           <span><%= post.user.name %></span>
           <span>&middot;</span>

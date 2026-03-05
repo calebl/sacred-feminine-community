@@ -1,0 +1,15 @@
+<% if @announcements.any? %>
+  <div class="space-y-4">
+    <% @announcements.each do |announcement| %>
+      <div class="p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700">
+        <h3 class="font-display font-semibold text-sf-black dark:text-white mb-1"><%= announcement.title %></h3>
+        <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= announcement.body %></p>
+        <% if announcement.published_at %>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-2"><%= announcement.published_at.strftime("%B %d, %Y") %></p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p class="text-center text-gray-400 dark:text-gray-500 py-8">No announcements yet.</p>
+<% end %>

@@ -1,0 +1,15 @@
+<% content_for :content do %>
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="lg:grid lg:grid-cols-[1fr_280px] lg:gap-8">
+      <div>
+        <%= yield %>
+      </div>
+      <div class="hidden lg:block">
+        <div class="space-y-4 sticky top-24">
+          <%= render "shared/dashboard_sidebar" %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+<%= render template: "layouts/application" %>

@@ -248,6 +248,35 @@ if Rails.env.development?
           { user: attendees[14], body: "Would this work well combined with a morning breathwork practice?" },
           { user: attendees[10], body: "Absolutely! Drink the infusion about 30 minutes before breathwork for best results." }
         ]
+      },
+      {
+        author: attendees[5],
+        pinned: false,
+        body: "I wanted to share something that's been on my heart. Last month I attended a home birth where the mother used only herbal support and breathwork through labor. It was one of the most powerful things I've witnessed.\n\nIt reminded me why this community matters so much. We're keeping these practices alive for the next generation.\n\nI'd love to lead a conversation about traditional birth practices at the retreat if anyone is interested.",
+        comments: [
+          { user: attendees[0], body: "Yes, absolutely. This is so important. I'd love to hear more." },
+          { user: attendees[1], body: "As a doula-in-training, I would be so grateful for this conversation." },
+          { user: attendees[18], body: "Count me in. My grandmother was a traditional midwife in Mexico and I carry her stories." }
+        ]
+      },
+      {
+        author: attendees[14],
+        pinned: false,
+        body: "Quick question for the group: would anyone be interested in a song circle on Saturday evening? I've been learning some beautiful chants from different traditions and I think it could be a really grounding way to close the day.\n\nNo experience needed. Just your voice and willingness to be present.",
+        comments: [
+          { user: attendees[5], body: "I love this idea, Wren! Singing together always shifts something deep." },
+          { user: attendees[10], body: "Absolutely. I know a few Appalachian folk songs that would fit perfectly." }
+        ]
+      },
+      {
+        author: attendees[18],
+        pinned: false,
+        body: "Sharing a morning practice that's been really supportive for me this season:\n\nBefore getting out of bed, I place both hands on my belly and take three slow breaths. Then I whisper one word that I want to carry through the day. Today's word was \"trust.\"\n\nIt takes less than a minute but it has completely changed how I move through my mornings.",
+        comments: [
+          { user: attendees[0], body: "This is beautiful, Aurora. I'm going to try it tomorrow morning." },
+          { user: attendees[1], body: "I've been doing something similar. My word today was 'spaciousness.'" },
+          { user: attendees[14], body: "I started doing this after you mentioned it last week and it's already shifting things for me." }
+        ]
       }
     ],
     "Solstice Gathering" => [
@@ -270,6 +299,177 @@ if Rails.env.development?
           { user: attendees[19], body: "I love this idea! Can we add dried flowers to the canvas too?" },
           { user: attendees[15], body: "Yes! Pressed flowers would be gorgeous. Bring whatever natural materials inspire you." },
           { user: attendees[8], body: "This is going to be so beautiful. I'll bring some gold leaf." }
+        ]
+      },
+      {
+        author: attendees[7],
+        pinned: false,
+        body: "I've been tracking the planetary alignments for the week of our gathering and the energy is remarkable. Mars and Venus are in a beautiful trine, which supports both action and receptivity.\n\nI'd recommend everyone spend some time under the night sky in the days leading up to the solstice. The stars are inviting us to release old patterns and step into new ones.\n\nI'll have personal mini-readings available for anyone who wants one during the retreat.",
+        comments: [
+          { user: attendees[3], body: "I've been feeling this shift so strongly. Thank you for naming it, Juniper." },
+          { user: attendees[19], body: "I'd love a reading! The stars have been speaking to me loudly this month." },
+          { user: attendees[12], body: "This is going to add such a beautiful layer to our fire ceremony." }
+        ]
+      },
+      {
+        author: attendees[8],
+        pinned: false,
+        body: "I've been making ceremonial drums from ethically sourced deer hide and I just finished one specifically for our gathering. The sound is deep and resonant, perfect for outdoor ceremony.\n\nWould anyone else like to bring instruments? I think a spontaneous sound journey by the fire could be really powerful.",
+        comments: [
+          { user: attendees[2], body: "I have a set of Tibetan singing bowls I could bring." },
+          { user: attendees[3], body: "I'll bring my rain stick and some rattles." },
+          { user: attendees[15], body: "I don't play anything but I'd love to add my voice. Overtone singing has been calling me." }
+        ]
+      },
+      {
+        author: attendees[12],
+        pinned: false,
+        body: "For the fire ceremony, I'll need some help gathering wood the afternoon before. The best firewood is already seasoned and dry. I know a spot on the property where there's a good supply of juniper and pinon.\n\nAlso, if anyone has sacred items they'd like to burn as an offering or release, please bring them. The solstice fire is a powerful time for letting go.",
+        comments: [
+          { user: attendees[8], body: "I'll help with wood gathering. I love that kind of physical, grounding work before ceremony." },
+          { user: attendees[7], body: "I have some old journals I've been wanting to release. This feels like the right fire." },
+          { user: attendees[19], body: "I wrote letters to my younger self that I'd like to burn. Thank you for holding this space, Ember." }
+        ]
+      },
+      {
+        author: attendees[2],
+        pinned: false,
+        body: "Offering free acupressure sessions during the afternoon free time. I'll set up in the shade with mats and blankets. Each session is about 20 minutes.\n\nAcupressure works with the same meridian system as acupuncture but uses finger pressure instead of needles. It's wonderful for releasing tension, improving circulation, and supporting emotional balance.\n\nNo sign-up needed, just come find me!",
+        comments: [
+          { user: attendees[3], body: "Aria, your hands are magic. Everyone should take advantage of this!" },
+          { user: attendees[15], body: "I'll definitely be stopping by. My shoulders have been holding so much tension." }
+        ]
+      },
+      {
+        author: attendees[19],
+        pinned: false,
+        body: "I've been foraging for wildflowers to make flower crowns for everyone at the gathering. So far I have dried lavender, yarrow, and wild rose.\n\nIf anyone sees any beautiful blooms on their walks, please pick a few and bring them! I'll have wire and ribbon so we can make them together.",
+        comments: [
+          { user: attendees[3], body: "This makes my heart so happy. I'll look for some on my hikes this week." },
+          { user: attendees[8], body: "I have a huge patch of chamomile in my garden that would be perfect for this." }
+        ]
+      }
+    ],
+    "Mountain Women's Circle" => [
+      {
+        author: attendees[6],
+        pinned: true,
+        body: "Welcome to the Mountain Women's Circle! Our September gathering in Whitefish is going to be so special.\n\nThe lodge sits right on the edge of the forest with views of Glacier National Park. We'll have access to hiking trails, a creek for water ceremony, and a beautiful meadow for our circle work.\n\nPlease arrive by Friday evening so we can have a slow dinner together before the weekend begins.",
+        comments: [
+          { user: attendees[1], body: "This sounds incredible, Iris. I've been longing for mountain time." },
+          { user: attendees[9], body: "I'm so excited to be near Glacier. The energy there is unlike anywhere else." },
+          { user: attendees[4], body: "Can't wait! I'll bring my breathwork playlist for the morning sessions." }
+        ]
+      },
+      {
+        author: attendees[1],
+        pinned: false,
+        body: "I want to lead a wilderness awareness walk on Saturday morning. We'll practice what my teacher calls 'fox walking,' moving slowly through the forest and tuning into all our senses.\n\nThe goal isn't to cover distance but to truly arrive in the landscape. We'll stop to observe, listen, touch, and smell. I've found that this practice is one of the fastest ways to drop into presence.\n\nWear shoes you can walk quietly in. We'll be out for about two hours.",
+        comments: [
+          { user: attendees[11], body: "I love this practice. It completely changes how I experience the forest." },
+          { user: attendees[6], body: "This is perfect for our first morning. Thank you, Sage." },
+          { user: attendees[17], body: "I learned something similar from an elder years ago. Beautiful to see it here." }
+        ]
+      },
+      {
+        author: attendees[4],
+        pinned: false,
+        body: "Offering a breathwork session on Saturday afternoon. We'll do a connected breathing pattern for about 45 minutes followed by integration time.\n\nThis particular practice can bring up strong emotions, memories, and physical sensations. It's all welcome and all part of the process. I'll be there to guide and support.\n\nPlease eat lightly beforehand and bring a blanket and eye mask if you have one.",
+        comments: [
+          { user: attendees[13], body: "I've been wanting to try this for months. Thank you for offering it, Maya." },
+          { user: attendees[9], body: "Maya's breathwork sessions are incredible. Be ready to go deep." },
+          { user: attendees[1], body: "I'll bring extra blankets for anyone who needs them." }
+        ]
+      },
+      {
+        author: attendees[11],
+        pinned: false,
+        body: "Something I've been sitting with: the womb as a center of creativity, not just reproduction. In my doula practice I work with women across the full spectrum of life stages, and I've learned that womb wisdom doesn't require a physical womb.\n\nI'd love to facilitate a gentle exploration of this at the gathering. We'd use visualization, gentle movement, and sharing.\n\nAnyone interested?",
+        comments: [
+          { user: attendees[4], body: "So much yes to this, Hazel. This is the kind of conversation we need more of." },
+          { user: attendees[6], body: "Beautifully said. I'm in." },
+          { user: attendees[13], body: "Thank you for holding space for this. It's something I've been wanting to explore." }
+        ]
+      },
+      {
+        author: attendees[9],
+        pinned: false,
+        body: "I wrote this haiku on my morning walk today and wanted to share it with you all:\n\nCold creek, mossy stone,\nthe mountain holds what we lose,\nroots remember us.\n\nSee you all in Whitefish soon.",
+        comments: [
+          { user: attendees[1], body: "Oh Celeste, this is so beautiful. You always find the exact right words." },
+          { user: attendees[17], body: "I can feel the mountain in these words. Thank you for sharing." }
+        ]
+      },
+      {
+        author: attendees[13],
+        pinned: false,
+        body: "I'll be bringing a big batch of my homestead elderberry syrup for everyone. It's made with elderberries from my garden, raw honey from my bees, ginger, and cinnamon.\n\nPerfect for immune support as we head into fall. Take a tablespoon each morning during the retreat and I'll send you home with a small jar.\n\nAlso bringing my sourdough starter for fresh bread at the gathering!",
+        comments: [
+          { user: attendees[11], body: "Clover, your elderberry syrup is the best I've ever had. So generous of you." },
+          { user: attendees[4], body: "Fresh sourdough and elderberry syrup? We're going to be so nourished." },
+          { user: attendees[6], body: "This is exactly why I love this circle. Everyone brings their gifts." }
+        ]
+      },
+      {
+        author: attendees[17],
+        pinned: false,
+        body: "For anyone arriving early on Friday, I'd love to take a small group up to a viewpoint I know about 30 minutes from the lodge. It's an easy trail and the views of the valley are stunning at sunset.\n\nWe could do a simple opening prayer together up there before heading back down for dinner. Just a quiet way to mark the beginning of our time together.\n\nLet me know if you're interested and I'll plan for it.",
+        comments: [
+          { user: attendees[1], body: "I'll be there early. Count me in, Ivy." },
+          { user: attendees[9], body: "A sunset prayer on the mountain sounds like the perfect way to begin." }
+        ]
+      }
+    ],
+    "Desert Rose Retreat" => [
+      {
+        author: attendees[12],
+        pinned: true,
+        body: "Welcome to the Desert Rose Retreat! Sedona is one of the most energetically powerful places on earth and I'm so honored to host us there.\n\nWe'll be staying at a retreat center near Bell Rock. The property has an outdoor ceremony space, a labyrinth, and views of the red rocks from every room.\n\nImportant: October in Sedona is warm during the day (70s-80s) but can drop to the 40s at night. Bring layers!\n\nI'll share a detailed schedule next week.",
+        comments: [
+          { user: attendees[3], body: "I've wanted to visit Sedona for years. This feels like divine timing." },
+          { user: attendees[8], body: "The energy near Bell Rock is extraordinary. We're in for something special." },
+          { user: attendees[15], body: "So excited! Will there be time for a vortex hike?" },
+          { user: attendees[12], body: "Absolutely! I'm planning a sunrise vortex hike on Saturday morning." }
+        ]
+      },
+      {
+        author: attendees[3],
+        pinned: false,
+        body: "I'd like to lead an earth-based movement practice on the red rocks if the group is open to it. It's a blend of dance therapy and somatic awareness, designed to help us connect with the energy of the land.\n\nWe'll work barefoot on the earth (weather permitting), using slow, intuitive movement to listen to what the body and the land are communicating. No dance experience needed.\n\nI find that the desert strips away everything unnecessary and leaves us with only what's true.",
+        comments: [
+          { user: attendees[12], body: "Willow, your movement work is always so profound. I can't think of a better setting for it." },
+          { user: attendees[16], body: "I'm new to somatic work but really curious. This sounds like a gentle entry point." },
+          { user: attendees[8], body: "Dancing on red rock earth. I can already feel it calling." }
+        ]
+      },
+      {
+        author: attendees[8],
+        pinned: false,
+        body: "I'll be bringing my ceramics supplies to the retreat and would love to lead a hand-building session. We'll work with locally sourced red clay, shaping vessels by hand without a wheel.\n\nThere's something deeply meditative about working with earth from the place you're sitting on. The pieces will need to air dry, so they won't be fired, but they make beautiful altar pieces.\n\nI'll bring enough clay for everyone.",
+        comments: [
+          { user: attendees[15], body: "Working with Sedona clay? That's such a special idea, Dahlia." },
+          { user: attendees[3], body: "I love the idea of creating something from the earth of this sacred place." },
+          { user: attendees[16], body: "I've never worked with clay before but I'm drawn to try. Thank you for offering this." }
+        ]
+      },
+      {
+        author: attendees[16],
+        pinned: false,
+        body: "Hello everyone! This is my first retreat with this group and I'm feeling a mix of excitement and nervousness. I've been practicing Kundalini yoga on my own for two years but haven't had a community to share it with.\n\nI'm so grateful to have been invited into this circle. I'm coming with an open heart and a willingness to be changed by whatever unfolds.\n\nIs there anything I should know or prepare for my first gathering?",
+        comments: [
+          { user: attendees[12], body: "Welcome, Soleil! Just bring yourself exactly as you are. That's always enough." },
+          { user: attendees[3], body: "You're going to love it. The only preparation needed is openness, and it sounds like you already have that." },
+          { user: attendees[8], body: "We're so happy you're joining us. First retreats are always transformative." },
+          { user: attendees[15], body: "I remember my first retreat with this group. It changed everything. Welcome home." }
+        ]
+      },
+      {
+        author: attendees[15],
+        pinned: false,
+        body: "I'm planning to paint during the retreat and would love company. I'll set up an outdoor painting station where anyone can join me during free time. I'll have extra canvases, watercolors, and brushes.\n\nThe desert light in Sedona is unlike anything I've ever painted in. The reds and golds shift constantly throughout the day. Even if you don't consider yourself a painter, come sit with me and play with color.\n\nSometimes the most powerful art comes from people who aren't trying to make art.",
+        comments: [
+          { user: attendees[16], body: "I haven't painted since I was a child but something about this invitation feels important. I'll be there." },
+          { user: attendees[12], body: "Fern's painting sessions are one of my favorite parts of retreat. So healing." }
         ]
       }
     ],
@@ -306,6 +506,47 @@ if Rails.env.development?
           { user: attendees[2], body: "I'd like to share a short meditation verse. Can I go after you?" },
           { user: attendees[9], body: "Yes to both! Let's create a beautiful flow of voices." }
         ]
+      },
+      {
+        author: attendees[2],
+        pinned: false,
+        body: "I've been preparing a yin yoga sequence specifically designed for winter. It focuses on the kidney and bladder meridians, which correspond to the water element and are most active in the cold months.\n\nWe'll hold poses for 3-5 minutes each, giving the connective tissue time to release. I'll guide a meditation alongside the physical practice.\n\nWould Sunday morning work for everyone? I find the body is most receptive to deep stretching early in the day.",
+        comments: [
+          { user: attendees[0], body: "Sunday morning is perfect. I love how yin yoga makes me feel so spacious inside." },
+          { user: attendees[17], body: "I've been needing this kind of slow, deep practice. Thank you, Aria." },
+          { user: attendees[22], body: "I do yin regularly at home but never with meridian guidance. Really looking forward to this." }
+        ]
+      },
+      {
+        author: attendees[17],
+        pinned: false,
+        body: "I scouted the property last weekend and wanted to share some photos (coming soon). The snow is absolutely beautiful right now. The clearing behind the lodge has about two feet of fresh powder and the trees are crystallized with ice.\n\nFor those who want to do outdoor meditation, I found a sheltered spot under a stand of old-growth pines where the wind doesn't reach. We could set up cushions there and it would be surprisingly comfortable even in the cold.\n\nAlso, the hot tub is working great. Perfect for stargazing after ceremony.",
+        comments: [
+          { user: attendees[0], body: "This sounds magical, Ivy. Outdoor meditation in the snow is one of my favorite practices." },
+          { user: attendees[14], body: "Hot tub under the stars after cacao ceremony? Yes please." },
+          { user: attendees[20], body: "Coming from Stockholm, I'm very used to the cold. Can't wait to sit in the snow with you all!" }
+        ]
+      },
+      {
+        author: attendees[18],
+        pinned: false,
+        body: "I've been organizing a community meal plan so we can nourish ourselves well without anyone spending the whole retreat in the kitchen.\n\nHere's what I'm thinking:\n- Friday dinner: I'll prepare a big pot of pozole (my grandmother's recipe)\n- Saturday breakfast/lunch: Potluck style, everyone contributes one dish\n- Saturday dinner: Wren and Luna are cooking together\n- Sunday brunch: Simple and easy, eggs and sourdough\n\nPlease let me know about any allergies or dietary needs!",
+        comments: [
+          { user: attendees[5], body: "Your grandmother's pozole is legendary, Aurora. I'll bring fresh tortillas." },
+          { user: attendees[10], body: "I'll make a big batch of bone broth for anyone who wants it throughout the weekend." },
+          { user: attendees[14], body: "Luna and I will handle Saturday dinner! Planning a warming curry." },
+          { user: attendees[9], body: "This is so well organized. Thank you for taking this on, Aurora." }
+        ]
+      },
+      {
+        author: attendees[20],
+        pinned: false,
+        body: "Hello from Sweden! I'm Elara and this will be my first retreat with this group. Cosima from the European circle encouraged me to join and I'm so glad I did.\n\nA little about me: I'm a foraging guide and I study Nordic folk healing traditions. I'll be bringing some dried cloudberries and lingonberries from my summer harvest, along with a birch bark tea blend that's been a staple in Scandinavian women's medicine for centuries.\n\nSo excited to meet you all in person!",
+        comments: [
+          { user: attendees[0], body: "Welcome, Elara! We've heard so much about you from Cosima. So happy you're joining us." },
+          { user: attendees[10], body: "Nordic herb traditions! I'd love to learn more about the birch bark tea. Welcome!" },
+          { user: attendees[5], body: "Cloudberries! I've only read about them. Can't wait to try them. Welcome to the circle." }
+        ]
       }
     ],
     "European Sisters Circle" => [
@@ -330,6 +571,47 @@ if Rails.env.development?
           { user: attendees[23], body: "I'll share a breathwork practice rooted in Germanic wellness traditions." },
           { user: attendees[22], body: "Flamenco has deep roots in feminine expression. I could teach a short movement piece." },
           { user: attendees[20], body: "This is going to be so beautiful. What a rich tapestry we're weaving together." }
+        ]
+      },
+      {
+        author: attendees[21],
+        pinned: false,
+        body: "I wanted to share a practice I do every Imbolc that I think we could adapt for our Florence gathering. In the Celtic tradition, Brigid is the goddess of the hearth, of poetry, and of healing.\n\nOn the eve of Imbolc, we make Brigid's crosses from rushes and hang them over doorways for protection. I'll bring materials so we can each make one.\n\nThe cross has four arms spiraling outward, representing the turning of the seasons. Even though we'll be gathering in May, Brigid's energy of creative fire feels so right for our circle.",
+        comments: [
+          { user: attendees[24], body: "I love how you carry these traditions, Maeve. In Italy we have similar protective symbols woven from wheat." },
+          { user: attendees[22], body: "Brigid's fire and creative energy is exactly what I feel in this group." },
+          { user: attendees[20], body: "This is going to be such a meaningful craft to take home." }
+        ]
+      },
+      {
+        author: attendees[22],
+        pinned: false,
+        body: "I've been thinking about our gathering and I want to offer a flamenco workshop. Not the performance kind, but the roots of it. The duende, the deep song.\n\nFlamenco originated with women in kitchens and courtyards, stomping their grief and joy into the earth. It was never meant for stages. It was a language of the body when words weren't enough.\n\nI'll teach basic footwork and hand movements. We'll work with rhythm and breath. No experience needed, just willingness to feel.\n\nBring shoes with a hard sole if you have them.",
+        comments: [
+          { user: attendees[23], body: "Noor, I've always been drawn to flamenco but intimidated. The way you describe it makes it feel so accessible." },
+          { user: attendees[21], body: "Stomping grief into the earth. What a beautiful and necessary practice." },
+          { user: attendees[24], body: "We can do this in the garden! The stone patio would be perfect for footwork." }
+        ]
+      },
+      {
+        author: attendees[23],
+        pinned: false,
+        body: "Question for the group: how are we handling travel to Florence? I was thinking of taking the train from Berlin and could coordinate with anyone coming from central or northern Europe.\n\nThe route through the Alps is stunning and I'd love travel companions. We could make the journey part of the experience, maybe share a cabin on the overnight train.\n\nAlso, I found a wonderful organic market near the villa that's open Saturday mornings. Could be a lovely outing for anyone who arrives early.",
+        comments: [
+          { user: attendees[20], body: "I could fly to Berlin and we take the train together! That sounds wonderful." },
+          { user: attendees[24], body: "The Saturday market is one of my favorites. I'll take anyone who wants to go." },
+          { user: attendees[22], body: "I'm taking the train from Barcelona through the south of France. It's a beautiful ride along the coast." }
+        ]
+      },
+      {
+        author: attendees[24],
+        pinned: false,
+        body: "I spent yesterday in my nonna's garden collecting herbs and thinking about all of you. She passed three years ago but her rosemary, sage, and thyme bushes are still thriving.\n\nShe used to say that every herb has a spirit and if you listen, they'll tell you how they want to be used. I learned everything I know about plant medicine from watching her hands.\n\nI'm drying bundles of her herbs to bring to Florence. It feels like the right way to honor her and to share her medicine with this circle.",
+        comments: [
+          { user: attendees[21], body: "What a beautiful tribute, Cosima. Your nonna's medicine will be with us in the circle." },
+          { user: attendees[20], body: "Ancestral plant wisdom passed through women's hands. This is exactly why we gather." },
+          { user: attendees[23], body: "I got chills reading this. Thank you for sharing her legacy with us." },
+          { user: attendees[22], body: "My abuela had the same relationship with her garden. These grandmothers are still teaching us." }
         ]
       }
     ]

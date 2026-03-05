@@ -186,6 +186,56 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:attendee)
     get cohort_path(cohorts(:kabul_retreat), tab: :feed)
     assert_response :success
-    assert_no_match(/My draft post in progress/, response.body)
+    assert_select ".line-clamp-2", text: /My draft post in progress/, count: 0
+  end
+
+  test "inline create redirects to cohort on success" do
+    sign_in users(:attendee)
+    assert_difference "Post.count" do
+      post cohort_posts_path(cohorts(:kabul_retreat)), params: {
+        inline_feed: "1",
+        post: { body: "Content here" }
+      }
+    end
+    assert_redirected_to cohort_path(cohorts(:kabul_retreat), tab: :feed)
+  end
+
+  test "inline create renders cohort show on validation failure" do
+    sign_in users(:attendee)
+    assert_no_difference "Post.count" do
+      post cohort_posts_path(cohorts(:kabul_retreat)), params: {
+        inline_feed: "1",
+        post: { body: "" }
+      }
+    end
+    assert_response :unprocessable_entity
+    assert_select "[data-controller='inline-post-form']"
+  end
+
+  test "inline publish redirects to cohort on success" do
+    sign_in users(:attendee)
+    draft = posts(:attendee_draft)
+    patch cohort_post_path(cohorts(:kabul_retreat), draft), params: {
+      publish: "1",
+      inline_feed: "1",
+      post: { body: "Content" }
+    }
+    assert_redirected_to cohort_path(cohorts(:kabul_retreat), tab: :feed)
+    draft.reload
+    assert_not draft.draft?
+  end
+
+  test "inline publish renders cohort show on validation failure" do
+    sign_in users(:attendee)
+    draft = posts(:attendee_draft)
+    patch cohort_post_path(cohorts(:kabul_retreat), draft), params: {
+      publish: "1",
+      inline_feed: "1",
+      post: { body: "" }
+    }
+    assert_response :unprocessable_entity
+    assert_select "[data-controller='inline-post-form']"
+    draft.reload
+    assert draft.draft?
   end
 end
