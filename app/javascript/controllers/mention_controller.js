@@ -88,7 +88,9 @@ export default class extends Controller {
       if (response.ok) {
         const html = await response.text()
         this.dropdownTarget.innerHTML = html
-        this.dropdownTarget.classList.toggle("hidden", html.trim().length === 0)
+        const hasResults = html.trim().length > 0
+        this.dropdownTarget.classList.toggle("hidden", !hasResults)
+        if (hasResults) this.positionDropdown()
       }
     } catch {
       this.closeMention()
@@ -259,6 +261,26 @@ export default class extends Controller {
     const text = event.clipboardData.getData("text/plain")
     document.execCommand("insertText", false, text)
     this.syncHidden()
+  }
+
+  positionDropdown() {
+    const inputRect = this.inputTarget.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - inputRect.bottom
+    const dropdownHeight = this.dropdownTarget.scrollHeight
+
+    if (spaceBelow < dropdownHeight + 8 && inputRect.top > spaceBelow) {
+      // Show above
+      this.dropdownTarget.style.bottom = "100%"
+      this.dropdownTarget.style.top = "auto"
+      this.dropdownTarget.style.marginBottom = "4px"
+      this.dropdownTarget.style.marginTop = ""
+    } else {
+      // Show below
+      this.dropdownTarget.style.top = "100%"
+      this.dropdownTarget.style.bottom = "auto"
+      this.dropdownTarget.style.marginTop = "4px"
+      this.dropdownTarget.style.marginBottom = ""
+    }
   }
 
   closeMention() {
