@@ -9,5 +9,6 @@ class DashboardController < ApplicationController
     @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
     @sidebar_groups = current_user.groups.order(:name)
     @active_tab = params[:tab].presence || "announcements"
+    @new_announcement = Announcement.new if current_user.admin?
   end
 end

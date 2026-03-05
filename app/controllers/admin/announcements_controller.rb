@@ -23,9 +23,13 @@ module Admin
       authorize @announcement
 
       if @announcement.save
-        redirect_to admin_announcements_path, notice: "Announcement created."
+        redirect_to after_create_path, notice: "Announcement created."
       else
-        render :new, status: :unprocessable_entity
+        if params[:source] == "dashboard"
+          redirect_to authenticated_root_path, alert: @announcement.errors.full_messages.to_sentence
+        else
+          render :new, status: :unprocessable_entity
+        end
       end
     end
 
@@ -56,6 +60,10 @@ module Admin
 
     def announcement_params
       params.require(:announcement).permit(:title, :body, :active, :published_at)
+    end
+
+    def after_create_path
+      params[:source] == "dashboard" ? authenticated_root_path : admin_announcements_path
     end
 
     def policy_scope_required?

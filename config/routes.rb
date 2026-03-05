@@ -45,6 +45,9 @@ Rails.application.routes.draw do
     end
   end
 
+  # FAQs (admin-managed from dashboard)
+  resources :faqs, only: [ :index, :create, :edit, :update, :destroy ]
+
   # Notifications
   resource :notifications, only: [ :show ]
 
