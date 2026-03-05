@@ -14,23 +14,24 @@
       <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white mb-3">Private Messages</h2>
       <div class="space-y-2 mb-8">
         <% @unread_conversations.each do |conversation| %>
-          <% other = conversation.other_participant(current_user) %>
-          <% next unless other %>
+          <% others = conversation.other_participants(current_user) %>
+          <% next unless others.any? %>
+          <% first_other = others.first %>
           <% unread = conversation.unread_count(current_user) %>
           <%= link_to conversation_path(conversation),
               class: "block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-4 hover:shadow-md transition",
               data: { turbo_prefetch: false } do %>
             <div class="flex items-center gap-4">
               <div class="w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
-                <% if other.avatar.attached? %>
-                  <%= image_tag other.avatar.variant(:display),
+                <% if first_other.avatar.attached? %>
+                  <%= image_tag first_other.avatar.variant(:display),
                       class: "w-10 h-10 rounded-full object-cover" %>
                 <% else %>
-                  <%= other.name.first.upcase %>
+                  <%= first_other.name.first.upcase %>
                 <% end %>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="font-semibold text-sf-black dark:text-white truncate"><%= other.name %></p>
+                <p class="font-semibold text-sf-black dark:text-white truncate"><%= conversation.display_name(current_user) %></p>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Private message</p>
               </div>
               <span class="bg-sf-red text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0"><%= unread %></span>

@@ -4,8 +4,10 @@ class ConversationsController < ApplicationController
   def index
     skip_authorization
     @conversations = policy_scope(Conversation)
+                       .joins(:direct_messages)
                        .includes(:participants, :conversation_participants, direct_messages: :sender)
                        .order(updated_at: :desc)
+                       .distinct
   end
 
   def show
@@ -20,27 +22,51 @@ class ConversationsController < ApplicationController
     @messages = @conversation.direct_messages
                               .includes(:sender)
                               .order(created_at: :asc)
-    @other_user = @conversation.other_participant(current_user)
+    @other_users = @conversation.other_participants(current_user)
+  end
+
+  def new
+    skip_authorization
   end
 
   def create
-    recipient = User.kept.find(params[:recipient_id])
+    recipients = resolve_recipients
+    return unless recipients
 
-    if recipient == current_user
+    blocked = recipients.reject { |r| r.accepts_direct_messages_from?(current_user) }
+    if blocked.any?
+      skip_authorization
+      names = blocked.map(&:name).join(", ")
+      redirect_back fallback_location: new_conversation_path,
+        alert: "#{names} #{blocked.size == 1 ? 'is' : 'are'} not accepting direct messages."
+      return
+    end
+
+    @conversation = Conversation.between([ current_user ] + recipients.to_a)
+    authorize @conversation, :show?
+    @conversation.send_message(from: current_user, body: params[:body])
+
+    redirect_to @conversation
+  end
+
+  private
+
+  def resolve_recipients
+    recipient_ids = params[:recipient_ids].present? ? Array(params[:recipient_ids]) : [ params[:recipient_id] ]
+    recipients = User.kept.where(id: recipient_ids)
+
+    if recipients.empty?
+      skip_authorization
+      redirect_to new_conversation_path, alert: "Please select at least one recipient."
+      return
+    end
+
+    if recipients.map(&:id).sort == [ current_user.id ]
       skip_authorization
       redirect_to conversations_path, alert: "Cannot message yourself."
       return
     end
 
-    unless recipient.accepts_direct_messages_from?(current_user)
-      skip_authorization
-      redirect_to profile_path(recipient), alert: "This member is not accepting direct messages."
-      return
-    end
-
-    @conversation = Conversation.between(current_user, recipient)
-    authorize @conversation, :show?
-
-    redirect_to @conversation
+    recipients.where.not(id: current_user.id)
   end
 end

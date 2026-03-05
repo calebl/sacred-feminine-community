@@ -1,19 +1,24 @@
 <div class="max-w-2xl mx-auto px-4 py-8">
   <%= render layout: "shared/back_header", locals: { path: conversations_path } do %>
-    <% if @other_user %>
+    <% if @other_users.any? %>
+      <% first_other = @other_users.first %>
       <div class="w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-lg font-bold text-sf-black dark:text-white">
-        <% if @other_user.avatar.attached? %>
-          <%= image_tag @other_user.avatar.variant(:display), class: "w-10 h-10 rounded-full object-cover" %>
+        <% if first_other.avatar.attached? %>
+          <%= image_tag first_other.avatar.variant(:display), class: "w-10 h-10 rounded-full object-cover" %>
         <% else %>
-          <%= @other_user.name.first.upcase %>
+          <%= first_other.name.first.upcase %>
         <% end %>
       </div>
       <div>
-        <% if @other_user.kept? %>
-          <%= link_to @other_user.name, profile_path(@other_user), class: "font-display font-semibold text-sf-black dark:text-white hover:text-sf-gold transition" %>
+        <% if @other_users.size == 1 %>
+          <% if first_other.kept? %>
+            <%= link_to first_other.name, profile_path(first_other), class: "font-display font-semibold text-sf-black dark:text-white hover:text-sf-gold transition" %>
+          <% else %>
+            <span class="font-display font-semibold text-gray-400 dark:text-gray-500"><%= first_other.name %></span>
+            <span class="text-xs text-gray-400 dark:text-gray-500 ml-1">(removed)</span>
+          <% end %>
         <% else %>
-          <span class="font-display font-semibold text-gray-400 dark:text-gray-500"><%= @other_user.name %></span>
-          <span class="text-xs text-gray-400 dark:text-gray-500 ml-1">(removed)</span>
+          <span class="font-display font-semibold text-sf-black dark:text-white"><%= @conversation.display_name(current_user) %></span>
         <% end %>
       </div>
     <% end %>
@@ -32,7 +37,7 @@
       <% end %>
     </div>
 
-    <% if @other_user&.kept? %>
+    <% if @other_users.any?(&:kept?) %>
       <div class="p-4 border-t border-sf-sand/20 dark:border-gray-700">
         <%= form_with(
           model: [@conversation, DirectMessage.new],
@@ -50,7 +55,7 @@
       </div>
     <% else %>
       <div class="p-4 border-t border-sf-sand/20 dark:border-gray-700 text-center">
-        <p class="text-gray-400 dark:text-gray-500 text-sm">This user has been removed. You can no longer send messages.</p>
+        <p class="text-gray-400 dark:text-gray-500 text-sm">All participants have been removed. You can no longer send messages.</p>
       </div>
     <% end %>
   </div>

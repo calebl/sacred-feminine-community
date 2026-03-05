@@ -52,7 +52,11 @@ Rails.application.routes.draw do
   resource :notifications, only: [ :show ]
 
   # Direct Messages
-  resources :conversations, only: [ :index, :show, :create ] do
+  namespace :conversations do
+    resources :member_searches, only: [ :index ]
+  end
+
+  resources :conversations, only: [ :index, :show, :new, :create ] do
     resources :direct_messages, only: [ :create ]
   end
 

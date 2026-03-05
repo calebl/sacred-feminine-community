@@ -1,0 +1,52 @@
+<%= turbo_frame_tag "member_search_results" do %>
+  <% if params[:q].present? && @users.any? %>
+    <div class="absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-80 overflow-y-auto">
+      <% @users.each do |user| %>
+        <% if user.accepts_direct_messages_from?(current_user) %>
+          <button type="button"
+                  class="w-full flex items-center gap-3 px-4 py-3 hover:bg-sf-sand/10 dark:hover:bg-gray-700 transition text-left"
+                  data-action="mousedown->conversation-search#select"
+                  data-user-id="<%= user.id %>"
+                  data-user-name="<%= user.name %>">
+            <div class="w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-600 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
+              <% if user.avatar.attached? %>
+                <%= image_tag user.avatar.variant(:display), class: "w-10 h-10 rounded-full object-cover" %>
+              <% else %>
+                <%= user.name.first.upcase %>
+              <% end %>
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-sf-black dark:text-white truncate"><%= user.name %></p>
+              <% if user.full_location.present? %>
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate"><%= user.full_location %></p>
+              <% end %>
+            </div>
+          </button>
+        <% else %>
+          <div class="flex items-center justify-between gap-3 px-4 py-3 opacity-50">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-600 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
+                <% if user.avatar.attached? %>
+                  <%= image_tag user.avatar.variant(:display), class: "w-10 h-10 rounded-full object-cover" %>
+                <% else %>
+                  <%= user.name.first.upcase %>
+                <% end %>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-semibold text-sf-black dark:text-white truncate"><%= user.name %></p>
+                <% if user.full_location.present? %>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate"><%= user.full_location %></p>
+                <% end %>
+              </div>
+            </div>
+            <span class="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0 italic">Not accepting DMs</span>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% elsif params[:q].present? %>
+    <div class="absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg">
+      <p class="text-center text-gray-400 dark:text-gray-500 py-4 text-sm">No members found.</p>
+    </div>
+  <% end %>
+<% end %>
