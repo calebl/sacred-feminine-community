@@ -43,10 +43,10 @@
   <% end %>
 
   <% if @faqs.any? %>
-    <div class="space-y-3">
+    <div class="space-y-4">
       <% @faqs.each do |faq| %>
         <%= turbo_frame_tag dom_id(faq) do %>
-          <details class="group p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700">
+          <details class="group p-4 mb-2 rounded-xl border border-sf-sand/20 dark:border-gray-700">
             <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between">
               <span class="font-display font-semibold text-sf-black dark:text-white"><%= faq.question %></span>
               <svg class="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
