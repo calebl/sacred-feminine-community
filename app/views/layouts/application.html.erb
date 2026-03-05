@@ -49,8 +49,9 @@
             </div>
 
             <div class="hidden md:flex items-center gap-1">
-              <%= link_to "Home", authenticated_root_path, class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors #{request.path == '/' ? 'bg-sf-gold/10 text-sf-gold' : 'text-gray-600 dark:text-gray-300 hover:bg-sf-gold/10 dark:hover:bg-gray-700 hover:text-sf-gold'}" %>
-              <%= link_to "Cohorts", cohorts_path, class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors #{request.path.start_with?('/cohorts') ? 'bg-sf-gold/10 text-sf-gold' : 'text-gray-600 dark:text-gray-300 hover:bg-sf-gold/10 dark:hover:bg-gray-700 hover:text-sf-gold'}" %>
+              <% home_active = content_for?(:content) || request.path == '/' %>
+              <%= link_to "Home", authenticated_root_path, class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors #{home_active ? 'bg-sf-gold/10 text-sf-gold' : 'text-gray-600 dark:text-gray-300 hover:bg-sf-gold/10 dark:hover:bg-gray-700 hover:text-sf-gold'}" %>
+              <%= link_to "Cohorts", cohorts_path, class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors #{request.path == '/cohorts' ? 'bg-sf-gold/10 text-sf-gold' : 'text-gray-600 dark:text-gray-300 hover:bg-sf-gold/10 dark:hover:bg-gray-700 hover:text-sf-gold'}" %>
               <%= link_to "Messages", conversations_path, class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors #{request.path.start_with?('/conversations') ? 'bg-sf-gold/10 text-sf-gold' : 'text-gray-600 dark:text-gray-300 hover:bg-sf-gold/10 dark:hover:bg-gray-700 hover:text-sf-gold'}" %>
               <% if current_user.admin? %>
                 <%= link_to "Admin", admin_dashboard_path, class: "px-4 py-2 rounded-lg text-sm font-medium text-sf-gold hover:bg-sf-gold/10 transition-colors" %>
@@ -90,11 +91,11 @@
       <!-- Mobile bottom nav -->
       <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-sf-sand/20 dark:border-gray-700 z-50 safe-area-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <div class="flex justify-around py-1">
-          <%= link_to authenticated_root_path, class: "flex flex-col items-center min-w-[64px] min-h-[48px] justify-center text-xs transition-colors #{request.path == '/' ? 'text-sf-gold' : 'text-gray-400 dark:text-gray-500'}" do %>
+          <%= link_to authenticated_root_path, class: "flex flex-col items-center min-w-[64px] min-h-[48px] justify-center text-xs transition-colors #{home_active ? 'text-sf-gold' : 'text-gray-400 dark:text-gray-500'}" do %>
             <svg class="w-6 h-6 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             Home
           <% end %>
-          <%= link_to cohorts_path, class: "flex flex-col items-center min-w-[64px] min-h-[48px] justify-center text-xs transition-colors #{request.path.start_with?('/cohorts') ? 'text-sf-gold' : 'text-gray-400 dark:text-gray-500'}" do %>
+          <%= link_to cohorts_path, class: "flex flex-col items-center min-w-[64px] min-h-[48px] justify-center text-xs transition-colors #{request.path == '/cohorts' ? 'text-sf-gold' : 'text-gray-400 dark:text-gray-500'}" do %>
             <svg class="w-6 h-6 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
             Cohorts
           <% end %>

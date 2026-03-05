@@ -30,122 +30,123 @@
   </div>
 <% end %>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-  <!-- Tabbed content area -->
-  <div class="lg:col-span-2" data-controller="tabs" data-tabs-active-tab-value="<%= @active_tab %>">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
-      <!-- Tab headers -->
-      <div class="flex border-b border-sf-sand/20 dark:border-gray-700">
-        <button data-tabs-target="tab" data-action="click->tabs#select"
-                data-tab-name="feed"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
-          Feed
-        </button>
-        <button data-tabs-target="tab" data-action="click->tabs#select"
-                data-tab-name="chat"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
-          Group Chat
-        </button>
-      </div>
+<div data-controller="tabs" data-tabs-active-tab-value="<%= @active_tab %>">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
+    <!-- Tab headers -->
+    <div class="flex border-b border-sf-sand/20 dark:border-gray-700">
+      <button data-tabs-target="tab" data-action="click->tabs#select"
+              data-tab-name="feed"
+              class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+        Feed
+      </button>
+      <button data-tabs-target="tab" data-action="click->tabs#select"
+              data-tab-name="chat"
+              class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+        Group Chat
+      </button>
+      <button data-tabs-target="tab" data-action="click->tabs#select"
+              data-tab-name="members"
+              class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+        Members (<%= @members.length %>)
+      </button>
+    </div>
 
-      <!-- Feed panel -->
-      <div data-tabs-target="panel" data-panel-name="feed">
-        <div class="p-4" data-controller="inline-post-form">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="font-display font-semibold text-sf-black dark:text-white">Posts</h3>
-            <button data-action="click->inline-post-form#toggle" class="btn-primary px-4 py-2">
-              <%= @draft ? "Continue Draft" : "New Post" %>
-            </button>
-          </div>
-
-          <div data-inline-post-form-target="form" class="<%= @show_form ? '' : 'hidden' %>">
-            <%= render "cohorts/inline_post_form", cohort: @cohort, post: @cohort.posts.build, draft: @draft %>
-          </div>
-
-          <div class="space-y-3">
-            <% @posts.each do |post| %>
-              <%= render "posts/post_card", post: post, cohort: @cohort %>
-            <% end %>
-            <% if @posts.empty? %>
-              <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No posts yet. Be the first to share!</p>
-            <% end %>
-          </div>
+    <!-- Feed panel -->
+    <div data-tabs-target="panel" data-panel-name="feed">
+      <div class="p-4" data-controller="inline-post-form">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-display font-semibold text-sf-black dark:text-white">Posts</h3>
+          <button data-action="click->inline-post-form#toggle" class="btn-primary px-4 py-2">
+            <%= @draft ? "Continue Draft" : "New Post" %>
+          </button>
         </div>
-      </div>
 
-      <!-- Chat panel -->
-      <div data-tabs-target="panel" data-panel-name="chat" class="hidden">
-        <%= turbo_stream_from @cohort, :chat %>
+        <div data-inline-post-form-target="form" class="<%= @show_form ? '' : 'hidden' %>">
+          <%= render "cohorts/inline_post_form", cohort: @cohort, post: @cohort.posts.build, draft: @draft %>
+        </div>
 
-        <div id="chat_messages" class="h-[500px] overflow-y-auto p-4 space-y-2 flex flex-col" data-controller="scroll-bottom chat-alignment" data-chat-alignment-user-id-value="<%= current_user.id %>">
-          <% if @chat_messages.present? %>
-            <%= render @chat_messages %>
-          <% else %>
-            <p id="no_messages_placeholder" class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No messages yet. Start the conversation!</p>
+        <div class="space-y-3">
+          <% @posts.each do |post| %>
+            <%= render "posts/post_card", post: post, cohort: @cohort %>
           <% end %>
-        </div>
-
-        <div class="p-4 border-t border-sf-sand/20 dark:border-gray-700">
-          <%= form_with(
-            model: [@cohort, ChatMessage.new],
-            class: "flex gap-2",
-            data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
-          ) do |f| %>
-            <%= f.text_field :body,
-              placeholder: "Type a message...",
-              class: "flex-1",
-              autocomplete: "off",
-              required: true %>
-            <%= f.submit "Send",
-              class: "btn-primary py-2.5" %>
+          <% if @posts.empty? %>
+            <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No posts yet. Be the first to share!</p>
           <% end %>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Members sidebar -->
-  <div>
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
-      <h2 class="font-display font-semibold text-sf-black dark:text-white mb-4">Members (<%= @members.length %>)</h2>
-      <div class="space-y-3">
-        <% @members.each do |member| %>
-          <div class="flex items-center justify-between">
-            <%= link_to profile_path(member), class: "flex items-center gap-3 hover:opacity-80 transition" do %>
-              <div class="w-8 h-8 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
-                <% if member.avatar.attached? %>
-                  <%= image_tag member.avatar.variant(:display), class: "w-8 h-8 rounded-full object-cover" %>
-                <% else %>
-                  <%= member.name.first.upcase %>
-                <% end %>
-              </div>
-              <div>
-                <p class="text-sm font-medium text-sf-black dark:text-white"><%= member.name %></p>
-                <p class="text-xs text-gray-400 dark:text-gray-500"><%= member.admin? ? "Admin" : "Attendee" %></p>
-              </div>
-            <% end %>
-            <% if current_user.admin? %>
-              <%= button_to "Remove", cohort_cohort_membership_path(@cohort, @membership_ids[member.id]),
-                  method: :delete,
-                  class: "text-xs text-red-400 hover:text-red-600",
-                  data: { turbo_confirm: "Remove #{member.name} from this cohort?" } %>
+    <!-- Chat panel -->
+    <div data-tabs-target="panel" data-panel-name="chat" class="hidden">
+      <%= turbo_stream_from @cohort, :chat %>
+
+      <div id="chat_messages" class="h-[500px] overflow-y-auto p-4 space-y-2 flex flex-col" data-controller="scroll-bottom chat-alignment" data-chat-alignment-user-id-value="<%= current_user.id %>">
+        <% if @chat_messages.present? %>
+          <%= render @chat_messages %>
+        <% else %>
+          <p id="no_messages_placeholder" class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No messages yet. Start the conversation!</p>
+        <% end %>
+      </div>
+
+      <div class="p-4 border-t border-sf-sand/20 dark:border-gray-700">
+        <%= form_with(
+          model: [@cohort, ChatMessage.new],
+          class: "flex gap-2",
+          data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
+        ) do |f| %>
+          <%= f.text_field :body,
+            placeholder: "Type a message...",
+            class: "flex-1",
+            autocomplete: "off",
+            required: true %>
+          <%= f.submit "Send",
+            class: "btn-primary py-2.5" %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Members panel -->
+    <div data-tabs-target="panel" data-panel-name="members" class="hidden">
+      <div class="p-6">
+        <div class="space-y-3">
+          <% @members.each do |member| %>
+            <div class="flex items-center justify-between">
+              <%= link_to profile_path(member), class: "flex items-center gap-3 hover:opacity-80 transition" do %>
+                <div class="w-8 h-8 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
+                  <% if member.avatar.attached? %>
+                    <%= image_tag member.avatar.variant(:display), class: "w-8 h-8 rounded-full object-cover" %>
+                  <% else %>
+                    <%= member.name.first.upcase %>
+                  <% end %>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-sf-black dark:text-white"><%= member.name %></p>
+                  <p class="text-xs text-gray-400 dark:text-gray-500"><%= member.admin? ? "Admin" : "Attendee" %></p>
+                </div>
+              <% end %>
+              <% if current_user.admin? %>
+                <%= button_to "Remove", cohort_cohort_membership_path(@cohort, @membership_ids[member.id]),
+                    method: :delete,
+                    class: "text-xs text-red-400 hover:text-red-600",
+                    data: { turbo_confirm: "Remove #{member.name} from this cohort?" } %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <% if current_user.admin? %>
+          <div class="mt-6 pt-4 border-t border-sf-sand/20 dark:border-gray-700">
+            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">Add Member</h3>
+            <%= form_with url: cohort_cohort_memberships_path(@cohort), method: :post, class: "flex gap-2" do |f| %>
+              <%= f.select :user_id,
+                  @non_members,
+                  { prompt: "Select user..." },
+                  class: "flex-1 text-sm" %>
+              <%= f.submit "Add", class: "btn-primary px-4 py-2.5" %>
             <% end %>
           </div>
         <% end %>
       </div>
-
-      <% if current_user.admin? %>
-        <div class="mt-6 pt-4 border-t border-sf-sand/20 dark:border-gray-700">
-          <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">Add Member</h3>
-          <%= form_with url: cohort_cohort_memberships_path(@cohort), method: :post, class: "flex gap-2" do |f| %>
-            <%= f.select :user_id,
-                @non_members,
-                { prompt: "Select user..." },
-                class: "flex-1 text-sm" %>
-            <%= f.submit "Add", class: "btn-primary px-4 py-2.5" %>
-          <% end %>
-        </div>
-      <% end %>
     </div>
   </div>
 </div>
