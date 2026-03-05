@@ -35,7 +35,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   test "dashboard sidebar displays user cohorts" do
     sign_in users(:attendee)
     get authenticated_root_path
-    assert_select "h3", text: "Cohorts"
+    assert_select "h3", text: "My Cohorts"
     assert_select "a[href*='cohorts']", minimum: 1
   end
 

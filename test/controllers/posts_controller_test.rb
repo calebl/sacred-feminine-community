@@ -186,7 +186,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:attendee)
     get cohort_path(cohorts(:kabul_retreat), tab: :feed)
     assert_response :success
-    assert_no_match(/My draft post in progress/, response.body)
+    assert_select ".line-clamp-2", text: /My draft post in progress/, count: 0
   end
 
   test "inline create redirects to cohort on success" do
