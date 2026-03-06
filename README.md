@@ -26,10 +26,10 @@ Push notifications require VAPID keys. Generate a keypair:
 bin/rails runner "keys = WebPush.generate_key; puts 'public:  ' + keys.public_key; puts 'private: ' + keys.private_key"
 ```
 
-Add the keys to Rails credentials:
+Add the keys to your development credentials:
 
 ```bash
-bin/rails credentials:edit
+bin/rails credentials:edit --environment development
 ```
 
 ```yaml
