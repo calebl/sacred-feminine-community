@@ -1,7 +1,8 @@
 require "test_helper"
+require "turbo/broadcastable/test_helper"
 
 class DirectMessageTest < ActiveSupport::TestCase
-  include ActionCable::TestHelper
+  include Turbo::Broadcastable::TestHelper
   test "requires body" do
     msg = DirectMessage.new(conversation: conversations(:admin_attendee_convo), sender: users(:admin))
     assert_not msg.valid?
@@ -43,17 +44,22 @@ class DirectMessageTest < ActiveSupport::TestCase
     assert_equal sender, loaded.sender
   end
 
-  test "notification targets recipients with dm_notifications enabled, not sender" do
+  test "notification broadcasts to recipient with dm_notifications enabled" do
     conversation = conversations(:admin_attendee_convo)
     sender = users(:admin)
-    recipient = users(:attendee)
 
-    message = DirectMessage.create!(body: "Hello!", conversation: conversation, sender: sender)
+    assert_turbo_stream_broadcasts [ users(:attendee), :dm_notifications ] do
+      DirectMessage.create!(body: "Hello!", conversation: conversation, sender: sender)
+    end
+  end
 
-    # Verify broadcast_notifications targets the right users
-    notified = conversation.participants.where.not(id: sender.id).where(dm_notifications: true)
-    assert_includes notified, recipient
-    assert_not_includes notified, sender
+  test "notification does not broadcast to sender" do
+    conversation = conversations(:admin_attendee_convo)
+    sender = users(:admin)
+
+    assert_no_turbo_stream_broadcasts [ sender, :dm_notifications ] do
+      DirectMessage.create!(body: "Hello!", conversation: conversation, sender: sender)
+    end
   end
 
   test "notification skips recipients with dm_notifications disabled" do
@@ -62,8 +68,9 @@ class DirectMessageTest < ActiveSupport::TestCase
     recipient = users(:attendee)
     recipient.update!(dm_notifications: false)
 
-    notified = conversation.participants.where.not(id: sender.id).where(dm_notifications: true)
-    assert_not_includes notified, recipient
+    assert_no_turbo_stream_broadcasts [ recipient, :dm_notifications ] do
+      DirectMessage.create!(body: "Hello!", conversation: conversation, sender: sender)
+    end
   end
 
   test "body is encrypted in the database" do
