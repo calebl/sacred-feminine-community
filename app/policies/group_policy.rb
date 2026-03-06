@@ -24,7 +24,7 @@ class GroupPolicy < ApplicationPolicy
   end
 
   def leave?
-    record.member?(user) && !record.creator?(user)
+    record.member?(user)
   end
 
   def post_message?

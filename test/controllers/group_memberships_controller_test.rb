@@ -45,14 +45,15 @@ class GroupMembershipsControllerTest < ActionDispatch::IntegrationTest
     assert_not group.member?(users(:admin))
   end
 
-  test "creator cannot leave their group" do
+  test "creator can leave their group" do
     sign_in users(:attendee)
     group = groups(:book_club)
 
-    assert_no_difference "GroupMembership.count" do
+    assert_difference "GroupMembership.count", -1 do
       delete group_group_membership_path(group)
     end
-    assert_redirected_to root_path
+    assert_redirected_to groups_path
+    assert_not group.member?(users(:attendee))
   end
 
   test "unauthenticated user cannot join" do

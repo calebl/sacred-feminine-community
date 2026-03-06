@@ -45,7 +45,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
   end
 
   # Create
-  test "any user can create a group" do
+  test "non-admin user creates a group and is auto-added as member" do
     sign_in users(:attendee)
     assert_difference "Group.count" do
       post groups_path, params: {
@@ -54,7 +54,19 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     end
     group = Group.last
     assert_redirected_to group_path(group)
-    assert group.member?(users(:attendee)), "Creator should be auto-added as member"
+    assert group.member?(users(:attendee)), "Non-admin creator should be auto-added as member"
+  end
+
+  test "admin creates a group and is not auto-added as member" do
+    sign_in users(:admin)
+    assert_difference "Group.count" do
+      post groups_path, params: {
+        group: { name: "Admin Group", description: "Created by admin" }
+      }
+    end
+    group = Group.last
+    assert_redirected_to group_path(group)
+    assert_not group.member?(users(:admin)), "Admin creator should not be auto-added as member"
   end
 
   test "create with invalid params re-renders form" do
@@ -203,9 +215,9 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Leave", response.body
   end
 
-  test "creator does not see leave button" do
+  test "creator sees leave button" do
     sign_in users(:attendee)
     get group_path(groups(:book_club))
-    assert_no_match(/Leave<\/button>/, response.body)
+    assert_match "Leave", response.body
   end
 end
