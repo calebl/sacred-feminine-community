@@ -79,7 +79,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     post_record = posts(:attendee_post)
     assert_not post_record.pinned?
 
-    patch pin_cohort_post_path(cohorts(:kabul_retreat), post_record)
+    patch cohort_post_pin_path(cohorts(:kabul_retreat), post_record)
     assert post_record.reload.pinned?
     assert_redirected_to cohort_path(cohorts(:kabul_retreat), tab: :feed)
   end
@@ -89,13 +89,13 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     post_record = posts(:pinned_announcement)
     assert post_record.pinned?
 
-    patch pin_cohort_post_path(cohorts(:kabul_retreat), post_record)
+    patch cohort_post_pin_path(cohorts(:kabul_retreat), post_record)
     assert_not post_record.reload.pinned?
   end
 
   test "attendee cannot pin post" do
     sign_in users(:attendee)
-    patch pin_cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_post))
+    patch cohort_post_pin_path(cohorts(:kabul_retreat), posts(:attendee_post))
     assert_redirected_to root_path
   end
 

@@ -108,7 +108,7 @@ class FeedPostsController < ApplicationController
       comment_locals: { feed_post: post },
       comment_form_model: [ post, FeedPostComment.new ],
       edit_path: edit_feed_post_path(post),
-      delete_path: feed_post_path(post),
+      post_path: feed_post_path(post),
       pin_path: feed_post_pin_path(post),
       mention_data: {}
     }

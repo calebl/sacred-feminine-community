@@ -1,7 +1,7 @@
 class PostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_cohort
-  before_action :set_post, only: [ :show, :edit, :update, :destroy, :pin ]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
   layout "dashboard", only: [ :show, :edit ]
 
   def show
@@ -80,12 +80,6 @@ class PostsController < ApplicationController
     redirect_to cohort_path(@cohort, tab: :feed), notice: "Post deleted."
   end
 
-  def pin
-    authorize @post
-    @post.update(pinned: !@post.pinned)
-    redirect_to cohort_path(@cohort, tab: :feed), notice: @post.pinned? ? "Post pinned." : "Post unpinned."
-  end
-
   private
 
   def set_cohort
@@ -108,8 +102,8 @@ class PostsController < ApplicationController
       comment_locals: { cohort: @cohort, post: post },
       comment_form_model: [ @cohort, post, PostComment.new ],
       edit_path: edit_cohort_post_path(@cohort, post),
-      delete_path: cohort_post_path(@cohort, post),
-      pin_path: pin_cohort_post_path(@cohort, post),
+      post_path: cohort_post_path(@cohort, post),
+      pin_path: cohort_post_pin_path(@cohort, post),
       mention_data: { mention_cohort_id_value: @cohort.id }
     }
   end
