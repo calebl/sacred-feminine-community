@@ -72,6 +72,10 @@ rake users:list
 - Roles: `attendee` (default, 0) and `admin` (1) via integer enum on User.
 - Invitations flow through `Admin::InvitationsController` (admin-only).
 
+## Features
+
+See [FEATURES.md](FEATURES.md) for a comprehensive list of all platform features. **When adding, modifying, or removing features, update FEATURES.md to reflect the change.**
+
 ## Testing
 
 - Framework: Minitest with parallel workers
