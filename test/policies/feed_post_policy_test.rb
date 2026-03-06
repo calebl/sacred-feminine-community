@@ -32,8 +32,8 @@ class FeedPostPolicyTest < ActiveSupport::TestCase
     assert FeedPostPolicy.new(users(:attendee), feed_posts(:attendee_feed_post)).update?
   end
 
-  test "admin can update any feed post" do
-    assert FeedPostPolicy.new(users(:admin), feed_posts(:attendee_feed_post)).update?
+  test "admin cannot update another user's feed post" do
+    assert_not FeedPostPolicy.new(users(:admin), feed_posts(:attendee_feed_post)).update?
   end
 
   test "non-author non-admin cannot update feed post" do

@@ -23,8 +23,8 @@ class GroupPostPolicyTest < ActiveSupport::TestCase
     assert GroupPostPolicy.new(users(:attendee), group_posts(:book_club_pinned)).update?
   end
 
-  test "admin can update any post" do
-    assert GroupPostPolicy.new(users(:admin), group_posts(:book_club_pinned)).update?
+  test "admin cannot update another user's post" do
+    assert_not GroupPostPolicy.new(users(:admin), group_posts(:book_club_pinned)).update?
   end
 
   test "non-author member cannot update post" do
