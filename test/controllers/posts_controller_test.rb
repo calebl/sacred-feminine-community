@@ -111,10 +111,10 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "admin can edit any post" do
+  test "admin cannot edit another user's post" do
     sign_in users(:admin)
     get edit_cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_post))
-    assert_response :success
+    assert_redirected_to root_path
   end
 
   test "author can update own post" do

@@ -44,8 +44,8 @@ class PostPolicyTest < ActiveSupport::TestCase
     assert PostPolicy.new(users(:attendee), posts(:attendee_post)).update?
   end
 
-  test "admin can update any post" do
-    assert PostPolicy.new(users(:admin), posts(:attendee_post)).update?
+  test "admin cannot update another user's post" do
+    assert_not PostPolicy.new(users(:admin), posts(:attendee_post)).update?
   end
 
   test "non-author member cannot update post" do

@@ -120,10 +120,10 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "admin can edit any post" do
+  test "admin cannot edit another user's post" do
     sign_in users(:admin)
     get edit_group_group_post_path(groups(:book_club), group_posts(:book_club_pinned))
-    assert_response :success
+    assert_redirected_to root_path
   end
 
   test "author can update own post" do
