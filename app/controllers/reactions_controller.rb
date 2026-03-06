@@ -34,13 +34,20 @@ class ReactionsController < ApplicationController
 
   private
 
-  ALLOWED_REACTABLE_TYPES = %w[Post GroupPost FeedPost PostComment GroupPostComment FeedPostComment].freeze
+  REACTABLE_TYPES = {
+    "Post" => Post,
+    "GroupPost" => GroupPost,
+    "FeedPost" => FeedPost,
+    "PostComment" => PostComment,
+    "GroupPostComment" => GroupPostComment,
+    "FeedPostComment" => FeedPostComment
+  }.freeze
 
   def set_reactable
-    type = params[:reactable_type]
-    raise ActiveRecord::RecordNotFound unless type.in?(ALLOWED_REACTABLE_TYPES)
+    klass = REACTABLE_TYPES[params[:reactable_type]]
+    raise ActiveRecord::RecordNotFound unless klass
 
-    @reactable = type.constantize.find(params[:reactable_id])
+    @reactable = klass.find(params[:reactable_id])
   end
 
   def set_reaction
