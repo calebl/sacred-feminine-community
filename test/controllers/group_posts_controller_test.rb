@@ -163,4 +163,60 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_select "[data-controller='inline-post-form']"
   end
+
+  test "group show renders post-scoped reply containers" do
+    sign_in users(:attendee)
+    get group_path(groups(:book_club), tab: :feed)
+    assert_response :success
+    assert_select "#post_comments_for_#{group_posts(:book_club_post).id}"
+  end
+
+  test "group show shows reply count with reply text" do
+    sign_in users(:attendee)
+    get group_path(groups(:book_club), tab: :feed)
+    assert_response :success
+    assert_select "button", text: /\d+ repl(y|ies)/
+  end
+
+  test "group show displays user avatars on posts" do
+    sign_in users(:attendee)
+    get group_path(groups(:book_club), tab: :feed)
+    assert_response :success
+    assert_select "div.w-6.h-6.rounded-full", minimum: 1
+  end
+
+  test "group post show uses post-scoped reply container" do
+    sign_in users(:attendee)
+    get group_group_post_path(groups(:book_club), group_posts(:book_club_post))
+    assert_response :success
+    assert_select "#post_comments_for_#{group_posts(:book_club_post).id}"
+  end
+
+  test "group post show uses reply terminology" do
+    sign_in users(:attendee)
+    get group_group_post_path(groups(:book_club), group_posts(:book_club_post))
+    assert_response :success
+    assert_select "h2", text: /Replies/
+  end
+
+  test "inline edit updates group post via turbo stream" do
+    sign_in users(:attendee)
+    patch group_group_post_path(groups(:book_club), group_posts(:book_club_pinned)), params: {
+      inline_edit: "1",
+      group_post: { body: "Inline updated content" }
+    }, as: :turbo_stream
+    assert_response :success
+    assert_equal "Inline updated content", group_posts(:book_club_pinned).reload.body
+  end
+
+  test "inline edit with blank body returns unprocessable entity for group post" do
+    sign_in users(:attendee)
+    original_body = group_posts(:book_club_pinned).body
+    patch group_group_post_path(groups(:book_club), group_posts(:book_club_pinned)), params: {
+      inline_edit: "1",
+      group_post: { body: "" }
+    }, as: :turbo_stream
+    assert_response :unprocessable_entity
+    assert_equal original_body, group_posts(:book_club_pinned).reload.body
+  end
 end

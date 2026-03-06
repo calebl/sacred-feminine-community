@@ -11,7 +11,14 @@
 
 <div class="space-y-3">
   <% @feed_posts.each do |post| %>
-    <%= render "shared/post_card", post: post, post_path: feed_post_path(post), comments: post.feed_post_comments %>
+    <%= render "shared/post_card", post: post, comments: post.feed_post_comments,
+        comment_partial: "feed_post_comments/feed_post_comment",
+        comment_locals: { feed_post: post },
+        comment_form_model: [post, FeedPostComment.new],
+        edit_path: edit_feed_post_path(post),
+        post_path: feed_post_path(post),
+        pin_path: feed_post_pin_path(post),
+        mention_data: {} %>
   <% end %>
   <% if @feed_posts.empty? %>
     <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No posts yet. Be the first to share!</p>

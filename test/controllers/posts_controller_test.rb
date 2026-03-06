@@ -79,7 +79,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     post_record = posts(:attendee_post)
     assert_not post_record.pinned?
 
-    patch pin_cohort_post_path(cohorts(:kabul_retreat), post_record)
+    patch cohort_post_pin_path(cohorts(:kabul_retreat), post_record)
     assert post_record.reload.pinned?
     assert_redirected_to cohort_path(cohorts(:kabul_retreat), tab: :feed)
   end
@@ -89,13 +89,13 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     post_record = posts(:pinned_announcement)
     assert post_record.pinned?
 
-    patch pin_cohort_post_path(cohorts(:kabul_retreat), post_record)
+    patch cohort_post_pin_path(cohorts(:kabul_retreat), post_record)
     assert_not post_record.reload.pinned?
   end
 
   test "attendee cannot pin post" do
     sign_in users(:attendee)
-    patch pin_cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_post))
+    patch cohort_post_pin_path(cohorts(:kabul_retreat), posts(:attendee_post))
     assert_redirected_to root_path
   end
 
@@ -202,5 +202,61 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :unprocessable_entity
     assert_select "[data-controller='inline-post-form']"
+  end
+
+  test "cohort show renders post-scoped reply containers" do
+    sign_in users(:attendee)
+    get cohort_path(cohorts(:kabul_retreat), tab: :feed)
+    assert_response :success
+    assert_select "#post_comments_for_#{posts(:attendee_post).id}"
+  end
+
+  test "cohort show shows reply count with reply text" do
+    sign_in users(:attendee)
+    get cohort_path(cohorts(:kabul_retreat), tab: :feed)
+    assert_response :success
+    assert_select "button", text: /\d+ repl(y|ies)/
+  end
+
+  test "cohort show displays user avatars on posts" do
+    sign_in users(:attendee)
+    get cohort_path(cohorts(:kabul_retreat), tab: :feed)
+    assert_response :success
+    assert_select "div.w-6.h-6.rounded-full", minimum: 1
+  end
+
+  test "cohort post show uses post-scoped reply container" do
+    sign_in users(:attendee)
+    get cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_post))
+    assert_response :success
+    assert_select "#post_comments_for_#{posts(:attendee_post).id}"
+  end
+
+  test "cohort post show uses reply terminology" do
+    sign_in users(:attendee)
+    get cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_post))
+    assert_response :success
+    assert_select "h2", text: /Replies/
+  end
+
+  test "inline edit updates cohort post via turbo stream" do
+    sign_in users(:attendee)
+    patch cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_post)), params: {
+      inline_edit: "1",
+      post: { body: "Inline updated content" }
+    }, as: :turbo_stream
+    assert_response :success
+    assert_equal "Inline updated content", posts(:attendee_post).reload.body
+  end
+
+  test "inline edit with blank body returns unprocessable entity for cohort post" do
+    sign_in users(:attendee)
+    original_body = posts(:attendee_post).body
+    patch cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_post)), params: {
+      inline_edit: "1",
+      post: { body: "" }
+    }, as: :turbo_stream
+    assert_response :unprocessable_entity
+    assert_equal original_body, posts(:attendee_post).reload.body
   end
 end

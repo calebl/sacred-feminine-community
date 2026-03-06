@@ -14,7 +14,7 @@ class PostCommentsController < ApplicationController
         format.html { redirect_to cohort_post_path(@cohort, @post) }
       end
     else
-      redirect_to cohort_post_path(@cohort, @post), alert: "Comment could not be saved."
+      redirect_to cohort_post_path(@cohort, @post), alert: "Reply could not be saved."
     end
   end
 

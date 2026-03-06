@@ -33,7 +33,7 @@ Rails.application.routes.draw do
   resources :cohorts do
     resources :cohort_memberships, only: [ :create, :destroy ]
     resources :posts, only: [ :show, :create, :edit, :update, :destroy ] do
-      patch :pin, on: :member
+      resource :pin, only: [ :update ], module: :posts
       resources :post_comments, only: [ :create, :destroy ]
     end
   end

@@ -14,7 +14,7 @@ class GroupPostCommentsController < ApplicationController
         format.html { redirect_to group_group_post_path(@group, @post) }
       end
     else
-      redirect_to group_group_post_path(@group, @post), alert: "Comment could not be saved."
+      redirect_to group_group_post_path(@group, @post), alert: "Reply could not be saved."
     end
   end
 

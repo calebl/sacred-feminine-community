@@ -28,13 +28,30 @@ class GroupPostsController < ApplicationController
   def update
     authorize @post
     if @post.update(post_params)
-      redirect_to group_group_post_path(@group, @post), notice: "Post updated."
+      if params[:inline_edit]
+        @post.reload
+        render turbo_stream: turbo_stream.replace(
+          dom_id(@post),
+          partial: "shared/post_card",
+          locals: post_card_locals(@post)
+        )
+      else
+        redirect_to group_group_post_path(@group, @post), notice: "Post updated."
+      end
     else
-      load_sidebar
-      @editing = true
-      @comments = @post.group_post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
-      @new_comment = @post.group_post_comments.build
-      render :show, status: :unprocessable_entity
+      if params[:inline_edit]
+        render turbo_stream: turbo_stream.replace(
+          dom_id(@post),
+          partial: "shared/post_card",
+          locals: post_card_locals(@post)
+        ), status: :unprocessable_entity
+      else
+        load_sidebar
+        @editing = true
+        @comments = @post.group_post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+        @new_comment = @post.group_post_comments.build
+        render :show, status: :unprocessable_entity
+      end
     end
   end
 
@@ -77,6 +94,20 @@ class GroupPostsController < ApplicationController
     params.require(:group_post).permit(:body)
   end
 
+  def post_card_locals(post)
+    {
+      post: post,
+      comments: post.group_post_comments.includes(:user),
+      comment_partial: "group_post_comments/group_post_comment",
+      comment_locals: { group: @group, group_post: post },
+      comment_form_model: [ @group, post, GroupPostComment.new ],
+      edit_path: edit_group_group_post_path(@group, post),
+      post_path: group_group_post_path(@group, post),
+      pin_path: group_group_post_pin_path(@group, post),
+      mention_data: { mention_group_id_value: @group.id }
+    }
+  end
+
   def load_sidebar
     @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
     @sidebar_groups = current_user.groups.order(:name)
@@ -91,7 +122,7 @@ class GroupPostsController < ApplicationController
     @is_member = true
     @members = @group.members.kept.includes(:group_memberships).load
     @chat_messages = @group.group_chat_messages.includes(:user).order(created_at: :desc).limit(50).reverse
-    @posts = @group.group_posts.pinned_first.includes(:user, :group_post_comments)
+    @posts = @group.group_posts.pinned_first.includes(:user, group_post_comments: :user)
     @show_form = true
   end
 end

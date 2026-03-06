@@ -6,7 +6,7 @@ class FeedPostsController < ApplicationController
   def index
     authorize FeedPost
     load_sidebar
-    @posts = policy_scope(FeedPost).pinned_first.includes(:user, :feed_post_comments)
+    @posts = policy_scope(FeedPost).pinned_first.includes(:user, feed_post_comments: :user)
     @new_post = FeedPost.new
   end
 
@@ -34,15 +34,32 @@ class FeedPostsController < ApplicationController
   def update
     authorize @post
     if @post.update(post_params)
-      redirect_to feed_post_path(@post), notice: "Post updated."
+      if params[:inline_edit]
+        @post.reload
+        render turbo_stream: turbo_stream.replace(
+          dom_id(@post),
+          partial: "shared/post_card",
+          locals: post_card_locals(@post)
+        )
+      else
+        redirect_to feed_post_path(@post), notice: "Post updated."
+      end
     else
-      load_sidebar
-      @editing = true
-      @comments = @post.feed_post_comments.top_level
-                       .includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ])
-                       .order(created_at: :asc)
-      @new_comment = @post.feed_post_comments.build
-      render :show, status: :unprocessable_entity
+      if params[:inline_edit]
+        render turbo_stream: turbo_stream.replace(
+          dom_id(@post),
+          partial: "shared/post_card",
+          locals: post_card_locals(@post)
+        ), status: :unprocessable_entity
+      else
+        load_sidebar
+        @editing = true
+        @comments = @post.feed_post_comments.top_level
+                         .includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ])
+                         .order(created_at: :asc)
+        @new_comment = @post.feed_post_comments.build
+        render :show, status: :unprocessable_entity
+      end
     end
   end
 
@@ -60,7 +77,7 @@ class FeedPostsController < ApplicationController
     else
       if params[:inline_feed]
         load_sidebar
-        @posts = policy_scope(FeedPost).pinned_first.includes(:user, :feed_post_comments)
+        @posts = policy_scope(FeedPost).pinned_first.includes(:user, feed_post_comments: :user)
         @new_post = @post
         render :index, status: :unprocessable_entity
       end
@@ -81,6 +98,20 @@ class FeedPostsController < ApplicationController
 
   def post_params
     params.require(:feed_post).permit(:body)
+  end
+
+  def post_card_locals(post)
+    {
+      post: post,
+      comments: post.feed_post_comments.includes(:user),
+      comment_partial: "feed_post_comments/feed_post_comment",
+      comment_locals: { feed_post: post },
+      comment_form_model: [ post, FeedPostComment.new ],
+      edit_path: edit_feed_post_path(post),
+      post_path: feed_post_path(post),
+      pin_path: feed_post_pin_path(post),
+      mention_data: {}
+    }
   end
 
   def load_sidebar

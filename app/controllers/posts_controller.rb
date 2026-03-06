@@ -1,7 +1,7 @@
 class PostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_cohort
-  before_action :set_post, only: [ :show, :edit, :update, :destroy, :pin ]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
   layout "dashboard", only: [ :show, :edit ]
 
   def show
@@ -28,13 +28,30 @@ class PostsController < ApplicationController
   def update
     authorize @post
     if @post.update(post_params)
-      redirect_to cohort_post_path(@cohort, @post), notice: "Post updated."
+      if params[:inline_edit]
+        @post.reload
+        render turbo_stream: turbo_stream.replace(
+          dom_id(@post),
+          partial: "shared/post_card",
+          locals: post_card_locals(@post)
+        )
+      else
+        redirect_to cohort_post_path(@cohort, @post), notice: "Post updated."
+      end
     else
-      load_sidebar
-      @editing = true
-      @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
-      @new_comment = @post.post_comments.build
-      render :show, status: :unprocessable_entity
+      if params[:inline_edit]
+        render turbo_stream: turbo_stream.replace(
+          dom_id(@post),
+          partial: "shared/post_card",
+          locals: post_card_locals(@post)
+        ), status: :unprocessable_entity
+      else
+        load_sidebar
+        @editing = true
+        @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+        @new_comment = @post.post_comments.build
+        render :show, status: :unprocessable_entity
+      end
     end
   end
 
@@ -63,12 +80,6 @@ class PostsController < ApplicationController
     redirect_to cohort_path(@cohort, tab: :feed), notice: "Post deleted."
   end
 
-  def pin
-    authorize @post
-    @post.update(pinned: !@post.pinned)
-    redirect_to cohort_path(@cohort, tab: :feed), notice: @post.pinned? ? "Post pinned." : "Post unpinned."
-  end
-
   private
 
   def set_cohort
@@ -81,6 +92,20 @@ class PostsController < ApplicationController
 
   def post_params
     params.require(:post).permit(:body)
+  end
+
+  def post_card_locals(post)
+    {
+      post: post,
+      comments: post.post_comments.includes(:user),
+      comment_partial: "post_comments/post_comment",
+      comment_locals: { cohort: @cohort, post: post },
+      comment_form_model: [ @cohort, post, PostComment.new ],
+      edit_path: edit_cohort_post_path(@cohort, post),
+      post_path: cohort_post_path(@cohort, post),
+      pin_path: cohort_post_pin_path(@cohort, post),
+      mention_data: { mention_cohort_id_value: @cohort.id }
+    }
   end
 
   def load_sidebar
@@ -98,7 +123,7 @@ class PostsController < ApplicationController
     @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h
     @non_members = User.kept.where.not(id: @members.map(&:id)).where.not(invitation_accepted_at: nil).order(:name).pluck(:name, :id)
     @chat_messages = @cohort.chat_messages.includes(:user).order(created_at: :desc).limit(50).reverse
-    @posts = @cohort.posts.pinned_first.includes(:user, :post_comments)
+    @posts = @cohort.posts.pinned_first.includes(:user, post_comments: :user)
     @show_form = true
   end
 end

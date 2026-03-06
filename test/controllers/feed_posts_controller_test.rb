@@ -139,4 +139,60 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
       get feed_post_path(feed_posts(:public_post))
     end
   end
+
+  test "feed index renders post-scoped reply containers" do
+    sign_in users(:attendee)
+    get feed_posts_path
+    assert_response :success
+    assert_select "#post_comments_for_#{feed_posts(:public_post).id}"
+  end
+
+  test "feed index shows reply count with reply text" do
+    sign_in users(:attendee)
+    get feed_posts_path
+    assert_response :success
+    assert_select "button", text: /\d+ repl(y|ies)/
+  end
+
+  test "feed index displays user avatars on posts" do
+    sign_in users(:attendee)
+    get feed_posts_path
+    assert_response :success
+    assert_select "div.w-6.h-6.rounded-full", minimum: 1
+  end
+
+  test "feed show uses post-scoped reply container" do
+    sign_in users(:attendee)
+    get feed_post_path(feed_posts(:public_post))
+    assert_response :success
+    assert_select "#post_comments_for_#{feed_posts(:public_post).id}"
+  end
+
+  test "feed show uses reply terminology" do
+    sign_in users(:attendee)
+    get feed_post_path(feed_posts(:public_post))
+    assert_response :success
+    assert_select "h2", text: /Replies/
+  end
+
+  test "inline edit updates post via turbo stream" do
+    sign_in users(:attendee)
+    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+      inline_edit: "1",
+      feed_post: { body: "Inline updated content" }
+    }, as: :turbo_stream
+    assert_response :success
+    assert_equal "Inline updated content", feed_posts(:attendee_feed_post).reload.body
+  end
+
+  test "inline edit with blank body returns unprocessable entity" do
+    sign_in users(:attendee)
+    original_body = feed_posts(:attendee_feed_post).body
+    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+      inline_edit: "1",
+      feed_post: { body: "" }
+    }, as: :turbo_stream
+    assert_response :unprocessable_entity
+    assert_equal original_body, feed_posts(:attendee_feed_post).reload.body
+  end
 end
