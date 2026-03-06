@@ -12,7 +12,7 @@ class PostsController < ApplicationController
               .update(last_read_at: Time.current)
       @post.mark_mentions_read(current_user)
     end
-    @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+    @comments = @post.post_comments.top_level.includes(:user, :reactions, replies: [ :user, :reactions, { replies: [ :user, :reactions, { replies: [ :user, :reactions ] } ] } ]).order(created_at: :asc)
     @new_comment = @post.post_comments.build
   end
 

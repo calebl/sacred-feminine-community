@@ -55,6 +55,7 @@ class User < ApplicationRecord
 
   has_many :mentions, dependent: :destroy
   has_many :created_mentions, class_name: "Mention", foreign_key: :mentioner_id, dependent: :destroy, inverse_of: :mentioner
+  has_many :reactions, dependent: :destroy
 
   has_one_attached :avatar do |attachable|
     attachable.variant :display, resize_to_fill: [ 200, 200 ]

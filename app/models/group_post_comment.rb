@@ -1,5 +1,6 @@
 class GroupPostComment < ApplicationRecord
   include Mentionable
+  include Reactable
 
   belongs_to :group_post
   belongs_to :user

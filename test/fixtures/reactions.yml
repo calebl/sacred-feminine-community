@@ -1,0 +1,35 @@
+admin_thumbs_up_post:
+  reactable: attendee_post (Post)
+  user: admin
+  emoji: "\U0001F44D"
+  created_at: <%= 1.hour.ago %>
+
+attendee_heart_post:
+  reactable: attendee_post (Post)
+  user: attendee
+  emoji: "\u2764\uFE0F"
+  created_at: <%= 30.minutes.ago %>
+
+admin_fire_feed_post:
+  reactable: public_post (FeedPost)
+  user: admin
+  emoji: "\U0001F525"
+  created_at: <%= 1.hour.ago %>
+
+attendee_thumbs_up_comment:
+  reactable: admin_comment (PostComment)
+  user: attendee
+  emoji: "\U0001F44D"
+  created_at: <%= 20.minutes.ago %>
+
+admin_heart_group_post:
+  reactable: book_club_post (GroupPost)
+  user: admin
+  emoji: "\u2764\uFE0F"
+  created_at: <%= 45.minutes.ago %>
+
+attendee_pray_group_comment:
+  reactable: admin_group_comment (GroupPostComment)
+  user: attendee
+  emoji: "\U0001F64F"
+  created_at: <%= 15.minutes.ago %>

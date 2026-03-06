@@ -15,7 +15,7 @@ class FeedPostsController < ApplicationController
     load_sidebar
     @post.mark_as_read_by(current_user) unless request.headers["Purpose"] == "prefetch"
     @comments = @post.feed_post_comments.top_level
-                     .includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ])
+                     .includes(:user, :reactions, replies: [ :user, :reactions, { replies: [ :user, :reactions, { replies: [ :user, :reactions ] } ] } ])
                      .order(created_at: :asc)
     @new_comment = @post.feed_post_comments.build
   end

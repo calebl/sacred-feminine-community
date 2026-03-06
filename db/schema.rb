@@ -315,6 +315,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_030225) do
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
+  create_table "reactions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "emoji", null: false
+    t.integer "reactable_id", null: false
+    t.string "reactable_type", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["reactable_type", "reactable_id", "emoji"], name: "index_reactions_on_reactable_and_emoji"
+    t.index ["reactable_type", "reactable_id", "user_id"], name: "index_reactions_on_reactable_and_user", unique: true
+    t.index ["reactable_type", "reactable_id"], name: "index_reactions_on_reactable"
+    t.index ["user_id"], name: "index_reactions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.text "bio"
     t.string "city"
@@ -393,4 +406,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_030225) do
   add_foreign_key "post_reads", "users"
   add_foreign_key "posts", "cohorts"
   add_foreign_key "posts", "users"
+  add_foreign_key "reactions", "users"
 end
