@@ -26,8 +26,8 @@
       </div>
       <div>
         <h1 class="text-2xl font-display font-bold text-sf-black dark:text-white"><%= @user.name %></h1>
-        <% if @user.show_on_map && (@user.city.present? || @user.state.present? || @user.country.present?) %>
-          <p class="text-gray-500 dark:text-gray-400"><%= @user.full_location %></p>
+        <% if @user.visible_location.present? %>
+          <p class="text-gray-500 dark:text-gray-400"><%= @user.visible_location %></p>
         <% end %>
       </div>
     </div>

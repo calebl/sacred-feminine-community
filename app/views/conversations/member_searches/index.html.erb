@@ -17,8 +17,8 @@
             </div>
             <div class="min-w-0">
               <p class="text-sm font-semibold text-sf-black dark:text-white truncate"><%= user.name %></p>
-              <% if user.show_on_map && user.full_location.present? %>
-                <p class="text-xs text-gray-500 dark:text-gray-400 truncate"><%= user.full_location %></p>
+              <% if user.visible_location.present? %>
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate"><%= user.visible_location %></p>
               <% end %>
             </div>
           </button>
