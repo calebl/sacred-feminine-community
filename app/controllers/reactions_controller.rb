@@ -6,22 +6,28 @@ class ReactionsController < ApplicationController
   def create
     reaction = @reactable.reactions.build(user: current_user, emoji: params[:emoji])
     authorize reaction
-    reaction.save!
 
-    render_reaction_stream(reaction.reactable)
+    if reaction.save
+      render_reaction_stream(reaction.reactable)
+    else
+      head :unprocessable_entity
+    end
   end
 
   def update
     authorize @reaction
-    @reaction.update!(emoji: params[:emoji])
 
-    render_reaction_stream(@reaction.reactable)
+    if @reaction.update(emoji: params[:emoji])
+      render_reaction_stream(@reaction.reactable)
+    else
+      head :unprocessable_entity
+    end
   end
 
   def destroy
     authorize @reaction
     reactable = @reaction.reactable
-    @reaction.destroy!
+    @reaction.destroy
 
     render_reaction_stream(reactable)
   end

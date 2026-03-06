@@ -6,10 +6,10 @@ module Reactable
   end
 
   def grouped_reactions
-    reactions.group(:emoji).count
+    reactions.each_with_object(Hash.new(0)) { |r, h| h[r.emoji] += 1 }
   end
 
   def reaction_by(user)
-    reactions.find_by(user: user)
+    reactions.detect { |r| r.user_id == user.id }
   end
 end
