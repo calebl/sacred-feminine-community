@@ -24,7 +24,11 @@ export default class extends Controller {
     })
 
     this.panelTargets.forEach((panel) => {
+      const wasHidden = panel.classList.contains("hidden")
       panel.classList.toggle("hidden", panel.dataset.panelName !== name)
+      if (wasHidden && panel.dataset.panelName === name) {
+        panel.dispatchEvent(new CustomEvent("panel:shown", { bubbles: true }))
+      }
     })
   }
 

@@ -15,6 +15,7 @@ export default class extends Controller {
     this.mentionQuery = ""
     this.mentionNode = null
     this.mentionOffset = -1
+    this.selectedIndex = -1
 
     const form = this.inputTarget.closest("form")
     if (form) {
@@ -90,7 +91,14 @@ export default class extends Controller {
         this.dropdownTarget.innerHTML = html
         const hasResults = html.trim().length > 0
         this.dropdownTarget.classList.toggle("hidden", !hasResults)
-        if (hasResults) this.positionDropdown()
+        if (hasResults) {
+          const items = this.dropdownTarget.querySelectorAll("button")
+          this.selectedIndex = items.length - 1
+          this.highlightItem(items)
+          this.positionDropdown()
+        } else {
+          this.selectedIndex = -1
+        }
       }
     } catch {
       this.closeMention()
@@ -170,10 +178,40 @@ export default class extends Controller {
   }
 
   onKeydown(event) {
-    if (event.key === "Escape" && this.mentioning) {
-      event.preventDefault()
-      this.closeMention()
+    if (this.mentioning && !this.dropdownTarget.classList.contains("hidden")) {
+      const items = this.dropdownTarget.querySelectorAll("button")
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault()
+        this.selectedIndex = Math.min(this.selectedIndex + 1, items.length - 1)
+        this.highlightItem(items)
+        return
+      }
+
+      if (event.key === "ArrowUp") {
+        event.preventDefault()
+        this.selectedIndex = Math.max(this.selectedIndex - 1, 0)
+        this.highlightItem(items)
+        return
+      }
+
+      if (event.key === "Enter") {
+        event.preventDefault()
+        if (this.selectedIndex >= 0 && items[this.selectedIndex]) {
+          items[this.selectedIndex].dispatchEvent(new MouseEvent("mousedown", { bubbles: true }))
+        } else {
+          this.closeMention()
+        }
+        return
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault()
+        this.closeMention()
+        return
+      }
     }
+
     if (event.key === "Enter" && !event.shiftKey && this.inputTarget.dataset.singleLine !== undefined) {
       event.preventDefault()
       this.syncHidden()
@@ -183,6 +221,19 @@ export default class extends Controller {
     }
     if (event.key === "Backspace" || event.key === "Delete") {
       this.handleMentionDeletion(event)
+    }
+  }
+
+  highlightItem(items) {
+    items.forEach((item, i) => {
+      if (i === this.selectedIndex) {
+        item.classList.add("bg-sf-sand/10", "dark:bg-gray-700")
+      } else {
+        item.classList.remove("bg-sf-sand/10", "dark:bg-gray-700")
+      }
+    })
+    if (items[this.selectedIndex]) {
+      items[this.selectedIndex].scrollIntoView({ block: "nearest" })
     }
   }
 
@@ -264,23 +315,10 @@ export default class extends Controller {
   }
 
   positionDropdown() {
-    const inputRect = this.inputTarget.getBoundingClientRect()
-    const spaceBelow = window.innerHeight - inputRect.bottom
-    const dropdownHeight = this.dropdownTarget.scrollHeight
-
-    if (spaceBelow < dropdownHeight + 8 && inputRect.top > spaceBelow) {
-      // Show above
-      this.dropdownTarget.style.bottom = "100%"
-      this.dropdownTarget.style.top = "auto"
-      this.dropdownTarget.style.marginBottom = "4px"
-      this.dropdownTarget.style.marginTop = ""
-    } else {
-      // Show below
-      this.dropdownTarget.style.top = "100%"
-      this.dropdownTarget.style.bottom = "auto"
-      this.dropdownTarget.style.marginTop = "4px"
-      this.dropdownTarget.style.marginBottom = ""
-    }
+    this.dropdownTarget.style.bottom = "100%"
+    this.dropdownTarget.style.top = "auto"
+    this.dropdownTarget.style.marginBottom = "4px"
+    this.dropdownTarget.style.marginTop = ""
   }
 
   closeMention() {
@@ -288,6 +326,7 @@ export default class extends Controller {
     this.mentionQuery = ""
     this.mentionNode = null
     this.mentionOffset = -1
+    this.selectedIndex = -1
     if (this.hasDropdownTarget) {
       this.dropdownTarget.innerHTML = ""
       this.dropdownTarget.classList.add("hidden")
