@@ -97,6 +97,16 @@
             <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Community admins can still send you messages.</p>
           <% end %>
         <% end %>
+        <div class="flex items-center gap-2 mt-3 pt-3 border-t border-sf-sand/10 dark:border-gray-700"
+             data-controller="notification-preview"
+             data-notification-preview-name-value="<%= @user.name %>"
+             data-notification-preview-initial-value="<%= @user.name.first.upcase %>"
+             <% if @user.avatar.attached? %>data-notification-preview-avatar-url-value="<%= rails_representation_path(@user.avatar.variant(:display)) %>"<% end %>>
+          <%= f.check_box :dm_notifications, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+          <%= f.label :dm_notifications, "Show message notification popups", class: "text-sm text-gray-700 dark:text-gray-300" %>
+          <button type="button" data-action="notification-preview#preview"
+                  class="ml-auto text-xs text-sf-gold hover:text-sf-blue transition cursor-pointer">Preview</button>
+        </div>
       </fieldset>
 
       <div>

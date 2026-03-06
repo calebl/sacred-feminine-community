@@ -1,7 +1,8 @@
 require "test_helper"
+require "turbo/broadcastable/test_helper"
 
 class DirectMessageTest < ActiveSupport::TestCase
-  include ActionCable::TestHelper
+  include Turbo::Broadcastable::TestHelper
   test "requires body" do
     msg = DirectMessage.new(conversation: conversations(:admin_attendee_convo), sender: users(:admin))
     assert_not msg.valid?
@@ -41,6 +42,35 @@ class DirectMessageTest < ActiveSupport::TestCase
     # Verify the eager-loaded query returns the message with associations
     loaded = DirectMessage.includes(sender: { avatar_attachment: :blob }).find(message.id)
     assert_equal sender, loaded.sender
+  end
+
+  test "notification broadcasts to recipient with dm_notifications enabled" do
+    conversation = conversations(:admin_attendee_convo)
+    sender = users(:admin)
+
+    assert_turbo_stream_broadcasts [ users(:attendee), :dm_notifications ] do
+      DirectMessage.create!(body: "Hello!", conversation: conversation, sender: sender)
+    end
+  end
+
+  test "notification does not broadcast to sender" do
+    conversation = conversations(:admin_attendee_convo)
+    sender = users(:admin)
+
+    assert_no_turbo_stream_broadcasts [ sender, :dm_notifications ] do
+      DirectMessage.create!(body: "Hello!", conversation: conversation, sender: sender)
+    end
+  end
+
+  test "notification skips recipients with dm_notifications disabled" do
+    conversation = conversations(:admin_attendee_convo)
+    sender = users(:admin)
+    recipient = users(:attendee)
+    recipient.update!(dm_notifications: false)
+
+    assert_no_turbo_stream_broadcasts [ recipient, :dm_notifications ] do
+      DirectMessage.create!(body: "Hello!", conversation: conversation, sender: sender)
+    end
   end
 
   test "body is encrypted in the database" do

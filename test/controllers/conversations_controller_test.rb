@@ -40,6 +40,13 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
     assert_not_nil participant.last_read_at
   end
 
+  test "show sets current conversation id on body" do
+    sign_in @admin
+    get conversation_path(@conversation)
+    assert_response :success
+    assert_select "body[data-current-conversation-id='#{@conversation.id}']"
+  end
+
   test "show denies non-participant" do
     sign_in @attendee_two
     get conversation_path(@conversation)
