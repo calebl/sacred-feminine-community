@@ -5,13 +5,13 @@ class MentionControllerTest < ApplicationSystemTestCase
 
   setup do
     @user = users(:attendee)
-    @cohort = cohorts(:kabul_retreat)
+    @conversation = conversations(:admin_attendee_convo)
     sign_in @user
   end
 
   test "dropdown appears above input with last item auto-selected and supports keyboard selection" do
     visit_chat
-    message_count_before = ChatMessage.count
+    message_count_before = DirectMessage.count
 
     # Typing @name shows dropdown above input with last item highlighted
     mention_input.click
@@ -33,7 +33,7 @@ class MentionControllerTest < ApplicationSystemTestCase
 
     assert_dropdown_hidden
     assert_selector "[data-mention-target='input'] .mention-tag", text: "@Admin User"
-    assert_equal message_count_before, ChatMessage.count
+    assert_equal message_count_before, DirectMessage.count
   end
 
   test "escape closes the dropdown and clicking a suggestion inserts mention" do
@@ -77,8 +77,7 @@ class MentionControllerTest < ApplicationSystemTestCase
   private
 
   def visit_chat
-    visit cohort_path(@cohort)
-    click_on "Group Chat"
+    visit conversation_path(@conversation)
     assert_selector "[data-mention-target='input']", wait: 5
   end
 
