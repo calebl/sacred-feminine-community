@@ -25,9 +25,7 @@ module ApplicationHelper
                     .includes(:conversation_participants, :direct_messages)
                     .sum { |c| c.unread_count(user) }
 
-    cohorts = user.cohorts.includes(:cohort_memberships, :chat_messages, :posts)
-
-    cohort_unread = cohorts.sum { |c| c.unread_count(user) }
+    cohorts = user.cohorts.includes(:cohort_memberships, :posts)
 
     post_unread = cohorts.sum { |c| c.unread_post_count(user) }
 
@@ -38,6 +36,6 @@ module ApplicationHelper
 
     mention_unread = Mention.unread.where(user: user).count
 
-    dm_unread + cohort_unread + post_unread + comment_unread + mention_unread
+    dm_unread + post_unread + comment_unread + mention_unread
   end
 end

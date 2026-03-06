@@ -58,11 +58,6 @@
           Feed
         </button>
         <button data-tabs-target="tab" data-action="click->tabs#select"
-                data-tab-name="chat"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
-          Group Chat
-        </button>
-        <button data-tabs-target="tab" data-action="click->tabs#select"
                 data-tab-name="members"
                 class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
           Members (<%= @members.length %>)
@@ -90,44 +85,6 @@
             <% if @posts.empty? %>
               <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No posts yet. Be the first to share!</p>
             <% end %>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chat panel -->
-      <div data-tabs-target="panel" data-panel-name="chat" class="hidden">
-        <%= turbo_stream_from @group, :chat %>
-
-        <div id="chat_messages" class="h-[500px] overflow-y-auto p-4 space-y-2 flex flex-col" data-controller="scroll-bottom chat-alignment" data-chat-alignment-user-id-value="<%= current_user.id %>">
-          <% if @chat_messages.present? %>
-            <%= render partial: "shared/chat_message", collection: @chat_messages, as: :message %>
-          <% else %>
-            <p id="no_messages_placeholder" class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No messages yet. Start the conversation!</p>
-          <% end %>
-        </div>
-
-        <div class="p-4 border-t border-sf-sand/20 dark:border-gray-700">
-          <div data-controller="mention"
-               data-mention-url-value="<%= mention_searches_path %>"
-               data-mention-group-id-value="<%= @group.id %>"
-               class="relative">
-            <%= form_with(
-              model: [@group, GroupChatMessage.new],
-              class: "flex gap-2",
-              data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
-            ) do |f| %>
-              <%= f.hidden_field :body, data: { mention_target: "hidden" } %>
-              <div contenteditable="true"
-                   data-mention-target="input"
-                   data-action="input->mention#onInput keydown->mention#onKeydown blur->mention#hide paste->mention#onPaste"
-                   data-placeholder="Type a message... (@ to mention)"
-                   data-single-line
-                   class="flex-1 border-gray-300 rounded-xl shadow-sm px-4 py-3 text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-sf-gold focus:border-sf-gold overflow-x-hidden whitespace-nowrap overflow-y-hidden border"
-                   role="textbox"></div>
-              <%= f.submit "Send",
-                class: "btn-primary py-2.5" %>
-            <% end %>
-            <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>
           </div>
         </div>
       </div>
@@ -163,6 +120,6 @@
 <% else %>
   <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8 text-center">
     <p class="text-gray-500 dark:text-gray-400 mb-4"><%= @group.members.size %> <%= "member".pluralize(@group.members.size) %></p>
-    <p class="text-sm text-gray-400 dark:text-gray-500">Join this group to see posts, chat, and connect with members.</p>
+    <p class="text-sm text-gray-400 dark:text-gray-500">Join this group to see posts and connect with members.</p>
   </div>
 <% end %>

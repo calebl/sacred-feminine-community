@@ -40,7 +40,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     get group_path(groups(:book_club))
     assert_response :success
     assert_match "Feed", response.body
-    assert_match "Group Chat", response.body
+    assert_no_match "Group Chat", response.body
     assert_match "Members", response.body
   end
 

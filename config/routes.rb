@@ -28,7 +28,6 @@ Rails.application.routes.draw do
   # Cohorts
   resources :cohorts do
     resources :cohort_memberships, only: [ :create, :destroy ]
-    resources :chat_messages, only: [ :create ]
     resources :posts, only: [ :show, :create, :destroy ] do
       patch :pin, on: :member
       resources :post_comments, only: [ :create, :destroy ]
@@ -38,7 +37,6 @@ Rails.application.routes.draw do
   # Groups
   resources :groups do
     resource :group_membership, only: [ :create, :destroy ]
-    resources :group_chat_messages, only: [ :create ]
     resources :group_posts, only: [ :show, :create, :destroy ] do
       resource :pin, only: [ :update ], module: :group_posts
       resources :group_post_comments, only: [ :create, :destroy ]
