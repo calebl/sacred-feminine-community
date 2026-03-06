@@ -11,6 +11,12 @@ class Post < ApplicationRecord
 
   validates :body, presence: true
 
+  def mark_mentions_read(user)
+    Mention.unread.where(user: user, mentionable: self).update_all(read_at: Time.current)
+    Mention.unread.where(user: user, mentionable_type: "PostComment", mentionable_id: post_comments.select(:id))
+           .update_all(read_at: Time.current)
+  end
+
   def unread_comment_count(user)
     post_read = post_reads.find_by(user: user)
     comments = post_comments.where.not(user: user)

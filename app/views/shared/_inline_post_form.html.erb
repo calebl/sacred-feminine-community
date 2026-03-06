@@ -1,8 +1,8 @@
 <div class="mb-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-sf-sand/20 dark:border-gray-700">
   <div data-controller="mention"
        data-mention-url-value="<%= mention_searches_path %>"
-       <%= "data-mention-cohort-id-value=#{local_assigns[:cohort_id]}" if local_assigns[:cohort_id] %>
-       <%= "data-mention-group-id-value=#{local_assigns[:group_id]}" if local_assigns[:group_id] %>
+       <%= "data-mention-cohort-id-value=\"#{local_assigns[:cohort_id]}\"" if local_assigns[:cohort_id] %>
+       <%= "data-mention-group-id-value=\"#{local_assigns[:group_id]}\"" if local_assigns[:group_id] %>
        class="relative">
     <%= form_with(
       model: post,
