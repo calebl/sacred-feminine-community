@@ -27,6 +27,27 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select "h3", text: "Old Announcement"
   end
 
+  test "members panel hides location when show_on_map is false" do
+    sign_in users(:attendee)
+    get authenticated_root_path(tab: "members")
+    assert_response :success
+    # attendee_two has show_on_map: false, city: Tokyo, country: Japan
+    card = css_select("a[data-name='Sarah Member']").first
+    assert card, "Expected to find member card for Sarah Member"
+    assert_no_match "Tokyo", card.to_s
+    assert_no_match "Japan", card.to_s
+  end
+
+  test "members panel shows location when show_on_map is true" do
+    sign_in users(:attendee)
+    get authenticated_root_path(tab: "members")
+    assert_response :success
+    # admin has show_on_map: true, city: Los Angeles
+    card = css_select("a[data-name='Admin User']").first
+    assert card, "Expected to find member card for Admin User"
+    assert_match "Los Angeles", card.to_s
+  end
+
   test "unauthenticated user is redirected to sign in" do
     get authenticated_root_path
     assert_redirected_to new_user_session_path

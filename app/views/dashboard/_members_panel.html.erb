@@ -10,7 +10,7 @@
   <% @members.each do |member| %>
     <%= link_to profile_path(member),
                 class: "flex items-center gap-3 p-4 rounded-xl hover:bg-sf-sand/10 dark:hover:bg-gray-700 transition",
-                data: { member_search_target: "card", name: member.name, location: member.full_location } do %>
+                data: { member_search_target: "card", name: member.name, location: member.show_on_map ? member.full_location : "" } do %>
       <div class="w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-600 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
         <% if member.avatar.attached? %>
           <%= image_tag member.avatar.variant(:display), class: "w-10 h-10 rounded-full object-cover" %>
@@ -20,7 +20,7 @@
       </div>
       <div class="min-w-0">
         <p class="text-sm font-semibold text-sf-black dark:text-white truncate"><%= member.name %></p>
-        <% if member.full_location.present? %>
+        <% if member.show_on_map && member.full_location.present? %>
           <p class="text-xs text-gray-500 dark:text-gray-400 truncate"><%= member.full_location %></p>
         <% end %>
       </div>

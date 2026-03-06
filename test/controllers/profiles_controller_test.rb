@@ -73,6 +73,21 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
       "Profile map z-index (#{map_z}) must be less than navbar z-index (#{navbar_z})"
   end
 
+  test "hides location text when show_on_map is false" do
+    sign_in users(:admin)
+    get profile_path(users(:attendee_two))
+    assert_response :success
+    assert_no_match "Tokyo", response.body
+    assert_no_match "Japan", response.body
+  end
+
+  test "shows location text when show_on_map is true" do
+    sign_in users(:attendee)
+    get profile_path(users(:admin))
+    assert_response :success
+    assert_match "Los Angeles", response.body
+  end
+
   test "hides mini map when show_on_map is false" do
     user = users(:attendee_two)
     user.update_columns(latitude: 35.6762, longitude: 139.6503)
