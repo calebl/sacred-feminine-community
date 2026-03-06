@@ -50,6 +50,7 @@ class User < ApplicationRecord
   has_many :feed_post_comments, dependent: :destroy
   has_many :feed_post_reads, dependent: :destroy
 
+  has_many :push_subscriptions, dependent: :destroy
   has_many :conversation_participants, dependent: :destroy
   has_many :conversations, through: :conversation_participants
   has_many :sent_direct_messages, class_name: "DirectMessage", foreign_key: :sender_id, dependent: :destroy, inverse_of: :sender

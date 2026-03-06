@@ -16,4 +16,19 @@ class GroupChatMessage < ApplicationRecord
       locals: { message: message }
     )
   }
+
+  after_create_commit :send_push_notifications, unless: :system_message?
+
+  private
+
+  def send_push_notifications
+    group.group_memberships.where.not(user_id: user_id).find_each do |membership|
+      SendPushNotificationJob.perform_later(
+        membership.user_id,
+        "#{user.name} in #{group.name}",
+        body.truncate(100),
+        "/groups/#{group_id}"
+      )
+    end
+  end
 end

@@ -315,6 +315,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_015156) do
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
+  create_table "push_subscriptions", force: :cascade do |t|
+    t.string "auth_key", null: false
+    t.datetime "created_at", null: false
+    t.string "endpoint", null: false
+    t.string "p256dh_key", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+  end
+
   create_table "reactions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "emoji", null: false
@@ -407,5 +418,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_015156) do
   add_foreign_key "post_reads", "users"
   add_foreign_key "posts", "cohorts"
   add_foreign_key "posts", "users"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "reactions", "users"
 end

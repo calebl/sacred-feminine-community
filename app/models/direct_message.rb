@@ -9,6 +9,7 @@ class DirectMessage < ApplicationRecord
   validates :body, presence: true, length: { maximum: 5000 }
 
   after_create_commit :broadcast_all
+  after_create_commit :send_push_notifications
 
   private
 
@@ -31,6 +32,17 @@ class DirectMessage < ApplicationRecord
         target: "dm_notifications",
         partial: "direct_messages/notification",
         locals: { direct_message: message }
+      )
+    end
+  end
+
+  def send_push_notifications
+    conversation.participants.where.not(id: sender_id).find_each do |recipient|
+      SendPushNotificationJob.perform_later(
+        recipient.id,
+        sender.name,
+        body.truncate(100),
+        "/conversations/#{conversation_id}"
       )
     end
   end

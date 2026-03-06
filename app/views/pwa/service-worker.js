@@ -67,25 +67,49 @@ self.addEventListener("fetch", (event) => {
   }
 })
 
-// Handle push notifications
-self.addEventListener("push", async (event) => {
-  const { title, options } = await event.data.json()
-  event.waitUntil(self.registration.showNotification(title, options))
+// Handle push notifications with app badge
+self.addEventListener("push", (event) => {
+  const { title, options } = event.data.json()
+
+  event.waitUntil(
+    Promise.all([
+      self.registration.showNotification(title, options),
+      updateBadge()
+    ])
+  )
 })
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close()
   event.waitUntil(
-    clients.matchAll({ type: "window" }).then((clientList) => {
-      for (const client of clientList) {
-        const clientPath = new URL(client.url).pathname
-        if (clientPath === event.notification.data.path && "focus" in client) {
-          return client.focus()
+    Promise.all([
+      clearBadge(),
+      clients.matchAll({ type: "window" }).then((clientList) => {
+        const targetPath = event.notification.data?.path || "/"
+        for (const client of clientList) {
+          const clientPath = new URL(client.url).pathname
+          if (clientPath === targetPath && "focus" in client) {
+            return client.focus()
+          }
         }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow(event.notification.data.path)
-      }
-    })
+        if (clients.openWindow) {
+          return clients.openWindow(targetPath)
+        }
+      })
+    ])
   )
 })
+
+// Badge API helpers — set/clear the PWA app icon badge
+async function updateBadge() {
+  if (!("setAppBadge" in navigator)) return
+  try {
+    const notifications = await self.registration.getNotifications()
+    await navigator.setAppBadge(notifications.length + 1)
+  } catch (_) { /* Badge API not supported in this context */ }
+}
+
+async function clearBadge() {
+  if (!("clearAppBadge" in navigator)) return
+  try { await navigator.clearAppBadge() } catch (_) { /* noop */ }
+}

@@ -49,6 +49,9 @@ gem "pundit", "~> 2.4"
 # Transactional email via Resend HTTP API
 gem "resend", "~> 0.17"
 
+# Web Push Notifications (VAPID)
+gem "web-push", "~> 3.0"
+
 # Geocoding
 gem "geocoder", "~> 1.8"
 
