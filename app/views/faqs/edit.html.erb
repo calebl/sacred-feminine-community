@@ -1,7 +1,7 @@
 <%= turbo_frame_tag dom_id(@faq) do %>
   <div class="p-4 rounded-xl border border-sf-blue/30 dark:border-sf-blue/20 bg-sf-blue/5 dark:bg-sf-blue/10">
     <h3 class="font-display font-semibold text-sf-black dark:text-white mb-4">Edit FAQ</h3>
-    <%= form_with(model: @faq, class: "space-y-4") do |f| %>
+    <%= form_with(model: @faq, class: "space-y-4", data: { turbo_frame: "faqs_panel" }) do |f| %>
       <% if @faq.errors.any? %>
         <div class="p-4 bg-sf-red/10 border border-sf-red/20 rounded-xl">
           <% @faq.errors.full_messages.each do |message| %>
