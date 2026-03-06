@@ -82,6 +82,32 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to group_path(groups(:book_club), tab: :feed)
   end
 
+  test "creating a post with mentions creates mention records" do
+    sign_in users(:attendee)
+    mentioned = users(:admin)
+    assert_difference "Mention.count" do
+      post group_group_posts_path(groups(:book_club)), params: {
+        group_post: { body: "Hello @[#{mentioned.name}](#{mentioned.id})" }
+      }
+    end
+    mention = Mention.last
+    assert_equal mentioned, mention.user
+    assert_equal users(:attendee), mention.mentioner
+    assert_equal "GroupPost", mention.mentionable_type
+  end
+
+  test "viewing post marks post-level mentions as read" do
+    sign_in users(:admin)
+    mentioned_post = group_posts(:book_club_post)
+    mention = Mention.create!(
+      mentionable: mentioned_post,
+      user: users(:admin),
+      mentioner: users(:attendee)
+    )
+    get group_group_post_path(groups(:book_club), mentioned_post)
+    assert mention.reload.read_at.present?
+  end
+
   test "inline create renders group show on validation failure" do
     sign_in users(:attendee)
     assert_no_difference "GroupPost.count" do

@@ -1,4 +1,6 @@
 class GroupPost < ApplicationRecord
+  include Mentionable
+
   belongs_to :group
   belongs_to :user
 

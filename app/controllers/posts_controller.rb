@@ -9,6 +9,9 @@ class PostsController < ApplicationController
       PostRead.find_or_initialize_by(post: @post, user: current_user)
               .update(last_read_at: Time.current)
       Mention.unread
+             .where(user: current_user, mentionable_type: "Post", mentionable_id: @post.id)
+             .update_all(read_at: Time.current)
+      Mention.unread
              .where(user: current_user, mentionable_type: "PostComment")
              .where(mentionable_id: @post.post_comments.select(:id))
              .update_all(read_at: Time.current)

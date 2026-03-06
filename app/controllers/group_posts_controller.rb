@@ -9,6 +9,9 @@ class GroupPostsController < ApplicationController
       GroupPostRead.find_or_initialize_by(group_post: @post, user: current_user)
                    .update(last_read_at: Time.current)
       Mention.unread
+             .where(user: current_user, mentionable_type: "GroupPost", mentionable_id: @post.id)
+             .update_all(read_at: Time.current)
+      Mention.unread
              .where(user: current_user, mentionable_type: "GroupPostComment")
              .where(mentionable_id: @post.group_post_comments.select(:id))
              .update_all(read_at: Time.current)

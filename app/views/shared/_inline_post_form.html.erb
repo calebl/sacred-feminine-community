@@ -1,31 +1,44 @@
 <div class="mb-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-sf-sand/20 dark:border-gray-700">
-  <%= form_with(
-    model: post,
-    method: :post,
-    url: form_url,
-    class: "space-y-4"
-  ) do |f| %>
-    <input type="hidden" name="inline_feed" value="1">
+  <div data-controller="mention"
+       data-mention-url-value="<%= mention_searches_path %>"
+       <%= "data-mention-cohort-id-value=#{local_assigns[:cohort_id]}" if local_assigns[:cohort_id] %>
+       <%= "data-mention-group-id-value=#{local_assigns[:group_id]}" if local_assigns[:group_id] %>
+       class="relative">
+    <%= form_with(
+      model: post,
+      method: :post,
+      url: form_url,
+      class: "space-y-4"
+    ) do |f| %>
+      <input type="hidden" name="inline_feed" value="1">
 
-    <% if post.errors.any? %>
-      <div class="rounded-xl p-4 bg-sf-red/10 text-red-800 dark:text-red-300 border border-sf-red/20">
-        <ul class="list-disc list-inside text-sm">
-          <% post.errors.full_messages.each do |msg| %>
-            <li><%= msg %></li>
-          <% end %>
-        </ul>
+      <% if post.errors.any? %>
+        <div class="rounded-xl p-4 bg-sf-red/10 text-red-800 dark:text-red-300 border border-sf-red/20">
+          <ul class="list-disc list-inside text-sm">
+            <% post.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.hidden_field :body, data: { mention_target: "hidden" } %>
+        <div contenteditable="true"
+             data-mention-target="input"
+             data-action="input->mention#onInput keydown->mention#onKeydown blur->mention#hide paste->mention#onPaste"
+             data-placeholder="Write your post... (@ to mention)"
+             class="w-full min-h-[200px] resize-y border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm px-4 py-3 text-sm dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-sf-gold focus:border-sf-gold"
+             role="textbox"></div>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button type="button"
+                data-action="click->inline-post-form#hide"
+                class="btn-tertiary py-2.5">Cancel</button>
+        <%= f.submit "Publish", class: "btn-primary py-2.5" %>
       </div>
     <% end %>
-
-    <div>
-      <%= f.text_area :body, class: "w-full min-h-[200px] resize-y", placeholder: "Write your post...", required: true %>
-    </div>
-
-    <div class="flex justify-end gap-3">
-      <button type="button"
-              data-action="click->inline-post-form#hide"
-              class="btn-tertiary py-2.5">Cancel</button>
-      <%= f.submit "Publish", class: "btn-primary py-2.5" %>
-    </div>
-  <% end %>
+    <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>
+  </div>
 </div>

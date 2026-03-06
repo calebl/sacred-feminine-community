@@ -1,4 +1,6 @@
 class Post < ApplicationRecord
+  include Mentionable
+
   belongs_to :cohort
   belongs_to :user
 
