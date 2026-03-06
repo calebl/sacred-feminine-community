@@ -3,14 +3,16 @@
        data-mention-url-value="<%= mention_searches_path %>"
        <%= "data-mention-cohort-id-value=\"#{local_assigns[:cohort_id]}\"" if local_assigns[:cohort_id] %>
        <%= "data-mention-group-id-value=\"#{local_assigns[:group_id]}\"" if local_assigns[:group_id] %>
+       <%= "data-mention-initial-body-value=\"#{ERB::Util.html_escape(post.body)}\"" if post.persisted? && post.body.present? %>
        class="relative">
     <%= form_with(
       model: post,
-      method: :post,
       url: form_url,
       class: "space-y-4"
     ) do |f| %>
-      <input type="hidden" name="inline_feed" value="1">
+      <% unless local_assigns[:editing] %>
+        <input type="hidden" name="inline_feed" value="1">
+      <% end %>
 
       <% if post.errors.any? %>
         <div class="rounded-xl p-4 bg-sf-red/10 text-red-800 dark:text-red-300 border border-sf-red/20">
@@ -33,10 +35,14 @@
       </div>
 
       <div class="flex justify-end gap-3">
-        <button type="button"
-                data-action="click->inline-post-form#hide"
-                class="btn-tertiary py-2.5">Cancel</button>
-        <%= f.submit "Publish", class: "btn-primary py-2.5" %>
+        <% if local_assigns[:editing] %>
+          <%= link_to "Cancel", form_url, class: "btn-tertiary py-2.5" %>
+        <% else %>
+          <button type="button"
+                  data-action="click->inline-post-form#hide"
+                  class="btn-tertiary py-2.5">Cancel</button>
+        <% end %>
+        <%= f.submit (local_assigns[:submit_label] || "Publish"), class: "btn-primary py-2.5" %>
       </div>
     <% end %>
     <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>

@@ -95,6 +95,44 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_user_session_path
   end
 
+  test "author can edit own feed post" do
+    sign_in users(:attendee)
+    get edit_feed_post_path(feed_posts(:attendee_feed_post))
+    assert_response :success
+  end
+
+  test "non-author non-admin cannot edit feed post" do
+    sign_in users(:attendee_two)
+    get edit_feed_post_path(feed_posts(:attendee_feed_post))
+    assert_redirected_to root_path
+  end
+
+  test "author can update own feed post" do
+    sign_in users(:attendee)
+    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+      feed_post: { body: "Updated content" }
+    }
+    assert_redirected_to feed_post_path(feed_posts(:attendee_feed_post))
+    assert_equal "Updated content", feed_posts(:attendee_feed_post).reload.body
+  end
+
+  test "non-author non-admin cannot update feed post" do
+    sign_in users(:attendee_two)
+    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+      feed_post: { body: "Hacked" }
+    }
+    assert_redirected_to root_path
+    assert_not_equal "Hacked", feed_posts(:attendee_feed_post).reload.body
+  end
+
+  test "update with blank body re-renders show with errors" do
+    sign_in users(:attendee)
+    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+      feed_post: { body: "" }
+    }
+    assert_response :unprocessable_entity
+  end
+
   test "viewing feed post marks it as read" do
     sign_in users(:attendee)
     assert_difference "FeedPostRead.count" do

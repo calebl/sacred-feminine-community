@@ -1,8 +1,8 @@
 class PostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_cohort
-  before_action :set_post, only: [ :show, :destroy, :pin ]
-  layout "dashboard", only: :show
+  before_action :set_post, only: [ :show, :edit, :update, :destroy, :pin ]
+  layout "dashboard", only: [ :show, :edit ]
 
   def show
     authorize @post
@@ -14,6 +14,28 @@ class PostsController < ApplicationController
     end
     @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
     @new_comment = @post.post_comments.build
+  end
+
+  def edit
+    authorize @post
+    load_sidebar
+    @editing = true
+    @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+    @new_comment = @post.post_comments.build
+    render :show
+  end
+
+  def update
+    authorize @post
+    if @post.update(post_params)
+      redirect_to cohort_post_path(@cohort, @post), notice: "Post updated."
+    else
+      load_sidebar
+      @editing = true
+      @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+      @new_comment = @post.post_comments.build
+      render :show, status: :unprocessable_entity
+    end
   end
 
   def create

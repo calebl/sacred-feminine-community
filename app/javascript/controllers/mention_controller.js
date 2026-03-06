@@ -6,7 +6,8 @@ export default class extends Controller {
     url: String,
     cohortId: String,
     groupId: String,
-    conversationId: String
+    conversationId: String,
+    initialBody: String
   }
 
   connect() {
@@ -26,6 +27,41 @@ export default class extends Controller {
       form.addEventListener("turbo:submit-end", this.boundReset)
       form.addEventListener("reset", this.boundReset)
     }
+
+    if (this.initialBodyValue) {
+      this.populateFromBody(this.initialBodyValue)
+    }
+  }
+
+  populateFromBody(body) {
+    const mentionPattern = /@\[([^\]]+)\]\((\d+)\)/g
+    const fragment = document.createDocumentFragment()
+    let lastIndex = 0
+    let match
+
+    while ((match = mentionPattern.exec(body)) !== null) {
+      if (match.index > lastIndex) {
+        fragment.appendChild(document.createTextNode(body.substring(lastIndex, match.index)))
+      }
+
+      const span = document.createElement("span")
+      span.className = "mention-tag"
+      span.contentEditable = "false"
+      span.dataset.userId = match[2]
+      span.dataset.userName = match[1]
+      span.textContent = `@${match[1]}`
+      fragment.appendChild(span)
+
+      lastIndex = match.index + match[0].length
+    }
+
+    if (lastIndex < body.length) {
+      fragment.appendChild(document.createTextNode(body.substring(lastIndex)))
+    }
+
+    this.inputTarget.innerHTML = ""
+    this.inputTarget.appendChild(fragment)
+    this.syncHidden()
   }
 
   onInput() {

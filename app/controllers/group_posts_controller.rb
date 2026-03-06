@@ -1,8 +1,8 @@
 class GroupPostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_group
-  before_action :set_post, only: [ :show, :destroy ]
-  layout "dashboard", only: :show
+  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
+  layout "dashboard", only: [ :show, :edit ]
 
   def show
     authorize @post
@@ -14,6 +14,28 @@ class GroupPostsController < ApplicationController
     end
     @comments = @post.group_post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
     @new_comment = @post.group_post_comments.build
+  end
+
+  def edit
+    authorize @post
+    load_sidebar
+    @editing = true
+    @comments = @post.group_post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+    @new_comment = @post.group_post_comments.build
+    render :show
+  end
+
+  def update
+    authorize @post
+    if @post.update(post_params)
+      redirect_to group_group_post_path(@group, @post), notice: "Post updated."
+    else
+      load_sidebar
+      @editing = true
+      @comments = @post.group_post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+      @new_comment = @post.group_post_comments.build
+      render :show, status: :unprocessable_entity
+    end
   end
 
   def create
