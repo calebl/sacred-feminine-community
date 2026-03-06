@@ -5,10 +5,10 @@ class DashboardController < ApplicationController
   def show
     skip_authorization
     @members = User.active_users.order(:name)
-    @announcements = Announcement.where.not(published_at: nil).order(published_at: :desc)
     @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
     @sidebar_groups = current_user.groups.order(:name)
-    @active_tab = params[:tab].presence || "announcements"
-    @new_announcement = Announcement.new if current_user.admin?
+    @active_tab = params[:tab].presence || "feed"
+    @feed_posts = FeedPost.pinned_first.includes(:user, :feed_post_comments)
+    @new_feed_post = FeedPost.new
   end
 end

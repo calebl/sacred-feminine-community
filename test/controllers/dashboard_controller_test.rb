@@ -20,11 +20,10 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[data-name='Jane Attendee']"
   end
 
-  test "dashboard displays announcements by default" do
+  test "dashboard displays feed by default" do
     sign_in users(:attendee)
     get authenticated_root_path
-    assert_select "h3", text: "Welcome to the Community"
-    assert_select "h3", text: "Old Announcement"
+    assert_select "h3", text: "Posts"
   end
 
   test "members panel hides location when show_on_map is false" do

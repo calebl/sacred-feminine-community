@@ -104,20 +104,6 @@ class Admin::AnnouncementsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to authenticated_root_path
   end
 
-  test "admin sees new announcement form on dashboard" do
-    sign_in users(:admin)
-    get authenticated_root_path
-    assert_response :success
-    assert_select "details summary", text: /New Announcement/
-  end
-
-  test "attendee does not see new announcement form on dashboard" do
-    sign_in users(:attendee)
-    get authenticated_root_path
-    assert_response :success
-    assert_select "details summary", count: 0
-  end
-
   test "failed dashboard creation redirects back to dashboard with alert" do
     sign_in users(:admin)
     assert_no_difference "Announcement.count" do
@@ -128,20 +114,5 @@ class Admin::AnnouncementsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to authenticated_root_path
     assert_equal "Title can't be blank and Body can't be blank", flash[:alert]
-  end
-
-  # Dashboard display
-  test "announcement is visible on dashboard for all users" do
-    sign_in users(:attendee)
-    get authenticated_root_path
-    assert_response :success
-    assert_match "Welcome to the Community", response.body
-  end
-
-  test "dashboard works with no active announcement" do
-    Announcement.update_all(active: false)
-    sign_in users(:attendee)
-    get authenticated_root_path
-    assert_response :success
   end
 end

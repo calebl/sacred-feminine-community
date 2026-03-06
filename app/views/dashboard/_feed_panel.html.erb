@@ -1,0 +1,19 @@
+<div class="flex justify-between items-center mb-4">
+  <h3 class="font-display font-semibold text-sf-black dark:text-white">Posts</h3>
+  <button data-action="click->inline-post-form#toggle" class="btn-primary px-4 py-2">
+    New Post
+  </button>
+</div>
+
+<div data-inline-post-form-target="form" class="hidden">
+  <%= render "shared/inline_post_form", post: @new_feed_post, form_url: feed_posts_path %>
+</div>
+
+<div class="space-y-3">
+  <% @feed_posts.each do |post| %>
+    <%= render "shared/post_card", post: post, post_path: feed_post_path(post), comments: post.feed_post_comments %>
+  <% end %>
+  <% if @feed_posts.empty? %>
+    <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No posts yet. Be the first to share!</p>
+  <% end %>
+</div>
