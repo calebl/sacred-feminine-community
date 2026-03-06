@@ -89,7 +89,7 @@
           url: local_assigns[:delete_path],
           method: :patch,
           class: "space-y-3",
-          data: { turbo: true }
+          data: { turbo: true, action: "turbo:submit-start->post-edit#saveScroll" }
         ) do |f| %>
           <input type="hidden" name="inline_edit" value="1">
           <div>

@@ -174,4 +174,25 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h2", text: /Replies/
   end
+
+  test "inline edit updates post via turbo stream" do
+    sign_in users(:attendee)
+    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+      inline_edit: "1",
+      feed_post: { body: "Inline updated content" }
+    }, as: :turbo_stream
+    assert_response :success
+    assert_equal "Inline updated content", feed_posts(:attendee_feed_post).reload.body
+  end
+
+  test "inline edit with blank body returns unprocessable entity" do
+    sign_in users(:attendee)
+    original_body = feed_posts(:attendee_feed_post).body
+    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+      inline_edit: "1",
+      feed_post: { body: "" }
+    }, as: :turbo_stream
+    assert_response :unprocessable_entity
+    assert_equal original_body, feed_posts(:attendee_feed_post).reload.body
+  end
 end
