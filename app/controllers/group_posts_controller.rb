@@ -2,9 +2,11 @@ class GroupPostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_group
   before_action :set_post, only: [ :show, :destroy ]
+  layout "dashboard", only: :show
 
   def show
     authorize @post
+    load_sidebar
     unless request.headers["Purpose"] == "prefetch"
       GroupPostRead.find_or_initialize_by(group_post: @post, user: current_user)
                    .update(last_read_at: Time.current)
@@ -51,6 +53,12 @@ class GroupPostsController < ApplicationController
 
   def post_params
     params.require(:group_post).permit(:body)
+  end
+
+  def load_sidebar
+    @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
+    @sidebar_groups = current_user.groups.order(:name)
+    @active_group_id = @group.id
   end
 
   def load_group_show_data

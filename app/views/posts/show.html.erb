@@ -1,87 +1,85 @@
-<div class="max-w-2xl mx-auto px-4 py-8">
-  <div class="mb-6 flex items-center justify-between">
-    <%= link_to cohort_path(@cohort, tab: :feed), class: "text-sm text-sf-gold hover:text-sf-gold/80 transition" do %>
-      &larr; Back to <%= @cohort.name %>
+<div class="mb-6 flex items-center justify-between">
+  <%= link_to cohort_path(@cohort, tab: :feed), class: "text-sm text-sf-gold hover:text-sf-gold/80 transition" do %>
+    &larr; Back to <%= @cohort.name %>
+  <% end %>
+  <div class="flex items-center gap-2">
+    <% if policy(@post).pin? %>
+      <%= button_to @post.pinned? ? "Unpin" : "Pin",
+          pin_cohort_post_path(@cohort, @post),
+          method: :patch,
+          class: "px-3 py-1.5 text-xs font-semibold rounded-lg border #{@post.pinned? ? 'border-sf-gold text-sf-gold' : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'} hover:bg-sf-gold/10 transition cursor-pointer" %>
     <% end %>
+    <% if policy(@post).destroy? %>
+      <%= button_to "Delete", cohort_post_path(@cohort, @post),
+          method: :delete,
+          class: "px-3 py-1.5 text-xs font-semibold text-red-400 hover:text-red-600 rounded-lg border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 transition cursor-pointer",
+          data: { turbo_confirm: "Delete this post?" } %>
+    <% end %>
+  </div>
+</div>
+
+<!-- Post content -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6 mb-6">
+  <% if @post.pinned? %>
+    <span class="inline-flex items-center text-xs font-semibold text-sf-gold mb-2">
+      <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M4.146.146A.5.5 0 0 1 4.5 0h7a.5.5 0 0 1 .5.5c0 .68-.342 1.174-.646 1.479-.126.125-.25.224-.354.298v4.431l.078.048c.203.127.476.314.751.555C12.36 7.775 13 8.527 13 9.5a.5.5 0 0 1-.5.5h-4v4.5c0 .276-.224 1.5-.5 1.5s-.5-1.224-.5-1.5V10h-4a.5.5 0 0 1-.5-.5c0-.973.64-1.725 1.17-2.189A6 6 0 0 1 5 6.708V2.277a3 3 0 0 1-.354-.298C4.342 1.674 4 1.179 4 .5a.5.5 0 0 1 .146-.354z"/>
+      </svg>
+      Pinned
+    </span>
+  <% end %>
+  <div class="flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500 mb-4">
     <div class="flex items-center gap-2">
-      <% if policy(@post).pin? %>
-        <%= button_to @post.pinned? ? "Unpin" : "Pin",
-            pin_cohort_post_path(@cohort, @post),
-            method: :patch,
-            class: "px-3 py-1.5 text-xs font-semibold rounded-lg border #{@post.pinned? ? 'border-sf-gold text-sf-gold' : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'} hover:bg-sf-gold/10 transition cursor-pointer" %>
-      <% end %>
-      <% if policy(@post).destroy? %>
-        <%= button_to "Delete", cohort_post_path(@cohort, @post),
-            method: :delete,
-            class: "px-3 py-1.5 text-xs font-semibold text-red-400 hover:text-red-600 rounded-lg border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 transition cursor-pointer",
-            data: { turbo_confirm: "Delete this post?" } %>
-      <% end %>
-    </div>
-  </div>
-
-  <!-- Post content -->
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6 mb-6">
-    <% if @post.pinned? %>
-      <span class="inline-flex items-center text-xs font-semibold text-sf-gold mb-2">
-        <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M4.146.146A.5.5 0 0 1 4.5 0h7a.5.5 0 0 1 .5.5c0 .68-.342 1.174-.646 1.479-.126.125-.25.224-.354.298v4.431l.078.048c.203.127.476.314.751.555C12.36 7.775 13 8.527 13 9.5a.5.5 0 0 1-.5.5h-4v4.5c0 .276-.224 1.5-.5 1.5s-.5-1.224-.5-1.5V10h-4a.5.5 0 0 1-.5-.5c0-.973.64-1.725 1.17-2.189A6 6 0 0 1 5 6.708V2.277a3 3 0 0 1-.354-.298C4.342 1.674 4 1.179 4 .5a.5.5 0 0 1 .146-.354z"/>
-        </svg>
-        Pinned
-      </span>
-    <% end %>
-    <div class="flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500 mb-4">
-      <div class="flex items-center gap-2">
-        <div class="w-6 h-6 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-xs font-bold">
-          <% if @post.user.avatar.attached? %>
-            <%= image_tag @post.user.avatar.variant(resize_to_fill: [24, 24]), class: "w-6 h-6 rounded-full object-cover" %>
-          <% else %>
-            <%= @post.user.name.first.upcase %>
-          <% end %>
-        </div>
-        <span><%= @post.user.name %></span>
+      <div class="w-6 h-6 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-xs font-bold">
+        <% if @post.user.avatar.attached? %>
+          <%= image_tag @post.user.avatar.variant(resize_to_fill: [24, 24]), class: "w-6 h-6 rounded-full object-cover" %>
+        <% else %>
+          <%= @post.user.name.first.upcase %>
+        <% end %>
       </div>
-      <span>&middot;</span>
-      <span><%= time_ago_in_words(@post.created_at) %> ago</span>
+      <span><%= @post.user.name %></span>
     </div>
-    <div class="prose dark:prose-invert max-w-none whitespace-pre-wrap">
-      <%= render_with_mentions(@post.body) %>
-    </div>
+    <span>&middot;</span>
+    <span><%= time_ago_in_words(@post.created_at) %> ago</span>
+  </div>
+  <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+    <%= render_with_mentions(@post.body) %>
+  </div>
+</div>
+
+<!-- Comments section -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
+  <h2 class="font-display font-semibold text-sf-black dark:text-white mb-4">Comments (<%= @post.post_comments.count %>)</h2>
+
+  <div id="post_comments" class="space-y-4 mb-6">
+    <% @comments.each do |comment| %>
+      <%= render "post_comments/post_comment", comment: comment, cohort: @cohort, post: @post %>
+    <% end %>
+    <% if @comments.empty? %>
+      <p id="no_comments_placeholder" class="text-center text-gray-400 dark:text-gray-500 text-sm py-4">No comments yet.</p>
+    <% end %>
   </div>
 
-  <!-- Comments section -->
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
-    <h2 class="font-display font-semibold text-sf-black dark:text-white mb-4">Comments (<%= @post.post_comments.count %>)</h2>
-
-    <div id="post_comments" class="space-y-4 mb-6">
-      <% @comments.each do |comment| %>
-        <%= render "post_comments/post_comment", comment: comment, cohort: @cohort, post: @post %>
-      <% end %>
-      <% if @comments.empty? %>
-        <p id="no_comments_placeholder" class="text-center text-gray-400 dark:text-gray-500 text-sm py-4">No comments yet.</p>
-      <% end %>
-    </div>
-
-    <!-- Comment form -->
-    <div data-controller="mention"
-         data-mention-url-value="<%= mention_searches_path %>"
-         data-mention-cohort-id-value="<%= @cohort.id %>"
-         class="relative">
-      <%= form_with(
-        model: [@cohort, @post, @new_comment],
-        class: "flex gap-2 items-start",
-        data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
-      ) do |f| %>
-        <%= f.hidden_field :body, data: { mention_target: "hidden" } %>
-        <div contenteditable="true"
-             data-mention-target="input"
-             data-action="input->mention#onInput keydown->mention#onKeydown blur->mention#hide paste->mention#onPaste"
-             data-placeholder="Add a comment... (@ to mention)"
-             class="flex-1 min-h-[80px] border-gray-300 rounded-xl shadow-sm px-4 py-3 text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-sf-gold focus:border-sf-gold border"
-             role="textbox"></div>
-        <%= f.submit "Comment",
-            class: "self-end btn-primary py-2.5" %>
-      <% end %>
-      <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>
-    </div>
+  <!-- Comment form -->
+  <div data-controller="mention"
+       data-mention-url-value="<%= mention_searches_path %>"
+       data-mention-cohort-id-value="<%= @cohort.id %>"
+       class="relative">
+    <%= form_with(
+      model: [@cohort, @post, @new_comment],
+      class: "flex gap-2 items-start",
+      data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
+    ) do |f| %>
+      <%= f.hidden_field :body, data: { mention_target: "hidden" } %>
+      <div contenteditable="true"
+           data-mention-target="input"
+           data-action="input->mention#onInput keydown->mention#onKeydown blur->mention#hide paste->mention#onPaste"
+           data-placeholder="Add a comment... (@ to mention)"
+           class="flex-1 min-h-[80px] border-gray-300 rounded-xl shadow-sm px-4 py-3 text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-sf-gold focus:border-sf-gold border"
+           role="textbox"></div>
+      <%= f.submit "Comment",
+          class: "self-end btn-primary py-2.5" %>
+    <% end %>
+    <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>
   </div>
 </div>

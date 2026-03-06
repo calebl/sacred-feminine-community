@@ -7,6 +7,13 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "feed index preserves post formatting with whitespace-pre-wrap" do
+    sign_in users(:attendee)
+    get feed_posts_path
+    assert_response :success
+    assert_select "div.whitespace-pre-wrap", minimum: 1
+  end
+
   test "unauthenticated user cannot access feed" do
     get feed_posts_path
     assert_redirected_to new_user_session_path
