@@ -68,6 +68,10 @@ class User < ApplicationRecord
     [ city, state, country ].compact.join(", ")
   end
 
+  def visible_location
+    full_location if show_on_map
+  end
+
   def active_for_authentication?
     super && !discarded?
   end
