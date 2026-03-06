@@ -45,7 +45,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
   end
 
   # Create
-  test "non-admin user creates a group and is auto-added as member" do
+  test "creator is auto-added as member" do
     sign_in users(:attendee)
     assert_difference "Group.count" do
       post groups_path, params: {
@@ -54,10 +54,10 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     end
     group = Group.last
     assert_redirected_to group_path(group)
-    assert group.member?(users(:attendee)), "Non-admin creator should be auto-added as member"
+    assert group.member?(users(:attendee)), "Creator should be auto-added as member"
   end
 
-  test "admin creates a group and is not auto-added as member" do
+  test "admin creator is also auto-added as member" do
     sign_in users(:admin)
     assert_difference "Group.count" do
       post groups_path, params: {
@@ -66,7 +66,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     end
     group = Group.last
     assert_redirected_to group_path(group)
-    assert_not group.member?(users(:admin)), "Admin creator should not be auto-added as member"
+    assert group.member?(users(:admin)), "Admin creator should also be auto-added as member"
   end
 
   test "create with invalid params re-renders form" do
@@ -219,5 +219,26 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:attendee)
     get group_path(groups(:book_club))
     assert_match "Leave", response.body
+  end
+
+  # Creator loses permissions after leaving
+  test "creator who left cannot update group" do
+    sign_in users(:attendee)
+    group = groups(:book_club)
+    group.group_memberships.find_by(user: users(:attendee)).destroy
+
+    patch group_path(group), params: { group: { name: "Hacked" } }
+    assert_redirected_to root_path
+    assert_not_equal "Hacked", group.reload.name
+  end
+
+  test "creator who left cannot destroy group" do
+    sign_in users(:attendee)
+    group = groups(:book_club)
+    group.group_memberships.find_by(user: users(:attendee)).destroy
+
+    delete group_path(group)
+    assert_redirected_to root_path
+    assert_not group.reload.discarded?
   end
 end

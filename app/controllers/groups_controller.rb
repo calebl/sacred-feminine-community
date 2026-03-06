@@ -43,7 +43,6 @@ class GroupsController < ApplicationController
     authorize @group
 
     if @group.save
-      @group.group_memberships.create!(user: current_user) unless current_user.admin?
       redirect_to @group, notice: "Group created."
     else
       load_sidebar
