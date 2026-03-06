@@ -39,7 +39,7 @@ class GroupPostCommentsControllerTest < ActionDispatch::IntegrationTest
       }
     end
     assert_redirected_to group_group_post_path(groups(:book_club), group_posts(:book_club_post))
-    assert_equal "Comment could not be saved.", flash[:alert]
+    assert_equal "Reply could not be saved.", flash[:alert]
   end
 
   test "author can delete own comment" do

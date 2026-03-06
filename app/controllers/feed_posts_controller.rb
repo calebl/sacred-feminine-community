@@ -6,7 +6,7 @@ class FeedPostsController < ApplicationController
   def index
     authorize FeedPost
     load_sidebar
-    @posts = policy_scope(FeedPost).pinned_first.includes(:user, :feed_post_comments)
+    @posts = policy_scope(FeedPost).pinned_first.includes(:user, feed_post_comments: :user)
     @new_post = FeedPost.new
   end
 
@@ -60,7 +60,7 @@ class FeedPostsController < ApplicationController
     else
       if params[:inline_feed]
         load_sidebar
-        @posts = policy_scope(FeedPost).pinned_first.includes(:user, :feed_post_comments)
+        @posts = policy_scope(FeedPost).pinned_first.includes(:user, feed_post_comments: :user)
         @new_post = @post
         render :index, status: :unprocessable_entity
       end

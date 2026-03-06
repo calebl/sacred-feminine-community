@@ -29,7 +29,7 @@ class FeedPostCommentsControllerTest < ActionDispatch::IntegrationTest
       }
     end
     assert_redirected_to feed_post_path(feed_posts(:public_post))
-    assert_equal "Comment could not be saved.", flash[:alert]
+    assert_equal "Reply could not be saved.", flash[:alert]
   end
 
   test "author can delete own comment" do
@@ -89,5 +89,15 @@ class FeedPostCommentsControllerTest < ActionDispatch::IntegrationTest
     assert_difference "FeedPostComment.count", -3 do
       delete feed_post_feed_post_comment_path(feed_posts(:public_post), parent)
     end
+  end
+
+  test "top-level comment via turbo_stream targets post-scoped container" do
+    sign_in users(:attendee)
+    post_record = feed_posts(:public_post)
+    post feed_post_feed_post_comments_path(post_record),
+      params: { feed_post_comment: { body: "Inline reply!" } },
+      as: :turbo_stream
+    assert_response :success
+    assert_includes response.body, "post_comments_for_#{post_record.id}"
   end
 end

@@ -62,7 +62,14 @@
 
         <div class="space-y-3">
           <% @posts.each do |post| %>
-            <%= render "shared/post_card", post: post, post_path: cohort_post_path(@cohort, post), comments: post.post_comments %>
+            <%= render "shared/post_card", post: post, comments: post.post_comments,
+                comment_partial: "post_comments/post_comment",
+                comment_locals: { cohort: @cohort, post: post },
+                comment_form_model: [@cohort, post, PostComment.new],
+                edit_path: edit_cohort_post_path(@cohort, post),
+                delete_path: cohort_post_path(@cohort, post),
+                pin_path: pin_cohort_post_path(@cohort, post),
+                mention_data: { mention_cohort_id_value: @cohort.id } %>
           <% end %>
           <% if @posts.empty? %>
             <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No posts yet. Be the first to share!</p>

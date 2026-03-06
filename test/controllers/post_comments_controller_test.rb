@@ -48,7 +48,7 @@ class PostCommentsControllerTest < ActionDispatch::IntegrationTest
       }
     end
     assert_redirected_to cohort_post_path(cohorts(:kabul_retreat), posts(:attendee_post))
-    assert_equal "Comment could not be saved.", flash[:alert]
+    assert_equal "Reply could not be saved.", flash[:alert]
   end
 
   test "author can delete own comment" do

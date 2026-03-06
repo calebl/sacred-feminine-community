@@ -79,7 +79,14 @@
 
           <div class="space-y-3">
             <% @posts.each do |post| %>
-              <%= render "shared/post_card", post: post, post_path: group_group_post_path(@group, post), comments: post.group_post_comments %>
+              <%= render "shared/post_card", post: post, comments: post.group_post_comments,
+                  comment_partial: "group_post_comments/group_post_comment",
+                  comment_locals: { group: @group, group_post: post },
+                  comment_form_model: [@group, post, GroupPostComment.new],
+                  edit_path: edit_group_group_post_path(@group, post),
+                  delete_path: group_group_post_path(@group, post),
+                  pin_path: group_group_post_pin_path(@group, post),
+                  mention_data: { mention_group_id_value: @group.id } %>
             <% end %>
             <% if @posts.empty? %>
               <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No posts yet. Be the first to share!</p>

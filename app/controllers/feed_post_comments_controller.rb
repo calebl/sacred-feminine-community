@@ -13,7 +13,7 @@ class FeedPostCommentsController < ApplicationController
         format.html { redirect_to feed_post_path(@post) }
       end
     else
-      redirect_to feed_post_path(@post), alert: "Comment could not be saved."
+      redirect_to feed_post_path(@post), alert: "Reply could not be saved."
     end
   end
 

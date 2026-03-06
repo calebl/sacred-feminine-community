@@ -91,7 +91,7 @@ class GroupPostsController < ApplicationController
     @is_member = true
     @members = @group.members.kept.includes(:group_memberships).load
     @chat_messages = @group.group_chat_messages.includes(:user).order(created_at: :desc).limit(50).reverse
-    @posts = @group.group_posts.pinned_first.includes(:user, :group_post_comments)
+    @posts = @group.group_posts.pinned_first.includes(:user, group_post_comments: :user)
     @show_form = true
   end
 end
