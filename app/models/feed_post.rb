@@ -1,4 +1,6 @@
 class FeedPost < ApplicationRecord
+  include Reactable
+
   belongs_to :user
 
   has_many :feed_post_comments, dependent: :destroy

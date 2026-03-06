@@ -59,6 +59,9 @@ Rails.application.routes.draw do
   # Mention search (for @mention autocomplete)
   resources :mention_searches, only: [ :index ]
 
+  # Reactions (polymorphic - works for all post and comment types)
+  resources :reactions, only: [ :create, :update, :destroy ]
+
   # Notifications
   resource :notifications, only: [ :show ]
 

@@ -1,5 +1,6 @@
 class FeedPostComment < ApplicationRecord
   include Mentionable
+  include Reactable
 
   belongs_to :feed_post
   belongs_to :user

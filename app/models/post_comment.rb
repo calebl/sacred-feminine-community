@@ -1,5 +1,6 @@
 class PostComment < ApplicationRecord
   include Mentionable
+  include Reactable
 
   belongs_to :post
   belongs_to :user

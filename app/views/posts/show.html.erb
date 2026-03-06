@@ -51,6 +51,7 @@
   <% else %>
     <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= render_with_mentions(@post.body) %></div>
   <% end %>
+  <%= render "reactions/reactions", reactable: @post %>
 </div>
 
 <!-- Comments section -->

@@ -1,0 +1,49 @@
+<div id="reactions_for_<%= reactable.class.name.underscore %>_<%= reactable.id %>"
+     data-controller="emoji-reaction"
+     data-emoji-reaction-reactable-type-value="<%= reactable.class.name %>"
+     data-emoji-reaction-reactable-id-value="<%= reactable.id %>"
+     data-emoji-reaction-url-value="<%= reactions_path %>"
+     <% user_reaction = reactable.reaction_by(current_user) %>
+     <% if user_reaction %>
+       data-emoji-reaction-current-id-value="<%= user_reaction.id %>"
+       data-emoji-reaction-current-emoji-value="<%= user_reaction.emoji %>"
+     <% end %>
+     class="flex items-center gap-1 flex-wrap <%= 'mt-2' unless local_assigns[:inline] %>">
+
+  <% grouped = reactable.grouped_reactions %>
+
+  <% grouped.each do |emoji, count| %>
+    <button type="button"
+            data-action="emoji-reaction#react"
+            data-emoji="<%= emoji %>"
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border transition cursor-pointer
+                   <%= user_reaction&.emoji == emoji ? 'border-sf-gold bg-sf-gold/10 text-sf-gold' : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-sf-gold/50' %>">
+      <span><%= emoji %></span>
+      <span><%= count %></span>
+    </button>
+  <% end %>
+
+  <div class="relative inline-flex items-center">
+    <button type="button"
+            data-action="emoji-reaction#toggle"
+            class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs border border-gray-200 dark:border-gray-600 text-gray-300 dark:text-gray-500 hover:border-sf-gold/50 hover:text-sf-gold transition cursor-pointer">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+      </svg>
+    </button>
+
+    <div data-emoji-reaction-target="picker"
+         data-action="click@window->emoji-reaction#close"
+         class="hidden absolute bottom-full left-0 mb-1 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-2 flex gap-1">
+      <% Reaction::ALLOWED_EMOJIS.each do |emoji| %>
+        <button type="button"
+                data-action="emoji-reaction#react"
+                data-emoji="<%= emoji %>"
+                class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-sf-sand/30 dark:hover:bg-gray-700 transition cursor-pointer text-lg"
+                title="<%= emoji %>">
+          <%= emoji %>
+        </button>
+      <% end %>
+    </div>
+  </div>
+</div>

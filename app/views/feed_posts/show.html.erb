@@ -51,6 +51,7 @@
   <% else %>
     <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= @post.body %></div>
   <% end %>
+  <%= render "reactions/reactions", reactable: @post %>
 </div>
 
 <!-- Comments section -->
