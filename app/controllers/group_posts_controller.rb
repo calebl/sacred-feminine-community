@@ -8,10 +8,7 @@ class GroupPostsController < ApplicationController
     unless request.headers["Purpose"] == "prefetch"
       GroupPostRead.find_or_initialize_by(group_post: @post, user: current_user)
                    .update(last_read_at: Time.current)
-      Mention.unread
-             .where(user: current_user, mentionable_type: "GroupPostComment")
-             .where(mentionable_id: @post.group_post_comments.select(:id))
-             .update_all(read_at: Time.current)
+      @post.mark_mentions_read(current_user)
     end
     @comments = @post.group_post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
     @new_comment = @post.group_post_comments.build

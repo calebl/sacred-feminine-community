@@ -1,9 +1,7 @@
 module ApplicationHelper
-  MENTION_PATTERN = /@\[([^\]]+)\]\((\d+)\)/
-
   def strip_mentions(text)
     return "" if text.blank?
-    text.gsub(MENTION_PATTERN) { "@#{$1}" }
+    text.gsub(Mentionable::MENTION_PATTERN) { "@#{$1}" }
   end
 
   def render_with_mentions(text)
@@ -11,7 +9,7 @@ module ApplicationHelper
 
     escaped = ERB::Util.html_escape(text)
 
-    result = escaped.gsub(MENTION_PATTERN) do
+    result = escaped.gsub(Mentionable::MENTION_PATTERN) do
       name = $1
       id = $2
       %(<a href="#{profile_path(id)}" class="text-sf-gold font-semibold hover:underline">@#{name}</a>)

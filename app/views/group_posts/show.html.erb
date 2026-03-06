@@ -44,7 +44,7 @@
       <span><%= time_ago_in_words(@post.created_at) %> ago</span>
     </div>
     <div class="prose dark:prose-invert max-w-none whitespace-pre-wrap">
-      <%= @post.body %>
+      <%= render_with_mentions(@post.body) %>
     </div>
   </div>
 

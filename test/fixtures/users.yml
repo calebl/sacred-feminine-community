@@ -29,6 +29,16 @@ attendee_two:
   country: Japan
   show_on_map: false
 
+admin_two:
+  name: Admin Two
+  email: admin2@sacredfeminine.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  role: 1
+  invitation_accepted_at: <%= Time.current %>
+  city: Berlin
+  country: Germany
+  show_on_map: true
+
 pending_invite:
   name: Pending User
   email: pending@example.com

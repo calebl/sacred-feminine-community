@@ -122,6 +122,32 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to cohort_path(cohorts(:kabul_retreat), tab: :feed)
   end
 
+  test "creating a post with mentions creates mention records" do
+    sign_in users(:attendee)
+    mentioned = users(:admin)
+    assert_difference "Mention.count" do
+      post cohort_posts_path(cohorts(:kabul_retreat)), params: {
+        post: { body: "Hello @[#{mentioned.name}](#{mentioned.id})" }
+      }
+    end
+    mention = Mention.last
+    assert_equal mentioned, mention.user
+    assert_equal users(:attendee), mention.mentioner
+    assert_equal "Post", mention.mentionable_type
+  end
+
+  test "viewing post marks post-level mentions as read" do
+    sign_in users(:admin)
+    mentioned_post = posts(:attendee_post)
+    mention = Mention.create!(
+      mentionable: mentioned_post,
+      user: users(:admin),
+      mentioner: users(:attendee)
+    )
+    get cohort_post_path(cohorts(:kabul_retreat), mentioned_post)
+    assert mention.reload.read_at.present?
+  end
+
   test "inline create renders cohort show on validation failure" do
     sign_in users(:attendee)
     assert_no_difference "Post.count" do

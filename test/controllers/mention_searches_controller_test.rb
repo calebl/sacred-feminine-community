@@ -51,6 +51,33 @@ class MentionSearchesControllerTest < ActionDispatch::IntegrationTest
     assert_match "Jane Attendee", response.body
   end
 
+  test "includes non-member admins in cohort mention search" do
+    sign_in users(:attendee)
+    cohort = cohorts(:kabul_retreat)
+
+    get mention_searches_path, params: { q: "Admin Two", cohort_id: cohort.id }
+    assert_response :success
+    assert_match "Admin Two", response.body
+  end
+
+  test "includes non-member admins in group mention search" do
+    sign_in users(:attendee)
+    group = groups(:book_club)
+
+    get mention_searches_path, params: { q: "Admin Two", group_id: group.id }
+    assert_response :success
+    assert_match "Admin Two", response.body
+  end
+
+  test "allows admin to search mentions in cohort they are not a member of" do
+    sign_in users(:admin_two)
+    cohort = cohorts(:kabul_retreat)
+
+    get mention_searches_path, params: { q: "Jane", cohort_id: cohort.id }
+    assert_response :success
+    assert_match "Jane Attendee", response.body
+  end
+
   test "returns empty with no context params" do
     sign_in users(:attendee)
     get mention_searches_path, params: { q: "Admin" }

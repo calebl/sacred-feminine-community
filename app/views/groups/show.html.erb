@@ -75,7 +75,7 @@
           </div>
 
           <div data-inline-post-form-target="form" class="<%= @show_form ? '' : 'hidden' %>">
-            <%= render "shared/inline_post_form", post: @group.group_posts.build, form_url: group_group_posts_path(@group) %>
+            <%= render "shared/inline_post_form", post: @group.group_posts.build, form_url: group_group_posts_path(@group), group_id: @group.id %>
           </div>
 
           <div class="space-y-3">

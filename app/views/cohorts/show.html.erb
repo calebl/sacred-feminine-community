@@ -57,7 +57,7 @@
         </div>
 
         <div data-inline-post-form-target="form" class="<%= @show_form ? '' : 'hidden' %>">
-          <%= render "shared/inline_post_form", post: @cohort.posts.build, form_url: cohort_posts_path(@cohort) %>
+          <%= render "shared/inline_post_form", post: @cohort.posts.build, form_url: cohort_posts_path(@cohort), cohort_id: @cohort.id %>
         </div>
 
         <div class="space-y-3">
