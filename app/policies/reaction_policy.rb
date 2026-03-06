@@ -14,6 +14,10 @@ class ReactionPolicy < ApplicationPolicy
     end
   end
 
+  def update?
+    record.user == user && create?
+  end
+
   def destroy?
     record.user == user
   end

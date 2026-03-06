@@ -60,7 +60,7 @@ Rails.application.routes.draw do
   resources :mention_searches, only: [ :index ]
 
   # Reactions (polymorphic - works for all post and comment types)
-  resources :reactions, only: [ :create ]
+  resources :reactions, only: [ :create, :update, :destroy ]
 
   # Notifications
   resource :notifications, only: [ :show ]

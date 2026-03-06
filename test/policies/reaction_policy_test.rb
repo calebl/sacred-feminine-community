@@ -62,6 +62,21 @@ class ReactionPolicyTest < ActiveSupport::TestCase
     assert_not ReactionPolicy.new(users(:attendee_two), reaction).create?
   end
 
+  # Update
+  test "owner can update own reaction" do
+    assert ReactionPolicy.new(users(:admin), reactions(:admin_thumbs_up_post)).update?
+  end
+
+  test "user cannot update another users reaction" do
+    assert_not ReactionPolicy.new(users(:attendee_two), reactions(:admin_thumbs_up_post)).update?
+  end
+
+  test "non-member cannot update own reaction on cohort post" do
+    reaction = reactions(:attendee_heart_post)
+    # attendee_two is not a member of the cohort
+    assert_not ReactionPolicy.new(users(:attendee_two), reaction).update?
+  end
+
   # Destroy
   test "user can destroy own reaction" do
     assert ReactionPolicy.new(users(:admin), reactions(:admin_thumbs_up_post)).destroy?

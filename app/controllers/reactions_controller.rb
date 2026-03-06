@@ -1,34 +1,29 @@
 class ReactionsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_reactable
+  before_action :set_reactable, only: [ :create ]
+  before_action :set_reaction, only: [ :update, :destroy ]
 
   def create
-    existing = @reactable.reactions.find_by(user: current_user)
+    reaction = @reactable.reactions.build(user: current_user, emoji: params[:emoji])
+    authorize reaction
+    reaction.save!
 
-    if existing
-      if existing.emoji == params[:emoji]
-        authorize existing, :destroy?
-        existing.destroy!
-      else
-        authorize existing, :destroy?
-        existing.update!(emoji: params[:emoji])
-      end
-    else
-      reaction = @reactable.reactions.build(user: current_user, emoji: params[:emoji])
-      authorize reaction
-      reaction.save!
-    end
+    render_reaction_stream(reaction.reactable)
+  end
 
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          "reactions_for_#{@reactable.class.name.underscore}_#{@reactable.id}",
-          partial: "reactions/reactions",
-          locals: { reactable: @reactable.reload }
-        )
-      end
-      format.html { redirect_back(fallback_location: root_path) }
-    end
+  def update
+    authorize @reaction
+    @reaction.update!(emoji: params[:emoji])
+
+    render_reaction_stream(@reaction.reactable)
+  end
+
+  def destroy
+    authorize @reaction
+    reactable = @reaction.reactable
+    @reaction.destroy!
+
+    render_reaction_stream(reactable)
   end
 
   private
@@ -40,5 +35,22 @@ class ReactionsController < ApplicationController
     raise ActiveRecord::RecordNotFound unless type.in?(ALLOWED_REACTABLE_TYPES)
 
     @reactable = type.constantize.find(params[:reactable_id])
+  end
+
+  def set_reaction
+    @reaction = current_user.reactions.find(params[:id])
+  end
+
+  def render_reaction_stream(reactable)
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "reactions_for_#{reactable.class.name.underscore}_#{reactable.id}",
+          partial: "reactions/reactions",
+          locals: { reactable: reactable.reload, inline: reactable.class.name.end_with?("Comment") }
+        )
+      end
+      format.html { redirect_back(fallback_location: root_path) }
+    end
   end
 end

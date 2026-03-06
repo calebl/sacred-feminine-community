@@ -19,25 +19,21 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "reactions_for_feed_post_#{feed_posts(:public_post).id}"
   end
 
-  test "clicking same emoji toggles reaction off" do
+  test "destroy toggles reaction off" do
+    reaction = reactions(:admin_thumbs_up_post)
     sign_in users(:admin)
     assert_difference "Reaction.count", -1 do
-      post reactions_path, params: {
-        reactable_type: "Post", reactable_id: posts(:attendee_post).id, emoji: "👍"
-      }
+      delete reaction_path(reaction)
     end
   end
 
-  test "clicking different emoji switches reaction" do
+  test "update switches reaction emoji" do
+    reaction = reactions(:admin_thumbs_up_post)
     sign_in users(:admin)
     assert_no_difference "Reaction.count" do
-      post reactions_path, params: {
-        reactable_type: "Post", reactable_id: posts(:attendee_post).id, emoji: "❤️"
-      }
+      patch reaction_path(reaction), params: { emoji: "❤️" }
     end
-    assert_equal "❤️", Reaction.find_by(
-      reactable: posts(:attendee_post), user: users(:admin)
-    ).emoji
+    assert_equal "❤️", reaction.reload.emoji
   end
 
   test "cohort member can react to cohort post" do
@@ -107,5 +103,23 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
         emoji: "🔥"
       }
     end
+  end
+
+  test "cannot update another users reaction" do
+    reaction = reactions(:admin_thumbs_up_post)
+    sign_in users(:attendee)
+    assert_no_difference "Reaction.count" do
+      patch reaction_path(reaction), params: { emoji: "❤️" }
+    end
+    assert_response :not_found
+  end
+
+  test "cannot destroy another users reaction" do
+    reaction = reactions(:admin_thumbs_up_post)
+    sign_in users(:attendee)
+    assert_no_difference "Reaction.count", -1 do
+      delete reaction_path(reaction)
+    end
+    assert_response :not_found
   end
 end

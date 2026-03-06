@@ -23,14 +23,14 @@
         <% end %>
       </div>
       <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"><%= render_with_mentions(comment.body) %></p>
-      <%= render "reactions/reactions", reactable: comment %>
-      <div data-controller="reply-form">
+      <div data-controller="reply-form" class="mt-1">
         <div class="flex items-center gap-3">
           <button type="button"
                   data-action="reply-form#toggle"
-                  class="text-xs text-sf-gold hover:text-sf-gold/80 mt-1 cursor-pointer transition">
+                  class="text-xs text-sf-gold hover:text-sf-gold/80 cursor-pointer transition">
             Reply
           </button>
+          <%= render "reactions/reactions", reactable: comment, inline: true %>
           <span id="reply_count_for_<%= comment.id %>">
             <% if comment.replies.any? %>
               <button type="button"
