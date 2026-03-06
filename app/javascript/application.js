@@ -2,6 +2,11 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 
+// Register service worker for PWA support
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js")
+}
+
 import "trix"
 import "@rails/actiontext"
 
