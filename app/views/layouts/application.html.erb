@@ -36,9 +36,13 @@
     </script>
   </head>
 
-  <body class="bg-sf-beige/30 dark:bg-gray-900 text-sf-black dark:text-gray-100 font-sans min-h-screen flex flex-col transition-colors">
+  <body class="bg-sf-beige/30 dark:bg-gray-900 text-sf-black dark:text-gray-100 font-sans min-h-screen flex flex-col transition-colors" data-current-conversation-id="<%= yield(:current_conversation_id) %>">
     <%= render "shared/impersonation_banner" if user_signed_in? && impersonating? %>
     <% if user_signed_in? %>
+      <%= turbo_stream_from current_user, :dm_notifications %>
+      <div id="dm_notifications" data-controller="dm-notification"
+           class="fixed top-20 right-4 max-md:top-4 max-md:right-0 max-md:left-0 max-md:px-4 z-[60] flex flex-col gap-3 pointer-events-none"></div>
+
       <!-- Desktop top navbar -->
       <nav class="bg-white dark:bg-gray-800 border-b border-sf-sand/20 dark:border-gray-700 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

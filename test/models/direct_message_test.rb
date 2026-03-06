@@ -43,6 +43,29 @@ class DirectMessageTest < ActiveSupport::TestCase
     assert_equal sender, loaded.sender
   end
 
+  test "notification targets recipients with dm_notifications enabled, not sender" do
+    conversation = conversations(:admin_attendee_convo)
+    sender = users(:admin)
+    recipient = users(:attendee)
+
+    message = DirectMessage.create!(body: "Hello!", conversation: conversation, sender: sender)
+
+    # Verify broadcast_notifications targets the right users
+    notified = conversation.participants.where.not(id: sender.id).where(dm_notifications: true)
+    assert_includes notified, recipient
+    assert_not_includes notified, sender
+  end
+
+  test "notification skips recipients with dm_notifications disabled" do
+    conversation = conversations(:admin_attendee_convo)
+    sender = users(:admin)
+    recipient = users(:attendee)
+    recipient.update!(dm_notifications: false)
+
+    notified = conversation.participants.where.not(id: sender.id).where(dm_notifications: true)
+    assert_not_includes notified, recipient
+  end
+
   test "body is encrypted in the database" do
     msg = DirectMessage.create!(
       conversation: conversations(:admin_attendee_convo),

@@ -1,0 +1,28 @@
+<div class="pointer-events-auto opacity-0 translate-y-2 transition-all duration-300 ease-out"
+     data-dm-notification-target="notification"
+     data-message-id="<%= direct_message.id %>"
+     data-conversation-id="<%= direct_message.conversation_id %>"
+     data-url="<%= conversation_path(direct_message.conversation) %>">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-sf-sand/20 dark:border-gray-700 p-4 max-w-sm w-full mx-auto md:mx-0 cursor-pointer hover:shadow-xl transition-shadow"
+       data-action="click->dm-notification#navigate">
+    <div class="flex items-start gap-3">
+      <div class="flex-shrink-0 w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white">
+        <% if direct_message.sender.avatar.attached? %>
+          <%= image_tag rails_representation_path(direct_message.sender.avatar.variant(:display)), class: "w-10 h-10 rounded-full object-cover" %>
+        <% else %>
+          <%= direct_message.sender.name.first.upcase %>
+        <% end %>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-sf-black dark:text-white truncate"><%= direct_message.sender.name %></p>
+        <p class="text-sm text-gray-600 dark:text-gray-400 truncate"><%= strip_mentions(direct_message.body) %></p>
+      </div>
+      <button type="button" class="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              data-action="click->dm-notification#dismiss">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
