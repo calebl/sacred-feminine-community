@@ -6,7 +6,7 @@ export default class extends Controller {
   static targets = ["banner"]
 
   connect() {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+    if (!("Notification" in window)) {
       this.hideBanner()
       return
     }
@@ -39,6 +39,8 @@ export default class extends Controller {
   }
 
   async ensureSubscription() {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return
+
     try {
       const registration = await navigator.serviceWorker.ready
       let subscription = await registration.pushManager.getSubscription()
