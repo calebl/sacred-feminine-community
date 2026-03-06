@@ -12,6 +12,6 @@ class GroupPostPolicy < ApplicationPolicy
   end
 
   def pin?
-    user.admin? || record.group.creator?(user)
+    user.admin? || (record.group.member?(user) && record.group.creator?(user))
   end
 end

@@ -12,11 +12,11 @@ class GroupPolicy < ApplicationPolicy
   end
 
   def update?
-    user.admin? || record.creator?(user)
+    user.admin? || (record.member?(user) && record.creator?(user))
   end
 
   def destroy?
-    user.admin? || record.creator?(user)
+    user.admin? || (record.member?(user) && record.creator?(user))
   end
 
   def join?
@@ -24,7 +24,7 @@ class GroupPolicy < ApplicationPolicy
   end
 
   def leave?
-    record.member?(user) && !record.creator?(user)
+    record.member?(user)
   end
 
   def post_message?

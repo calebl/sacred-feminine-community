@@ -14,6 +14,8 @@ class Group < ApplicationRecord
   validates :name, presence: true
   validate :acceptable_header_image
 
+  after_create :add_creator_as_member
+
   def member?(user)
     group_memberships.exists?(user_id: user.id)
   end
@@ -47,6 +49,10 @@ class Group < ApplicationRecord
   end
 
   private
+
+  def add_creator_as_member
+    group_memberships.create!(user: creator)
+  end
 
   def acceptable_header_image
     return unless header_image.attached?
