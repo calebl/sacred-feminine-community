@@ -28,13 +28,30 @@ class PostsController < ApplicationController
   def update
     authorize @post
     if @post.update(post_params)
-      redirect_to cohort_post_path(@cohort, @post), notice: "Post updated."
+      if params[:inline_edit]
+        @post.reload
+        render turbo_stream: turbo_stream.replace(
+          dom_id(@post),
+          partial: "shared/post_card",
+          locals: post_card_locals(@post)
+        )
+      else
+        redirect_to cohort_post_path(@cohort, @post), notice: "Post updated."
+      end
     else
-      load_sidebar
-      @editing = true
-      @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
-      @new_comment = @post.post_comments.build
-      render :show, status: :unprocessable_entity
+      if params[:inline_edit]
+        render turbo_stream: turbo_stream.replace(
+          dom_id(@post),
+          partial: "shared/post_card",
+          locals: post_card_locals(@post)
+        ), status: :unprocessable_entity
+      else
+        load_sidebar
+        @editing = true
+        @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+        @new_comment = @post.post_comments.build
+        render :show, status: :unprocessable_entity
+      end
     end
   end
 
@@ -81,6 +98,20 @@ class PostsController < ApplicationController
 
   def post_params
     params.require(:post).permit(:body)
+  end
+
+  def post_card_locals(post)
+    {
+      post: post,
+      comments: post.post_comments.includes(:user),
+      comment_partial: "post_comments/post_comment",
+      comment_locals: { cohort: @cohort, post: post },
+      comment_form_model: [ @cohort, post, PostComment.new ],
+      edit_path: edit_cohort_post_path(@cohort, post),
+      delete_path: cohort_post_path(@cohort, post),
+      pin_path: pin_cohort_post_path(@cohort, post),
+      mention_data: { mention_cohort_id_value: @cohort.id }
+    }
   end
 
   def load_sidebar

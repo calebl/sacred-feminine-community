@@ -3,7 +3,7 @@
   top_level_comments = (comments_by_parent[nil] || []).sort_by(&:created_at)
 %>
 
-<div id="<%= dom_id(post) %>" class="p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700 bg-white dark:bg-gray-800" data-controller="replies-section">
+<div id="<%= dom_id(post) %>" class="p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700 bg-white dark:bg-gray-800" data-controller="replies-section post-edit">
   <div class="flex items-start justify-between gap-3">
     <div class="flex-1 min-w-0">
       <% if post.pinned? %>
@@ -44,8 +44,8 @@
         </button>
         <div data-dropdown-target="menu" class="hidden absolute right-0 top-8 z-20 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg py-1">
           <% if policy(post).edit? && local_assigns[:edit_path] %>
-            <%= link_to "Edit", local_assigns[:edit_path],
-                class: "block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition" %>
+            <button type="button" data-action="post-edit#toggle dropdown#toggle"
+                class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer">Edit</button>
           <% end %>
           <% if policy(post).pin? && local_assigns[:pin_path] %>
             <%= button_to post.pinned? ? "Unpin" : "Pin",
@@ -65,10 +65,51 @@
   </div>
 
   <!-- Post body with truncation -->
-  <div data-controller="post-body">
+  <div data-post-edit-target="display" data-controller="post-body">
     <div data-post-body-target="content" class="text-sm text-gray-700 dark:text-gray-300 line-clamp-[15] whitespace-pre-wrap"><%= render_with_mentions(post.body) %></div>
     <button type="button" data-post-body-target="toggle" data-action="post-body#toggle" class="hidden text-xs text-sf-gold hover:text-sf-gold/80 mt-1 cursor-pointer transition">view more</button>
   </div>
+
+  <!-- Inline edit form (hidden by default) -->
+  <% if policy(post).edit? && local_assigns[:edit_path] %>
+    <div data-post-edit-target="form" class="hidden">
+      <%
+        edit_mention_data = {
+          controller: "mention",
+          mention_url_value: mention_searches_path,
+          mention_initial_body_value: post.body
+        }
+        (local_assigns[:mention_data] || {}).each do |key, value|
+          edit_mention_data[key] = value
+        end
+      %>
+      <%= tag.div data: edit_mention_data, class: "relative" do %>
+        <%= form_with(
+          model: post,
+          url: local_assigns[:delete_path],
+          method: :patch,
+          class: "space-y-3",
+          data: { turbo: true }
+        ) do |f| %>
+          <input type="hidden" name="inline_edit" value="1">
+          <div>
+            <%= f.hidden_field :body, data: { mention_target: "hidden" } %>
+            <div contenteditable="true"
+                 data-mention-target="input"
+                 data-action="input->mention#onInput keydown->mention#onKeydown blur->mention#hide paste->mention#onPaste"
+                 data-placeholder="Write your post... (@ to mention)"
+                 class="w-full min-h-[120px] resize-y border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm px-4 py-3 text-sm dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-sf-gold focus:border-sf-gold"
+                 role="textbox"></div>
+          </div>
+          <div class="flex justify-end gap-3">
+            <button type="button" data-action="post-edit#cancel" class="btn-tertiary py-2.5">Cancel</button>
+            <%= f.submit "Save", class: "btn-primary py-2.5" %>
+          </div>
+        <% end %>
+        <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>
+      <% end %>
+    </div>
+  <% end %>
 
   <!-- Replies section -->
   <div class="mt-3 border-t border-sf-sand/20 dark:border-gray-700 pt-3">
