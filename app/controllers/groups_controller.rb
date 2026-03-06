@@ -26,17 +26,8 @@ class GroupsController < ApplicationController
         updates[:posts_last_read_at] = Time.current if @active_tab == "feed"
         membership.update(updates)
       end
-      Mention.unread
-             .where(user: current_user, mentionable_type: "GroupChatMessage")
-             .where(mentionable_id: @group.group_chat_messages.select(:id))
-             .update_all(read_at: Time.current)
     end
     @members = @group.members.kept.includes(:group_memberships).load
-    @chat_messages = @group.group_chat_messages
-                           .includes(:user)
-                           .order(created_at: :desc)
-                           .limit(50)
-                           .reverse
     @posts = @group.group_posts.pinned_first.includes(:user, :group_post_comments)
   end
 

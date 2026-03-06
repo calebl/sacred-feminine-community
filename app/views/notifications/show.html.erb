@@ -1,7 +1,7 @@
 <div class="max-w-2xl mx-auto px-4 py-8">
   <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white mb-6">Notifications</h1>
 
-  <% if @unread_conversations.empty? && @unread_cohorts.empty? && @unread_post_cohorts.empty? && @unread_comment_posts.empty? && @unread_mentions.empty? %>
+  <% if @unread_conversations.empty? && @unread_post_cohorts.empty? && @unread_comment_posts.empty? && @unread_mentions.empty? %>
     <div class="text-center py-16 text-gray-400 dark:text-gray-500">
       <svg class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
@@ -33,32 +33,6 @@
               <div class="flex-1 min-w-0">
                 <p class="font-semibold text-sf-black dark:text-white truncate"><%= conversation.display_name(current_user) %></p>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Private message</p>
-              </div>
-              <span class="bg-sf-red text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0"><%= unread %></span>
-            </div>
-          <% end %>
-        <% end %>
-      </div>
-    <% end %>
-
-    <% if @unread_cohorts.any? %>
-      <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white mb-3">Group Chats</h2>
-      <div class="space-y-2 mb-8">
-        <% @unread_cohorts.each do |cohort| %>
-          <% unread = cohort.unread_count(current_user) %>
-          <%= link_to cohort_path(cohort),
-              class: "block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-4 hover:shadow-md transition",
-              data: { turbo_prefetch: false } do %>
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-sf-gold/20 dark:bg-sf-gold/10 flex items-center justify-center text-sm font-bold text-sf-gold flex-shrink-0">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="font-semibold text-sf-black dark:text-white truncate"><%= cohort.name %></p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Group chat</p>
               </div>
               <span class="bg-sf-red text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0"><%= unread %></span>
             </div>
