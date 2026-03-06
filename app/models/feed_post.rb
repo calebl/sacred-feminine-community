@@ -8,6 +8,17 @@ class FeedPost < ApplicationRecord
 
   validates :body, presence: true
 
+  def mark_as_read_by(user)
+    feed_post_reads
+      .find_or_initialize_by(user: user)
+      .update(last_read_at: Time.current)
+
+    Mention.unread
+           .where(user: user, mentionable_type: "FeedPostComment")
+           .where(mentionable_id: feed_post_comments.select(:id))
+           .update_all(read_at: Time.current)
+  end
+
   def unread_comment_count(user)
     post_read = feed_post_reads.find_by(user: user)
     comments = feed_post_comments.where.not(user: user)

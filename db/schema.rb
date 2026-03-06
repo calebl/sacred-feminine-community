@@ -185,7 +185,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_020804) do
   end
 
   create_table "feed_posts", force: :cascade do |t|
-    t.text "body"
+    t.text "body", null: false
     t.datetime "created_at", null: false
     t.boolean "pinned", default: false, null: false
     t.datetime "updated_at", null: false

@@ -6,21 +6,14 @@ class FeedPostsController < ApplicationController
   def index
     authorize FeedPost
     load_sidebar
-    @posts = FeedPost.pinned_first.includes(:user, :feed_post_comments)
+    @posts = policy_scope(FeedPost).pinned_first.includes(:user, :feed_post_comments)
     @new_post = FeedPost.new
   end
 
   def show
     authorize @post
     load_sidebar
-    unless request.headers["Purpose"] == "prefetch"
-      FeedPostRead.find_or_initialize_by(feed_post: @post, user: current_user)
-                  .update(last_read_at: Time.current)
-      Mention.unread
-             .where(user: current_user, mentionable_type: "FeedPostComment")
-             .where(mentionable_id: @post.feed_post_comments.select(:id))
-             .update_all(read_at: Time.current)
-    end
+    @post.mark_as_read_by(current_user) unless request.headers["Purpose"] == "prefetch"
     @comments = @post.feed_post_comments.top_level
                      .includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ])
                      .order(created_at: :asc)
@@ -41,7 +34,7 @@ class FeedPostsController < ApplicationController
     else
       if params[:inline_feed]
         load_sidebar
-        @posts = FeedPost.pinned_first.includes(:user, :feed_post_comments)
+        @posts = policy_scope(FeedPost).pinned_first.includes(:user, :feed_post_comments)
         @new_post = @post
         render :index, status: :unprocessable_entity
       end

@@ -18,4 +18,10 @@ class FeedPostPolicy < ApplicationPolicy
   def pin?
     user.admin?
   end
+
+  class Scope < ApplicationPolicy::Scope
+    def resolve
+      scope.all
+    end
+  end
 end
