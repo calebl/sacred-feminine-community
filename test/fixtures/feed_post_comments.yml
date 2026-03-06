@@ -1,0 +1,25 @@
+admin_feed_comment:
+  feed_post: public_post
+  user: admin
+  body: Great to have everyone here!
+  created_at: <%= 1.hour.ago %>
+
+attendee_feed_comment:
+  feed_post: pinned_feed_post
+  user: attendee
+  body: Thanks for the welcome!
+  created_at: <%= 30.minutes.ago %>
+
+reply_to_admin_feed_comment:
+  feed_post: public_post
+  user: attendee
+  parent: admin_feed_comment
+  body: Thanks for the feedback!
+  created_at: <%= 20.minutes.ago %>
+
+nested_feed_reply:
+  feed_post: public_post
+  user: admin
+  parent: reply_to_admin_feed_comment
+  body: You're welcome!
+  created_at: <%= 15.minutes.ago %>

@@ -46,6 +46,8 @@ class MentionSearchesController < ApplicationController
       conversation = Conversation.find_by(id: params[:conversation_id])
       return nil unless conversation&.participants&.include?(current_user)
       conversation.participants.kept
+    else
+      User.kept
     end
   end
 end

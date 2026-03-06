@@ -1,0 +1,26 @@
+<div class="mb-6">
+  <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white">Feed</h1>
+  <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Posts visible to all community members</p>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-4" data-controller="inline-post-form">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="font-display font-semibold text-sf-black dark:text-white">Posts</h3>
+    <button data-action="click->inline-post-form#toggle" class="btn-primary px-4 py-2">
+      New Post
+    </button>
+  </div>
+
+  <div data-inline-post-form-target="form" class="hidden">
+    <%= render "shared/inline_post_form", post: @new_post, form_url: feed_posts_path %>
+  </div>
+
+  <div class="space-y-3">
+    <% @posts.each do |post| %>
+      <%= render "shared/post_card", post: post, post_path: feed_post_path(post), comments: post.feed_post_comments %>
+    <% end %>
+    <% if @posts.empty? %>
+      <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No posts yet. Be the first to share!</p>
+    <% end %>
+  </div>
+</div>

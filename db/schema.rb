@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_05_215509) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_06_020804) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -159,6 +159,39 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_05_215509) do
     t.datetime "updated_at", null: false
     t.index ["active"], name: "index_faqs_on_active"
     t.index ["created_by_id"], name: "index_faqs_on_created_by_id"
+  end
+
+  create_table "feed_post_comments", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.integer "feed_post_id", null: false
+    t.integer "parent_id"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["feed_post_id"], name: "index_feed_post_comments_on_feed_post_id"
+    t.index ["parent_id"], name: "index_feed_post_comments_on_parent_id"
+    t.index ["user_id"], name: "index_feed_post_comments_on_user_id"
+  end
+
+  create_table "feed_post_reads", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "feed_post_id", null: false
+    t.datetime "last_read_at"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["feed_post_id"], name: "index_feed_post_reads_on_feed_post_id"
+    t.index ["user_id", "feed_post_id"], name: "index_feed_post_reads_on_user_and_post", unique: true
+    t.index ["user_id"], name: "index_feed_post_reads_on_user_id"
+  end
+
+  create_table "feed_posts", force: :cascade do |t|
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.boolean "pinned", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["pinned", "created_at"], name: "index_feed_posts_on_pinned_created"
+    t.index ["user_id"], name: "index_feed_posts_on_user_id"
   end
 
   create_table "group_chat_messages", force: :cascade do |t|
@@ -332,6 +365,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_05_215509) do
   add_foreign_key "direct_messages", "conversations"
   add_foreign_key "direct_messages", "users", column: "sender_id"
   add_foreign_key "faqs", "users", column: "created_by_id"
+  add_foreign_key "feed_post_comments", "feed_post_comments", column: "parent_id"
+  add_foreign_key "feed_post_comments", "feed_posts"
+  add_foreign_key "feed_post_comments", "users"
+  add_foreign_key "feed_post_reads", "feed_posts"
+  add_foreign_key "feed_post_reads", "users"
+  add_foreign_key "feed_posts", "users"
   add_foreign_key "group_chat_messages", "groups"
   add_foreign_key "group_chat_messages", "users"
   add_foreign_key "group_memberships", "groups"
