@@ -32,7 +32,7 @@ Rails.application.routes.draw do
   # Cohorts
   resources :cohorts do
     resources :cohort_memberships, only: [ :create, :destroy ]
-    resources :posts, only: [ :show, :create, :destroy ] do
+    resources :posts, only: [ :show, :create, :edit, :update, :destroy ] do
       patch :pin, on: :member
       resources :post_comments, only: [ :create, :destroy ]
     end
@@ -41,14 +41,14 @@ Rails.application.routes.draw do
   # Groups
   resources :groups do
     resource :group_membership, only: [ :create, :destroy ]
-    resources :group_posts, only: [ :show, :create, :destroy ] do
+    resources :group_posts, only: [ :show, :create, :edit, :update, :destroy ] do
       resource :pin, only: [ :update ], module: :group_posts
       resources :group_post_comments, only: [ :create, :destroy ]
     end
   end
 
   # Feed (public posts for all authenticated members)
-  resources :feed_posts, path: "feed", only: [ :index, :show, :create, :destroy ] do
+  resources :feed_posts, path: "feed", only: [ :index, :show, :create, :edit, :update, :destroy ] do
     resource :pin, only: [ :update ], module: :feed_posts
     resources :feed_post_comments, only: [ :create, :destroy ]
   end

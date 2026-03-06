@@ -1,10 +1,12 @@
 class PostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_cohort
-  before_action :set_post, only: [ :show, :destroy, :pin ]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy, :pin ]
+  layout "dashboard", only: [ :show, :edit ]
 
   def show
     authorize @post
+    load_sidebar
     unless request.headers["Purpose"] == "prefetch"
       PostRead.find_or_initialize_by(post: @post, user: current_user)
               .update(last_read_at: Time.current)
@@ -12,6 +14,28 @@ class PostsController < ApplicationController
     end
     @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
     @new_comment = @post.post_comments.build
+  end
+
+  def edit
+    authorize @post
+    load_sidebar
+    @editing = true
+    @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+    @new_comment = @post.post_comments.build
+    render :show
+  end
+
+  def update
+    authorize @post
+    if @post.update(post_params)
+      redirect_to cohort_post_path(@cohort, @post), notice: "Post updated."
+    else
+      load_sidebar
+      @editing = true
+      @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+      @new_comment = @post.post_comments.build
+      render :show, status: :unprocessable_entity
+    end
   end
 
   def create
@@ -57,6 +81,12 @@ class PostsController < ApplicationController
 
   def post_params
     params.require(:post).permit(:body)
+  end
+
+  def load_sidebar
+    @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
+    @sidebar_groups = current_user.groups.order(:name)
+    @active_cohort_id = @cohort.id
   end
 
   def load_cohort_show_data

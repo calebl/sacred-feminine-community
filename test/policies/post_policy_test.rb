@@ -40,6 +40,18 @@ class PostPolicyTest < ActiveSupport::TestCase
     assert_not PostPolicy.new(users(:attendee), posts(:pinned_announcement)).destroy?
   end
 
+  test "author can update own post" do
+    assert PostPolicy.new(users(:attendee), posts(:attendee_post)).update?
+  end
+
+  test "admin can update any post" do
+    assert PostPolicy.new(users(:admin), posts(:attendee_post)).update?
+  end
+
+  test "non-author member cannot update post" do
+    assert_not PostPolicy.new(users(:attendee), posts(:pinned_announcement)).update?
+  end
+
   test "admin can pin" do
     assert PostPolicy.new(users(:admin), posts(:attendee_post)).pin?
   end

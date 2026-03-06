@@ -1,6 +1,6 @@
 class FeedPostsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_post, only: [ :show, :destroy ]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy ]
   layout "dashboard"
 
   def index
@@ -18,6 +18,32 @@ class FeedPostsController < ApplicationController
                      .includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ])
                      .order(created_at: :asc)
     @new_comment = @post.feed_post_comments.build
+  end
+
+  def edit
+    authorize @post
+    load_sidebar
+    @editing = true
+    @comments = @post.feed_post_comments.top_level
+                     .includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ])
+                     .order(created_at: :asc)
+    @new_comment = @post.feed_post_comments.build
+    render :show
+  end
+
+  def update
+    authorize @post
+    if @post.update(post_params)
+      redirect_to feed_post_path(@post), notice: "Post updated."
+    else
+      load_sidebar
+      @editing = true
+      @comments = @post.feed_post_comments.top_level
+                       .includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ])
+                       .order(created_at: :asc)
+      @new_comment = @post.feed_post_comments.build
+      render :show, status: :unprocessable_entity
+    end
   end
 
   def create

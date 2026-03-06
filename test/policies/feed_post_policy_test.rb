@@ -28,6 +28,18 @@ class FeedPostPolicyTest < ActiveSupport::TestCase
     assert_not FeedPostPolicy.new(users(:attendee_two), feed_posts(:attendee_feed_post)).destroy?
   end
 
+  test "author can update own feed post" do
+    assert FeedPostPolicy.new(users(:attendee), feed_posts(:attendee_feed_post)).update?
+  end
+
+  test "admin can update any feed post" do
+    assert FeedPostPolicy.new(users(:admin), feed_posts(:attendee_feed_post)).update?
+  end
+
+  test "non-author non-admin cannot update feed post" do
+    assert_not FeedPostPolicy.new(users(:attendee_two), feed_posts(:attendee_feed_post)).update?
+  end
+
   test "admin can pin" do
     assert FeedPostPolicy.new(users(:admin), feed_posts(:public_post)).pin?
   end
