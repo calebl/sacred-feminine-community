@@ -359,6 +359,30 @@ export default class extends Controller {
   }
 
   positionDropdown() {
+    // Ensure positioning context is set via inline styles (defensive for environments
+    // where Tailwind utility classes may not be applied)
+    this.element.style.position = "relative"
+    this.dropdownTarget.style.position = "absolute"
+    this.dropdownTarget.style.left = "0"
+    this.dropdownTarget.style.right = "0"
+
+    const sel = window.getSelection()
+    if (sel.rangeCount) {
+      const range = sel.getRangeAt(0)
+      const caretRect = range.getBoundingClientRect()
+      const containerRect = this.element.getBoundingClientRect()
+
+      if (caretRect.height > 0) {
+        const bottomOffset = containerRect.bottom - caretRect.top
+        this.dropdownTarget.style.bottom = `${bottomOffset}px`
+        this.dropdownTarget.style.top = "auto"
+        this.dropdownTarget.style.marginBottom = "4px"
+        this.dropdownTarget.style.marginTop = ""
+        return
+      }
+    }
+
+    // Fallback: position above the entire container
     this.dropdownTarget.style.bottom = "100%"
     this.dropdownTarget.style.top = "auto"
     this.dropdownTarget.style.marginBottom = "4px"

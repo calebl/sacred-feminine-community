@@ -20,10 +20,10 @@ class MentionControllerTest < ApplicationSystemTestCase
     assert_dropdown_visible
     assert_selector "[data-mention-target='dropdown'] button", text: "Admin User"
 
-    input_top = mention_input.rect.y
+    input_rect = mention_input.rect
     dropdown = find("[data-mention-target='dropdown']")
     dropdown_bottom = dropdown.rect.y + dropdown.rect.height
-    assert dropdown_bottom <= input_top + 8, "Dropdown should appear above the input"
+    assert dropdown_bottom <= input_rect.y + input_rect.height, "Dropdown should appear above the input bottom edge"
 
     buttons = all("[data-mention-target='dropdown'] button")
     assert buttons.last[:class].include?("bg-sf-sand/10"), "Last item should be auto-highlighted"
