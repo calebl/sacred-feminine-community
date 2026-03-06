@@ -1,0 +1,17 @@
+public_post:
+  body: A post visible to all community members.
+  user: admin
+  pinned: false
+  created_at: <%= 1.day.ago %>
+
+pinned_feed_post:
+  body: Welcome to the community feed! Please introduce yourself.
+  user: admin
+  pinned: true
+  created_at: <%= 2.days.ago %>
+
+attendee_feed_post:
+  body: Hello everyone, excited to be here!
+  user: attendee
+  pinned: false
+  created_at: <%= 1.hour.ago %>

@@ -18,8 +18,8 @@
         <%= turbo_frame_tag "faqs_panel", src: faqs_path, loading: :lazy %>
       </div>
     <% else %>
-      <div class="p-4 h-[600px] overflow-y-auto">
-        <%= render "dashboard/announcements_panel" %>
+      <div class="p-4" data-controller="inline-post-form">
+        <%= render "dashboard/feed_panel" %>
       </div>
     <% end %>
   </div>
@@ -31,9 +31,9 @@
     <%# Tab headers %>
     <div class="flex border-b border-sf-sand/20 dark:border-gray-700">
       <button data-tabs-target="tab" data-action="click->tabs#select"
-              data-tab-name="announcements"
+              data-tab-name="feed"
               class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
-        Announcements
+        Feed
       </button>
       <button data-tabs-target="tab" data-action="click->tabs#select"
               data-tab-name="map"
@@ -52,9 +52,9 @@
       </button>
     </div>
 
-    <%# Announcements panel %>
-    <div data-tabs-target="panel" data-panel-name="announcements" class="p-4 h-[532px] overflow-y-auto">
-      <%= render "dashboard/announcements_panel" %>
+    <%# Feed panel %>
+    <div data-tabs-target="panel" data-panel-name="feed" class="p-4" data-controller="inline-post-form">
+      <%= render "dashboard/feed_panel" %>
     </div>
 
     <%# Map panel %>

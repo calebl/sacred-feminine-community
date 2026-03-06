@@ -1,0 +1,28 @@
+<% if @comment.parent_id? %>
+  <%# Replace replies container with updated list (visible after posting) %>
+  <%= turbo_stream.replace "replies_for_#{@comment.parent_id}" do %>
+    <div id="replies_for_<%= @comment.parent_id %>" data-replies-toggle-target="replies" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2">
+      <% @comment.parent.replies.includes(:user).order(created_at: :asc).each do |reply| %>
+        <%= render "feed_post_comments/feed_post_comment", comment: reply, feed_post: @post %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# Update reply count %>
+  <%= turbo_stream.replace "reply_count_for_#{@comment.parent_id}" do %>
+    <span id="reply_count_for_<%= @comment.parent_id %>">
+      <button type="button"
+              data-action="replies-toggle#toggle"
+              class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 mt-1 cursor-pointer transition">
+        <%= pluralize(@comment.parent.replies.size, "reply") %>
+      </button>
+    </span>
+  <% end %>
+<% else %>
+  <%# Top-level comment: append to main comments list %>
+  <%= turbo_stream.append "post_comments" do %>
+    <%= render "feed_post_comments/feed_post_comment", comment: @comment, feed_post: @post %>
+  <% end %>
+
+  <%= turbo_stream.remove "no_comments_placeholder" %>
+<% end %>

@@ -47,6 +47,12 @@ Rails.application.routes.draw do
     end
   end
 
+  # Feed (public posts for all authenticated members)
+  resources :feed_posts, path: "feed", only: [ :index, :show, :create, :destroy ] do
+    resource :pin, only: [ :update ], module: :feed_posts
+    resources :feed_post_comments, only: [ :create, :destroy ]
+  end
+
   # FAQs (admin-managed from dashboard)
   resources :faqs, only: [ :index, :create, :edit, :update, :destroy ]
 

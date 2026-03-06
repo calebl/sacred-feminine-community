@@ -78,11 +78,11 @@ class MentionSearchesControllerTest < ActionDispatch::IntegrationTest
     assert_match "Jane Attendee", response.body
   end
 
-  test "returns empty with no context params" do
+  test "returns all users with no context params" do
     sign_in users(:attendee)
     get mention_searches_path, params: { q: "Admin" }
     assert_response :success
-    assert_no_match "Admin User", response.body
+    assert_match "Admin User", response.body
   end
 
   test "returns empty with blank query" do
