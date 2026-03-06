@@ -41,7 +41,7 @@ export default class extends Controller {
 
     while ((match = mentionPattern.exec(body)) !== null) {
       if (match.index > lastIndex) {
-        fragment.appendChild(document.createTextNode(body.substring(lastIndex, match.index)))
+        this.appendTextWithBreaks(fragment, body.substring(lastIndex, match.index))
       }
 
       const span = document.createElement("span")
@@ -56,12 +56,20 @@ export default class extends Controller {
     }
 
     if (lastIndex < body.length) {
-      fragment.appendChild(document.createTextNode(body.substring(lastIndex)))
+      this.appendTextWithBreaks(fragment, body.substring(lastIndex))
     }
 
     this.inputTarget.innerHTML = ""
     this.inputTarget.appendChild(fragment)
     this.syncHidden()
+  }
+
+  appendTextWithBreaks(fragment, text) {
+    const lines = text.split("\n")
+    lines.forEach((line, i) => {
+      if (line) fragment.appendChild(document.createTextNode(line))
+      if (i < lines.length - 1) fragment.appendChild(document.createElement("br"))
+    })
   }
 
   onInput() {

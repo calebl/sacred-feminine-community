@@ -49,9 +49,7 @@
   <% if @editing %>
     <%= render "shared/inline_post_form", post: @post, form_url: group_group_post_path(@group, @post), group_id: @group.id, submit_label: "Update", editing: true %>
   <% else %>
-    <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-      <%= render_with_mentions(@post.body) %>
-    </div>
+    <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= render_with_mentions(@post.body) %></div>
   <% end %>
 </div>
 

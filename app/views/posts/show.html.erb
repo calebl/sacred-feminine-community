@@ -49,9 +49,7 @@
   <% if @editing %>
     <%= render "shared/inline_post_form", post: @post, form_url: cohort_post_path(@cohort, @post), cohort_id: @cohort.id, submit_label: "Update", editing: true %>
   <% else %>
-    <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-      <%= render_with_mentions(@post.body) %>
-    </div>
+    <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= render_with_mentions(@post.body) %></div>
   <% end %>
 </div>
 

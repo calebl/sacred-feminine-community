@@ -1,10 +1,14 @@
 <div class="mb-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-sf-sand/20 dark:border-gray-700">
-  <div data-controller="mention"
-       data-mention-url-value="<%= mention_searches_path %>"
-       <%= "data-mention-cohort-id-value=\"#{local_assigns[:cohort_id]}\"" if local_assigns[:cohort_id] %>
-       <%= "data-mention-group-id-value=\"#{local_assigns[:group_id]}\"" if local_assigns[:group_id] %>
-       <%= "data-mention-initial-body-value=\"#{ERB::Util.html_escape(post.body)}\"" if post.persisted? && post.body.present? %>
-       class="relative">
+  <%
+    mention_data = {
+      controller: "mention",
+      mention_url_value: mention_searches_path
+    }
+    mention_data[:mention_cohort_id_value] = local_assigns[:cohort_id] if local_assigns[:cohort_id]
+    mention_data[:mention_group_id_value] = local_assigns[:group_id] if local_assigns[:group_id]
+    mention_data[:mention_initial_body_value] = post.body if post.persisted? && post.body.present?
+  %>
+  <%= tag.div data: mention_data, class: "relative" do %>
     <%= form_with(
       model: post,
       url: form_url,
@@ -46,5 +50,5 @@
       </div>
     <% end %>
     <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>
-  </div>
+  <% end %>
 </div>
