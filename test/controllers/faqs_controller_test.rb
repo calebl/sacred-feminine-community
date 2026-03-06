@@ -68,6 +68,12 @@ class FaqsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "edit form targets faqs_panel frame for reordering" do
+    sign_in users(:admin)
+    get edit_faq_path(faqs(:active_faq))
+    assert_select "form[data-turbo-frame='faqs_panel']"
+  end
+
   test "attendee cannot access edit faq form" do
     sign_in users(:attendee)
     get edit_faq_path(faqs(:active_faq))
