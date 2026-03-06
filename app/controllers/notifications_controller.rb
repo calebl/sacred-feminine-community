@@ -21,5 +21,10 @@ class NotificationsController < ApplicationController
     @unread_comment_posts = Post.where(id: commented_post_ids)
                                 .includes(:post_comments, :post_reads, :user, :cohort)
                                 .select { |p| p.unread_comment_count(current_user) > 0 }
+
+    @unread_mentions = Mention.unread
+                              .where(user: current_user)
+                              .includes(:mentioner, :mentionable)
+                              .order(created_at: :desc)
   end
 end

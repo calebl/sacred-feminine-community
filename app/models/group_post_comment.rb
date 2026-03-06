@@ -1,4 +1,6 @@
 class GroupPostComment < ApplicationRecord
+  include Mentionable
+
   belongs_to :group_post
   belongs_to :user
   belongs_to :parent, class_name: "GroupPostComment", optional: true

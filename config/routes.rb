@@ -48,6 +48,9 @@ Rails.application.routes.draw do
   # FAQs (admin-managed from dashboard)
   resources :faqs, only: [ :index, :create, :edit, :update, :destroy ]
 
+  # Mention search (for @mention autocomplete)
+  resources :mention_searches, only: [ :index ]
+
   # Notifications
   resource :notifications, only: [ :show ]
 

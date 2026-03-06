@@ -107,19 +107,28 @@
         </div>
 
         <div class="p-4 border-t border-sf-sand/20 dark:border-gray-700">
-          <%= form_with(
-            model: [@group, GroupChatMessage.new],
-            class: "flex gap-2",
-            data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
-          ) do |f| %>
-            <%= f.text_field :body,
-              placeholder: "Type a message...",
-              class: "flex-1",
-              autocomplete: "off",
-              required: true %>
-            <%= f.submit "Send",
-              class: "btn-primary py-2.5" %>
-          <% end %>
+          <div data-controller="mention"
+               data-mention-url-value="<%= mention_searches_path %>"
+               data-mention-group-id-value="<%= @group.id %>"
+               class="relative">
+            <%= form_with(
+              model: [@group, GroupChatMessage.new],
+              class: "flex gap-2",
+              data: { controller: "reset-form", action: "turbo:submit-end->reset-form#reset" }
+            ) do |f| %>
+              <%= f.hidden_field :body, data: { mention_target: "hidden" } %>
+              <div contenteditable="true"
+                   data-mention-target="input"
+                   data-action="input->mention#onInput keydown->mention#onKeydown blur->mention#hide paste->mention#onPaste"
+                   data-placeholder="Type a message... (@ to mention)"
+                   data-single-line
+                   class="flex-1 border-gray-300 rounded-xl shadow-sm px-4 py-3 text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-sf-gold focus:border-sf-gold overflow-x-hidden whitespace-nowrap overflow-y-hidden border"
+                   role="textbox"></div>
+              <%= f.submit "Send",
+                class: "btn-primary py-2.5" %>
+            <% end %>
+            <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>
+          </div>
         </div>
       </div>
 

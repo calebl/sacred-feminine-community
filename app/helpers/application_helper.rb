@@ -1,4 +1,25 @@
 module ApplicationHelper
+  MENTION_PATTERN = /@\[([^\]]+)\]\((\d+)\)/
+
+  def strip_mentions(text)
+    return "" if text.blank?
+    text.gsub(MENTION_PATTERN) { "@#{$1}" }
+  end
+
+  def render_with_mentions(text)
+    return "".html_safe if text.blank?
+
+    escaped = ERB::Util.html_escape(text)
+
+    result = escaped.gsub(MENTION_PATTERN) do
+      name = $1
+      id = $2
+      %(<a href="#{profile_path(id)}" class="text-sf-gold font-semibold hover:underline">@#{name}</a>)
+    end
+
+    result.html_safe
+  end
+
   def total_unread_count(user)
     dm_unread = user.conversations
                     .includes(:conversation_participants, :direct_messages)
@@ -15,6 +36,8 @@ module ApplicationHelper
                          .includes(:post_comments, :post_reads)
                          .sum { |p| p.unread_comment_count(user) > 0 ? 1 : 0 }
 
-    dm_unread + cohort_unread + post_unread + comment_unread
+    mention_unread = Mention.unread.where(user: user).count
+
+    dm_unread + cohort_unread + post_unread + comment_unread + mention_unread
   end
 end

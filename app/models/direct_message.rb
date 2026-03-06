@@ -1,4 +1,6 @@
 class DirectMessage < ApplicationRecord
+  include Mentionable
+
   belongs_to :conversation
   belongs_to :sender, class_name: "User", inverse_of: :sent_direct_messages
 

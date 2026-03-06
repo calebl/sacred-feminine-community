@@ -64,6 +64,18 @@ select:focus {
   @apply ring-sf-gold border-sf-gold;
 }
 
+/* Contenteditable mention input */
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.mention-tag {
+  @apply bg-sf-gold/10 text-sf-gold font-semibold rounded px-0.5;
+  user-select: all;
+}
+
 /* Button base styles */
 .btn-primary {
   @apply px-6 py-3 bg-sf-gold text-white border border-sf-gold rounded-xl hover:bg-sf-blue hover:border-sf-blue hover:text-white font-semibold transition cursor-pointer shadow-sm text-sm;

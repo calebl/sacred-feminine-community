@@ -17,6 +17,10 @@ class ConversationsController < ApplicationController
     unless request.headers["Purpose"] == "prefetch"
       participant = @conversation.conversation_participants.find_by(user: current_user)
       participant&.update(last_read_at: Time.current)
+      Mention.unread
+             .where(user: current_user, mentionable_type: "DirectMessage")
+             .where(mentionable_id: @conversation.direct_messages.select(:id))
+             .update_all(read_at: Time.current)
     end
 
     @messages = @conversation.direct_messages
