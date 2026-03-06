@@ -30,12 +30,12 @@ class MentionSearchesController < ApplicationController
   def base_scope_for_context
     if params[:cohort_id].present?
       cohort = Cohort.kept.find_by(id: params[:cohort_id])
-      return nil unless cohort&.member?(current_user)
-      cohort.members.kept
+      return nil unless cohort&.member?(current_user) || current_user.admin?
+      User.kept.where(id: cohort.members.kept.select(:id)).or(User.kept.where(role: :admin))
     elsif params[:group_id].present?
       group = Group.kept.find_by(id: params[:group_id])
-      return nil unless group&.member?(current_user)
-      group.members.kept
+      return nil unless group&.member?(current_user) || current_user.admin?
+      User.kept.where(id: group.members.kept.select(:id)).or(User.kept.where(role: :admin))
     elsif params[:conversation_id].present?
       conversation = Conversation.find_by(id: params[:conversation_id])
       return nil unless conversation&.participants&.include?(current_user)
