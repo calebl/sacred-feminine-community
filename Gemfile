@@ -61,6 +61,9 @@ gem "audited", "~> 5.7"
 # Soft-delete
 gem "discard", "~> 1.4"
 
+# Markdown rendering
+gem "redcarpet", "~> 3.6"
+
 # Error tracking
 gem "sentry-ruby"
 gem "sentry-rails"
