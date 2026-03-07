@@ -94,27 +94,23 @@
 
       <fieldset>
         <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Private Messages</legend>
-        <% if @user.admin? %>
-          <p class="text-xs text-gray-400 dark:text-gray-500">As an admin, all community members can message you.</p>
-        <% else %>
-          <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Choose who can send you direct messages.</p>
-          <div class="space-y-2">
-            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <%= f.radio_button :dm_privacy, "everyone", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
-              Everyone
-            </label>
-            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <%= f.radio_button :dm_privacy, "cohort_members", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
-              Members of my cohorts only
-            </label>
-            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <%= f.radio_button :dm_privacy, "nobody", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
-              No one
-            </label>
-          </div>
-          <% if @user.dm_privacy_nobody? %>
-            <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Community admins can still send you messages.</p>
-          <% end %>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Choose who can send you direct messages.</p>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.radio_button :dm_privacy, "everyone", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            Everyone
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.radio_button :dm_privacy, "cohort_members", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            Members of my cohorts only
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.radio_button :dm_privacy, "nobody", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            No one
+          </label>
+        </div>
+        <% if @user.dm_privacy_nobody? %>
+          <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Community admins can still send you messages.</p>
         <% end %>
         <div class="flex items-center gap-2 mt-3 pt-3 border-t border-sf-sand/10 dark:border-gray-700"
              data-controller="notification-preview"

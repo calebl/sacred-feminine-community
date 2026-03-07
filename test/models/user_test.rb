@@ -157,10 +157,17 @@ class UserTest < ActiveSupport::TestCase
     assert recipient.accepts_direct_messages_from?(sender)
   end
 
-  test "accepts_direct_messages_from? returns true when recipient is admin regardless of privacy" do
+  test "accepts_direct_messages_from? returns false when recipient is admin with privacy nobody" do
     recipient = users(:admin)
     sender = users(:attendee_two)
     recipient.update_column(:dm_privacy, 0) # nobody
+    assert_not recipient.accepts_direct_messages_from?(sender)
+  end
+
+  test "accepts_direct_messages_from? returns true when recipient is admin with privacy everyone" do
+    recipient = users(:admin)
+    sender = users(:attendee_two)
+    recipient.update_column(:dm_privacy, 2) # everyone
     assert recipient.accepts_direct_messages_from?(sender)
   end
 
