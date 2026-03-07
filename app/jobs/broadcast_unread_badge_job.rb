@@ -13,7 +13,7 @@ class BroadcastUnreadBadgeJob < ApplicationJob
     )
 
     Turbo::StreamsChannel.broadcast_stream_to(
-      [user, :unread_badge],
+      [ user, :unread_badge ],
       content: content
     )
   end
