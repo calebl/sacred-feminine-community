@@ -41,6 +41,20 @@ class Api::MapPinsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "California", admin_pin["state"]
   end
 
+  test "pin JSON includes all expected fields" do
+    users(:admin).update!(latitude: 34.0522, longitude: -118.2437)
+    sign_in users(:admin)
+    get api_map_pins_path(format: :json)
+
+    pins = JSON.parse(response.body)
+    admin_pin = pins.find { |p| p["name"] == "Admin User" }
+    assert_equal %w[id name city state country lat lng].sort, admin_pin.keys.sort
+    assert_equal 34.0522, admin_pin["lat"]
+    assert_equal(-118.2437, admin_pin["lng"])
+    assert_equal "Los Angeles", admin_pin["city"]
+    assert_equal "United States", admin_pin["country"]
+  end
+
   test "unauthenticated user gets 401 for json" do
     get api_map_pins_path(format: :json)
     assert_response :unauthorized
