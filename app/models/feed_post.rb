@@ -23,6 +23,13 @@ class FeedPost < ApplicationRecord
              id, feed_post_comments.select(:id)
            )
            .update_all(read_at: Time.current)
+    Notification.unread.where(user: user, event_type: "mention")
+               .where("(notifiable_type = 'FeedPost' AND notifiable_id = ?) OR (notifiable_type = 'FeedPostComment' AND notifiable_id IN (?))",
+                       id, feed_post_comments.select(:id))
+               .update_all(read_at: Time.current)
+    Notification.unread.where(user: user, event_type: "new_comment",
+                              notifiable_type: "FeedPost", notifiable_id: id)
+               .update_all(read_at: Time.current)
   end
 
   def unread_comment_count(user)

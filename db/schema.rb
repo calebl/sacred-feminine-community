@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_07_182224) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_07_185430) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -248,12 +248,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_182224) do
     t.integer "actor_id"
     t.string "body"
     t.datetime "created_at", null: false
+    t.string "event_type", null: false
+    t.string "group_key"
+    t.integer "notifiable_id"
+    t.string "notifiable_type"
     t.string "path"
     t.datetime "read_at"
     t.string "title"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["actor_id"], name: "index_notifications_on_actor_id"
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable_type_and_notifiable_id"
+    t.index ["user_id", "created_at"], name: "index_notifications_on_user_id_and_created_at"
+    t.index ["user_id", "group_key"], name: "index_notifications_on_user_id_and_group_key"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
