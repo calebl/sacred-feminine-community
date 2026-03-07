@@ -3,9 +3,9 @@ module PushNotifiable
 
   private
 
-  def push_notify(user_ids, title:, path:)
+  def push_notify(user_ids, title:, description:, path:)
     Array(user_ids).each do |uid|
-      SendPushNotificationJob.perform_later(uid, title, body.truncate(100), path)
+      SendPushNotificationJob.perform_later(uid, title, description, path)
     end
   end
 end

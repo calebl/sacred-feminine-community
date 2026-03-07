@@ -26,7 +26,7 @@ class GroupChatMessage < ApplicationRecord
 
   def send_push_notifications
     recipient_ids = group.group_memberships.where.not(user_id: user_id).pluck(:user_id)
-    push_notify(recipient_ids, title: "#{user.name} in #{group.name}", path: "/groups/#{group_id}")
+    push_notify(recipient_ids, title: "#{user.name} in #{group.name}", description: "Posted a new message", path: "/groups/#{group_id}")
   end
 
   def broadcast_unread_badges

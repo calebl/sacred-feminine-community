@@ -26,7 +26,7 @@ class ChatMessage < ApplicationRecord
 
   def send_push_notifications
     recipient_ids = cohort.cohort_memberships.where.not(user_id: user_id).pluck(:user_id)
-    push_notify(recipient_ids, title: "#{user.name} in #{cohort.name}", path: "/cohorts/#{cohort_id}")
+    push_notify(recipient_ids, title: "#{user.name} in #{cohort.name}", description: "Posted a new message", path: "/cohorts/#{cohort_id}")
   end
 
   def broadcast_unread_badges

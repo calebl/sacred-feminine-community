@@ -41,7 +41,7 @@ class DirectMessage < ApplicationRecord
 
   def send_push_notifications
     recipient_ids = conversation.participants.where.not(id: sender_id).pluck(:id)
-    push_notify(recipient_ids, title: sender.name, path: "/conversations/#{conversation_id}")
+    push_notify(recipient_ids, title: sender.name, description: "Sent you a private message", path: "/conversations/#{conversation_id}")
   end
 
   def broadcast_unread_badges
