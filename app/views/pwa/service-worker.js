@@ -70,11 +70,12 @@ self.addEventListener("fetch", (event) => {
 // Handle push notifications with app badge
 self.addEventListener("push", (event) => {
   const { title, options } = event.data.json()
+  const unreadCount = options.data?.unread_count
 
   event.waitUntil(
     Promise.all([
       self.registration.showNotification(title, options),
-      updateBadge()
+      updateBadge(unreadCount)
     ])
   )
 })
@@ -101,11 +102,15 @@ self.addEventListener("notificationclick", (event) => {
 })
 
 // Badge API helpers — set/clear the PWA app icon badge
-async function updateBadge() {
+async function updateBadge(count) {
   if (!("setAppBadge" in navigator)) return
   try {
-    const notifications = await self.registration.getNotifications()
-    await navigator.setAppBadge(notifications.length + 1)
+    if (typeof count === "number" && count > 0) {
+      await navigator.setAppBadge(count)
+    } else {
+      const notifications = await self.registration.getNotifications()
+      await navigator.setAppBadge(notifications.length + 1)
+    }
   } catch (_) { /* Badge API not supported in this context */ }
 }
 

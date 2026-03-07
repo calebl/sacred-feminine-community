@@ -11,6 +11,7 @@ class GroupPostsController < ApplicationController
       GroupPostRead.find_or_initialize_by(group_post: @post, user: current_user)
                    .update(last_read_at: Time.current)
       @post.mark_mentions_read(current_user)
+      broadcast_unread_badge
     end
     @comments = @post.group_post_comments.top_level.includes(:user, :reactions, replies: [ :user, :reactions, { replies: [ :user, :reactions, { replies: [ :user, :reactions ] } ] } ]).order(created_at: :asc)
     @new_comment = @post.group_post_comments.build

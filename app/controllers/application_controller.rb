@@ -34,6 +34,10 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def broadcast_unread_badge
+    BroadcastUnreadBadgeJob.perform_later(current_user.id) if current_user
+  end
+
   def user_not_authorized
     flash[:alert] = "You are not authorized to perform this action."
     redirect_back(fallback_location: root_path)

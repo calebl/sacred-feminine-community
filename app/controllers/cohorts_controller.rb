@@ -21,6 +21,7 @@ class CohortsController < ApplicationController
         updates[:posts_last_read_at] = Time.current if @active_tab == "feed"
         membership.update(updates)
       end
+      broadcast_unread_badge
     end
     @members = @cohort.members.kept.includes(:cohort_memberships).load
     @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h

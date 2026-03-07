@@ -8,13 +8,15 @@ class SendPushNotificationJob < ApplicationJob
     vapid = Rails.application.config.vapid
     return if vapid[:public_key].blank? || vapid[:private_key].blank?
 
+    count = ApplicationController.helpers.total_unread_count(user)
+
     payload = {
       title: title,
       options: {
         body: body,
         icon: "/icon-192.png",
         badge: "/icon-192.png",
-        data: { path: path }
+        data: { path: path, unread_count: count }
       }
     }.to_json
 

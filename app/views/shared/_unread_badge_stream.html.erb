@@ -1,0 +1,19 @@
+<turbo-stream action="replace" target="desktop_unread_badge">
+  <template>
+    <span id="desktop_unread_badge" data-controller="app-badge" data-app-badge-count-value="<%= count %>">
+      <% if count > 0 %>
+        <span class="absolute -top-1 -right-1 bg-sf-red text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1"><%= count > 99 ? "99+" : count %></span>
+      <% end %>
+    </span>
+  </template>
+</turbo-stream>
+
+<turbo-stream action="replace" target="mobile_unread_badge">
+  <template>
+    <span id="mobile_unread_badge">
+      <% if count > 0 %>
+        <span class="absolute -top-1 -right-2 bg-sf-red text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5"><%= count > 99 ? "99+" : count %></span>
+      <% end %>
+    </span>
+  </template>
+</turbo-stream>
