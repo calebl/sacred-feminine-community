@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_07_174806) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_07_185430) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -244,6 +244,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_174806) do
     t.index ["user_id"], name: "index_mentions_on_user_id"
   end
 
+  create_table "notifications", force: :cascade do |t|
+    t.integer "actor_id"
+    t.string "body"
+    t.datetime "created_at", null: false
+    t.string "event_type", null: false
+    t.string "group_key"
+    t.integer "notifiable_id"
+    t.string "notifiable_type"
+    t.string "path"
+    t.datetime "read_at"
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["actor_id"], name: "index_notifications_on_actor_id"
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable_type_and_notifiable_id"
+    t.index ["user_id", "created_at"], name: "index_notifications_on_user_id_and_created_at"
+    t.index ["user_id", "group_key"], name: "index_notifications_on_user_id_and_group_key"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
   create_table "post_comments", force: :cascade do |t|
     t.text "body", null: false
     t.datetime "created_at", null: false
@@ -381,6 +402,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_174806) do
   add_foreign_key "groups", "users", column: "created_by_id"
   add_foreign_key "mentions", "users"
   add_foreign_key "mentions", "users", column: "mentioner_id"
+  add_foreign_key "notifications", "users"
+  add_foreign_key "notifications", "users", column: "actor_id"
   add_foreign_key "post_comments", "post_comments", column: "parent_id"
   add_foreign_key "post_comments", "posts"
   add_foreign_key "post_comments", "users"

@@ -53,7 +53,7 @@
 ## @Mentions
 - **Inline mentions** - @mention users in posts, comments, and DMs using `@[Name](id)` syntax
 - **Autocomplete popup** - Mention search with popup positioned above the cursor in contenteditable fields
-- **Notification tracking** - Mentions are stored as records with read/unread state
+- **Notification tracking** - Mentions generate notifications; read/unread state is tracked via the unified Notification model
 - **Cross-context support** - Works in posts, comments, and direct messages
 - **Mention privacy settings** - Users control where they can be @mentioned: everywhere, groups and cohorts only, or nowhere
 
@@ -64,11 +64,16 @@
 - **Grouped display** - Reactions shown as aggregated counts by emoji
 
 ## Notifications
-- **Notification center** - Dedicated page showing unread DMs, unread cohort posts, comment activity, and mentions
-- **Unread mention badges** - Mentions tracked with read/unread state across all mentionable content
-- **Comment follow-up** - Users see unread replies on posts they've commented on
-- **Web Push notifications** - Opt-in browser push notifications via VAPID/Web Push for new messages and activity, with service worker handling and subscription management
-- **Real-time unread badges** - Navbar badge counts update in real-time via Turbo Streams when new messages arrive or content is read
+- **Unified notification model** - Single `Notification` model is the source of truth for all alerts (mentions, DMs, comments on your posts, admin events)
+- **Notification center** - Dedicated page showing the 30 most recent notifications with read/unread styling and event-type-based icons
+- **Mark all as read** - One-click button to mark all unread notifications as read
+- **Mention notifications** - Users receive a notification when @mentioned in posts, comments, or DMs
+- **DM notifications** - Users receive a notification for new direct messages, batched per conversation while unread
+- **Comment notifications** - Post authors and prior commenters receive a notification when new comments are added
+- **Admin invitation alerts** - Admins receive an in-app notification when a user accepts an invitation
+- **Background job processing** - Notifications created via `CreateNotificationJob` with group_key dedup for batching
+- **Web Push notifications** - Opt-in browser push notifications via VAPID/Web Push, triggered by the notification job
+- **Real-time unread badges** - Navbar badge counts update in real-time via Turbo Streams, powered by `notifications.unread.count`
 - **PWA app icon badge** - Accurate server-side unread count displayed on the PWA app icon via the Badge API
 
 ## Interactive Map

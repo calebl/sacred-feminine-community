@@ -1,6 +1,7 @@
 class FeedPostComment < ApplicationRecord
   include Mentionable
   include Reactable
+  include CommentNotifiable
 
   belongs_to :feed_post
   belongs_to :user
@@ -14,6 +15,17 @@ class FeedPostComment < ApplicationRecord
   scope :top_level, -> { where(parent_id: nil) }
 
   private
+
+  def commentable_post = feed_post
+  def commentable_comments = feed_post.feed_post_comments
+
+  def comment_notification_body
+    "Commented on a feed post"
+  end
+
+  def comment_notification_path
+    "/feed/#{feed_post_id}"
+  end
 
   def parent_belongs_to_same_post
     if parent && parent.feed_post_id != feed_post_id

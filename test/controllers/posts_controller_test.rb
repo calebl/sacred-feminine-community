@@ -180,16 +180,21 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Post", mention.mentionable_type
   end
 
-  test "viewing post marks post-level mentions as read" do
+  test "viewing post marks mention notifications as read" do
     sign_in users(:admin)
     mentioned_post = posts(:attendee_post)
-    mention = Mention.create!(
-      mentionable: mentioned_post,
+    notification = Notification.create!(
       user: users(:admin),
-      mentioner: users(:attendee)
+      actor: users(:attendee),
+      event_type: "mention",
+      title: "#{users(:attendee).name} mentioned you",
+      body: "In a post",
+      path: cohort_post_path(cohorts(:kabul_retreat), mentioned_post),
+      notifiable_type: "Post",
+      notifiable_id: mentioned_post.id
     )
     get cohort_post_path(cohorts(:kabul_retreat), mentioned_post)
-    assert mention.reload.read_at.present?
+    assert notification.reload.read_at.present?
   end
 
   test "inline create renders cohort show on validation failure" do

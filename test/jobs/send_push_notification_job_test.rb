@@ -64,10 +64,10 @@ class SendPushNotificationJobTest < ActiveJob::TestCase
     end
   end
 
-  test "direct message enqueues push notification for recipients" do
+  test "direct message enqueues notification job which triggers push" do
     conversation = conversations(:admin_attendee_convo)
 
-    assert_enqueued_with(job: SendPushNotificationJob) do
+    assert_enqueued_with(job: CreateNotificationJob) do
       DirectMessage.create!(
         conversation: conversation,
         sender: @admin,

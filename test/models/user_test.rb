@@ -209,6 +209,15 @@ class UserTest < ActiveSupport::TestCase
     assert_not user.accepts_mentions_in?(nil)
   end
 
+  test "notify_admins_of_acceptance enqueues CreateNotificationJob for each admin" do
+    user = User.invite!({ email: "notify-test@example.com", name: "Notify Test" }, users(:admin))
+    admin_count = User.admin.where.not(id: user.id).count
+
+    assert_enqueued_jobs admin_count, only: CreateNotificationJob do
+      user.accept_invitation!
+    end
+  end
+
   test "create_invited_cohort_memberships creates memberships for stored cohort ids" do
     kabul = cohorts(:kabul_retreat)
     bali = cohorts(:bali_retreat)
