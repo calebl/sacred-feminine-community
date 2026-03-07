@@ -164,6 +164,38 @@ class UserTest < ActiveSupport::TestCase
     assert recipient.accepts_direct_messages_from?(sender)
   end
 
+  test "mention_privacy defaults to mention_everywhere" do
+    user = User.new
+    assert_equal "mention_everywhere", user.mention_privacy
+  end
+
+  test "accepts_mentions_in? returns true for all contexts when mention_everywhere" do
+    user = users(:attendee)
+    user.update_column(:mention_privacy, 2)
+    assert user.accepts_mentions_in?(:group)
+    assert user.accepts_mentions_in?(:cohort)
+    assert user.accepts_mentions_in?(:feed)
+    assert user.accepts_mentions_in?(:dm)
+  end
+
+  test "accepts_mentions_in? returns true for group and cohort when mention_groups_and_cohorts" do
+    user = users(:attendee)
+    user.update_column(:mention_privacy, 1)
+    assert user.accepts_mentions_in?(:group)
+    assert user.accepts_mentions_in?(:cohort)
+    assert_not user.accepts_mentions_in?(:feed)
+    assert_not user.accepts_mentions_in?(:dm)
+  end
+
+  test "accepts_mentions_in? returns false for all contexts when mention_nobody" do
+    user = users(:attendee)
+    user.update_column(:mention_privacy, 0)
+    assert_not user.accepts_mentions_in?(:group)
+    assert_not user.accepts_mentions_in?(:cohort)
+    assert_not user.accepts_mentions_in?(:feed)
+    assert_not user.accepts_mentions_in?(:dm)
+  end
+
   test "create_invited_cohort_memberships creates memberships for stored cohort ids" do
     kabul = cohorts(:kabul_retreat)
     bali = cohorts(:bali_retreat)

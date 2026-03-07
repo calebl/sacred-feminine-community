@@ -55,6 +55,7 @@
 - **Autocomplete popup** - Mention search with popup positioned above the cursor in contenteditable fields
 - **Notification tracking** - Mentions are stored as records with read/unread state
 - **Cross-context support** - Works in posts, comments, and direct messages
+- **Mention privacy settings** - Users control where they can be @mentioned: everywhere, groups and cohorts only, or nowhere
 
 ## Emoji Reactions
 - **Polymorphic reactions** - React to posts and comments with emojis
