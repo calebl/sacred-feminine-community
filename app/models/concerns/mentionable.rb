@@ -21,11 +21,11 @@ module Mentionable
     after_update_commit :re_extract_mentions, if: :saved_change_to_body?
   end
 
+  private
+
   def mention_context
     CONTEXT_MAP[self.class.name]
   end
-
-  private
 
   def extract_mentions
     return if body.blank?

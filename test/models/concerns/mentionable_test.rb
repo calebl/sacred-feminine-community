@@ -187,14 +187,15 @@ class MentionableTest < ActiveSupport::TestCase
   end
 
   test "mention_context returns correct context for each model" do
-    assert_equal :cohort, @cohort.chat_messages.build.mention_context
-    assert_equal :cohort, Post.new.mention_context
-    assert_equal :cohort, PostComment.new.mention_context
-    assert_equal :group, GroupChatMessage.new.mention_context
-    assert_equal :group, GroupPost.new.mention_context
-    assert_equal :group, GroupPostComment.new.mention_context
-    assert_equal :feed, FeedPostComment.new.mention_context
-    assert_equal :dm, DirectMessage.new.mention_context
+    assert_equal :cohort, @cohort.chat_messages.build.send(:mention_context)
+    assert_equal :cohort, Post.new.send(:mention_context)
+    assert_equal :cohort, PostComment.new.send(:mention_context)
+    assert_equal :group, GroupChatMessage.new.send(:mention_context)
+    assert_equal :group, GroupPost.new.send(:mention_context)
+    assert_equal :group, GroupPostComment.new.send(:mention_context)
+    assert_equal :feed, FeedPost.new.send(:mention_context)
+    assert_equal :feed, FeedPostComment.new.send(:mention_context)
+    assert_equal :dm, DirectMessage.new.send(:mention_context)
   end
 
   test "ignores discarded users" do

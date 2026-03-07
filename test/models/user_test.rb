@@ -164,12 +164,12 @@ class UserTest < ActiveSupport::TestCase
     assert recipient.accepts_direct_messages_from?(sender)
   end
 
-  test "mention_privacy defaults to mention_everywhere" do
+  test "mention_privacy defaults to everywhere" do
     user = User.new
-    assert_equal "mention_everywhere", user.mention_privacy
+    assert_equal "everywhere", user.mention_privacy
   end
 
-  test "accepts_mentions_in? returns true for all contexts when mention_everywhere" do
+  test "accepts_mentions_in? returns true for all contexts when everywhere" do
     user = users(:attendee)
     user.update_column(:mention_privacy, 2)
     assert user.accepts_mentions_in?(:group)
@@ -178,7 +178,7 @@ class UserTest < ActiveSupport::TestCase
     assert user.accepts_mentions_in?(:dm)
   end
 
-  test "accepts_mentions_in? returns true for group and cohort when mention_groups_and_cohorts" do
+  test "accepts_mentions_in? returns true for group and cohort when groups_and_cohorts" do
     user = users(:attendee)
     user.update_column(:mention_privacy, 1)
     assert user.accepts_mentions_in?(:group)
@@ -187,13 +187,19 @@ class UserTest < ActiveSupport::TestCase
     assert_not user.accepts_mentions_in?(:dm)
   end
 
-  test "accepts_mentions_in? returns false for all contexts when mention_nobody" do
+  test "accepts_mentions_in? returns false for all contexts when nobody" do
     user = users(:attendee)
     user.update_column(:mention_privacy, 0)
     assert_not user.accepts_mentions_in?(:group)
     assert_not user.accepts_mentions_in?(:cohort)
     assert_not user.accepts_mentions_in?(:feed)
     assert_not user.accepts_mentions_in?(:dm)
+  end
+
+  test "accepts_mentions_in? returns false for nil context" do
+    user = users(:attendee)
+    user.update_column(:mention_privacy, 2)
+    assert_not user.accepts_mentions_in?(nil)
   end
 
   test "create_invited_cohort_memberships creates memberships for stored cohort ids" do

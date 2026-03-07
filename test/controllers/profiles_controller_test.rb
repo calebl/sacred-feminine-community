@@ -253,10 +253,10 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     user = users(:attendee)
     sign_in user
     patch profile_path(user), params: {
-      user: { name: user.name, mention_privacy: "mention_nobody" }
+      user: { name: user.name, mention_privacy: "nobody" }
     }
     assert_redirected_to profile_path(user)
-    assert_equal "mention_nobody", user.reload.mention_privacy
+    assert_equal "nobody", user.reload.mention_privacy
   end
 
   test "edit profile displays mention_privacy radio buttons" do

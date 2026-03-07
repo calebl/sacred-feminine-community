@@ -1,4 +1,5 @@
 class FeedPost < ApplicationRecord
+  include Mentionable
   include Reactable
 
   belongs_to :user
@@ -16,8 +17,11 @@ class FeedPost < ApplicationRecord
       .update(last_read_at: Time.current)
 
     Mention.unread
-           .where(user: user, mentionable_type: "FeedPostComment")
-           .where(mentionable_id: feed_post_comments.select(:id))
+           .where(user: user)
+           .where(
+             "(mentionable_type = 'FeedPost' AND mentionable_id = ?) OR (mentionable_type = 'FeedPostComment' AND mentionable_id IN (?))",
+             id, feed_post_comments.select(:id)
+           )
            .update_all(read_at: Time.current)
   end
 
