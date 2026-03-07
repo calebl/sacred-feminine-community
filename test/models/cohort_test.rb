@@ -127,14 +127,6 @@ class CohortTest < ActiveSupport::TestCase
     assert_equal membership_count, CohortMembership.where(cohort_id: cohort.id).count
   end
 
-  test "soft-delete preserves chat messages" do
-    cohort = cohorts(:kabul_retreat)
-    cohort.chat_messages.create!(user: users(:admin), body: "Test message")
-    message_count = cohort.chat_messages.count
-    cohort.discard
-    assert_equal message_count, ChatMessage.where(cohort_id: cohort.id).count
-  end
-
   test "undiscard restores cohort" do
     cohort = cohorts(:bali_retreat)
     cohort.discard
@@ -142,44 +134,6 @@ class CohortTest < ActiveSupport::TestCase
     cohort.undiscard
     assert cohort.kept?
     assert_nil cohort.discarded_at
-  end
-
-  # Unread count
-  test "unread_count returns 0 with no messages" do
-    assert_equal 0, cohorts(:kabul_retreat).unread_count(users(:attendee))
-  end
-
-  test "unread_count counts messages after last_read_at" do
-    cohort = cohorts(:kabul_retreat)
-    membership = cohort.cohort_memberships.find_by(user: users(:attendee))
-    membership.update!(last_read_at: 1.hour.ago)
-
-    cohort.chat_messages.create!(user: users(:admin), body: "New group message")
-
-    assert_equal 1, cohort.unread_count(users(:attendee))
-  end
-
-  test "unread_count counts all messages when last_read_at is nil" do
-    cohort = cohorts(:kabul_retreat)
-    cohort.chat_messages.create!(user: users(:admin), body: "First")
-    cohort.chat_messages.create!(user: users(:admin), body: "Second")
-
-    assert_equal 2, cohort.unread_count(users(:attendee))
-  end
-
-  test "unread_count excludes own messages" do
-    cohort = cohorts(:kabul_retreat)
-    membership = cohort.cohort_memberships.find_by(user: users(:attendee))
-    membership.update!(last_read_at: 1.hour.ago)
-
-    cohort.chat_messages.create!(user: users(:admin), body: "From admin")
-    cohort.chat_messages.create!(user: users(:attendee), body: "From self")
-
-    assert_equal 1, cohort.unread_count(users(:attendee))
-  end
-
-  test "unread_count returns 0 for non-member" do
-    assert_equal 0, cohorts(:kabul_retreat).unread_count(users(:attendee_two))
   end
 
   # Auditing

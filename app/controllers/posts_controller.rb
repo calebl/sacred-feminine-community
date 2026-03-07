@@ -122,7 +122,6 @@ class PostsController < ApplicationController
     @members = @cohort.members.kept.includes(:cohort_memberships).load
     @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h
     @non_members = User.kept.where.not(id: @members.map(&:id)).where.not(invitation_accepted_at: nil).order(:name).pluck(:name, :id)
-    @chat_messages = @cohort.chat_messages.includes(:user).order(created_at: :desc).limit(50).reverse
     @posts = @cohort.posts.pinned_first.includes(:user, post_comments: :user)
     @show_form = true
   end

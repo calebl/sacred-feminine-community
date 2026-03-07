@@ -27,17 +27,4 @@ class BroadcastUnreadBadgeJobTest < ActiveJob::TestCase
       )
     end
   end
-
-  test "chat message enqueues badge broadcast for cohort members" do
-    cohort = cohorts(:kabul_retreat)
-    user = users(:admin)
-
-    assert_enqueued_with(job: BroadcastUnreadBadgeJob) do
-      ChatMessage.create!(
-        cohort: cohort,
-        user: user,
-        body: "Badge test chat"
-      )
-    end
-  end
 end

@@ -27,10 +27,6 @@ class GroupPolicy < ApplicationPolicy
     record.member?(user)
   end
 
-  def post_message?
-    record.member?(user)
-  end
-
   class Scope < ApplicationPolicy::Scope
     def resolve
       scope.kept

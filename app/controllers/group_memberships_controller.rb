@@ -7,11 +7,6 @@ class GroupMembershipsController < ApplicationController
     membership = @group.group_memberships.build(user: current_user)
 
     if membership.save
-      @group.group_chat_messages.create!(
-        user: current_user,
-        body: "#{current_user.name} joined the group",
-        system_message: true
-      )
       redirect_to @group, notice: "You joined the group."
     else
       redirect_to @group, alert: membership.errors.full_messages.join(", ")

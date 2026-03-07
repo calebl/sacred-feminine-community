@@ -77,12 +77,6 @@
 - **Profile map** - Individual profile pages show a mini-map of the user's location
 - **API endpoint** - `/api/map_pins` serves pin data as JSON
 
-## Announcements (deprecated)
-- **Admin-managed** - Admins create announcements with title, body, and publish date
-- **Scheduling** - Announcements can be scheduled for future publication
-- **Single active** - Only one announcement is active at a time (activating one deactivates others)
-- **Dashboard display** - Active announcement appears on the dashboard
-
 ## FAQs
 - **Admin-managed** - Admins create and manage FAQ entries (question/answer pairs)
 - **Ordering** - FAQs are ordered by position and creation date
@@ -94,7 +88,6 @@
 - **Role management** - Promote/demote users between attendee and admin roles
 - **Invitation management** - Send invitations with optional cohort pre-assignment
 - **Invite links** - Generate shareable invitation links for specific users
-- **Announcement management** - Full CRUD for announcements (deprecated)
 - **Impersonation** - Admins can impersonate users in development environment for debugging
 - **Job dashboard** - Solid Queue job monitoring via Mission Control (admin only)
 

@@ -19,10 +19,6 @@ class CohortPolicy < ApplicationPolicy
     user.admin?
   end
 
-  def post_message?
-    record.member?(user)
-  end
-
   def manage_members?
     user.admin?
   end

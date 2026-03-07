@@ -76,12 +76,15 @@
             when DirectMessage
               link_path = conversation_path(mention.mentionable.conversation)
               location = "in a private message"
-            when ChatMessage
-              link_path = cohort_path(mention.mentionable.cohort)
-              location = "in #{mention.mentionable.cohort.name} chat"
-            when GroupChatMessage
-              link_path = group_path(mention.mentionable.group)
-              location = "in #{mention.mentionable.group.name} chat"
+            when Post
+              link_path = cohort_post_path(mention.mentionable.cohort, mention.mentionable)
+              location = "in a post in #{mention.mentionable.cohort.name}"
+            when GroupPost
+              link_path = group_group_post_path(mention.mentionable.group, mention.mentionable)
+              location = "in a post in #{mention.mentionable.group.name}"
+            when FeedPost
+              link_path = feed_post_path(mention.mentionable)
+              location = "in a feed post"
             when PostComment
               link_path = cohort_post_path(mention.mentionable.post.cohort, mention.mentionable.post)
               location = "in a comment in #{mention.mentionable.post.cohort.name}"

@@ -7,7 +7,6 @@ class Cohort < ApplicationRecord
   belongs_to :creator, class_name: "User", foreign_key: :created_by_id, inverse_of: :created_cohorts
   has_many :cohort_memberships
   has_many :members, through: :cohort_memberships, source: :user
-  has_many :chat_messages
   has_many :posts, dependent: :destroy
   has_one_attached :header_image
 
@@ -17,18 +16,6 @@ class Cohort < ApplicationRecord
 
   def member?(user)
     cohort_memberships.exists?(user_id: user.id)
-  end
-
-  def unread_count(user)
-    membership = cohort_memberships.find_by(user: user)
-    return 0 unless membership
-
-    messages = chat_messages.where.not(user: user)
-    if membership.last_read_at
-      messages.where("created_at > ?", membership.last_read_at).count
-    else
-      messages.count
-    end
   end
 
   def unread_post_count(user)
