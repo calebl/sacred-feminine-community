@@ -12,15 +12,16 @@
 #
 vapid_from_credentials = begin
   {
+    subject: Rails.application.credentials.dig(:vapid, :subject),
     public_key: Rails.application.credentials.dig(:vapid, :public_key),
     private_key: Rails.application.credentials.dig(:vapid, :private_key)
   }
 rescue ActiveSupport::MessageEncryptor::InvalidMessage
-  { public_key: nil, private_key: nil }
+  { subject: nil, public_key: nil, private_key: nil }
 end
 
 Rails.application.config.vapid = {
-  subject: "mailto:#{ENV.fetch('VAPID_SUBJECT', 'admin@sacredfeminine.community')}",
-  public_key: vapid_from_credentials[:public_key] || ENV["VAPID_PUBLIC_KEY"],
-  private_key: vapid_from_credentials[:private_key] || ENV["VAPID_PRIVATE_KEY"]
+  subject: "mailto:#{vapid_from_credentials[:subject] || "admin@sacredfeminine.community"}",
+  public_key: vapid_from_credentials[:public_key],
+  private_key: vapid_from_credentials[:private_key]
 }

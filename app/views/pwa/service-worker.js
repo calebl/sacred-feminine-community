@@ -84,7 +84,7 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close()
   event.waitUntil(
     Promise.all([
-      clearBadge(),
+      updateBadgeAfterClick(),
       clients.matchAll({ type: "window" }).then((clientList) => {
         const targetPath = event.notification.data?.path || "/"
         for (const client of clientList) {
@@ -114,7 +114,14 @@ async function updateBadge(count) {
   } catch (_) { /* Badge API not supported in this context */ }
 }
 
-async function clearBadge() {
-  if (!("clearAppBadge" in navigator)) return
-  try { await navigator.clearAppBadge() } catch (_) { /* noop */ }
+async function updateBadgeAfterClick() {
+  if (!("setAppBadge" in navigator)) return
+  try {
+    const remaining = await self.registration.getNotifications()
+    if (remaining.length > 0) {
+      await navigator.setAppBadge(remaining.length)
+    } else {
+      await navigator.clearAppBadge()
+    }
+  } catch (_) { /* Badge API not supported in this context */ }
 }
