@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   include Discard::Model
+  include PushNotifiable
 
   devise :invitable, :database_authenticatable,
          :recoverable, :rememberable, :validatable
@@ -61,6 +62,7 @@ class User < ApplicationRecord
   end
 
   after_invitation_accepted :create_invited_cohort_memberships
+  after_invitation_accepted :notify_admins_of_acceptance
 
   geocoded_by :full_location
   after_commit :enqueue_geocode, if: -> { saved_change_to_city? || saved_change_to_state? || saved_change_to_country? }
@@ -144,6 +146,11 @@ class User < ApplicationRecord
     end
 
     update_column(:invited_cohort_ids, nil)
+  end
+
+  def notify_admins_of_acceptance
+    admin_ids = User.admin.where.not(id: id).pluck(:id)
+    push_notify(admin_ids, title: "New Member", description: "#{name} has joined the community", path: "/admin/dashboard")
   end
 
   def enqueue_geocode
