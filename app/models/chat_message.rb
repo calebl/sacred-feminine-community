@@ -1,6 +1,7 @@
 class ChatMessage < ApplicationRecord
   include Mentionable
   include UnreadBadgeBroadcaster
+  include PushNotifiable
 
   belongs_to :cohort
   belongs_to :user
@@ -24,14 +25,8 @@ class ChatMessage < ApplicationRecord
   private
 
   def send_push_notifications
-    cohort.cohort_memberships.where.not(user_id: user_id).includes(:user).find_each do |membership|
-      SendPushNotificationJob.perform_later(
-        membership.user_id,
-        "#{user.name} in #{cohort.name}",
-        body.truncate(100),
-        "/cohorts/#{cohort_id}"
-      )
-    end
+    recipient_ids = cohort.cohort_memberships.where.not(user_id: user_id).pluck(:user_id)
+    push_notify(recipient_ids, title: "#{user.name} in #{cohort.name}", path: "/cohorts/#{cohort_id}")
   end
 
   def broadcast_unread_badges

@@ -1,6 +1,7 @@
 class GroupChatMessage < ApplicationRecord
   include Mentionable
   include UnreadBadgeBroadcaster
+  include PushNotifiable
 
   belongs_to :group
   belongs_to :user
@@ -24,14 +25,8 @@ class GroupChatMessage < ApplicationRecord
   private
 
   def send_push_notifications
-    group.group_memberships.where.not(user_id: user_id).find_each do |membership|
-      SendPushNotificationJob.perform_later(
-        membership.user_id,
-        "#{user.name} in #{group.name}",
-        body.truncate(100),
-        "/groups/#{group_id}"
-      )
-    end
+    recipient_ids = group.group_memberships.where.not(user_id: user_id).pluck(:user_id)
+    push_notify(recipient_ids, title: "#{user.name} in #{group.name}", path: "/groups/#{group_id}")
   end
 
   def broadcast_unread_badges

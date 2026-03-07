@@ -8,7 +8,7 @@ class SendPushNotificationJob < ApplicationJob
     vapid = Rails.application.config.vapid
     return if vapid[:public_key].blank? || vapid[:private_key].blank?
 
-    count = ApplicationController.helpers.total_unread_count(user)
+    count = user.total_unread_count
 
     payload = {
       title: title,

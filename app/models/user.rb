@@ -93,6 +93,24 @@ class User < ApplicationRecord
     devise_mailer.send(notification, self, *args).deliver_later
   end
 
+  def total_unread_count
+    dm_unread = conversations
+                    .includes(:conversation_participants, :direct_messages)
+                    .sum { |c| c.unread_count(self) }
+
+    user_cohorts = cohorts.includes(:cohort_memberships, :posts)
+    post_unread = user_cohorts.sum { |c| c.unread_post_count(self) }
+
+    commented_post_ids = post_comments.select(:post_id).distinct
+    comment_unread = Post.where(id: commented_post_ids)
+                         .includes(:post_comments, :post_reads)
+                         .sum { |p| p.unread_comment_count(self) > 0 ? 1 : 0 }
+
+    mention_unread = Mention.unread.where(user: self).count
+
+    dm_unread + post_unread + comment_unread + mention_unread
+  end
+
   def accepts_mentions_in?(context)
     return false if context.nil?
 

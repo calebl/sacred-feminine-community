@@ -5,7 +5,7 @@ class BroadcastUnreadBadgeJob < ApplicationJob
     user = User.find_by(id: user_id)
     return unless user
 
-    count = ApplicationController.helpers.total_unread_count(user)
+    count = user.total_unread_count
 
     content = ApplicationController.render(
       partial: "shared/unread_badge_stream",

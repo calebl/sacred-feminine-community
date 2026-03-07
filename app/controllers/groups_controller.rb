@@ -26,7 +26,6 @@ class GroupsController < ApplicationController
         updates[:posts_last_read_at] = Time.current if @active_tab == "feed"
         membership.update(updates)
       end
-      broadcast_unread_badge
     end
     @members = @group.members.kept.includes(:group_memberships).load
     @posts = @group.group_posts.pinned_first.includes(:user, group_post_comments: :user)

@@ -13,10 +13,7 @@ class FeedPostsController < ApplicationController
   def show
     authorize @post
     load_sidebar
-    unless request.headers["Purpose"] == "prefetch"
-      @post.mark_as_read_by(current_user)
-      broadcast_unread_badge
-    end
+    @post.mark_as_read_by(current_user) unless request.headers["Purpose"] == "prefetch"
     @comments = @post.feed_post_comments.top_level
                      .includes(:user, :reactions, replies: [ :user, :reactions, { replies: [ :user, :reactions, { replies: [ :user, :reactions ] } ] } ])
                      .order(created_at: :asc)

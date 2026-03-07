@@ -21,7 +21,6 @@ class ConversationsController < ApplicationController
              .where(user: current_user, mentionable_type: "DirectMessage")
              .where(mentionable_id: @conversation.direct_messages.select(:id))
              .update_all(read_at: Time.current)
-      broadcast_unread_badge
     end
 
     @messages = @conversation.direct_messages
