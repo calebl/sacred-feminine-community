@@ -64,7 +64,9 @@
 - **Grouped display** - Reactions shown as aggregated counts by emoji
 
 ## Notifications
-- **Notification center** - Dedicated page showing unread DMs, unread cohort posts, comment activity, and mentions
+- **Notification center** - Dedicated page showing unread DMs, unread cohort posts, comment activity, mentions, and recent persistent notifications
+- **Persistent notifications** - Notification records stored in the database; the 30 most recent are shown even after being read, with unread/read styling
+- **Admin invitation alerts** - Admins receive an in-app notification and push notification when a user accepts an invitation
 - **Unread mention badges** - Mentions tracked with read/unread state across all mentionable content
 - **Comment follow-up** - Users see unread replies on posts they've commented on
 - **Web Push notifications** - Opt-in browser push notifications via VAPID/Web Push for new messages and activity, with service worker handling and subscription management

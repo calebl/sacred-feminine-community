@@ -53,6 +53,7 @@ class User < ApplicationRecord
   has_many :conversations, through: :conversation_participants
   has_many :sent_direct_messages, class_name: "DirectMessage", foreign_key: :sender_id, dependent: :destroy, inverse_of: :sender
 
+  has_many :notifications, dependent: :destroy
   has_many :mentions, dependent: :destroy
   has_many :created_mentions, class_name: "Mention", foreign_key: :mentioner_id, dependent: :destroy, inverse_of: :mentioner
   has_many :reactions, dependent: :destroy
@@ -149,8 +150,16 @@ class User < ApplicationRecord
   end
 
   def notify_admins_of_acceptance
-    admin_ids = User.admin.where.not(id: id).pluck(:id)
-    push_notify(admin_ids, title: "New Member", description: "#{name} has joined the community", path: "/admin/dashboard")
+    admins = User.admin.where.not(id: id)
+    admins.find_each do |admin|
+      admin.notifications.create!(
+        actor: self,
+        title: "New Member",
+        body: "#{name} has joined the community",
+        path: "/admin/dashboard"
+      )
+    end
+    push_notify(admins.pluck(:id), title: "New Member", description: "#{name} has joined the community", path: "/admin/dashboard")
   end
 
   def enqueue_geocode
