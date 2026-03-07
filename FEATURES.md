@@ -90,6 +90,7 @@
 - **Invite links** - Generate shareable invitation links for specific users
 - **Impersonation** - Admins can impersonate users in development environment for debugging
 - **Job dashboard** - Solid Queue job monitoring via Mission Control (admin only)
+- **Changelog** - Automatic release changelog recorded on each Kamal deploy; viewable from admin dashboard
 
 ## Account Settings
 - **Email change** - Users can update their email address
