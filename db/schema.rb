@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_07_015156) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_07_030018) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -49,18 +49,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_015156) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "announcements", force: :cascade do |t|
-    t.boolean "active", default: false, null: false
-    t.text "body", null: false
-    t.datetime "created_at", null: false
-    t.integer "created_by_id", null: false
-    t.datetime "published_at"
-    t.string "title", null: false
-    t.datetime "updated_at", null: false
-    t.index ["active"], name: "index_announcements_on_active"
-    t.index ["created_by_id"], name: "index_announcements_on_created_by_id"
-  end
-
   create_table "audits", force: :cascade do |t|
     t.string "action"
     t.integer "associated_id"
@@ -81,18 +69,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_015156) do
     t.index ["created_at"], name: "index_audits_on_created_at"
     t.index ["request_uuid"], name: "index_audits_on_request_uuid"
     t.index ["user_id", "user_type"], name: "user_index"
-  end
-
-  create_table "chat_messages", force: :cascade do |t|
-    t.text "body", null: false
-    t.integer "cohort_id", null: false
-    t.datetime "created_at", null: false
-    t.boolean "system_message", default: false, null: false
-    t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index ["cohort_id", "created_at"], name: "index_chat_messages_on_cohort_id_and_created_at"
-    t.index ["cohort_id"], name: "index_chat_messages_on_cohort_id"
-    t.index ["user_id"], name: "index_chat_messages_on_user_id"
   end
 
   create_table "cohort_memberships", force: :cascade do |t|
@@ -192,18 +168,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_015156) do
     t.integer "user_id", null: false
     t.index ["pinned", "created_at"], name: "index_feed_posts_on_pinned_created"
     t.index ["user_id"], name: "index_feed_posts_on_user_id"
-  end
-
-  create_table "group_chat_messages", force: :cascade do |t|
-    t.text "body", null: false
-    t.datetime "created_at", null: false
-    t.integer "group_id", null: false
-    t.boolean "system_message", default: false, null: false
-    t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index ["group_id", "created_at"], name: "index_group_chat_messages_on_group_id_and_created_at"
-    t.index ["group_id"], name: "index_group_chat_messages_on_group_id"
-    t.index ["user_id"], name: "index_group_chat_messages_on_user_id"
   end
 
   create_table "group_memberships", force: :cascade do |t|
@@ -380,9 +344,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_015156) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "announcements", "users", column: "created_by_id"
-  add_foreign_key "chat_messages", "cohorts"
-  add_foreign_key "chat_messages", "users"
   add_foreign_key "cohort_memberships", "cohorts"
   add_foreign_key "cohort_memberships", "users"
   add_foreign_key "cohorts", "users", column: "created_by_id"
@@ -397,8 +358,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_015156) do
   add_foreign_key "feed_post_reads", "feed_posts"
   add_foreign_key "feed_post_reads", "users"
   add_foreign_key "feed_posts", "users"
-  add_foreign_key "group_chat_messages", "groups"
-  add_foreign_key "group_chat_messages", "users"
   add_foreign_key "group_memberships", "groups"
   add_foreign_key "group_memberships", "users"
   add_foreign_key "group_post_comments", "group_post_comments", column: "parent_id"

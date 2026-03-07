@@ -30,17 +30,14 @@ class User < ApplicationRecord
 
   has_many :cohort_memberships, dependent: :destroy
   has_many :cohorts, -> { kept }, through: :cohort_memberships
-  has_many :chat_messages, dependent: :destroy
   has_many :posts, dependent: :destroy
   has_many :post_comments, dependent: :destroy
   has_many :post_reads, dependent: :destroy
   has_many :created_cohorts, class_name: "Cohort", foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
-  has_many :announcements, foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
   has_many :faqs, foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
 
   has_many :group_memberships, dependent: :destroy
   has_many :groups, -> { kept }, through: :group_memberships
-  has_many :group_chat_messages, dependent: :destroy
   has_many :group_posts, dependent: :destroy
   has_many :group_post_comments, dependent: :destroy
   has_many :group_post_reads, dependent: :destroy

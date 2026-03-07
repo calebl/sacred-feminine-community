@@ -4,10 +4,8 @@ module Mentionable
   MENTION_PATTERN = /@\[([^\]]+)\]\((\d+)\)/
 
   CONTEXT_MAP = {
-    "ChatMessage" => :cohort,
     "Post" => :cohort,
     "PostComment" => :cohort,
-    "GroupChatMessage" => :group,
     "GroupPost" => :group,
     "GroupPostComment" => :group,
     "FeedPost" => :feed,

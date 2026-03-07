@@ -8,7 +8,7 @@ A Rails 8 community platform with encrypted messaging, cohort-based groups, geog
 - **Database:** SQLite3 (multi-database in production: primary, cache, queue, cable)
 - **Frontend:** Hotwire (Turbo + Stimulus), TailwindCSS, Importmap, Propshaft
 - **Auth:** Devise + devise_invitable, Pundit (policy-based authorization)
-- **Real-time:** ActionCable (Solid Cable) for group chat and direct messaging
+- **Real-time:** ActionCable (Solid Cable) for direct messaging
 - **Encryption:** Rails native encryption on `DirectMessage.body`
 - **Geocoding:** Geocoder gem, async via `GeocodeUserJob`
 - **Deployment:** Kamal (Docker-based), Thruster for HTTP acceleration
@@ -45,7 +45,7 @@ rake users:list
 
 - `app/controllers/admin/` - Admin dashboard, invitation management
 - `app/controllers/api/` - JSON API endpoints (map pins)
-- `app/models/` - User, Cohort, CohortMembership, ChatMessage, Conversation, ConversationParticipant, DirectMessage
+- `app/models/` - User, Cohort, CohortMembership, Conversation, ConversationParticipant, DirectMessage
 - `app/policies/` - Pundit policies for all models
 - `app/jobs/` - GeocodeUserJob (async geocoding)
 
@@ -53,14 +53,13 @@ rake users:list
 
 - **User** - Devise auth, roles (`attendee`/`admin`), geocoded by city/country, avatar (Active Storage)
 - **Cohort** - Groups with memberships, created by an admin user
-- **ChatMessage** - Unencrypted group chat within cohorts
 - **DirectMessage** - Encrypted body, scoped to conversations
 - **Conversation** / **ConversationParticipant** - DM threading between users
 
 ### Routes
 
 - `/` - Redirects to sign-in (unauthenticated) or dashboard (authenticated)
-- `/cohorts` - Cohort CRUD with nested chat messages and memberships
+- `/cohorts` - Cohort CRUD with nested posts and memberships
 - `/conversations` - Direct message conversations with nested messages
 - `/profiles/:id` - User profiles (view/edit own)
 - `/map` - Interactive member map; `/api/map_pins` for pin data

@@ -7,7 +7,6 @@ class Group < ApplicationRecord
   belongs_to :creator, class_name: "User", foreign_key: :created_by_id, inverse_of: :created_groups
   has_many :group_memberships, dependent: :destroy
   has_many :members, through: :group_memberships, source: :user
-  has_many :group_chat_messages, dependent: :destroy
   has_many :group_posts, dependent: :destroy
   has_one_attached :header_image
 
@@ -22,18 +21,6 @@ class Group < ApplicationRecord
 
   def creator?(user)
     created_by_id == user.id
-  end
-
-  def unread_count(user)
-    membership = group_memberships.find_by(user: user)
-    return 0 unless membership
-
-    messages = group_chat_messages.where.not(user: user)
-    if membership.last_read_at
-      messages.where("created_at > ?", membership.last_read_at).count
-    else
-      messages.count
-    end
   end
 
   def unread_post_count(user)

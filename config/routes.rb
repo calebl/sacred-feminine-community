@@ -87,7 +87,6 @@ Rails.application.routes.draw do
   namespace :admin do
     get "dashboard", to: "dashboard#show"
     resource :impersonation, only: [ :create, :destroy ]
-    resources :announcements
     resources :users, only: [ :index, :update, :destroy ] do
       resource :role, only: [ :update ], module: :users
       resource :invite_link, only: [ :create ], module: :users

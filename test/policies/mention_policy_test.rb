@@ -6,28 +6,28 @@ class MentionPolicyTest < ActiveSupport::TestCase
     @attendee = users(:attendee)
     @attendee_two = users(:attendee_two)
     @cohort = cohorts(:kabul_retreat)
-    @message = @cohort.chat_messages.create!(body: "Hello", user: @attendee)
+    @post = @cohort.posts.create!(body: "Hello", user: @attendee)
   end
 
   test "mentioned user can see their mention" do
-    mention = Mention.create!(mentionable: @message, user: @admin, mentioner: @attendee)
+    mention = Mention.create!(mentionable: @post, user: @admin, mentioner: @attendee)
     assert MentionPolicy.new(@admin, mention).show?
   end
 
   test "other users cannot see mention" do
-    mention = Mention.create!(mentionable: @message, user: @admin, mentioner: @attendee)
+    mention = Mention.create!(mentionable: @post, user: @admin, mentioner: @attendee)
     assert_not MentionPolicy.new(@attendee_two, mention).show?
   end
 
   test "admin can see any mention" do
-    mention = Mention.create!(mentionable: @message, user: @attendee, mentioner: @attendee_two)
+    mention = Mention.create!(mentionable: @post, user: @attendee, mentioner: @attendee_two)
     assert MentionPolicy.new(@admin, mention).show?
   end
 
   test "scope returns only user's own mentions" do
-    Mention.create!(mentionable: @message, user: @admin, mentioner: @attendee)
-    msg2 = @cohort.chat_messages.create!(body: "World", user: @admin)
-    Mention.create!(mentionable: msg2, user: @attendee, mentioner: @admin)
+    Mention.create!(mentionable: @post, user: @admin, mentioner: @attendee)
+    post2 = @cohort.posts.create!(body: "World", user: @admin)
+    Mention.create!(mentionable: post2, user: @attendee, mentioner: @admin)
 
     admin_mentions = MentionPolicy::Scope.new(@admin, Mention).resolve
     assert admin_mentions.all? { |m| m.user_id == @admin.id }
