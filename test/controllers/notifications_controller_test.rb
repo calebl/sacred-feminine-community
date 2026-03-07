@@ -33,9 +33,21 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
       PostRead.find_or_create_by(post: post, user: users(:admin)).update(last_read_at: Time.current)
     end
 
+    # Clear persistent notifications
+    Notification.where(user: users(:admin)).delete_all
+
     get notifications_path
     assert_response :success
     assert_match "All caught up", response.body
+  end
+
+  test "show lists recent notifications including read ones" do
+    sign_in users(:admin)
+    get notifications_path
+    assert_response :success
+    assert_match "Recent", response.body
+    assert_match "Jane Attendee has joined the community", response.body
+    assert_match "Sarah Member has joined the community", response.body
   end
 
   test "show lists unread posts" do

@@ -25,5 +25,9 @@ class NotificationsController < ApplicationController
                               .where(user: current_user)
                               .includes(:mentioner, :mentionable)
                               .order(created_at: :desc)
+
+    @recent_notifications = policy_scope(Notification)
+                              .recent
+                              .includes(:actor)
   end
 end
