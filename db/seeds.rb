@@ -599,6 +599,7 @@ if Rails.env.development?
     }
   ]
 
+  groups = {}
   groups_data.each do |data|
     group = Group.find_or_create_by!(name: data[:name]) do |g|
       g.description = data[:description]
@@ -609,6 +610,7 @@ if Rails.env.development?
       GroupMembership.find_or_create_by!(group: group, user: attendees[i])
     end
 
+    groups[group.name] = group
     puts "Seeded group: #{group.name} (#{data[:member_indices].size} members)"
   end
 
@@ -809,6 +811,8 @@ if Rails.env.development?
       ]
     }
   ]
+
+  base_time = 3.days.ago
 
   dm_threads.each do |thread|
     conversation = Conversation.between(thread[:between][0], thread[:between][1])
