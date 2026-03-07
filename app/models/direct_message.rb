@@ -38,7 +38,8 @@ class DirectMessage < ApplicationRecord
   end
 
   def create_notifications
-    conversation.participants.where.not(id: sender_id).pluck(:id).each do |recipient_id|
+    mentioned_user_ids = mentions.pluck(:user_id)
+    (conversation.participants.where.not(id: sender_id).pluck(:id) - mentioned_user_ids).each do |recipient_id|
       CreateNotificationJob.perform_later(
         user_id: recipient_id,
         actor_id: sender_id,

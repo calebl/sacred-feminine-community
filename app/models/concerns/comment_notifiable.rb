@@ -9,7 +9,8 @@ module CommentNotifiable
 
   def notify_commenters
     parent_post = commentable_post
-    recipient_ids = ([ parent_post.user_id ] + commentable_comments.where.not(user_id: user_id).distinct.pluck(:user_id)).uniq - [ user_id ]
+    mentioned_user_ids = mentions.pluck(:user_id)
+    recipient_ids = ([ parent_post.user_id ] + commentable_comments.where.not(user_id: user_id).distinct.pluck(:user_id)).uniq - [ user_id ] - mentioned_user_ids
     recipient_ids.each do |rid|
       CreateNotificationJob.perform_later(
         user_id: rid,
