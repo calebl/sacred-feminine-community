@@ -1,0 +1,12 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white">Platform Features</h1>
+    <%= link_to "Back to Dashboard", admin_dashboard_path, class: "text-sm text-sf-gold hover:text-sf-gold/80 font-medium transition-colors" %>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
+    <div class="features-markdown">
+      <%= @features_html %>
+    </div>
+  </div>
+</div>

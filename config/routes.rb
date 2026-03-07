@@ -86,6 +86,7 @@ Rails.application.routes.draw do
   # Admin
   namespace :admin do
     get "dashboard", to: "dashboard#show"
+    resource :features, only: [ :show ]
     resource :impersonation, only: [ :create, :destroy ]
     resources :releases, only: [ :index ]
     resources :users, only: [ :index, :update, :destroy ] do

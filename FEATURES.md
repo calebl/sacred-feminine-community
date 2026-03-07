@@ -91,6 +91,7 @@
 - **Impersonation** - Admins can impersonate users in development environment for debugging
 - **Job dashboard** - Solid Queue job monitoring via Mission Control (admin only)
 - **Changelog** - Automatic release changelog recorded on each Kamal deploy; viewable from admin dashboard
+- **Features overview** - FEATURES.md rendered as a styled page accessible from admin dashboard, showing the current platform feature set
 
 ## Account Settings
 - **Email change** - Users can update their email address
