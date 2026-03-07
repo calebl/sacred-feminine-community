@@ -1,0 +1,25 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white">Changelog</h1>
+    <%= link_to "Back to Dashboard", admin_dashboard_path, class: "text-sm text-sf-gold hover:text-sf-gold/80 font-medium transition-colors" %>
+  </div>
+
+  <% if @releases.any? %>
+    <div class="space-y-6">
+      <% @releases.each do |release| %>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white"><%= release.version %></h2>
+            <span class="text-sm text-gray-500 dark:text-gray-400"><%= release.deployed_at.strftime("%B %-d, %Y at %-I:%M %p") %></span>
+          </div>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mb-3 font-mono"><%= release.commit_sha[0..7] %></p>
+          <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line"><%= release.changelog %></div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8 text-center">
+      <p class="text-gray-500 dark:text-gray-400">No releases recorded yet. Releases are recorded automatically when you deploy with Kamal.</p>
+    </div>
+  <% end %>
+</div>

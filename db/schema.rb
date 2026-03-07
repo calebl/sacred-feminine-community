@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_07_030018) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_07_174806) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -301,6 +301,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_030018) do
     t.index ["reactable_type", "reactable_id", "user_id"], name: "index_reactions_on_reactable_and_user", unique: true
     t.index ["reactable_type", "reactable_id"], name: "index_reactions_on_reactable"
     t.index ["user_id"], name: "index_reactions_on_user_id"
+  end
+
+  create_table "releases", force: :cascade do |t|
+    t.text "changelog", null: false
+    t.string "commit_sha", null: false
+    t.datetime "created_at", null: false
+    t.datetime "deployed_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "version", null: false
+    t.index ["deployed_at"], name: "index_releases_on_deployed_at"
+    t.index ["version"], name: "index_releases_on_version", unique: true
   end
 
   create_table "users", force: :cascade do |t|

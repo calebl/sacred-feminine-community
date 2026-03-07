@@ -1,0 +1,11 @@
+v1:
+  version: "v2026.03.06.1"
+  commit_sha: "abc1234567890abcdef1234567890abcdef123456"
+  changelog: "- Add user profiles\n- Fix login bug"
+  deployed_at: <%= 2.days.ago.to_fs(:db) %>
+
+v2:
+  version: "v2026.03.07.1"
+  commit_sha: "def4567890abcdef1234567890abcdef12345678"
+  changelog: "- Add cohort posts\n- Update dashboard layout"
+  deployed_at: <%= 1.day.ago.to_fs(:db) %>

@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# Post-deploy hook: tags the release and records changelog in the database.
+#
+# Available environment variables:
+# KAMAL_RECORDED_AT, KAMAL_PERFORMER, KAMAL_VERSION, KAMAL_HOSTS,
+# KAMAL_COMMAND, KAMAL_SUBCOMMAND, KAMAL_ROLES, KAMAL_DESTINATION, KAMAL_RUNTIME
+
+set -e
+
+# Generate a version tag from the current timestamp
+VERSION="v$(date -u +%Y.%m.%d.%H%M%S)"
+COMMIT_SHA=$(git rev-parse HEAD)
+DEPLOYED_AT=$(date -u +"%Y-%m-%d %H:%M:%S")
+
+# Find the previous release tag (most recent tag matching our pattern)
+PREVIOUS_TAG=$(git tag -l "v*" --sort=-version:refname | head -n 1)
+
+# Generate changelog from git log
+if [ -n "$PREVIOUS_TAG" ]; then
+  CHANGELOG=$(git log --pretty=format:"- %s (%an)" "${PREVIOUS_TAG}..HEAD" --)
+else
+  # First release: include last 20 commits
+  CHANGELOG=$(git log --pretty=format:"- %s (%an)" -20 --)
+fi
+
+if [ -z "$CHANGELOG" ]; then
+  CHANGELOG="- No changes since last release"
+fi
+
+# Tag the release locally and push the tag
+git tag -a "$VERSION" -m "Release $VERSION"
+git push origin "$VERSION"
+
+echo "Tagged release: $VERSION"
+
+# Record the release in the database via rake task on the server.
+# Escape single quotes in the changelog for safe shell transport.
+ESCAPED_CHANGELOG=$(printf '%s' "$CHANGELOG" | sed "s/'/'\\\\''/" )
+
+kamal app exec --reuse "bin/rails 'releases:record[$VERSION,$COMMIT_SHA,$ESCAPED_CHANGELOG,$DEPLOYED_AT]'"
+
+echo "Release $VERSION recorded in changelog."
