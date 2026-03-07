@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Sentry.init do |config|
-  config.dsn = Rails.application.credentials.dig(:sentry, :dsn)
+  config.dsn = Rails.application.credentials.dig(:sentry, :dsn) rescue nil
   config.enabled_environments = %w[production]
   config.breadcrumbs_logger = [ :active_support_logger, :http_logger ]
 
