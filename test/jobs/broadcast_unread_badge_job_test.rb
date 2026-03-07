@@ -15,11 +15,11 @@ class BroadcastUnreadBadgeJobTest < ActiveJob::TestCase
     end
   end
 
-  test "direct message enqueues badge broadcast for recipients" do
+  test "direct message enqueues notification job which triggers badge broadcast" do
     conversation = conversations(:admin_attendee_convo)
     admin = users(:admin)
 
-    assert_enqueued_with(job: BroadcastUnreadBadgeJob) do
+    assert_enqueued_with(job: CreateNotificationJob) do
       DirectMessage.create!(
         conversation: conversation,
         sender: admin,

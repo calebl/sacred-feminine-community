@@ -67,7 +67,10 @@ Rails.application.routes.draw do
   resources :reactions, only: [ :create, :update, :destroy ]
 
   # Notifications
-  resource :notifications, only: [ :show ]
+  resource :notifications, only: [ :show ] do
+    resources :reads, only: [ :create ], module: :notifications
+    resource :mark_all_read, only: [ :create ], module: :notifications
+  end
 
   # Direct Messages
   namespace :conversations do

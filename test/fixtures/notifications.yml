@@ -1,0 +1,17 @@
+admin_new_member:
+  user: admin
+  actor: attendee
+  event_type: new_member
+  title: New Member
+  body: Jane Attendee has joined the community
+  path: /admin/dashboard
+  read_at: null
+
+admin_read_notification:
+  user: admin
+  actor: attendee_two
+  event_type: new_member
+  title: New Member
+  body: Sarah Member has joined the community
+  path: /admin/dashboard
+  read_at: <%= Time.current %>

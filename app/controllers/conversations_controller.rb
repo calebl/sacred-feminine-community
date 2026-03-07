@@ -21,6 +21,12 @@ class ConversationsController < ApplicationController
              .where(user: current_user, mentionable_type: "DirectMessage")
              .where(mentionable_id: @conversation.direct_messages.select(:id))
              .update_all(read_at: Time.current)
+      Notification.unread.where(user: current_user, event_type: "mention", notifiable_type: "DirectMessage")
+                  .where(notifiable_id: @conversation.direct_messages.select(:id))
+                  .update_all(read_at: Time.current)
+      Notification.unread.where(user: current_user, event_type: "direct_message",
+                                group_key: "conversation:#{@conversation.id}")
+                  .update_all(read_at: Time.current)
     end
 
     @messages = @conversation.direct_messages

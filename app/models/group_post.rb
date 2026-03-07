@@ -16,6 +16,10 @@ class GroupPost < ApplicationRecord
     Mention.unread.where(user: user, mentionable: self).update_all(read_at: Time.current)
     Mention.unread.where(user: user, mentionable_type: "GroupPostComment", mentionable_id: group_post_comments.select(:id))
            .update_all(read_at: Time.current)
+    Notification.unread.where(user: user, event_type: "mention")
+               .where("(notifiable_type = 'GroupPost' AND notifiable_id = ?) OR (notifiable_type = 'GroupPostComment' AND notifiable_id IN (?))",
+                       id, group_post_comments.select(:id))
+               .update_all(read_at: Time.current)
   end
 
   def unread_comment_count(user)
