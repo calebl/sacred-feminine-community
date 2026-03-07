@@ -58,6 +58,10 @@ gem "audited", "~> 5.7"
 # Soft-delete
 gem "discard", "~> 1.4"
 
+# Error tracking
+gem "sentry-ruby"
+gem "sentry-rails"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
