@@ -27,11 +27,6 @@ class CommentNotifiableTest < ActiveSupport::TestCase
     # admin already has a comment on this post
     commenter = users(:attendee_two)
 
-    jobs = []
-    assert_enqueued_jobs 0, only: CreateNotificationJob do
-      # This will trigger notifications for post author and existing commenters
-    end
-
     perform_enqueued_jobs(only: CreateNotificationJob) do
       FeedPostComment.create!(body: "New comment here", feed_post: post, user: commenter)
     end
