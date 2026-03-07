@@ -96,16 +96,21 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "GroupPost", mention.mentionable_type
   end
 
-  test "viewing post marks post-level mentions as read" do
+  test "viewing post marks mention notifications as read" do
     sign_in users(:admin)
     mentioned_post = group_posts(:book_club_post)
-    mention = Mention.create!(
-      mentionable: mentioned_post,
+    notification = Notification.create!(
       user: users(:admin),
-      mentioner: users(:attendee)
+      actor: users(:attendee),
+      event_type: "mention",
+      title: "#{users(:attendee).name} mentioned you",
+      body: "In a post",
+      path: group_group_post_path(groups(:book_club), mentioned_post),
+      notifiable_type: "GroupPost",
+      notifiable_id: mentioned_post.id
     )
     get group_group_post_path(groups(:book_club), mentioned_post)
-    assert mention.reload.read_at.present?
+    assert notification.reload.read_at.present?
   end
 
   test "author can edit own post" do

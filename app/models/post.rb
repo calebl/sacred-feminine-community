@@ -12,13 +12,13 @@ class Post < ApplicationRecord
 
   validates :body, presence: true
 
-  def mark_mentions_read(user)
-    Mention.unread.where(user: user, mentionable: self).update_all(read_at: Time.current)
-    Mention.unread.where(user: user, mentionable_type: "PostComment", mentionable_id: post_comments.select(:id))
-           .update_all(read_at: Time.current)
+  def mark_as_read_by(user)
     Notification.unread.where(user: user, event_type: "mention")
                .where("(notifiable_type = 'Post' AND notifiable_id = ?) OR (notifiable_type = 'PostComment' AND notifiable_id IN (?))",
                        id, post_comments.select(:id))
+               .update_all(read_at: Time.current)
+    Notification.unread.where(user: user, event_type: "new_comment",
+                              notifiable_type: "Post", notifiable_id: id)
                .update_all(read_at: Time.current)
   end
 

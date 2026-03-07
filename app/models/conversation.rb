@@ -53,6 +53,16 @@ class Conversation < ApplicationRecord
     }.sort.join(", ")
   end
 
+  def mark_as_read_by(user)
+    conversation_participants.find_by(user: user)&.update(last_read_at: Time.current)
+    Notification.unread.where(user: user, event_type: "mention", notifiable_type: "DirectMessage")
+               .where(notifiable_id: direct_messages.select(:id))
+               .update_all(read_at: Time.current)
+    Notification.unread.where(user: user, event_type: "direct_message",
+                              group_key: "conversation:#{id}")
+               .update_all(read_at: Time.current)
+  end
+
   def last_message
     direct_messages.order(created_at: :desc).first
   end

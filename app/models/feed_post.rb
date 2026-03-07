@@ -16,13 +16,6 @@ class FeedPost < ApplicationRecord
       .find_or_initialize_by(user: user)
       .update(last_read_at: Time.current)
 
-    Mention.unread
-           .where(user: user)
-           .where(
-             "(mentionable_type = 'FeedPost' AND mentionable_id = ?) OR (mentionable_type = 'FeedPostComment' AND mentionable_id IN (?))",
-             id, feed_post_comments.select(:id)
-           )
-           .update_all(read_at: Time.current)
     Notification.unread.where(user: user, event_type: "mention")
                .where("(notifiable_type = 'FeedPost' AND notifiable_id = ?) OR (notifiable_type = 'FeedPostComment' AND notifiable_id IN (?))",
                        id, feed_post_comments.select(:id))

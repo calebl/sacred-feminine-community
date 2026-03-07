@@ -53,7 +53,7 @@
 ## @Mentions
 - **Inline mentions** - @mention users in posts, comments, and DMs using `@[Name](id)` syntax
 - **Autocomplete popup** - Mention search with popup positioned above the cursor in contenteditable fields
-- **Notification tracking** - Mentions are stored as records with read/unread state
+- **Notification tracking** - Mentions generate notifications; read/unread state is tracked via the unified Notification model
 - **Cross-context support** - Works in posts, comments, and direct messages
 - **Mention privacy settings** - Users control where they can be @mentioned: everywhere, groups and cohorts only, or nowhere
 
