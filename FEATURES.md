@@ -16,7 +16,7 @@
 - **Avatar upload** - Profile photos stored via Active Storage with cropping support (image_cropper Stimulus controller)
 - **Bio and location fields** - Name, bio, city, state, country
 - **Map visibility toggle** - Users opt in/out of appearing on the member map (`show_on_map`)
-- **DM privacy settings** - Users control who can message them: nobody, cohort members only, or everyone
+- **DM privacy settings** - All users (including admins) control who can message them: nobody, cohort members only, or everyone
 
 ## Cohorts
 - **CRUD management** - Admins create cohorts with name, description, header image, and retreat date range
@@ -47,7 +47,7 @@
 - **Member search** - Search for members when starting a new conversation
 - **Real-time delivery** - Messages broadcast via Turbo Streams to conversation participants
 - **DM notifications** - Real-time notification popover for incoming DMs (configurable per user)
-- **DM privacy controls** - Recipients can restrict who can initiate DMs (nobody, cohort members, everyone)
+- **DM privacy controls** - All users (including admins) can restrict who can initiate DMs (nobody, cohort members, everyone); admins can always send DMs regardless of recipient settings
 - **Unread counts** - Per-conversation unread message tracking
 
 ## @Mentions

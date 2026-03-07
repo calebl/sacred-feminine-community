@@ -241,12 +241,21 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /admins can still send you messages/, count: 0
   end
 
-  test "edit profile hides dm_privacy radios for admin and shows explanation" do
+  test "edit profile shows dm_privacy radios for admin" do
     sign_in users(:admin)
     get edit_profile_path(users(:admin))
     assert_response :success
-    assert_select "input[type=radio][name='user[dm_privacy]']", count: 0
-    assert_select "p", text: /As an admin, all community members can message you/
+    assert_select "input[type=radio][name='user[dm_privacy]']", count: 3
+  end
+
+  test "admin can update dm_privacy setting" do
+    admin = users(:admin)
+    sign_in admin
+    patch profile_path(admin), params: {
+      user: { name: admin.name, dm_privacy: "nobody" }
+    }
+    assert_redirected_to profile_path(admin)
+    assert_equal "nobody", admin.reload.dm_privacy
   end
 
   test "user can update mention_privacy setting" do

@@ -106,7 +106,7 @@ class User < ApplicationRecord
   end
 
   def accepts_direct_messages_from?(sender)
-    return true if admin? || sender.admin?
+    return true if sender.admin?
 
     case dm_privacy
     when "everyone"
