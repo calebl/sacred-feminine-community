@@ -154,4 +154,46 @@ class ConversationTest < ActiveSupport::TestCase
     convo = conversations(:admin_attendee_convo)
     assert_nil convo.last_message
   end
+
+  test "mark_as_read_by updates conversation_participant last_read_at" do
+    convo = conversations(:admin_attendee_convo)
+    participant = convo.conversation_participants.find_by(user: users(:admin))
+    assert_nil participant.last_read_at
+
+    convo.mark_as_read_by(users(:admin))
+    assert participant.reload.last_read_at.present?
+  end
+
+  test "mark_as_read_by clears unread direct_message notifications" do
+    convo = conversations(:admin_attendee_convo)
+    Notification.create!(
+      user: users(:admin), actor: users(:attendee),
+      event_type: "direct_message", title: "Message", body: "test",
+      path: "/conversations/#{convo.id}",
+      group_key: "conversation:#{convo.id}"
+    )
+
+    convo.mark_as_read_by(users(:admin))
+    assert_equal 0, Notification.unread.where(user: users(:admin), event_type: "direct_message", group_key: "conversation:#{convo.id}").count
+  end
+
+  test "mark_as_read_by clears unread mention notifications on messages" do
+    convo = conversations(:admin_attendee_convo)
+    msg = convo.direct_messages.create!(sender: users(:attendee), body: "test")
+
+    Notification.create!(
+      user: users(:admin), actor: users(:attendee),
+      event_type: "mention", title: "Mention", body: "test",
+      path: "/conversations/#{convo.id}",
+      notifiable_type: "DirectMessage", notifiable_id: msg.id
+    )
+
+    convo.mark_as_read_by(users(:admin))
+    assert_equal 0, Notification.unread.where(user: users(:admin), event_type: "mention", notifiable_type: "DirectMessage", notifiable_id: msg.id).count
+  end
+
+  test "unread_count returns 0 for non-participant" do
+    convo = conversations(:admin_attendee_convo)
+    assert_equal 0, convo.unread_count(users(:attendee_two))
+  end
 end

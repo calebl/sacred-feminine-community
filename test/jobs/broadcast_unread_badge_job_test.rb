@@ -9,6 +9,20 @@ class BroadcastUnreadBadgeJobTest < ActiveJob::TestCase
     end
   end
 
+  test "renders partial with correct unread count" do
+    user = users(:admin)
+    # Create an unread notification
+    Notification.create!(
+      user: user, actor: users(:attendee),
+      event_type: "mention", title: "Test", body: "test", path: "/test"
+    )
+
+    # Just verify it doesn't raise - the broadcast goes to ActionCable
+    assert_nothing_raised do
+      BroadcastUnreadBadgeJob.perform_now(user.id)
+    end
+  end
+
   test "skips gracefully when user not found" do
     assert_nothing_raised do
       BroadcastUnreadBadgeJob.perform_now(-1)

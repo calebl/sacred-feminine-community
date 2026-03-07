@@ -99,6 +99,53 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     assert_equal "2 new messages", notification.body
   end
 
+  test "upsert_grouped updates title and actor on existing unread" do
+    CreateNotificationJob.perform_now(
+      user_id: @admin.id,
+      actor_id: @attendee.id,
+      event_type: "new_comment",
+      title: "First commenter",
+      body: "Commented on your post",
+      path: "/feed/1",
+      notifiable_type: "FeedPost",
+      notifiable_id: 1,
+      group_key: "feed_post_comments:1"
+    )
+
+    second_commenter = users(:attendee_two)
+    CreateNotificationJob.perform_now(
+      user_id: @admin.id,
+      actor_id: second_commenter.id,
+      event_type: "new_comment",
+      title: "Second commenter",
+      body: "2 people commented",
+      path: "/feed/1",
+      notifiable_type: "FeedPost",
+      notifiable_id: 1,
+      group_key: "feed_post_comments:1"
+    )
+
+    notification = Notification.where(user: @admin, group_key: "feed_post_comments:1").last
+    assert_equal "Second commenter", notification.title
+    assert_equal second_commenter.id, notification.actor_id
+    assert_equal "2 people commented", notification.body
+  end
+
+  test "creates notification without group_key" do
+    assert_difference "Notification.count", 1 do
+      CreateNotificationJob.perform_now(
+        user_id: @admin.id,
+        actor_id: @attendee.id,
+        event_type: "mention",
+        title: "Mention",
+        body: "You were mentioned",
+        path: "/test",
+        notifiable_type: "Post",
+        notifiable_id: posts(:attendee_post).id
+      )
+    end
+  end
+
   test "creates new notification for group_key when previous is read" do
     CreateNotificationJob.perform_now(
       user_id: @admin.id,

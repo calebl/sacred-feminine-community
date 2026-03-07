@@ -64,6 +64,48 @@ class SendPushNotificationJobTest < ActiveJob::TestCase
     end
   end
 
+  test "payload includes correct structure" do
+    calls = []
+    WebPush.define_singleton_method(:payload_send) { |**kwargs| calls << kwargs }
+
+    SendPushNotificationJob.perform_now(@admin.id, "Title", "Body text", "/path")
+
+    assert calls.any?
+    payload = JSON.parse(calls.first[:message])
+    assert_equal "Title", payload["title"]
+    assert_equal "Body text", payload["options"]["body"]
+    assert_equal "/path", payload["options"]["data"]["path"]
+    assert_equal "/icon-192.png", payload["options"]["icon"]
+  end
+
+  test "payload includes unread count" do
+    Notification.create!(
+      user: @admin, actor: users(:attendee),
+      event_type: "mention", title: "Test", body: "test", path: "/test"
+    )
+
+    calls = []
+    WebPush.define_singleton_method(:payload_send) { |**kwargs| calls << kwargs }
+
+    SendPushNotificationJob.perform_now(@admin.id, "Test", "Hello", "/test")
+
+    payload = JSON.parse(calls.first[:message])
+    assert payload["options"]["data"]["unread_count"] >= 1
+  end
+
+  test "gracefully handles ResponseError without destroying subscription" do
+    WebPush.define_singleton_method(:payload_send) { |**_|
+      response = Struct.new(:body, :code).new("error", "500")
+      raise WebPush::ResponseError.new(response, "host")
+    }
+
+    assert_nothing_raised do
+      SendPushNotificationJob.perform_now(@admin.id, "Test", "Hello", "/test")
+    end
+
+    assert PushSubscription.find_by(id: push_subscriptions(:admin_sub).id).present?
+  end
+
   test "direct message enqueues notification job which triggers push" do
     conversation = conversations(:admin_attendee_convo)
 
