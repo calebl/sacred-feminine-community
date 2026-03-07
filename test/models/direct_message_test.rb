@@ -2,7 +2,9 @@ require "test_helper"
 require "turbo/broadcastable/test_helper"
 
 class DirectMessageTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
   include Turbo::Broadcastable::TestHelper
+
   test "requires body" do
     msg = DirectMessage.new(conversation: conversations(:admin_attendee_convo), sender: users(:admin))
     assert_not msg.valid?
@@ -70,6 +72,42 @@ class DirectMessageTest < ActiveSupport::TestCase
 
     assert_no_turbo_stream_broadcasts [ recipient, :dm_notifications ] do
       DirectMessage.create!(body: "Hello!", conversation: conversation, sender: sender)
+    end
+  end
+
+  test "create_notifications enqueues notification jobs for recipients" do
+    conversation = conversations(:admin_attendee_convo)
+
+    assert_enqueued_with(job: CreateNotificationJob) do
+      DirectMessage.create!(body: "Hello!", conversation: conversation, sender: users(:admin))
+    end
+  end
+
+  test "create_notifications excludes mentioned users from DM notifications" do
+    conversation = conversations(:admin_attendee_convo)
+    attendee = users(:attendee)
+
+    DirectMessage.create!(
+      body: "Hey @[#{attendee.name}](#{attendee.id})",
+      conversation: conversation,
+      sender: users(:admin)
+    )
+
+    # The attendee was mentioned, so they should NOT get a direct_message notification
+    # (only the mention notification from the Mentionable concern)
+    dm_notification_jobs = enqueued_jobs.select { |j|
+      j["job_class"] == "CreateNotificationJob" &&
+        j["arguments"].first&.dig("event_type") == "direct_message" &&
+        j["arguments"].first&.dig("user_id") == attendee.id
+    }
+    assert_equal 0, dm_notification_jobs.size
+  end
+
+  test "broadcasts to conversation stream" do
+    conversation = conversations(:admin_attendee_convo)
+
+    assert_turbo_stream_broadcasts conversation do
+      DirectMessage.create!(body: "Stream test", conversation: conversation, sender: users(:admin))
     end
   end
 

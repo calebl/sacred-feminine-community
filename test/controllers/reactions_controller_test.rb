@@ -122,4 +122,39 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :not_found
   end
+
+  test "group member can react to group post" do
+    sign_in users(:attendee)
+    assert_difference "Reaction.count" do
+      post reactions_path, params: {
+        reactable_type: "GroupPost", reactable_id: group_posts(:book_club_post).id, emoji: "🙏"
+      }
+    end
+  end
+
+  test "non-member cannot react to group post" do
+    sign_in users(:attendee_two)
+    assert_no_difference "Reaction.count" do
+      post reactions_path, params: {
+        reactable_type: "GroupPost", reactable_id: group_posts(:book_club_post).id, emoji: "👍"
+      }
+    end
+    assert_equal "You are not authorized to perform this action.", flash[:alert]
+  end
+
+  test "destroy via turbo_stream returns stream response" do
+    reaction = reactions(:admin_thumbs_up_post)
+    sign_in users(:admin)
+    delete reaction_path(reaction), as: :turbo_stream
+    assert_response :success
+    assert_includes response.body, "reactions_for_post_#{posts(:attendee_post).id}"
+  end
+
+  test "update via turbo_stream returns stream response" do
+    reaction = reactions(:admin_thumbs_up_post)
+    sign_in users(:admin)
+    patch reaction_path(reaction), params: { emoji: "🔥" }, as: :turbo_stream
+    assert_response :success
+    assert_includes response.body, "reactions_for_post_#{posts(:attendee_post).id}"
+  end
 end
