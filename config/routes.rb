@@ -27,7 +27,11 @@ Rails.application.routes.draw do
 
   namespace :api do
     resources :map_pins, only: [ :index ]
+    resource :vapid_key, only: [ :show ]
   end
+
+  # Push notification subscriptions
+  resources :push_subscriptions, only: [ :create, :destroy ]
 
   # Cohorts
   resources :cohorts do

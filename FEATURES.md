@@ -67,6 +67,9 @@
 - **Notification center** - Dedicated page showing unread DMs, unread cohort posts, comment activity, and mentions
 - **Unread mention badges** - Mentions tracked with read/unread state across all mentionable content
 - **Comment follow-up** - Users see unread replies on posts they've commented on
+- **Web Push notifications** - Opt-in browser push notifications via VAPID/Web Push for new messages and activity, with service worker handling and subscription management
+- **Real-time unread badges** - Navbar badge counts update in real-time via Turbo Streams when new messages arrive or content is read
+- **PWA app icon badge** - Accurate server-side unread count displayed on the PWA app icon via the Badge API
 
 ## Interactive Map
 - **Member map** - Leaflet-based interactive map showing opted-in members' locations

@@ -50,6 +50,7 @@ class User < ApplicationRecord
   has_many :feed_post_comments, dependent: :destroy
   has_many :feed_post_reads, dependent: :destroy
 
+  has_many :push_subscriptions, dependent: :destroy
   has_many :conversation_participants, dependent: :destroy
   has_many :conversations, through: :conversation_participants
   has_many :sent_direct_messages, class_name: "DirectMessage", foreign_key: :sender_id, dependent: :destroy, inverse_of: :sender
@@ -90,6 +91,24 @@ class User < ApplicationRecord
   # so SMTP timeouts don't cause 500 errors during requests.
   def send_devise_notification(notification, *args)
     devise_mailer.send(notification, self, *args).deliver_later
+  end
+
+  def total_unread_count
+    dm_unread = conversations
+                    .includes(:conversation_participants, :direct_messages)
+                    .sum { |c| c.unread_count(self) }
+
+    user_cohorts = cohorts.includes(:cohort_memberships, :posts)
+    post_unread = user_cohorts.sum { |c| c.unread_post_count(self) }
+
+    commented_post_ids = post_comments.select(:post_id).distinct
+    comment_unread = Post.where(id: commented_post_ids)
+                         .includes(:post_comments, :post_reads)
+                         .sum { |p| p.unread_comment_count(self) > 0 ? 1 : 0 }
+
+    mention_unread = Mention.unread.where(user: self).count
+
+    dm_unread + post_unread + comment_unread + mention_unread
   end
 
   def accepts_mentions_in?(context)

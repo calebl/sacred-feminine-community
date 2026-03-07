@@ -67,25 +67,61 @@ self.addEventListener("fetch", (event) => {
   }
 })
 
-// Handle push notifications
-self.addEventListener("push", async (event) => {
-  const { title, options } = await event.data.json()
-  event.waitUntil(self.registration.showNotification(title, options))
+// Handle push notifications with app badge
+self.addEventListener("push", (event) => {
+  const { title, options } = event.data.json()
+  const unreadCount = options.data?.unread_count
+
+  event.waitUntil(
+    Promise.all([
+      self.registration.showNotification(title, options),
+      updateBadge(unreadCount)
+    ])
+  )
 })
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close()
   event.waitUntil(
-    clients.matchAll({ type: "window" }).then((clientList) => {
-      for (const client of clientList) {
-        const clientPath = new URL(client.url).pathname
-        if (clientPath === event.notification.data.path && "focus" in client) {
-          return client.focus()
+    Promise.all([
+      updateBadgeAfterClick(),
+      clients.matchAll({ type: "window" }).then((clientList) => {
+        const targetPath = event.notification.data?.path || "/"
+        for (const client of clientList) {
+          const clientPath = new URL(client.url).pathname
+          if (clientPath === targetPath && "focus" in client) {
+            return client.focus()
+          }
         }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow(event.notification.data.path)
-      }
-    })
+        if (clients.openWindow) {
+          return clients.openWindow(targetPath)
+        }
+      })
+    ])
   )
 })
+
+// Badge API helpers — set/clear the PWA app icon badge
+async function updateBadge(count) {
+  if (!("setAppBadge" in navigator)) return
+  try {
+    if (typeof count === "number" && count > 0) {
+      await navigator.setAppBadge(count)
+    } else {
+      const notifications = await self.registration.getNotifications()
+      await navigator.setAppBadge(notifications.length + 1)
+    }
+  } catch (_) { /* Badge API not supported in this context */ }
+}
+
+async function updateBadgeAfterClick() {
+  if (!("setAppBadge" in navigator)) return
+  try {
+    const remaining = await self.registration.getNotifications()
+    if (remaining.length > 0) {
+      await navigator.setAppBadge(remaining.length)
+    } else {
+      await navigator.clearAppBadge()
+    }
+  } catch (_) { /* Badge API not supported in this context */ }
+}

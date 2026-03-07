@@ -1,5 +1,7 @@
 class DirectMessage < ApplicationRecord
   include Mentionable
+  include UnreadBadgeBroadcaster
+  include PushNotifiable
 
   belongs_to :conversation
   belongs_to :sender, class_name: "User", inverse_of: :sent_direct_messages
@@ -9,6 +11,8 @@ class DirectMessage < ApplicationRecord
   validates :body, presence: true, length: { maximum: 5000 }
 
   after_create_commit :broadcast_all
+  after_create_commit :send_push_notifications
+  after_create_commit :broadcast_unread_badges
 
   private
 
@@ -33,5 +37,15 @@ class DirectMessage < ApplicationRecord
         locals: { direct_message: message }
       )
     end
+  end
+
+  def send_push_notifications
+    recipient_ids = conversation.participants.where.not(id: sender_id).pluck(:id)
+    push_notify(recipient_ids, title: sender.name, description: "Sent you a private message", path: "/conversations/#{conversation_id}")
+  end
+
+  def broadcast_unread_badges
+    recipient_ids = conversation.participants.where.not(id: sender_id).pluck(:id)
+    broadcast_unread_badge_to(recipient_ids)
   end
 end
