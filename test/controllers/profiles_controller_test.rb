@@ -248,4 +248,21 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type=radio][name='user[dm_privacy]']", count: 0
     assert_select "p", text: /As an admin, all community members can message you/
   end
+
+  test "user can update mention_privacy setting" do
+    user = users(:attendee)
+    sign_in user
+    patch profile_path(user), params: {
+      user: { name: user.name, mention_privacy: "nobody" }
+    }
+    assert_redirected_to profile_path(user)
+    assert_equal "nobody", user.reload.mention_privacy
+  end
+
+  test "edit profile displays mention_privacy radio buttons" do
+    sign_in users(:attendee)
+    get edit_profile_path(users(:attendee))
+    assert_response :success
+    assert_select "input[type=radio][name='user[mention_privacy]']", count: 3
+  end
 end

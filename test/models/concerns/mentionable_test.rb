@@ -126,6 +126,78 @@ class MentionableTest < ActiveSupport::TestCase
     assert_equal 0, Mention.where(mentionable: message).count
   end
 
+  test "respects mention_nobody privacy in cohort chat" do
+    @admin.update_column(:mention_privacy, 0)
+    message = @cohort.chat_messages.create!(
+      body: "Hey @[#{@admin.name}](#{@admin.id})",
+      user: @attendee
+    )
+    assert_equal 0, message.mentions.count
+  end
+
+  test "respects mention_groups_and_cohorts privacy in cohort chat" do
+    @admin.update_column(:mention_privacy, 1)
+    message = @cohort.chat_messages.create!(
+      body: "Hey @[#{@admin.name}](#{@admin.id})",
+      user: @attendee
+    )
+    assert_equal 1, message.mentions.count
+  end
+
+  test "respects mention_groups_and_cohorts privacy blocks feed comment mentions" do
+    @admin.update_column(:mention_privacy, 1)
+    feed_post = feed_posts(:public_post)
+    comment = FeedPostComment.create!(
+      body: "@[#{@admin.name}](#{@admin.id}) check this",
+      feed_post: feed_post,
+      user: @attendee
+    )
+    assert_equal 0, comment.mentions.count
+  end
+
+  test "mention_everywhere allows feed comment mentions" do
+    @admin.update_column(:mention_privacy, 2)
+    feed_post = feed_posts(:public_post)
+    comment = FeedPostComment.create!(
+      body: "@[#{@admin.name}](#{@admin.id}) check this",
+      feed_post: feed_post,
+      user: @attendee
+    )
+    assert_equal 1, comment.mentions.count
+  end
+
+  test "respects mention_groups_and_cohorts privacy in group chat" do
+    @admin.update_column(:mention_privacy, 1)
+    group = groups(:book_club)
+    message = group.group_chat_messages.create!(
+      body: "Hey @[#{@admin.name}](#{@admin.id})",
+      user: @attendee
+    )
+    assert_equal 1, message.mentions.count
+  end
+
+  test "mention_nobody blocks group chat mentions" do
+    @admin.update_column(:mention_privacy, 0)
+    group = groups(:book_club)
+    message = group.group_chat_messages.create!(
+      body: "Hey @[#{@admin.name}](#{@admin.id})",
+      user: @attendee
+    )
+    assert_equal 0, message.mentions.count
+  end
+
+  test "mention_context returns correct context for each model" do
+    assert_equal :cohort, @cohort.chat_messages.build.send(:mention_context)
+    assert_equal :cohort, Post.new.send(:mention_context)
+    assert_equal :cohort, PostComment.new.send(:mention_context)
+    assert_equal :group, GroupChatMessage.new.send(:mention_context)
+    assert_equal :group, GroupPost.new.send(:mention_context)
+    assert_equal :group, GroupPostComment.new.send(:mention_context)
+    assert_equal :feed, FeedPost.new.send(:mention_context)
+    assert_equal :feed, FeedPostComment.new.send(:mention_context)
+    assert_equal :dm, DirectMessage.new.send(:mention_context)
+  end
+
   test "ignores discarded users" do
     pending = users(:pending_invite)
 

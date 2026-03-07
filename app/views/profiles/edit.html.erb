@@ -74,6 +74,25 @@
       </div>
 
       <fieldset>
+        <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mentions</legend>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Choose where other members can @mention you.</p>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.radio_button :mention_privacy, "everywhere", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            Everywhere (groups, cohorts, and public feed)
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.radio_button :mention_privacy, "groups_and_cohorts", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            Groups and cohorts only
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.radio_button :mention_privacy, "nobody", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            No one
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
         <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Private Messages</legend>
         <% if @user.admin? %>
           <p class="text-xs text-gray-400 dark:text-gray-500">As an admin, all community members can message you.</p>
