@@ -1,6 +1,5 @@
 class User < ApplicationRecord
   include Discard::Model
-  include PushNotifiable
 
   devise :invitable, :database_authenticatable,
          :recoverable, :rememberable, :validatable
@@ -94,21 +93,7 @@ class User < ApplicationRecord
   end
 
   def total_unread_count
-    dm_unread = conversations
-                    .includes(:conversation_participants, :direct_messages)
-                    .sum { |c| c.unread_count(self) }
-
-    user_cohorts = cohorts.includes(:cohort_memberships, :posts)
-    post_unread = user_cohorts.sum { |c| c.unread_post_count(self) }
-
-    commented_post_ids = post_comments.select(:post_id).distinct
-    comment_unread = Post.where(id: commented_post_ids)
-                         .includes(:post_comments, :post_reads)
-                         .sum { |p| p.unread_comment_count(self) > 0 ? 1 : 0 }
-
-    mention_unread = Mention.unread.where(user: self).count
-
-    dm_unread + post_unread + comment_unread + mention_unread
+    notifications.unread.count
   end
 
   def accepts_mentions_in?(context)
@@ -150,16 +135,16 @@ class User < ApplicationRecord
   end
 
   def notify_admins_of_acceptance
-    admins = User.admin.where.not(id: id)
-    admins.find_each do |admin|
-      admin.notifications.create!(
-        actor: self,
+    User.admin.where.not(id: id).pluck(:id).each do |admin_id|
+      CreateNotificationJob.perform_later(
+        user_id: admin_id,
+        actor_id: id,
+        event_type: "new_member",
         title: "New Member",
         body: "#{name} has joined the community",
         path: "/admin/dashboard"
       )
     end
-    push_notify(admins.pluck(:id), title: "New Member", description: "#{name} has joined the community", path: "/admin/dashboard")
   end
 
   def enqueue_geocode
