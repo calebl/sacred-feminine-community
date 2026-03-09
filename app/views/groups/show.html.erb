@@ -4,7 +4,7 @@
     <div class="absolute inset-0 flex items-center px-5">
       <h1 class="text-3xl font-display font-bold text-sf-gold"><%= @group.name %></h1>
     </div>
-    <% if policy(@group).update? || @is_member || !@is_member %>
+    <% if policy(@group).update? || !@is_member || policy(@group).leave? %>
       <div class="absolute top-3 right-3" data-controller="dropdown" data-action="click@window->dropdown#close">
         <button data-action="click->dropdown#toggle" class="w-8 h-8 flex items-center justify-center rounded-full bg-sf-gold/20 hover:bg-sf-gold/40 transition cursor-pointer">
           <svg class="w-5 h-5 text-sf-gold" fill="currentColor" viewBox="0 0 24 24">
