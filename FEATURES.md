@@ -87,6 +87,13 @@
 - **Ordering** - FAQs are ordered by position and creation date
 - **Active/inactive toggle** - FAQs can be toggled on/off
 
+## Help Desk
+- **Ask for help** - Attendees submit help requests with a subject and detailed description
+- **Shared admin inbox** - All admins see every help request; attendees see only their own
+- **Threaded replies** - Admins and the request author can reply back and forth on each request
+- **Status management** - Admins can close and reopen help requests
+- **Notifications** - Admins are notified of new requests; participants are notified of new replies
+
 ## Admin Panel
 - **Admin dashboard** - Overview panel for admin users
 - **User management** - View all users, remove (soft-delete), restore removed users

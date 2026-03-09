@@ -18,6 +18,10 @@ module ApplicationHelper
     result.html_safe
   end
 
+  def help_requests_need_attention?
+    current_user&.admin? && HelpRequest.needs_admin_attention.exists?
+  end
+
   def total_unread_count(user)
     user.total_unread_count
   end

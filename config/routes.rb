@@ -66,6 +66,12 @@ Rails.application.routes.draw do
   # Reactions (polymorphic - works for all post and comment types)
   resources :reactions, only: [ :create, :update, :destroy ]
 
+  # Help Desk
+  resources :help_requests, only: [ :index, :show, :new, :create ] do
+    resources :help_request_replies, only: [ :create ]
+    resource :status, only: [ :update ], module: :help_requests
+  end
+
   # Notifications
   resource :notifications, only: [ :show ] do
     resources :reads, only: [ :create ], module: :notifications

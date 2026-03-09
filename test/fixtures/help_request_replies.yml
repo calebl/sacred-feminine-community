@@ -1,0 +1,9 @@
+admin_reply:
+  body: I have added you to the cohort. Please try refreshing your dashboard.
+  help_request: open_request
+  user: admin
+
+attendee_followup:
+  body: Thank you, it works now!
+  help_request: open_request
+  user: attendee

@@ -1,0 +1,52 @@
+class HelpRequestsController < ApplicationController
+  before_action :authenticate_user!
+
+  def index
+    @help_requests = policy_scope(HelpRequest).newest_first
+    authorize HelpRequest
+  end
+
+  def show
+    @help_request = HelpRequest.find(params[:id])
+    authorize @help_request
+    @replies = @help_request.help_request_replies.includes(:user).order(:created_at)
+    @reply = HelpRequestReply.new
+  end
+
+  def new
+    @help_request = HelpRequest.new
+    authorize @help_request
+  end
+
+  def create
+    @help_request = current_user.help_requests.build(help_request_params)
+    authorize @help_request
+
+    if @help_request.save
+      notify_admins
+      redirect_to help_request_path(@help_request), notice: "Your help request has been submitted."
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def help_request_params
+    params.require(:help_request).permit(:subject, :body)
+  end
+
+  def notify_admins
+    User.admin.where.not(id: current_user.id).pluck(:id).each do |admin_id|
+      CreateNotificationJob.perform_later(
+        user_id: admin_id,
+        actor_id: current_user.id,
+        event_type: "help_request",
+        title: "New Help Request",
+        body: "#{current_user.name}: #{@help_request.subject}",
+        path: help_request_path(@help_request),
+        notifiable: @help_request
+      )
+    end
+  end
+end
