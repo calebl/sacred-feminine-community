@@ -18,10 +18,10 @@ PREVIOUS_TAG=$(git tag -l "v*" --sort=-version:refname | head -n 1)
 
 # Generate changelog from git log
 if [ -n "$PREVIOUS_TAG" ]; then
-  CHANGELOG=$(git log --pretty=format:"- %s (%an)" "${PREVIOUS_TAG}..HEAD" --)
+  CHANGELOG=$(git log --pretty=format:"- %s" "${PREVIOUS_TAG}..HEAD" -- | sed 's/ (#[0-9]*)//g')
 else
   # First release: include last 20 commits
-  CHANGELOG=$(git log --pretty=format:"- %s (%an)" -20 --)
+  CHANGELOG=$(git log --pretty=format:"- %s" -20 -- | sed 's/ (#[0-9]*)//g')
 fi
 
 if [ -z "$CHANGELOG" ]; then
@@ -35,8 +35,9 @@ git push origin "$VERSION"
 echo "Tagged release: $VERSION"
 
 # Record the release in the database via rake task on the server.
-# Collapse newlines and escape single quotes for safe shell transport.
-ESCAPED_CHANGELOG=$(printf '%s' "$CHANGELOG" | tr '\n' ' ' | sed "s/'/'\\\\'''/g" )
+# Replace newlines with %%NL%% marker for safe transport through rake args, then escape quotes.
+# Changelog is stored as markdown (bullet list).
+ESCAPED_CHANGELOG=$(printf '%s' "$CHANGELOG" | sed ':a;N;$!ba;s/\n/%%NL%%/g' | sed "s/'/'\\\\'''/g" )
 
 if ! kamal app exec --reuse "bin/rails 'releases:record[$VERSION,$COMMIT_SHA,$ESCAPED_CHANGELOG,$DEPLOYED_AT]'"; then
   echo "Release record failed. Cleaning up tag $VERSION..."
