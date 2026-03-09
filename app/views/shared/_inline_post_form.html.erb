@@ -1,4 +1,4 @@
-<div class="mb-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-sf-sand/20 dark:border-gray-700">
+<div class="mb-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-sf-sand/20 dark:border-gray-700" data-controller="photo-upload">
   <%
     mention_data = {
       controller: "mention",
@@ -12,6 +12,7 @@
     <%= form_with(
       model: post,
       url: form_url,
+      html: { multipart: true },
       class: "space-y-4"
     ) do |f| %>
       <% unless local_assigns[:editing] %>
@@ -38,15 +39,29 @@
              role="textbox"></div>
       </div>
 
-      <div class="flex justify-end gap-3">
-        <% if local_assigns[:editing] %>
-          <%= link_to "Cancel", form_url, class: "btn-tertiary py-2.5" %>
-        <% else %>
-          <button type="button"
-                  data-action="click->inline-post-form#hide"
-                  class="btn-tertiary py-2.5">Cancel</button>
-        <% end %>
-        <%= f.submit (local_assigns[:submit_label] || "Publish"), class: "btn-primary py-2.5" %>
+      <%= f.file_field :photos, multiple: true, accept: "image/jpeg,image/png,image/gif,image/webp",
+          class: "hidden", data: { photo_upload_target: "input", action: "photo-upload#preview" } %>
+
+      <div data-photo-upload-target="preview" class="hidden flex flex-wrap gap-2"></div>
+
+      <div class="flex items-center justify-between">
+        <button type="button" data-action="photo-upload#select" class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-sf-gold dark:hover:text-sf-gold transition cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+          </svg>
+          Add photos
+        </button>
+
+        <div class="flex gap-3">
+          <% if local_assigns[:editing] %>
+            <%= link_to "Cancel", form_url, class: "btn-tertiary py-2.5" %>
+          <% else %>
+            <button type="button"
+                    data-action="click->inline-post-form#hide"
+                    class="btn-tertiary py-2.5">Cancel</button>
+          <% end %>
+          <%= f.submit (local_assigns[:submit_label] || "Publish"), class: "btn-primary py-2.5" %>
+        </div>
       </div>
     <% end %>
     <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>

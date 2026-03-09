@@ -50,6 +50,15 @@
     <%= render "shared/inline_post_form", post: @post, form_url: cohort_post_path(@cohort, @post), cohort_id: @cohort.id, submit_label: "Update", editing: true %>
   <% else %>
     <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= render_with_mentions(@post.body) %></div>
+    <% if @post.photos.attached? %>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <% @post.photos.each do |photo| %>
+          <%= link_to rails_blob_path(photo, disposition: "inline"), target: "_blank", class: "block" do %>
+            <%= image_tag photo.variant(resize_to_limit: [400, 400]), class: "rounded-lg max-h-60 object-cover border border-gray-200 dark:border-gray-600" %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
   <% end %>
   <%= render "reactions/reactions", reactable: @post %>
 </div>

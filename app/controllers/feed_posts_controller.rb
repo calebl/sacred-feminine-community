@@ -1,4 +1,6 @@
 class FeedPostsController < ApplicationController
+  include PhotoRemovable
+
   before_action :authenticate_user!
   before_action :set_post, only: [ :show, :edit, :update, :destroy ]
   layout "dashboard"
@@ -33,6 +35,7 @@ class FeedPostsController < ApplicationController
 
   def update
     authorize @post
+    remove_photos(@post)
     if @post.update(post_params)
       if params[:inline_edit]
         @post.reload
@@ -97,7 +100,7 @@ class FeedPostsController < ApplicationController
   end
 
   def post_params
-    params.require(:feed_post).permit(:body)
+    params.require(:feed_post).permit(:body, photos: [])
   end
 
   def post_card_locals(post)

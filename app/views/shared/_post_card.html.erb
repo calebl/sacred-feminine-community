@@ -70,9 +70,19 @@
     <button type="button" data-post-body-target="toggle" data-action="post-body#toggle" class="hidden text-xs text-sf-gold hover:text-sf-gold/80 mt-1 cursor-pointer transition">view more</button>
   </div>
 
+  <% if post.photos.attached? %>
+    <div class="mt-3 flex flex-wrap gap-2">
+      <% post.photos.each do |photo| %>
+        <%= link_to rails_blob_path(photo, disposition: "inline"), target: "_blank", class: "block" do %>
+          <%= image_tag photo.variant(resize_to_limit: [400, 400]), class: "rounded-lg max-h-60 object-cover border border-gray-200 dark:border-gray-600" %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
   <!-- Inline edit form (hidden by default) -->
   <% if policy(post).edit? && local_assigns[:edit_path] %>
-    <div data-post-edit-target="form" class="hidden">
+    <div data-post-edit-target="form" class="hidden" data-controller="photo-upload">
       <%
         edit_mention_data = {
           controller: "mention",
@@ -88,6 +98,7 @@
           model: post,
           url: local_assigns[:post_path],
           method: :patch,
+          html: { multipart: true },
           class: "space-y-3",
           data: { turbo: true, action: "turbo:submit-start->post-edit#saveScroll" }
         ) do |f| %>
@@ -101,9 +112,36 @@
                  class="w-full min-h-[120px] resize-y border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm px-4 py-3 text-sm dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-sf-gold focus:border-sf-gold"
                  role="textbox"></div>
           </div>
-          <div class="flex justify-end gap-3">
-            <button type="button" data-action="post-edit#cancel" class="btn-tertiary py-2.5">Cancel</button>
-            <%= f.submit "Save", class: "btn-primary py-2.5" %>
+
+          <% if post.photos.attached? %>
+            <div class="flex flex-wrap gap-2">
+              <% post.photos.each do |photo| %>
+                <div class="relative group" data-photo-wrapper>
+                  <%= image_tag photo.variant(resize_to_fill: [80, 80]), class: "w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-600" %>
+                  <button type="button"
+                          data-action="photo-upload#removeExisting"
+                          data-photo-upload-id-param="<%= photo.id %>"
+                          class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition cursor-pointer">&times;</button>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%= f.file_field :photos, multiple: true, accept: "image/jpeg,image/png,image/gif,image/webp",
+              class: "hidden", data: { photo_upload_target: "input", action: "photo-upload#preview" } %>
+          <div data-photo-upload-target="preview" class="hidden flex flex-wrap gap-2"></div>
+
+          <div class="flex items-center justify-between">
+            <button type="button" data-action="photo-upload#select" class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-sf-gold dark:hover:text-sf-gold transition cursor-pointer">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+              </svg>
+              Add photos
+            </button>
+            <div class="flex gap-3">
+              <button type="button" data-action="post-edit#cancel" class="btn-tertiary py-2.5">Cancel</button>
+              <%= f.submit "Save", class: "btn-primary py-2.5" %>
+            </div>
           </div>
         <% end %>
         <div data-mention-target="dropdown" class="hidden absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-48 overflow-y-auto"></div>

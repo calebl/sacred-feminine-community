@@ -1,11 +1,13 @@
 class FeedPost < ApplicationRecord
   include Mentionable
   include Reactable
+  include HasPhotos
 
   belongs_to :user
 
   has_many :feed_post_comments, dependent: :destroy
   has_many :feed_post_reads, dependent: :destroy
+  has_many_attached :photos
 
   scope :pinned_first, -> { order(pinned: :desc, created_at: :desc) }
 
