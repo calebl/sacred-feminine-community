@@ -26,7 +26,7 @@ class NotificationTest < ActiveSupport::TestCase
   end
 
   test "accepts valid event_types" do
-    %w[mention direct_message new_comment new_member].each do |type|
+    %w[mention direct_message new_comment new_member help_request help_request_reply].each do |type|
       notification = Notification.new(user: users(:admin), title: "Test", event_type: type)
       assert notification.valid?, "Expected #{type} to be valid"
     end

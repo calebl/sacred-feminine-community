@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_07_182224) do
+ActiveRecord::Schema[8.2].define(version: 2026_03_09_143913) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -229,6 +229,28 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_07_182224) do
     t.index ["discarded_at"], name: "index_groups_on_discarded_at"
   end
 
+  create_table "help_request_replies", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.integer "help_request_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["help_request_id"], name: "index_help_request_replies_on_help_request_id"
+    t.index ["user_id"], name: "index_help_request_replies_on_user_id"
+  end
+
+  create_table "help_requests", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.integer "help_request_replies_count", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.string "subject", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["status", "created_at"], name: "index_help_requests_on_status_and_created_at"
+    t.index ["user_id"], name: "index_help_requests_on_user_id"
+  end
+
   create_table "mentions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "mentionable_id", null: false
@@ -400,6 +422,9 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_07_182224) do
   add_foreign_key "group_posts", "groups"
   add_foreign_key "group_posts", "users"
   add_foreign_key "groups", "users", column: "created_by_id"
+  add_foreign_key "help_request_replies", "help_requests"
+  add_foreign_key "help_request_replies", "users"
+  add_foreign_key "help_requests", "users"
   add_foreign_key "mentions", "users"
   add_foreign_key "mentions", "users", column: "mentioner_id"
   add_foreign_key "notifications", "users"
