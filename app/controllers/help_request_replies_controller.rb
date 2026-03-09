@@ -39,7 +39,8 @@ class HelpRequestRepliesController < ApplicationController
         title: "Help Request Reply",
         body: "#{current_user.name} replied to: #{@help_request.subject}",
         path: help_request_path(@help_request),
-        notifiable: @help_request
+        notifiable_type: "HelpRequest",
+        notifiable_id: @help_request.id
       )
     end
   end

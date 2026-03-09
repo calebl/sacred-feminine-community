@@ -8,7 +8,7 @@ class Notification < ApplicationRecord
 
   validates :title, presence: true
   validates :event_type, presence: true,
-    inclusion: { in: %w[mention direct_message new_comment new_member] }
+    inclusion: { in: %w[mention direct_message new_comment new_member help_request help_request_reply] }
 
   def read?
     read_at.present?

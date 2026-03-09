@@ -36,6 +36,8 @@ module ApplicationHelper
       "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400"
     when "new_member"
       "bg-sf-gold/20 dark:bg-sf-gold/10 text-sf-gold"
+    when "help_request", "help_request_reply"
+      "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
     else
       "bg-gray-100 dark:bg-gray-700 text-gray-500"
     end

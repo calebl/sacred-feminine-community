@@ -47,6 +47,17 @@ class HelpRequestRepliesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "admin reply notification includes correct notifiable" do
+    sign_in @admin
+    post help_request_help_request_replies_path(@help_request), params: { help_request_reply: { body: "Here to help" } }
+
+    job = enqueued_jobs.find { |j| j["job_class"] == "CreateNotificationJob" }
+    args = job["arguments"].first
+    assert_equal "HelpRequest", args["notifiable_type"]
+    assert_equal @help_request.id, args["notifiable_id"]
+    assert_equal @help_request.user_id, args["user_id"]
+  end
+
   test "attendee reply notifies admins who have replied" do
     sign_in @attendee
     # open_request has one admin reply (from :admin), so only that admin is notified

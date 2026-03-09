@@ -1,72 +1,70 @@
-<div class="max-w-3xl mx-auto px-4 py-8">
-  <div class="mb-4">
-    <%= link_to "&larr; Back to Help Desk".html_safe, help_requests_path, class: "text-sm text-sf-gold hover:text-sf-gold/80 font-medium transition-colors" %>
-  </div>
+<div class="mb-4">
+  <%= link_to "&larr; Back to Help Desk".html_safe, help_requests_path, class: "text-sm text-sf-gold hover:text-sf-gold/80 font-medium transition-colors" %>
+</div>
 
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6 mb-6">
-    <div class="flex items-start justify-between gap-4 mb-4">
-      <div>
-        <h1 class="text-2xl font-display font-bold text-sf-black dark:text-white"><%= @help_request.subject %></h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Asked by <span class="font-medium"><%= @help_request.user.name %></span>
-          &middot; <%= time_ago_in_words(@help_request.created_at) %> ago
-        </p>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
-          <%= @help_request.open? ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400' %>">
-          <%= @help_request.status.capitalize %>
-        </span>
-        <% if current_user.admin? %>
-          <% if @help_request.open? %>
-            <%= button_to "Close", help_request_status_path(@help_request), params: { status: :closed }, method: :patch, class: "text-xs text-gray-500 hover:text-sf-red font-medium transition-colors cursor-pointer" %>
-          <% else %>
-            <%= button_to "Reopen", help_request_status_path(@help_request), params: { status: :open }, method: :patch, class: "text-xs text-gray-500 hover:text-green-600 font-medium transition-colors cursor-pointer" %>
-          <% end %>
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6 mb-6">
+  <div class="flex items-start justify-between gap-4 mb-4">
+    <div>
+      <h1 class="text-2xl font-display font-bold text-sf-black dark:text-white"><%= @help_request.subject %></h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        Asked by <span class="font-medium"><%= @help_request.user.name %></span>
+        &middot; <%= time_ago_in_words(@help_request.created_at) %> ago
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+        <%= @help_request.open? ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400' %>">
+        <%= @help_request.status.capitalize %>
+      </span>
+      <% if current_user.admin? %>
+        <% if @help_request.open? %>
+          <%= button_to "Close", help_request_status_path(@help_request), params: { status: :closed }, method: :patch, class: "text-xs text-gray-500 hover:text-sf-red font-medium transition-colors cursor-pointer" %>
+        <% else %>
+          <%= button_to "Reopen", help_request_status_path(@help_request), params: { status: :open }, method: :patch, class: "text-xs text-gray-500 hover:text-green-600 font-medium transition-colors cursor-pointer" %>
         <% end %>
-      </div>
-    </div>
-
-    <div class="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
-      <%= simple_format(@help_request.body) %>
+      <% end %>
     </div>
   </div>
 
-  <% if @replies.any? %>
-    <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white mb-4">Replies</h2>
-    <div class="space-y-4 mb-6">
-      <% @replies.each do |reply| %>
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-4 <%= reply.user.admin? ? 'border-l-4 border-l-sf-gold' : '' %>">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-sm font-semibold text-sf-black dark:text-white"><%= reply.user.name %></span>
-            <% if reply.user.admin? %>
-              <span class="text-xs bg-sf-gold/10 text-sf-gold px-2 py-0.5 rounded-full font-medium">Admin</span>
-            <% end %>
-            <span class="text-xs text-gray-400 dark:text-gray-500"><%= time_ago_in_words(reply.created_at) %> ago</span>
-          </div>
-          <div class="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
-            <%= simple_format(reply.body) %>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
+  <div class="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+    <%= simple_format(@help_request.body) %>
+  </div>
+</div>
 
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
-    <h3 class="text-sm font-semibold text-sf-black dark:text-white mb-3">Add a Reply</h3>
-    <%= form_with(model: [@help_request, @reply], class: "space-y-4") do |form| %>
-      <% if @reply.errors.any? %>
-        <div class="bg-sf-red/10 border border-sf-red/20 rounded-xl p-4">
-          <ul class="list-disc list-inside text-sm text-sf-red">
-            <% @reply.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
+<% if @replies.any? %>
+  <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white mb-4">Replies</h2>
+  <div class="space-y-4 mb-6">
+    <% @replies.each do |reply| %>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-4 <%= reply.user.admin? ? 'border-l-4 border-l-sf-gold' : '' %>">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-sm font-semibold text-sf-black dark:text-white"><%= reply.user.name %></span>
+          <% if reply.user.admin? %>
+            <span class="text-xs bg-sf-gold/10 text-sf-gold px-2 py-0.5 rounded-full font-medium">Admin</span>
+          <% end %>
+          <span class="text-xs text-gray-400 dark:text-gray-500"><%= time_ago_in_words(reply.created_at) %> ago</span>
         </div>
-      <% end %>
-
-      <%= form.text_area :body, rows: 3, class: "w-full rounded-xl border border-sf-sand/40 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 text-sm text-sf-black dark:text-white focus:ring-2 focus:ring-sf-gold/50 focus:border-sf-gold transition", placeholder: "Type your reply..." %>
-      <%= form.submit "Send Reply", class: "btn-primary px-5 py-2.5 cursor-pointer" %>
+        <div class="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+          <%= simple_format(reply.body) %>
+        </div>
+      </div>
     <% end %>
   </div>
+<% end %>
+
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
+  <h3 class="text-sm font-semibold text-sf-black dark:text-white mb-3">Add a Reply</h3>
+  <%= form_with(model: [@help_request, @reply], class: "space-y-4") do |form| %>
+    <% if @reply.errors.any? %>
+      <div class="bg-sf-red/10 border border-sf-red/20 rounded-xl p-4">
+        <ul class="list-disc list-inside text-sm text-sf-red">
+          <% @reply.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form.text_area :body, rows: 3, class: "w-full rounded-xl border border-sf-sand/40 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 text-sm text-sf-black dark:text-white focus:ring-2 focus:ring-sf-gold/50 focus:border-sf-gold transition", placeholder: "Type your reply..." %>
+    <%= form.submit "Send Reply", class: "btn-primary px-5 py-2.5 cursor-pointer" %>
+  <% end %>
 </div>

@@ -80,4 +80,15 @@ class HelpRequestsControllerTest < ActionDispatch::IntegrationTest
       post help_requests_path, params: { help_request: { subject: "Help!", body: "Need assistance" } }
     end
   end
+
+  test "creating a request enqueues notifications with correct notifiable" do
+    sign_in @attendee
+    post help_requests_path, params: { help_request: { subject: "Test", body: "Body" } }
+    help_request = HelpRequest.last
+
+    job = enqueued_jobs.find { |j| j["job_class"] == "CreateNotificationJob" }
+    args = job["arguments"].first
+    assert_equal "HelpRequest", args["notifiable_type"]
+    assert_equal help_request.id, args["notifiable_id"]
+  end
 end

@@ -1,5 +1,7 @@
 class HelpRequestsController < ApplicationController
   before_action :authenticate_user!
+  before_action :load_sidebar
+  layout "dashboard"
 
   def index
     @help_requests = policy_scope(HelpRequest).newest_first
@@ -32,6 +34,11 @@ class HelpRequestsController < ApplicationController
 
   private
 
+  def load_sidebar
+    @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
+    @sidebar_groups = current_user.groups.order(:name)
+  end
+
   def help_request_params
     params.require(:help_request).permit(:subject, :body)
   end
@@ -45,7 +52,8 @@ class HelpRequestsController < ApplicationController
         title: "New Help Request",
         body: "#{current_user.name}: #{@help_request.subject}",
         path: help_request_path(@help_request),
-        notifiable: @help_request
+        notifiable_type: "HelpRequest",
+        notifiable_id: @help_request.id
       )
     end
   end
