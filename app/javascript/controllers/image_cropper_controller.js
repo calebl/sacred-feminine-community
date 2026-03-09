@@ -93,7 +93,8 @@ export default class extends Controller {
     if (!canvas) return
 
     const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.92))
-    const file = new File([blob], this.fileNameValue, { type: "image/jpeg" })
+    const baseName = this.fileNameValue.replace(/\.jpg$/, "")
+    const file = new File([blob], `${baseName}_${Date.now()}.jpg`, { type: "image/jpeg" })
     const dt = new DataTransfer()
     dt.items.add(file)
     this.fileInputTarget.files = dt.files
