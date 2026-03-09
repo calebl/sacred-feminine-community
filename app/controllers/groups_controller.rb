@@ -6,7 +6,7 @@ class GroupsController < ApplicationController
   def index
     skip_authorization
     load_sidebar
-    @groups = policy_scope(Group).includes(:members).with_attached_header_image.order(:name)
+    @groups = policy_scope(Group).includes(:members).order(:name)
   end
 
   def show
@@ -59,7 +59,6 @@ class GroupsController < ApplicationController
   def update
     authorize @group
     if @group.update(group_params)
-      @group.header_image.purge if params[:group][:remove_header_image] == "1" && !params[:group][:header_image].present?
       redirect_to @group, notice: "Group updated."
     else
       load_sidebar
@@ -86,7 +85,7 @@ class GroupsController < ApplicationController
   end
 
   def group_params
-    params.require(:group).permit(:name, :description, :header_image)
+    params.require(:group).permit(:name, :description)
   end
 
   def policy_scope_required?

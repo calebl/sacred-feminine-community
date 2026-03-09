@@ -1,56 +1,45 @@
-<!-- Header Image -->
-<div class="mb-6 rounded-2xl overflow-hidden shadow-sm border border-sf-sand/20 dark:border-gray-700">
-  <% if @group.header_image.attached? %>
-    <%= image_tag @group.header_image.variant(resize_to_limit: [2400, 800]), class: "w-full" %>
-  <% else %>
+<div class="mb-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-gold/20 dark:border-gray-700 overflow-hidden">
+  <div class="relative">
     <%= render "shared/header_image_placeholder" %>
+    <div class="absolute inset-0 flex items-center justify-center">
+      <h1 class="text-3xl font-display font-bold text-sf-gold"><%= @group.name %></h1>
+    </div>
+    <% if policy(@group).update? || @is_member || !@is_member %>
+      <div class="absolute top-3 right-3" data-controller="dropdown" data-action="click@window->dropdown#close">
+        <button data-action="click->dropdown#toggle" class="w-8 h-8 flex items-center justify-center rounded-full bg-sf-gold/20 hover:bg-sf-gold/40 transition cursor-pointer">
+          <svg class="w-5 h-5 text-sf-gold" fill="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="5" r="1.5"/>
+            <circle cx="12" cy="12" r="1.5"/>
+            <circle cx="12" cy="19" r="1.5"/>
+          </svg>
+        </button>
+        <div data-dropdown-target="menu" class="hidden absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-sf-gold/20 dark:border-gray-700 overflow-hidden z-10">
+          <% if policy(@group).update? %>
+            <%= link_to "Edit", edit_group_path(@group), class: "block px-4 py-2.5 text-sm text-sf-black dark:text-white hover:bg-sf-gold/10 dark:hover:bg-gray-700 transition" %>
+          <% end %>
+          <% if !@is_member %>
+            <%= button_to "Join Group", group_group_membership_path(@group), method: :post, class: "w-full text-left px-4 py-2.5 text-sm text-sf-black dark:text-white hover:bg-sf-gold/10 dark:hover:bg-gray-700 transition cursor-pointer" %>
+          <% elsif policy(@group).leave? %>
+            <%= button_to "Leave Group", group_group_membership_path(@group), method: :delete,
+                class: "w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-sf-gold/10 dark:hover:bg-gray-700 transition cursor-pointer",
+                data: { turbo_confirm: "Leave this group?" } %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  <% if @group.description.present? %>
+    <div class="p-5">
+      <p class="text-sm text-gray-500 dark:text-gray-400"><%= @group.description %></p>
+    </div>
   <% end %>
 </div>
 
-<div class="mb-6">
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white"><%= @group.name %></h1>
-    </div>
-    <div class="hidden md:flex gap-2">
-      <% if policy(@group).update? %>
-        <%= link_to "Edit", edit_group_path(@group), class: "btn-secondary px-4 py-2" %>
-      <% end %>
-      <% if !@is_member %>
-        <%= button_to "Join Group", group_group_membership_path(@group), method: :post, class: "btn-primary px-4 py-2" %>
-      <% elsif policy(@group).leave? %>
-        <%= button_to "Leave", group_group_membership_path(@group), method: :delete,
-            class: "btn-tertiary px-4 py-2",
-            data: { turbo_confirm: "Leave this group?" } %>
-      <% end %>
-    </div>
-  </div>
-  <div class="flex flex-col gap-2 mt-4 md:hidden">
-    <% if policy(@group).update? %>
-      <%= link_to "Edit", edit_group_path(@group), class: "btn-secondary px-4 py-2 flex-1 text-center" %>
-    <% end %>
-    <% if !@is_member %>
-      <%= button_to "Join Group", group_group_membership_path(@group), method: :post, class: "btn-primary px-4 py-2 w-full", form: { class: "flex-1" } %>
-    <% elsif policy(@group).leave? %>
-      <%= button_to "Leave", group_group_membership_path(@group), method: :delete,
-          class: "btn-tertiary px-4 py-2 w-full",
-          form: { class: "flex-1" },
-          data: { turbo_confirm: "Leave this group?" } %>
-    <% end %>
-  </div>
-</div>
-
-<% if @group.description.present? %>
-  <div class="mb-8 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-6">
-    <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"><%= @group.description %></p>
-  </div>
-<% end %>
-
 <% if @is_member %>
   <div data-controller="tabs" data-tabs-active-tab-value="<%= @active_tab %>">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-gold/20 dark:border-gray-700 overflow-hidden">
       <!-- Tab headers -->
-      <div class="flex border-b border-sf-sand/20 dark:border-gray-700">
+      <div class="flex border-b border-sf-gold/20 dark:border-gray-700">
         <button data-tabs-target="tab" data-action="click->tabs#select"
                 data-tab-name="feed"
                 class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
@@ -102,7 +91,7 @@
             <% @members.each do |member| %>
               <div class="flex items-center justify-between">
                 <%= link_to profile_path(member), class: "flex items-center gap-3 hover:opacity-80 transition" do %>
-                  <div class="w-8 h-8 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
+                  <div class="w-8 h-8 rounded-full bg-sf-gold/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
                     <% if member.avatar.attached? %>
                       <%= image_tag member.avatar.variant(:display), class: "w-8 h-8 rounded-full object-cover" %>
                     <% else %>
@@ -121,7 +110,7 @@
     </div>
   </div>
 <% else %>
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8 text-center">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-gold/20 dark:border-gray-700 p-8 text-center">
     <p class="text-gray-500 dark:text-gray-400 mb-4"><%= @group.members.size %> <%= "member".pluralize(@group.members.size) %></p>
     <p class="text-sm text-gray-400 dark:text-gray-500">Join this group to see posts and connect with members.</p>
   </div>
