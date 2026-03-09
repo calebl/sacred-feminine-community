@@ -4,7 +4,9 @@ class HelpRequestsController < ApplicationController
   layout "dashboard"
 
   def index
-    @help_requests = policy_scope(HelpRequest).includes(:user).newest_first
+    scope = policy_scope(HelpRequest).includes(:user).newest_first
+    @filter = params[:status]
+    @help_requests = @filter == "closed" ? scope.closed : scope.open
     authorize HelpRequest
   end
 

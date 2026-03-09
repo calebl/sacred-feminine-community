@@ -3,30 +3,23 @@
   <%= link_to "Ask for Help", new_help_request_path, class: "btn-primary px-5 py-2.5" %>
 </div>
 
-<% open_requests = @help_requests.select(&:open?) %>
-<% closed_requests = @help_requests.reject(&:open?) %>
+<div class="flex items-center gap-2 mb-6">
+  <%= link_to "Open", help_requests_path,
+      class: "px-4 py-1.5 rounded-full text-sm font-medium transition-colors #{@filter != 'closed' ? 'bg-sf-gold/10 text-sf-gold' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}" %>
+  <%= link_to "Closed", help_requests_path(status: :closed),
+      class: "px-4 py-1.5 rounded-full text-sm font-medium transition-colors #{@filter == 'closed' ? 'bg-sf-gold/10 text-sf-gold' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}" %>
+</div>
 
 <% if @help_requests.any? %>
-  <% if open_requests.any? %>
-    <div class="space-y-3">
-      <% open_requests.each do |request| %>
-        <%= render partial: "help_requests/help_request_card", locals: { request: request } %>
-      <% end %>
-    </div>
-  <% end %>
-
-  <% if closed_requests.any? %>
-    <div class="mt-8">
-      <h2 class="text-lg font-semibold text-gray-400 dark:text-gray-500 mb-3">Closed</h2>
-      <div class="space-y-3">
-        <% closed_requests.each do |request| %>
-          <%= render partial: "help_requests/help_request_card", locals: { request: request } %>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
+  <div class="space-y-3">
+    <% @help_requests.each do |request| %>
+      <%= render partial: "help_requests/help_request_card", locals: { request: request } %>
+    <% end %>
+  </div>
 <% else %>
   <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8 text-center">
-    <p class="text-gray-500 dark:text-gray-400">No help requests yet.</p>
+    <p class="text-gray-500 dark:text-gray-400">
+      <%= @filter == "closed" ? "No closed requests." : "No open requests." %>
+    </p>
   </div>
 <% end %>

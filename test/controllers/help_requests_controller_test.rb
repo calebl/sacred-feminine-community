@@ -23,6 +23,22 @@ class HelpRequestsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index defaults to open requests" do
+    sign_in @attendee
+    get help_requests_path
+    assert_response :success
+    assert_select "h2", text: help_requests(:open_request).subject
+    assert_select "h2", text: help_requests(:closed_request).subject, count: 0
+  end
+
+  test "index with status=closed shows closed requests" do
+    sign_in @attendee
+    get help_requests_path(status: :closed)
+    assert_response :success
+    assert_select "h2", text: help_requests(:closed_request).subject
+    assert_select "h2", text: help_requests(:open_request).subject, count: 0
+  end
+
   test "unauthenticated user is redirected" do
     get help_requests_path
     assert_response :redirect
