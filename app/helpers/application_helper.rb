@@ -18,6 +18,11 @@ module ApplicationHelper
     result.html_safe
   end
 
+  def markdown(text)
+    renderer = Redcarpet::Render::HTML.new(hard_wrap: true)
+    Redcarpet::Markdown.new(renderer).render(text).html_safe
+  end
+
   def help_requests_need_attention?
     current_user&.admin? && HelpRequest.needs_admin_attention.exists?
   end

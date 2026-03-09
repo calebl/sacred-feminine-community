@@ -13,7 +13,7 @@
             <span class="text-sm text-gray-500 dark:text-gray-400"><%= release.deployed_at.strftime("%B %-d, %Y at %-I:%M %p") %></span>
           </div>
           <p class="text-xs text-gray-400 dark:text-gray-500 mb-3 font-mono"><%= release.commit_sha[0..7] %></p>
-          <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line"><%= release.changelog %></div>
+          <div class="text-sm text-gray-700 dark:text-gray-300 prose prose-sm dark:prose-invert max-w-none"><%= markdown(release.changelog) %></div>
         </div>
       <% end %>
     </div>
