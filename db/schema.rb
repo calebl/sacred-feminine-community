@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_09_123103) do
+ActiveRecord::Schema[8.2].define(version: 2026_03_09_143913) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -242,6 +242,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_09_123103) do
   create_table "help_requests", force: :cascade do |t|
     t.text "body", null: false
     t.datetime "created_at", null: false
+    t.integer "help_request_replies_count", default: 0, null: false
     t.integer "status", default: 0, null: false
     t.string "subject", null: false
     t.datetime "updated_at", null: false

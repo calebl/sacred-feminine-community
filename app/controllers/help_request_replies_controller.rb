@@ -1,5 +1,7 @@
 class HelpRequestRepliesController < ApplicationController
   before_action :authenticate_user!
+  before_action :load_sidebar
+  layout "dashboard"
 
   def create
     @help_request = HelpRequest.find(params[:help_request_id])
@@ -7,7 +9,6 @@ class HelpRequestRepliesController < ApplicationController
     authorize @reply
 
     if @reply.save
-      notify_participants
       redirect_to help_request_path(@help_request), notice: "Reply sent."
     else
       @replies = @help_request.help_request_replies.includes(:user).order(:created_at)
@@ -17,31 +18,12 @@ class HelpRequestRepliesController < ApplicationController
 
   private
 
-  def reply_params
-    params.require(:help_request_reply).permit(:body)
+  def load_sidebar
+    @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
+    @sidebar_groups = current_user.groups.order(:name)
   end
 
-  def notify_participants
-    recipient_ids = if current_user.admin?
-      [ @help_request.user_id ]
-    else
-      @help_request.help_request_replies
-        .joins(:user).where(users: { role: :admin })
-        .where.not(user_id: current_user.id)
-        .distinct.pluck(:user_id)
-    end
-
-    recipient_ids.each do |user_id|
-      CreateNotificationJob.perform_later(
-        user_id: user_id,
-        actor_id: current_user.id,
-        event_type: "help_request_reply",
-        title: "Help Request Reply",
-        body: "#{current_user.name} replied to: #{@help_request.subject}",
-        path: help_request_path(@help_request),
-        notifiable_type: "HelpRequest",
-        notifiable_id: @help_request.id
-      )
-    end
+  def reply_params
+    params.require(:help_request_reply).permit(:body)
   end
 end

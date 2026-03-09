@@ -4,7 +4,7 @@ class HelpRequestsController < ApplicationController
   layout "dashboard"
 
   def index
-    @help_requests = policy_scope(HelpRequest).newest_first
+    @help_requests = policy_scope(HelpRequest).includes(:user).newest_first
     authorize HelpRequest
   end
 
@@ -25,7 +25,6 @@ class HelpRequestsController < ApplicationController
     authorize @help_request
 
     if @help_request.save
-      notify_admins
       redirect_to help_request_path(@help_request), notice: "Your help request has been submitted."
     else
       render :new, status: :unprocessable_entity
@@ -41,20 +40,5 @@ class HelpRequestsController < ApplicationController
 
   def help_request_params
     params.require(:help_request).permit(:subject, :body)
-  end
-
-  def notify_admins
-    User.admin.where.not(id: current_user.id).pluck(:id).each do |admin_id|
-      CreateNotificationJob.perform_later(
-        user_id: admin_id,
-        actor_id: current_user.id,
-        event_type: "help_request",
-        title: "New Help Request",
-        body: "#{current_user.name}: #{@help_request.subject}",
-        path: help_request_path(@help_request),
-        notifiable_type: "HelpRequest",
-        notifiable_id: @help_request.id
-      )
-    end
   end
 end

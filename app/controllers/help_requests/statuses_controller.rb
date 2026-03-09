@@ -6,8 +6,12 @@ module HelpRequests
       @help_request = HelpRequest.find(params[:help_request_id])
       authorize @help_request, :update?
 
-      @help_request.update!(status: params[:status])
-      redirect_to help_request_path(@help_request), notice: "Request marked as #{@help_request.status}."
+      if HelpRequest.statuses.key?(params[:status])
+        @help_request.update!(status: params[:status])
+        redirect_to help_request_path(@help_request), notice: "Request marked as #{@help_request.status}."
+      else
+        redirect_to help_request_path(@help_request), alert: "Invalid status."
+      end
     end
   end
 end
