@@ -1,15 +1,15 @@
-<%= link_to group_path(group), class: "bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden block hover:shadow-md transition" do %>
-  <% if group.header_image.attached? %>
-    <%= image_tag group.header_image.variant(resize_to_limit: [2400, 800]), class: "w-full" %>
-  <% else %>
-    <%= render "shared/header_image_placeholder", compact: true %>
-  <% end %>
+<%= link_to group_path(group), class: "bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-gold/20 dark:border-gray-700 overflow-hidden block hover:shadow-md transition" do %>
+  <div class="relative">
+    <div class="w-full h-16 bg-sf-gold/10"></div>
+    <div class="absolute inset-0 flex items-center px-5">
+      <h2 class="text-lg font-display font-semibold text-sf-gold"><%= group.name %></h2>
+    </div>
+  </div>
   <div class="p-5">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white"><%= group.name %></h2>
         <% if group.description.present? %>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2"><%= group.description %></p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2"><%= group.description %></p>
         <% end %>
       </div>
       <div class="text-right">

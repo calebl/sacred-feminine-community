@@ -167,47 +167,6 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "edit form includes image cropper" do
-    sign_in users(:attendee)
-    get edit_group_path(groups(:book_club))
-    assert_select "[data-controller='image-cropper']"
-  end
-
-  test "new form includes image cropper" do
-    sign_in users(:attendee)
-    get new_group_path
-    assert_select "[data-controller='image-cropper']"
-  end
-
-  # Image removal
-  test "creator can remove header image" do
-    sign_in users(:attendee)
-    group = groups(:book_club)
-    group.header_image.attach(io: StringIO.new("fake"), filename: "photo.jpg", content_type: "image/jpeg")
-    assert group.header_image.attached?
-
-    patch group_path(group), params: {
-      group: { remove_header_image: "1" }
-    }
-    assert_redirected_to group_path(group)
-    assert_not group.reload.header_image.attached?
-  end
-
-  test "remove header image is skipped when new image is also uploaded" do
-    sign_in users(:attendee)
-    group = groups(:book_club)
-    group.header_image.attach(io: StringIO.new("fake"), filename: "photo.jpg", content_type: "image/jpeg")
-
-    patch group_path(group), params: {
-      group: {
-        remove_header_image: "1",
-        header_image: fixture_file_upload("avatar.png", "image/png")
-      }
-    }
-    assert_redirected_to group_path(group)
-    assert group.reload.header_image.attached?
-  end
-
   # Leave button
   test "member sees leave button" do
     sign_in users(:admin)

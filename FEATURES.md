@@ -27,7 +27,7 @@
 - **Auto-join on invitation** - Users invited to specific cohorts are automatically added on acceptance
 
 ## Groups
-- **User-created groups** - Any member can create groups with name, description, and header image
+- **User-created groups** - Any member can create groups with name and description
 - **Membership** - Members join/leave groups; creator is auto-added
 - **Discussion posts** - Members create posts within a group with comments, pinning, and unread tracking
 - **Post pinning** - Group creators/admins can pin posts
