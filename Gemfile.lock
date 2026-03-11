@@ -280,6 +280,7 @@ GEM
       racc (~> 1.4)
     nokogiri (1.19.1-x86_64-linux-musl)
       racc (~> 1.4)
+    oaken (1.0.0)
     openssl (4.0.1)
     orm_adapter (0.5.0)
     ostruct (0.6.3)
@@ -497,6 +498,7 @@ DEPENDENCIES
   importmap-rails
   kamal
   mission_control-jobs
+  oaken
   propshaft
   puma (>= 5.0)
   pundit (~> 2.4)
