@@ -8,7 +8,6 @@ class GroupPost < ApplicationRecord
 
   has_many :group_post_comments, dependent: :destroy
   has_many :group_post_reads, dependent: :destroy
-  has_many_attached :photos
 
   scope :pinned_first, -> { order(pinned: :desc, created_at: :desc) }
 

@@ -2,6 +2,7 @@ module HasPhotos
   extend ActiveSupport::Concern
 
   included do
+    has_many_attached :photos
     validate :acceptable_photos
   end
 
