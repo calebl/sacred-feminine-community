@@ -1,6 +1,7 @@
 class Post < ApplicationRecord
   include Mentionable
   include Reactable
+  include HasPhotos
 
   belongs_to :cohort
   belongs_to :user

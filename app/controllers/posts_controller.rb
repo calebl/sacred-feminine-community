@@ -1,4 +1,6 @@
 class PostsController < ApplicationController
+  include PhotoRemovable
+
   before_action :authenticate_user!
   before_action :set_cohort
   before_action :set_post, only: [ :show, :edit, :update, :destroy ]
@@ -28,6 +30,7 @@ class PostsController < ApplicationController
   def update
     authorize @post
     if @post.update(post_params)
+      remove_photos(@post)
       if params[:inline_edit]
         @post.reload
         render turbo_stream: turbo_stream.replace(
@@ -91,7 +94,7 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:body)
+    params.require(:post).permit(:body, photos: [])
   end
 
   def post_card_locals(post)

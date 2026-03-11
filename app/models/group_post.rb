@@ -1,6 +1,7 @@
 class GroupPost < ApplicationRecord
   include Mentionable
   include Reactable
+  include HasPhotos
 
   belongs_to :group
   belongs_to :user

@@ -22,6 +22,7 @@
 - **CRUD management** - Admins create cohorts with name, description, header image, and retreat date range
 - **Membership** - Users are added to cohorts; membership tracks read state for posts
 - **Discussion posts** - Members create posts within a cohort with comments, pinning, and unread tracking
+- **Photo attachments** - Attach up to 10 photos (JPEG, PNG, GIF, WebP) per post with inline preview and gallery display
 - **Post pinning** - Admins can pin important posts to the top of the feed
 - **Unread tracking** - Tracks unread posts per member via `last_read_at` timestamps
 - **Auto-join on invitation** - Users invited to specific cohorts are automatically added on acceptance
@@ -30,6 +31,7 @@
 - **User-created groups** - Any member can create groups with name and description
 - **Membership** - Members join/leave groups; creator is auto-added
 - **Discussion posts** - Members create posts within a group with comments, pinning, and unread tracking
+- **Photo attachments** - Attach up to 10 photos per post with inline preview and gallery display
 - **Post pinning** - Group creators/admins can pin posts
 - **Unread tracking** - Tracks unread posts per member
 - **Soft-delete (archive)** - Groups are archived rather than permanently deleted
@@ -37,6 +39,7 @@
 ## Community Feed
 - **Public feed** - All authenticated members can post to and view a shared community feed
 - **Feed posts** - Create, edit, delete posts with inline reply forms
+- **Photo attachments** - Attach up to 10 photos per post with inline preview and gallery display
 - **Comments** - Threaded comments on feed posts with expandable reply sections
 - **Post pinning** - Admins can pin feed posts
 - **Unread tracking** - Tracks unread comments per user
