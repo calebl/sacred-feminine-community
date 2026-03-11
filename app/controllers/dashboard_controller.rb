@@ -33,7 +33,7 @@ class DashboardController < ApplicationController
       end
     end
 
-    items.sort_by { |item| [item.post.pinned? ? 0 : 1, -item.post.created_at.to_i] }
+    items.sort_by { |item| [item.source_type == :community && item.post.pinned? ? 0 : 1, -item.post.created_at.to_i] }
   end
 
   FeedItem = Data.define(:post, :source_type, :source_name, :visibility)
