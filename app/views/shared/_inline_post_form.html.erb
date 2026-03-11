@@ -42,7 +42,19 @@
       <%= f.file_field :photos, multiple: true, accept: "image/jpeg,image/png,image/gif,image/webp",
           class: "hidden", data: { photo_upload_target: "input", action: "photo-upload#preview" } %>
 
-      <div data-photo-upload-target="preview" class="hidden flex flex-wrap gap-2"></div>
+      <div data-photo-upload-target="preview" class="<%= local_assigns[:editing] && post.photos.attached? ? '' : 'hidden ' %>flex flex-wrap gap-2">
+        <% if local_assigns[:editing] && post.photos.attached? %>
+          <% post.photos.each do |photo| %>
+            <div class="relative group" data-photo-wrapper>
+              <%= image_tag photo.variant(resize_to_fill: [80, 80]), class: "w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-600" %>
+              <button type="button"
+                      data-action="photo-upload#removeExisting"
+                      data-photo-upload-id-param="<%= photo.id %>"
+                      class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition cursor-pointer">&times;</button>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
 
       <div class="flex items-center justify-between">
         <button type="button" data-action="photo-upload#select" class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-sf-gold dark:hover:text-sf-gold transition cursor-pointer">

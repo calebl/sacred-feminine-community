@@ -68,17 +68,8 @@
   <div data-post-edit-target="display" data-controller="post-body">
     <div data-post-body-target="content" class="text-sm text-gray-700 dark:text-gray-300 line-clamp-[15] whitespace-pre-wrap"><%= render_with_mentions(post.body) %></div>
     <button type="button" data-post-body-target="toggle" data-action="post-body#toggle" class="hidden text-xs text-sf-gold hover:text-sf-gold/80 mt-1 cursor-pointer transition">view more</button>
+    <%= render "shared/photo_gallery", post: post %>
   </div>
-
-  <% if post.photos.attached? %>
-    <div class="mt-3 flex flex-wrap gap-2">
-      <% post.photos.each do |photo| %>
-        <%= link_to rails_blob_path(photo, disposition: "inline"), target: "_blank", class: "block" do %>
-          <%= image_tag photo.variant(resize_to_limit: [400, 400]), class: "rounded-lg max-h-60 object-cover border border-gray-200 dark:border-gray-600" %>
-        <% end %>
-      <% end %>
-    </div>
-  <% end %>
 
   <!-- Inline edit form (hidden by default) -->
   <% if policy(post).edit? && local_assigns[:edit_path] %>
@@ -113,8 +104,10 @@
                  role="textbox"></div>
           </div>
 
-          <% if post.photos.attached? %>
-            <div class="flex flex-wrap gap-2">
+          <%= f.file_field :photos, multiple: true, accept: "image/jpeg,image/png,image/gif,image/webp",
+              class: "hidden", data: { photo_upload_target: "input", action: "photo-upload#preview" } %>
+          <div data-photo-upload-target="preview" class="<%= post.photos.attached? ? '' : 'hidden ' %>flex flex-wrap gap-2">
+            <% if post.photos.attached? %>
               <% post.photos.each do |photo| %>
                 <div class="relative group" data-photo-wrapper>
                   <%= image_tag photo.variant(resize_to_fill: [80, 80]), class: "w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-600" %>
@@ -124,12 +117,8 @@
                           class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition cursor-pointer">&times;</button>
                 </div>
               <% end %>
-            </div>
-          <% end %>
-
-          <%= f.file_field :photos, multiple: true, accept: "image/jpeg,image/png,image/gif,image/webp",
-              class: "hidden", data: { photo_upload_target: "input", action: "photo-upload#preview" } %>
-          <div data-photo-upload-target="preview" class="hidden flex flex-wrap gap-2"></div>
+            <% end %>
+          </div>
 
           <div class="flex items-center justify-between">
             <button type="button" data-action="photo-upload#select" class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-sf-gold dark:hover:text-sf-gold transition cursor-pointer">

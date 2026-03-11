@@ -3,13 +3,29 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["input", "preview", "button"]
 
+  connect() {
+    this.collectedFiles = new DataTransfer()
+  }
+
   select() {
     this.inputTarget.click()
   }
 
   preview() {
+    // Accumulate newly selected files into the persistent collection
+    Array.from(this.inputTarget.files).forEach((file) => {
+      this.collectedFiles.items.add(file)
+    })
+
+    // Sync the input's file list with the full collection
+    this.inputTarget.files = this.collectedFiles.files
+
+    this.#renderPreviews()
+  }
+
+  #renderPreviews() {
     this.previewTarget.innerHTML = ""
-    const files = this.inputTarget.files
+    const files = this.collectedFiles.files
 
     if (files.length === 0) {
       this.previewTarget.classList.add("hidden")
@@ -58,13 +74,14 @@ export default class extends Controller {
 
   #removeFile(indexToRemove) {
     const dt = new DataTransfer()
-    const files = this.inputTarget.files
+    const files = this.collectedFiles.files
 
     Array.from(files).forEach((file, index) => {
       if (index !== indexToRemove) dt.items.add(file)
     })
 
-    this.inputTarget.files = dt.files
-    this.preview()
+    this.collectedFiles = dt
+    this.inputTarget.files = this.collectedFiles.files
+    this.#renderPreviews()
   }
 }
