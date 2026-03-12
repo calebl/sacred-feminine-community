@@ -39,7 +39,7 @@ echo "Tagged release: $VERSION"
 # Changelog is stored as markdown (bullet list).
 ESCAPED_CHANGELOG=$(printf '%s' "$CHANGELOG" | sed ':a;N;$!ba;s/\n/%%NL%%/g' | sed "s/'/'\\\\'''/g" )
 
-if ! kamal app exec --reuse "bin/rails 'releases:record[$VERSION,$COMMIT_SHA,$ESCAPED_CHANGELOG,$DEPLOYED_AT]'"; then
+if ! kamal app exec --reuse "bin/rake 'releases:record[$VERSION,$COMMIT_SHA,$ESCAPED_CHANGELOG,$DEPLOYED_AT]'"; then
   echo "Release record failed. Cleaning up tag $VERSION..."
   git tag -d "$VERSION" 2>/dev/null
   git push origin --delete "$VERSION" 2>/dev/null
