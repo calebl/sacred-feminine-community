@@ -6,7 +6,7 @@ cohorts.create :bozeman_spring,
   retreat_end_date: Date.new(2025, 4, 21),
   creator: users.admin
 
-[users.luna, users.sage, users.freya, users.rowan, users.wren, users.aurora].each do |user|
+[ users.luna, users.sage, users.freya, users.rowan, users.wren, users.aurora ].each do |user|
   cohort_memberships.create cohort: cohorts.bozeman_spring, user: user
 end
 
@@ -18,7 +18,7 @@ cohorts.create :solstice,
   retreat_end_date: Date.new(2025, 6, 24),
   creator: users.admin
 
-[users.aria, users.willow, users.juniper, users.dahlia, users.ember, users.fern, users.meadow].each do |user|
+[ users.aria, users.willow, users.juniper, users.dahlia, users.ember, users.fern, users.meadow ].each do |user|
   cohort_memberships.create cohort: cohorts.solstice, user: user
 end
 
@@ -30,7 +30,7 @@ cohorts.create :mountain_circle,
   retreat_end_date: Date.new(2025, 9, 8),
   creator: users.admin
 
-[users.sage, users.maya, users.iris, users.celeste, users.hazel, users.clover, users.ivy].each do |user|
+[ users.sage, users.maya, users.iris, users.celeste, users.hazel, users.clover, users.ivy ].each do |user|
   cohort_memberships.create cohort: cohorts.mountain_circle, user: user
 end
 
@@ -42,7 +42,7 @@ cohorts.create :desert_rose,
   retreat_end_date: Date.new(2025, 10, 13),
   creator: users.admin
 
-[users.willow, users.dahlia, users.ember, users.fern, users.soleil].each do |user|
+[ users.willow, users.dahlia, users.ember, users.fern, users.soleil ].each do |user|
   cohort_memberships.create cohort: cohorts.desert_rose, user: user
 end
 
@@ -54,7 +54,7 @@ cohorts.create :winter_womb,
   retreat_end_date: Date.new(2026, 1, 27),
   creator: users.admin
 
-[users.luna, users.aria, users.freya, users.celeste, users.rowan, users.wren, users.ivy, users.aurora, users.meadow, users.elara, users.noor].each do |user|
+[ users.luna, users.aria, users.freya, users.celeste, users.rowan, users.wren, users.ivy, users.aurora, users.meadow, users.elara, users.noor ].each do |user|
   cohort_memberships.create cohort: cohorts.winter_womb, user: user
 end
 
@@ -66,7 +66,7 @@ cohorts.create :european_sisters,
   retreat_end_date: Date.new(2026, 5, 18),
   creator: users.admin
 
-[users.elara, users.maeve, users.noor, users.lina, users.cosima].each do |user|
+[ users.elara, users.maeve, users.noor, users.lina, users.cosima ].each do |user|
   cohort_memberships.create cohort: cohorts.european_sisters, user: user
 end
 

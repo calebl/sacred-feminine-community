@@ -2,7 +2,7 @@ base_time = 3.days.ago
 
 dm_threads = [
   {
-    between: [users.luna, users.freya],
+    between: [ users.luna, users.freya ],
     messages: [
       { sender: users.luna,  body: "Freya, do you have that recipe for the postpartum tea blend?" },
       { sender: users.freya, body: "Yes! It's red raspberry leaf, nettle, oat straw, and a little rose petal." },
@@ -13,7 +13,7 @@ dm_threads = [
     ]
   },
   {
-    between: [users.aria, users.willow],
+    between: [ users.aria, users.willow ],
     messages: [
       { sender: users.aria,   body: "Willow, I loved your movement piece at the last gathering." },
       { sender: users.willow, body: "Thank you, Aria! Your meditation at the end was so grounding." },
@@ -25,7 +25,7 @@ dm_threads = [
     ]
   },
   {
-    between: [users.elara, users.cosima],
+    between: [ users.elara, users.cosima ],
     messages: [
       { sender: users.elara,  body: "Cosima, I'm so looking forward to the Florence gathering." },
       { sender: users.cosima, body: "Me too, Elara! I've been scouting locations around the city." },
@@ -36,7 +36,7 @@ dm_threads = [
     ]
   },
   {
-    between: [users.admin, users.luna],
+    between: [ users.admin, users.luna ],
     messages: [
       { sender: users.admin, body: "Luna, just wanted to check in on the Spring Retreat logistics." },
       { sender: users.luna,  body: "Everything's on track! Venue is confirmed, meal plan is set." },
