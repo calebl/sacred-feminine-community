@@ -1,0 +1,12 @@
+register User
+register Cohort
+register CohortMembership
+register Post
+register PostComment
+register Group
+register GroupMembership
+register GroupPost
+register GroupPostComment
+register Conversation
+register DirectMessage
+register Notification
