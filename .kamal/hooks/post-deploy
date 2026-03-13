@@ -35,11 +35,10 @@ git push origin "$VERSION"
 echo "Tagged release: $VERSION"
 
 # Record the release in the database via rake task on the server.
-# Replace newlines with %%NL%% marker for safe transport through rake args, then escape quotes.
-# Changelog is stored as markdown (bullet list).
-ESCAPED_CHANGELOG=$(printf '%s' "$CHANGELOG" | sed ':a;N;$!ba;s/\n/%%NL%%/g' | sed "s/'/'\\\\'''/g" )
+# Base64-encode the changelog to safely transport multiline text through rake args.
+ENCODED_CHANGELOG=$(printf '%s' "$CHANGELOG" | base64 | tr -d '\n')
 
-if ! kamal app exec --reuse "bin/rake 'releases:record[$VERSION,$COMMIT_SHA,$ESCAPED_CHANGELOG,$DEPLOYED_AT]'"; then
+if ! kamal app exec --reuse "bin/rake 'releases:record[$VERSION,$COMMIT_SHA,$ENCODED_CHANGELOG,$DEPLOYED_AT]'"; then
   echo "Release record failed. Cleaning up tag $VERSION..."
   git tag -d "$VERSION" 2>/dev/null
   git push origin --delete "$VERSION" 2>/dev/null

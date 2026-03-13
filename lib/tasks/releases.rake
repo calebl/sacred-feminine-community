@@ -1,7 +1,9 @@
+require "base64"
+
 namespace :releases do
   desc "Record a release from deploy hook data"
-  task :record, [ :version, :commit_sha, :changelog, :deployed_at ] => :environment do |_t, args|
-    changelog = args[:changelog].gsub("%%NL%%", "\n")
+  task :record, [ :version, :commit_sha, :encoded_changelog, :deployed_at ] => :environment do |_t, args|
+    changelog = Base64.decode64(args[:encoded_changelog])
 
     release = Release.create!(
       version: args[:version],
