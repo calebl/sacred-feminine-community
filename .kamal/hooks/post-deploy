@@ -36,7 +36,7 @@ echo "Tagged release: $VERSION"
 
 # Record the release in the database via rake task on the server.
 # Base64-encode the changelog to safely transport multiline text through rake args.
-ENCODED_CHANGELOG=$(printf '%s' "$CHANGELOG" | base64)
+ENCODED_CHANGELOG=$(printf '%s' "$CHANGELOG" | base64 | tr -d '\n')
 
 if ! kamal app exec --reuse "bin/rake 'releases:record[$VERSION,$COMMIT_SHA,$ENCODED_CHANGELOG,$DEPLOYED_AT]'"; then
   echo "Release record failed. Cleaning up tag $VERSION..."

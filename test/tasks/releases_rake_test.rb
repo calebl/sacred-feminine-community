@@ -27,8 +27,6 @@ class ReleasesRakeTest < ActiveSupport::TestCase
   end
 
   test "prints confirmation message" do
-    Rake::Task["releases:record"].reenable
-
     encoded_changelog = Base64.strict_encode64("- Something changed")
 
     output = capture_io do
@@ -39,8 +37,6 @@ class ReleasesRakeTest < ActiveSupport::TestCase
   end
 
   test "preserves multiline changelog through base64 encoding" do
-    Rake::Task["releases:record"].reenable
-
     changelog = "- First change\n- Second change\n- Third change"
     encoded_changelog = Base64.strict_encode64(changelog)
 
