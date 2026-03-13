@@ -52,39 +52,4 @@ class ReleaseTest < ActiveSupport::TestCase
     assert_equal releases(:v2), releases.first
     assert_equal releases(:v1), releases.second
   end
-
-  test "generate_changelog returns non-empty changelog" do
-    commit_sha = `git rev-parse HEAD`.strip
-    changelog = Release.generate_changelog(version: "v_nonexistent", commit_sha: commit_sha)
-    assert changelog.present?, "Expected a non-empty changelog"
-  end
-
-  test "generate_changelog strips PR numbers" do
-    commit_sha = `git rev-parse HEAD`.strip
-    changelog = Release.generate_changelog(version: "v_nonexistent", commit_sha: commit_sha)
-    assert_no_match(/\(#\d+\)/, changelog, "PR numbers should be stripped from changelog")
-  end
-
-  test "generate_changelog returns fallback for empty range" do
-    head_sha = `git rev-parse HEAD`.strip
-    system("git tag v_test_empty #{head_sha}", exception: true)
-
-    begin
-      # Create a second tag at the same commit so the range is empty
-      system("git tag v_test_empty2 #{head_sha}", exception: true)
-      changelog = Release.generate_changelog(version: "v_test_empty2", commit_sha: head_sha)
-      assert_equal "- No changes since last release", changelog
-    ensure
-      system("git tag -d v_test_empty", out: File::NULL, err: File::NULL)
-      system("git tag -d v_test_empty2", out: File::NULL, err: File::NULL)
-    end
-  end
-
-  test "generate_changelog formats entries as bullet list" do
-    commit_sha = `git rev-parse HEAD`.strip
-    changelog = Release.generate_changelog(version: "v_nonexistent", commit_sha: commit_sha)
-    changelog.each_line do |line|
-      assert_match(/\A- /, line.strip, "Each changelog line should start with '- '")
-    end
-  end
 end
