@@ -31,13 +31,14 @@ class PostsController < ApplicationController
     authorize @post
 
     # Handle photos separately to avoid replacing existing ones
-    new_photos = params.dig(:post, :photos)
-    update_params = post_params.except(:photos)
+    # Build update params excluding photos entirely to prevent Rails from clearing attachments
+    update_params = params.require(:post).permit(:body)
+    new_photos = params.dig(:post, :photos)&.reject(&:blank?)
 
     if @post.update(update_params)
       # Only attach new photos if they were provided
-      if new_photos.present? && new_photos.reject(&:blank?).any?
-        @post.photos.attach(new_photos.reject(&:blank?))
+      if new_photos&.any?
+        @post.photos.attach(new_photos)
       end
 
       remove_photos(@post)
