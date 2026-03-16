@@ -35,8 +35,8 @@ class FeedPostsController < ApplicationController
 
   def update
     authorize @post
-    if @post.update(post_params)
-      remove_photos(@post)
+
+    if update_with_photos(@post, :feed_post, [ :body ])
       if params[:inline_edit]
         @post.reload
         render turbo_stream: turbo_stream.replace(

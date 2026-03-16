@@ -30,19 +30,7 @@ class PostsController < ApplicationController
   def update
     authorize @post
 
-    # Handle photos separately to avoid replacing existing ones
-    # Build update params excluding photos entirely to prevent Rails from clearing attachments
-    update_params = params.require(:post).permit(:body)
-    new_photos = params.dig(:post, :photos)&.reject(&:blank?)
-
-    if @post.update(update_params)
-      # Only attach new photos if they were provided
-      if new_photos&.any?
-        @post.photos.attach(new_photos)
-      end
-
-      remove_photos(@post)
-
+    if update_with_photos(@post, :post, [ :body ])
       if params[:inline_edit]
         @post.reload
         render turbo_stream: turbo_stream.replace(
