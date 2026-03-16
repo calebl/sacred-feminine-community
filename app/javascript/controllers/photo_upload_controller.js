@@ -24,10 +24,13 @@ export default class extends Controller {
   }
 
   #renderPreviews() {
-    this.previewTarget.innerHTML = ""
+    // Remove only the NEW file previews (not server-rendered existing photos)
+    this.previewTarget.querySelectorAll("[data-new-photo]").forEach(el => el.remove())
+    
     const files = this.collectedFiles.files
 
-    if (files.length === 0) {
+    // If no new files and no existing photos, hide the preview area
+    if (files.length === 0 && this.previewTarget.querySelectorAll("[data-photo-wrapper]").length === 0) {
       this.previewTarget.classList.add("hidden")
       return
     }
@@ -39,6 +42,7 @@ export default class extends Controller {
 
       const wrapper = document.createElement("div")
       wrapper.className = "relative group"
+      wrapper.setAttribute("data-new-photo", "")  // Mark as new photo preview
 
       const img = document.createElement("img")
       img.className = "w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
