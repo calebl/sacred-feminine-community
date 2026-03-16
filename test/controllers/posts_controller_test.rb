@@ -304,4 +304,24 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     post_record.reload
     assert_equal 2, post_record.photos.count, "Should have both photos"
   end
+
+  test "removing existing photo via remove_photos param still works" do
+    sign_in users(:attendee)
+    post_record = posts(:attendee_post)
+
+    # Attach a photo to the post
+    photo = fixture_file_upload("avatar.png", "image/png")
+    post_record.photos.attach(photo)
+    photo_id = post_record.photos.first.id
+
+    # Remove the photo via remove_photos param
+    patch cohort_post_path(cohorts(:kabul_retreat), post_record), params: {
+      post: { body: "Text update" },
+      remove_photos: [ photo_id ]
+    }
+
+    assert_redirected_to cohort_post_path(cohorts(:kabul_retreat), post_record)
+    post_record.reload
+    assert_equal 0, post_record.photos.count, "Photo should be removed"
+  end
 end
