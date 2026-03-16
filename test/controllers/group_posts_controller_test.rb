@@ -224,4 +224,64 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_equal original_body, group_posts(:book_club_pinned).reload.body
   end
+
+  test "updating post text preserves existing photos" do
+    sign_in users(:attendee)
+    post_record = group_posts(:book_club_pinned)
+
+    # Attach a photo to the post
+    photo = fixture_file_upload("avatar.png", "image/png")
+    post_record.photos.attach(photo)
+    assert_equal 1, post_record.photos.count
+
+    # Update the post body without changing photos
+    patch group_group_post_path(groups(:book_club), post_record), params: {
+      group_post: { body: "Updated text without touching photos" }
+    }
+
+    assert_redirected_to group_group_post_path(groups(:book_club), post_record)
+    post_record.reload
+    assert_equal "Updated text without touching photos", post_record.body
+    assert_equal 1, post_record.photos.count, "Photo should still be attached"
+  end
+
+  test "updating post can add new photos while keeping existing ones" do
+    sign_in users(:attendee)
+    post_record = group_posts(:book_club_pinned)
+
+    # Attach a photo to the post
+    photo1 = fixture_file_upload("avatar.png", "image/png")
+    post_record.photos.attach(photo1)
+    assert_equal 1, post_record.photos.count
+
+    # Update and add a second photo
+    photo2 = fixture_file_upload("avatar.png", "image/png")
+    patch group_group_post_path(groups(:book_club), post_record), params: {
+      group_post: { body: "Updated with new photo", photos: [ photo2 ] }
+    }
+
+    assert_redirected_to group_group_post_path(groups(:book_club), post_record)
+    post_record.reload
+    assert_equal 2, post_record.photos.count, "Should have both photos"
+  end
+
+  test "removing existing photo via remove_photos param still works" do
+    sign_in users(:attendee)
+    post_record = group_posts(:book_club_pinned)
+
+    # Attach a photo to the post
+    photo = fixture_file_upload("avatar.png", "image/png")
+    post_record.photos.attach(photo)
+    photo_id = post_record.photos.first.id
+
+    # Remove the photo via remove_photos param
+    patch group_group_post_path(groups(:book_club), post_record), params: {
+      group_post: { body: "Text update" },
+      remove_photos: [ photo_id ]
+    }
+
+    assert_redirected_to group_group_post_path(groups(:book_club), post_record)
+    post_record.reload
+    assert_equal 0, post_record.photos.count, "Photo should be removed"
+  end
 end
