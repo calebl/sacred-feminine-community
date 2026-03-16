@@ -264,4 +264,44 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_equal original_body, posts(:attendee_post).reload.body
   end
+
+  test "updating post text preserves existing photos" do
+    sign_in users(:attendee)
+    post_record = posts(:attendee_post)
+
+    # Attach a photo to the post
+    photo = fixture_file_upload("avatar.png", "image/png")
+    post_record.photos.attach(photo)
+    assert_equal 1, post_record.photos.count
+
+    # Update the post body without changing photos
+    patch cohort_post_path(cohorts(:kabul_retreat), post_record), params: {
+      post: { body: "Updated text without touching photos" }
+    }
+
+    assert_redirected_to cohort_post_path(cohorts(:kabul_retreat), post_record)
+    post_record.reload
+    assert_equal "Updated text without touching photos", post_record.body
+    assert_equal 1, post_record.photos.count, "Photo should still be attached"
+  end
+
+  test "updating post can add new photos while keeping existing ones" do
+    sign_in users(:attendee)
+    post_record = posts(:attendee_post)
+
+    # Attach a photo to the post
+    photo1 = fixture_file_upload("avatar.png", "image/png")
+    post_record.photos.attach(photo1)
+    assert_equal 1, post_record.photos.count
+
+    # Update and add a second photo
+    photo2 = fixture_file_upload("avatar.png", "image/png")
+    patch cohort_post_path(cohorts(:kabul_retreat), post_record), params: {
+      post: { body: "Updated with new photo", photos: [ photo2 ] }
+    }
+
+    assert_redirected_to cohort_post_path(cohorts(:kabul_retreat), post_record)
+    post_record.reload
+    assert_equal 2, post_record.photos.count, "Should have both photos"
+  end
 end
