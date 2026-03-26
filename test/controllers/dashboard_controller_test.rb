@@ -76,4 +76,46 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     get authenticated_root_path
     assert_select "h3", text: "Explore"
   end
+
+  test "feed shows posts from user cohorts" do
+    sign_in users(:attendee)
+    get authenticated_root_path
+    assert_response :success
+    assert_match posts(:attendee_post).body, response.body
+    assert_match "Kabul Retreat 2025", response.body
+  end
+
+  test "feed shows posts from user groups" do
+    sign_in users(:attendee)
+    get authenticated_root_path
+    assert_response :success
+    assert_match group_posts(:book_club_pinned).body, response.body
+    assert_match "Book Club", response.body
+  end
+
+  test "feed shows community feed posts" do
+    sign_in users(:attendee)
+    get authenticated_root_path
+    assert_response :success
+    assert_match feed_posts(:public_post).body, response.body
+    assert_match "Community Feed", response.body
+  end
+
+  test "feed shows visibility labels" do
+    sign_in users(:attendee)
+    get authenticated_root_path
+    assert_response :success
+    assert_match "Visible to All members", response.body
+    assert_match "Visible to Kabul Retreat 2025 members", response.body
+    assert_match "Visible to Book Club members", response.body
+  end
+
+  test "feed does not show posts from cohorts user is not a member of" do
+    user = users(:attendee_two)
+    sign_in user
+    get authenticated_root_path
+    assert_response :success
+    # attendee_two is not in any cohort, so should not see cohort posts
+    assert_no_match posts(:attendee_post).body, response.body
+  end
 end

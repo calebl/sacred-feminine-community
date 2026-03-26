@@ -9,18 +9,65 @@
   <%= render "shared/inline_post_form", post: @new_feed_post, form_url: feed_posts_path %>
 </div>
 
-<div class="space-y-3">
-  <% @feed_posts.each do |post| %>
-    <%= render "shared/post_card", post: post, comments: post.feed_post_comments,
-        comment_partial: "feed_post_comments/feed_post_comment",
-        comment_locals: { feed_post: post },
-        comment_form_model: [post, FeedPostComment.new],
-        edit_path: edit_feed_post_path(post),
-        post_path: feed_post_path(post),
-        pin_path: feed_post_pin_path(post),
-        mention_data: {} %>
+<div class="space-y-5">
+  <% @feed_items.each do |item| %>
+    <div class="mb-2">
+      <div class="flex items-center gap-2 mb-1 px-1">
+        <% case item.source_type %>
+        <% when :community %>
+          <span class="inline-flex items-center gap-1 text-xs font-medium text-sf-gold">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Community Feed
+          </span>
+        <% when :cohort %>
+          <span class="inline-flex items-center gap-1 text-xs font-medium text-sf-beige">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <%= item.source_name %>
+          </span>
+        <% when :group %>
+          <span class="inline-flex items-center gap-1 text-xs font-medium text-sf-beige">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+            <%= item.source_name %>
+          </span>
+        <% end %>
+        <span class="text-xs text-gray-400 dark:text-gray-500">&middot; Visible to <%= item.visibility %></span>
+      </div>
+
+      <% post = item.post %>
+      <% case item.source_type %>
+      <% when :community %>
+        <%= render "shared/post_card", post: post, comments: post.feed_post_comments,
+            comment_partial: "feed_post_comments/feed_post_comment",
+            comment_locals: { feed_post: post },
+            comment_form_model: [post, FeedPostComment.new],
+            edit_path: edit_feed_post_path(post),
+            post_path: feed_post_path(post),
+            pin_path: feed_post_pin_path(post),
+            mention_data: {} %>
+      <% when :cohort %>
+        <%= render "shared/post_card", post: post, comments: post.post_comments,
+            comment_partial: "post_comments/post_comment",
+            comment_locals: { cohort: post.cohort, post: post },
+            comment_form_model: [post.cohort, post, PostComment.new],
+            edit_path: edit_cohort_post_path(post.cohort, post),
+            post_path: cohort_post_path(post.cohort, post),
+            pin_path: cohort_post_pin_path(post.cohort, post),
+            mention_data: {},
+            hide_pinned: true %>
+      <% when :group %>
+        <%= render "shared/post_card", post: post, comments: post.group_post_comments,
+            comment_partial: "group_post_comments/group_post_comment",
+            comment_locals: { group: post.group, group_post: post },
+            comment_form_model: [post.group, post, GroupPostComment.new],
+            edit_path: edit_group_group_post_path(post.group, post),
+            post_path: group_group_post_path(post.group, post),
+            pin_path: group_group_post_pin_path(post.group, post),
+            mention_data: {},
+            hide_pinned: true %>
+      <% end %>
+    </div>
   <% end %>
-  <% if @feed_posts.empty? %>
+  <% if @feed_items.empty? %>
     <p class="text-center text-gray-400 dark:text-gray-500 text-sm py-8">No posts yet. Be the first to share!</p>
   <% end %>
 </div>
