@@ -47,7 +47,7 @@ gem "devise_invitable", "~> 2.0"
 gem "pundit", "~> 2.4"
 
 # Transactional email via Resend HTTP API
-gem "resend", "~> 1.0"
+gem "resend", "~> 1.1"
 
 # Web Push Notifications (VAPID)
 gem "web-push", "~> 3.0"
