@@ -112,6 +112,10 @@ Once automatically provides the following environment variables — no manual co
 | `SMTP_PASSWORD` | Mail server password |
 | `NUM_CPUS` | Available CPUs (used to auto-scale Puma workers) |
 
+#### Migrating an existing deployment to Once
+
+If you've already deployed this app with a different `SECRET_KEY_BASE`, switching to Once's auto-generated key will break encrypted data (direct messages use Rails encryption) and invalidate all user sessions. To avoid this, set Once's `SECRET_KEY_BASE` to match your existing value. Consult the Once documentation for how to override injected environment variables.
+
 #### How it works
 
 - **Port 80**: The app serves HTTP on port 80 via Thruster, as Once expects.
