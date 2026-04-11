@@ -77,3 +77,47 @@ Alternatively, set the `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` environment va
 ### Deployment
 
 The app deploys with Kamal (Docker-based) using Thruster for HTTP acceleration. See `config/deploy.yml` for configuration.
+
+### Deploying with Once
+
+This app is compatible with [Once](https://github.com/basecamp/once), Basecamp's platform for self-hosted web applications.
+
+#### Prerequisites
+
+- A server running Once (see [Once installation docs](https://github.com/basecamp/once))
+- A Docker image of this app pushed to a registry accessible by your Once server
+
+#### Building and pushing the image
+
+```bash
+docker build -t your-registry.com/sacred-feminine:latest .
+docker push your-registry.com/sacred-feminine:latest
+```
+
+#### Installing on Once
+
+From the Once dashboard, add a new application with the Docker image path (`your-registry.com/sacred-feminine:latest`) and assign a hostname.
+
+Once automatically provides the following environment variables — no manual configuration needed:
+
+| Variable | Purpose |
+|---|---|
+| `SECRET_KEY_BASE` | Rails secret key for signing/encryption |
+| `DISABLE_SSL` | Set when not behind an SSL-terminating proxy |
+| `VAPID_PUBLIC_KEY` | Web Push public key |
+| `VAPID_PRIVATE_KEY` | Web Push private key |
+| `SMTP_SERVER` | Mail server address |
+| `SMTP_PORT` | Mail server port |
+| `SMTP_LOGIN` | Mail server username |
+| `SMTP_PASSWORD` | Mail server password |
+| `NUM_CPUS` | Available CPUs (used to auto-scale Puma workers) |
+
+#### How it works
+
+- **Port 80**: The app serves HTTP on port 80 via Thruster, as Once expects.
+- **Health check**: Once monitors `/up` to verify the app is running.
+- **Storage**: Once mounts `/rails/storage` for persistent SQLite databases and Active Storage files.
+- **SSL**: When `DISABLE_SSL` is set, the app disables `force_ssl` and switches mailer/ActionCable URLs to HTTP.
+- **Email**: If `SMTP_SERVER` is provided by Once, the app uses SMTP delivery. Otherwise it falls back to the Resend HTTP API.
+- **VAPID keys**: Once-provided env vars take priority over Rails credentials.
+- **Backups**: The `hooks/pre-backup` script checkpoints all SQLite WAL files for consistent snapshots. After a restore, `hooks/post-restore` runs pending database migrations.
