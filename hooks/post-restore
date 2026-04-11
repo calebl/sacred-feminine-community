@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+# Once post-restore hook: run database migrations after restoring from backup.
+# This ensures the restored database schema is up to date with the current code.
+
+cd /rails
+
+echo "Running database migrations..."
+./bin/rails db:migrate
+
+echo "Post-restore complete."

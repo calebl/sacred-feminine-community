@@ -25,13 +25,16 @@ Rails.application.configure do
   config.active_storage.service = :local
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  config.assume_ssl = true
+  # Once sets DISABLE_SSL=true when the app is not behind an SSL-terminating proxy.
+  unless ENV["DISABLE_SSL"].present?
+    config.assume_ssl = true
 
-  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = true
+    # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+    config.force_ssl = true
 
-  # Skip http-to-https redirect for the default health check endpoint.
-  config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+    # Skip http-to-https redirect for the default health check endpoint.
+    config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+  end
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
@@ -59,10 +62,23 @@ Rails.application.configure do
 
   # Set host to be used by links generated in mailer templates.
   # Update with your actual domain before deploying:
-  config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "example.com"), protocol: "https" }
+  mailer_protocol = ENV["DISABLE_SSL"].present? ? "http" : "https"
+  config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "example.com"), protocol: mailer_protocol }
 
-  # Resend.com HTTP API for transactional email (avoids SMTP port blocking)
-  config.action_mailer.delivery_method = :resend
+  # Use SMTP when Once provides SMTP_* env vars, otherwise fall back to Resend HTTP API.
+  if ENV["SMTP_SERVER"].present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address: ENV["SMTP_SERVER"],
+      port: ENV.fetch("SMTP_PORT", 587).to_i,
+      user_name: ENV["SMTP_LOGIN"],
+      password: ENV["SMTP_PASSWORD"],
+      authentication: :plain,
+      enable_starttls_auto: true
+    }
+  else
+    config.action_mailer.delivery_method = :resend
+  end
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
@@ -84,7 +100,8 @@ Rails.application.configure do
   config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 
   # ActionCable configuration for WebSocket connections.
+  protocol = ENV["DISABLE_SSL"].present? ? "http" : "https"
   config.action_cable.allowed_request_origins = [
-    "https://#{ENV.fetch("APP_HOST", "app.example.com")}"
+    "#{protocol}://#{ENV.fetch("APP_HOST", "app.example.com")}"
   ]
 end

@@ -31,6 +31,12 @@ threads threads_count, threads_count
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 port ENV.fetch("PORT", 3000)
 
+# Once provides NUM_CPUS to indicate available processor count.
+# Use it as a fallback for WEB_CONCURRENCY to auto-scale Puma workers.
+if ENV["WEB_CONCURRENCY"].nil? && ENV["NUM_CPUS"]
+  ENV["WEB_CONCURRENCY"] = ENV["NUM_CPUS"]
+end
+
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
 
