@@ -11,7 +11,7 @@ servers:
 
 proxy:
   ssl: true
-  host: sfn.caleblenoir.com
+  host: <%= ENV["APP_HOST"] %>
 
 registry:
   server: ghcr.io
