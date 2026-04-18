@@ -18,6 +18,8 @@ en:
       unconfirmed: "You have to confirm your email address before continuing."
       account_removed: "Your account has been removed. Please contact an administrator if you believe this is an error."
     mailer:
+      invitation_instructions:
+        subject: "You're invited to the Sacred Feminine Community!"
       confirmation_instructions:
         subject: "Confirmation instructions"
       reset_password_instructions:
