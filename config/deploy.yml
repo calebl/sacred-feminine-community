@@ -11,7 +11,7 @@ servers:
 
 proxy:
   ssl: true
-  host: sfn.caleblenoir.com
+  host: <%= ENV["APP_HOST"] %>
 
 registry:
   server: ghcr.io
@@ -26,8 +26,7 @@ env:
     - RESEND_API_KEY
   clear:
     SOLID_QUEUE_IN_PUMA: true
-    # Update with your actual domain before deploying:
-    APP_HOST: sfn.caleblenoir.com
+    APP_HOST: <%= ENV["APP_HOST"] %>
 
 aliases:
   console: app exec --interactive --reuse "bin/rails console"
