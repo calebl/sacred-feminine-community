@@ -58,4 +58,17 @@ class Admin::ImpersonationsControllerTest < ActionDispatch::IntegrationTest
     post admin_impersonation_path, params: { user_id: @attendee.id }
     assert_redirected_to new_user_session_path
   end
+
+  test "impersonation is blocked outside of local environments" do
+    sign_in @admin
+    original = Rails.env
+    Rails.env = "production"
+    begin
+      post admin_impersonation_path, params: { user_id: @attendee.id }
+    ensure
+      Rails.env = original
+    end
+    assert_redirected_to root_path
+    assert_equal "This feature is only available in development.", flash[:alert]
+  end
 end
