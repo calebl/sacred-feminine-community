@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_09_143913) do
+ActiveRecord::Schema[8.2].define(version: 2026_04_18_140000) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -366,6 +366,11 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_09_143913) do
     t.boolean "dm_notifications", default: true, null: false
     t.integer "dm_privacy", default: 1, null: false
     t.string "email", default: "", null: false
+    t.boolean "email_notifications_enabled", default: true, null: false
+    t.boolean "email_on_direct_message", default: true, null: false
+    t.boolean "email_on_mention", default: true, null: false
+    t.boolean "email_on_new_comment", default: true, null: false
+    t.boolean "email_on_new_post", default: true, null: false
     t.string "encrypted_password", default: "", null: false
     t.datetime "invitation_accepted_at"
     t.datetime "invitation_created_at"

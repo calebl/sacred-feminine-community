@@ -55,6 +55,22 @@ class PushSubscriptionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
+  test "create returns unprocessable_entity when subscription is invalid" do
+    sign_in @admin
+
+    assert_no_difference "PushSubscription.count" do
+      post push_subscriptions_path, params: {
+        push_subscription: {
+          endpoint: "https://push.example.com/missing-keys",
+          p256dh_key: "",
+          auth_key: ""
+        }
+      }, as: :json
+    end
+
+    assert_response :unprocessable_entity
+  end
+
   test "unauthenticated user cannot create subscription" do
     post push_subscriptions_path, params: {
       push_subscription: {

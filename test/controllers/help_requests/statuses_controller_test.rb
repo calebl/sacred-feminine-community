@@ -28,4 +28,12 @@ class HelpRequests::StatusesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     assert @help_request.reload.open?
   end
+
+  test "admin passing an invalid status is rejected" do
+    sign_in @admin
+    patch help_request_status_path(@help_request), params: { status: "not_a_status" }
+    assert_redirected_to help_request_path(@help_request)
+    assert_equal "Invalid status.", flash[:alert]
+    assert @help_request.reload.open?
+  end
 end
