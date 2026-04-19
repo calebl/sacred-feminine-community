@@ -30,6 +30,10 @@ module Admin
       end
     end
 
+    def after_accept_path_for(resource)
+      edit_profile_path(resource)
+    end
+
     private
 
     def authorize_admin!

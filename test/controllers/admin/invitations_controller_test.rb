@@ -85,7 +85,7 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
 
     user.reload
     assert user.invitation_accepted_at.present?
-    assert_response :redirect
+    assert_redirected_to edit_profile_path(user)
   end
 
   test "admin can create invitation via copy link and get JSON response" do
