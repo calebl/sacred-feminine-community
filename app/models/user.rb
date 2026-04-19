@@ -111,6 +111,19 @@ class User < ApplicationRecord
     end
   end
 
+  def email_enabled_for?(event_type)
+    return false unless email_notifications_enabled?
+
+    case event_type
+    when "mention" then email_on_mention?
+    when "direct_message" then email_on_direct_message?
+    when "new_comment" then email_on_new_comment?
+    when "new_post" then email_on_new_post?
+    when "help_request_reply" then true
+    else false
+    end
+  end
+
   def accepts_direct_messages_from?(sender)
     return true if sender.admin?
 

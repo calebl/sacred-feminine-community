@@ -2,6 +2,7 @@ class GroupPost < ApplicationRecord
   include Mentionable
   include Reactable
   include HasPhotos
+  include PostNotifiable
 
   belongs_to :group
   belongs_to :user
@@ -31,5 +32,19 @@ class GroupPost < ApplicationRecord
     else
       comments.count
     end
+  end
+
+  private
+
+  def post_container_member_ids
+    group.group_memberships.pluck(:user_id)
+  end
+
+  def new_post_notification_body
+    "Posted in #{group.name}"
+  end
+
+  def new_post_notification_path
+    "/groups/#{group_id}/group_posts/#{id}"
   end
 end
