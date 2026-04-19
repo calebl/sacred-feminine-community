@@ -52,4 +52,56 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal "", strip_mentions(nil)
     assert_equal "", strip_mentions("")
   end
+
+  test "markdown renders bold and italic" do
+    result = markdown("**bold** and *italic*")
+    assert_includes result, "<strong>bold</strong>"
+    assert_includes result, "<em>italic</em>"
+    assert result.html_safe?
+  end
+
+  test "markdown uses hard wraps" do
+    result = markdown("line one\nline two")
+    assert_includes result, "<br>"
+  end
+
+  test "total_unread_count delegates to the user" do
+    user = users(:admin)
+    assert_equal user.total_unread_count, total_unread_count(user)
+  end
+
+  test "help_requests_need_attention returns true when admin has open requests" do
+    def self.current_user; users(:admin); end
+    assert help_requests_need_attention?
+  end
+
+  test "help_requests_need_attention returns false for a non-admin" do
+    def self.current_user; users(:attendee); end
+    assert_not help_requests_need_attention?
+  end
+
+  test "help_requests_need_attention returns false when current_user is nil" do
+    def self.current_user; nil; end
+    assert_not help_requests_need_attention?
+  end
+
+  test "notification_icon_bg returns styling for each known event type" do
+    %w[mention direct_message new_comment new_member help_request help_request_reply].each do |event|
+      notification = Notification.new(event_type: event)
+      assert notification_icon_bg(notification).present?, "expected styling for #{event}"
+    end
+  end
+
+  test "notification_icon_bg falls back for unknown event types" do
+    notification = Notification.new(event_type: "unknown_event")
+    result = notification_icon_bg(notification)
+    assert_includes result, "bg-gray-100"
+  end
+
+  test "notification_icon_bg distinguishes help_request and mention styling" do
+    assert_includes notification_icon_bg(Notification.new(event_type: "mention")), "sf-gold"
+    assert_includes notification_icon_bg(Notification.new(event_type: "direct_message")), "blue"
+    assert_includes notification_icon_bg(Notification.new(event_type: "new_comment")), "green"
+    assert_includes notification_icon_bg(Notification.new(event_type: "help_request")), "purple"
+  end
 end
