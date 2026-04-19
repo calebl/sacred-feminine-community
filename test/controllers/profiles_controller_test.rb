@@ -274,4 +274,37 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "input[type=radio][name='user[mention_privacy]']", count: 3
   end
+
+  test "edit profile displays email notification checkboxes" do
+    sign_in users(:attendee)
+    get edit_profile_path(users(:attendee))
+    assert_response :success
+    assert_select "input[type=checkbox][name='user[email_notifications_enabled]']"
+    assert_select "input[type=checkbox][name='user[email_on_mention]']"
+    assert_select "input[type=checkbox][name='user[email_on_direct_message]']"
+    assert_select "input[type=checkbox][name='user[email_on_new_comment]']"
+    assert_select "input[type=checkbox][name='user[email_on_new_post]']"
+  end
+
+  test "user can update email notification preferences" do
+    user = users(:attendee)
+    sign_in user
+    patch profile_path(user), params: {
+      user: { name: user.name, email_on_mention: "0", email_on_direct_message: "1" }
+    }
+    assert_redirected_to profile_path(user)
+    user.reload
+    assert_not user.email_on_mention?
+    assert user.email_on_direct_message?
+  end
+
+  test "user can disable all email notifications via master toggle" do
+    user = users(:attendee)
+    sign_in user
+    patch profile_path(user), params: {
+      user: { name: user.name, email_notifications_enabled: "0" }
+    }
+    assert_redirected_to profile_path(user)
+    assert_not user.reload.email_notifications_enabled?
+  end
 end

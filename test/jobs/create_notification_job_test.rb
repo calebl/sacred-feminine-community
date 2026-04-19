@@ -41,6 +41,19 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     end
   end
 
+  test "enqueues SendEmailNotificationJob" do
+    assert_enqueued_with(job: SendEmailNotificationJob) do
+      CreateNotificationJob.perform_now(
+        user_id: @admin.id,
+        actor_id: @attendee.id,
+        event_type: "mention",
+        title: "Mention",
+        body: "You were mentioned",
+        path: "/test"
+      )
+    end
+  end
+
   test "does nothing if user not found" do
     assert_no_difference "Notification.count" do
       CreateNotificationJob.perform_now(

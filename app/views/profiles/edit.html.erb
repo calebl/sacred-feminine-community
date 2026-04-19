@@ -124,6 +124,38 @@
         </div>
       </fieldset>
 
+      <fieldset data-controller="toggle-visibility">
+        <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Notifications</legend>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Emails only include the notification — no message content.</p>
+
+        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 pb-3 mb-3 border-b border-sf-sand/10 dark:border-gray-700">
+          <%= f.check_box :email_notifications_enabled,
+                data: { toggle_visibility_target: "trigger", action: "change->toggle-visibility#update" },
+                class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+          <span class="font-medium">Send me email notifications</span>
+        </label>
+
+        <div data-toggle-visibility-target="content" class="space-y-2">
+          <p class="text-xs text-gray-400 dark:text-gray-500 mb-2">Send an email for:</p>
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.check_box :email_on_direct_message, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            Direct messages
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.check_box :email_on_mention, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            Mentions
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.check_box :email_on_new_post, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            New posts in your groups and cohorts
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.check_box :email_on_new_comment, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            Comments on your posts
+          </label>
+        </div>
+      </fieldset>
+
       <div>
         <%= f.submit "Save Profile", class: "btn-primary" %>
       </div>

@@ -2,6 +2,7 @@ class Post < ApplicationRecord
   include Mentionable
   include Reactable
   include HasPhotos
+  include PostNotifiable
 
   belongs_to :cohort
   belongs_to :user
@@ -31,5 +32,19 @@ class Post < ApplicationRecord
     else
       comments.count
     end
+  end
+
+  private
+
+  def post_container_member_ids
+    cohort.cohort_memberships.pluck(:user_id)
+  end
+
+  def new_post_notification_body
+    "Posted in #{cohort.name}"
+  end
+
+  def new_post_notification_path
+    "/cohorts/#{cohort_id}/posts/#{id}"
   end
 end
