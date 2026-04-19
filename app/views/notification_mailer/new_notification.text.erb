@@ -1,0 +1,11 @@
+<%= @notification.title %>
+
+<% if @notification.body.present? -%>
+<%= @notification.body %>
+
+<% end -%>
+View in app: <%= @notification_url %>
+
+---
+You're receiving this email because notifications are enabled for your account.
+Manage notification settings: <%= @settings_url %>

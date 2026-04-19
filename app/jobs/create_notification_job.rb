@@ -22,6 +22,7 @@ class CreateNotificationJob < ApplicationJob
     end
 
     SendPushNotificationJob.perform_later(user_id, title, body, path)
+    SendEmailNotificationJob.perform_later(notification.id)
     BroadcastUnreadBadgeJob.perform_later(user_id)
 
     notification

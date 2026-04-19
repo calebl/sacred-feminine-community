@@ -19,6 +19,21 @@ module Mentionable
     after_update_commit :re_extract_mentions, if: :saved_change_to_body?
   end
 
+  # Ids of users who would receive a mention notification for the current body,
+  # after applying per-user mention-privacy settings. Pure; no side effects.
+  def mention_recipient_ids
+    return [] if body.blank?
+
+    ids = body.scan(MENTION_PATTERN).map { |_name, id| id.to_i }.uniq
+    return [] if ids.empty?
+
+    author = mention_author
+    context = mention_context
+    User.active_users.where(id: ids).where.not(id: author.id)
+      .select { |user| user.accepts_mentions_in?(context) }
+      .map(&:id)
+  end
+
   private
 
   def mention_context
@@ -26,17 +41,11 @@ module Mentionable
   end
 
   def extract_mentions
-    return if body.blank?
-
-    mentioned_user_ids = body.scan(MENTION_PATTERN).map { |_name, id| id.to_i }.uniq
-    return if mentioned_user_ids.empty?
+    recipient_ids = mention_recipient_ids
+    return if recipient_ids.empty?
 
     author = mention_author
-    context = mention_context
-    valid_users = User.active_users.where(id: mentioned_user_ids).where.not(id: author.id)
-
-    valid_users.find_each do |user|
-      next unless user.accepts_mentions_in?(context)
+    User.where(id: recipient_ids).find_each do |user|
       mentions.create(user: user, mentioner: author)
       CreateNotificationJob.perform_later(
         user_id: user.id,
