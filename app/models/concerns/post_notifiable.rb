@@ -8,8 +8,7 @@ module PostNotifiable
   private
 
   def notify_members_of_new_post
-    mentioned_user_ids = mentions.pluck(:user_id)
-    recipient_ids = post_container_member_ids - [ user_id ] - mentioned_user_ids
+    recipient_ids = post_container_member_ids - [ user_id ] - mention_recipient_ids
 
     recipient_ids.each do |rid|
       CreateNotificationJob.perform_later(
