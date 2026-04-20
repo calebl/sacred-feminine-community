@@ -22,7 +22,7 @@
           <% end %>
         <% end %>
       </div>
-      <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"><%= render_with_mentions(comment.body) %></p>
+      <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"><%= format_user_content(comment.body) %></p>
       <div data-controller="reply-form" class="mt-1">
         <div class="flex items-center gap-3">
           <button type="button"

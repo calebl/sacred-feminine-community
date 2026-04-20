@@ -4,12 +4,18 @@ module ApplicationHelper
     text.gsub(Mentionable::MENTION_PATTERN) { "@#{$1}" }
   end
 
-  def render_with_mentions(text)
+  URL_PATTERN = %r{https?://[^\s<>"')\]]+[^\s<>"')\].,:;!?]}
+
+  def format_user_content(text)
     return "".html_safe if text.blank?
 
     escaped = ERB::Util.html_escape(text)
 
-    result = escaped.gsub(Mentionable::MENTION_PATTERN) do
+    result = escaped.gsub(URL_PATTERN) do |url|
+      %(<a href="#{url}" class="text-sf-gold underline hover:text-sf-gold/80" target="_blank" rel="noopener noreferrer">#{url}</a>)
+    end
+
+    result = result.gsub(Mentionable::MENTION_PATTERN) do
       name = $1
       id = $2
       %(<a href="#{profile_path(id)}" class="text-sf-gold font-semibold hover:underline">@#{name}</a>)
