@@ -66,7 +66,7 @@
 
   <!-- Post body with truncation -->
   <div data-post-edit-target="display" data-controller="post-body">
-    <div data-post-body-target="content" class="text-sm text-gray-700 dark:text-gray-300 line-clamp-[15] whitespace-pre-wrap"><%= render_with_mentions(post.body) %></div>
+    <div data-post-body-target="content" class="text-sm text-gray-700 dark:text-gray-300 line-clamp-[15] whitespace-pre-wrap"><%= format_user_content(post.body) %></div>
     <button type="button" data-post-body-target="toggle" data-action="post-body#toggle" class="hidden text-xs text-sf-gold hover:text-sf-gold/80 mt-1 cursor-pointer transition">view more</button>
     <%= render "shared/photo_gallery", post: post %>
   </div>

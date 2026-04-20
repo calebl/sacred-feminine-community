@@ -1,43 +1,89 @@
 require "test_helper"
 
 class ApplicationHelperTest < ActionView::TestCase
-  test "render_with_mentions converts mention syntax to links" do
-    result = render_with_mentions("Hello @[Jane](1)")
+  test "format_user_content converts mention syntax to links" do
+    result = format_user_content("Hello @[Jane](1)")
     assert_includes result, "<a href="
     assert_includes result, "@Jane"
     assert_includes result, "text-sf-gold"
     assert result.html_safe?
   end
 
-  test "render_with_mentions escapes HTML in surrounding text" do
-    result = render_with_mentions('<script>alert("xss")</script> @[Jane](1)')
+  test "format_user_content escapes HTML in surrounding text" do
+    result = format_user_content('<script>alert("xss")</script> @[Jane](1)')
     assert_not_includes result, "<script>"
     assert_includes result, "&lt;script&gt;"
     assert_includes result, "@Jane"
   end
 
-  test "render_with_mentions handles nil" do
-    assert_equal "", render_with_mentions(nil)
+  test "format_user_content handles nil" do
+    assert_equal "", format_user_content(nil)
   end
 
-  test "render_with_mentions handles blank" do
-    assert_equal "", render_with_mentions("")
+  test "format_user_content handles blank" do
+    assert_equal "", format_user_content("")
   end
 
-  test "render_with_mentions handles text with no mentions" do
-    result = render_with_mentions("Just a regular message")
+  test "format_user_content handles text with no mentions" do
+    result = format_user_content("Just a regular message")
     assert_equal "Just a regular message", result
   end
 
-  test "render_with_mentions handles multiple mentions" do
-    result = render_with_mentions("@[Jane](1) and @[Bob](2)")
+  test "format_user_content handles multiple mentions" do
+    result = format_user_content("@[Jane](1) and @[Bob](2)")
     assert_includes result, "@Jane"
     assert_includes result, "@Bob"
   end
 
-  test "render_with_mentions generates correct profile links" do
-    result = render_with_mentions("@[Jane](42)")
+  test "format_user_content generates correct profile links" do
+    result = format_user_content("@[Jane](42)")
     assert_includes result, "/profiles/42"
+  end
+
+  test "format_user_content auto-links http URLs" do
+    result = format_user_content("Visit http://example.com for more")
+    assert_includes result, '<a href="http://example.com"'
+    assert_includes result, 'target="_blank"'
+    assert_includes result, 'rel="noopener noreferrer"'
+    assert_includes result, ">http://example.com</a>"
+  end
+
+  test "format_user_content auto-links https URLs" do
+    result = format_user_content("Check https://example.com/path?q=1")
+    assert_includes result, '<a href="https://example.com/path?q=1"'
+    assert_includes result, ">https://example.com/path?q=1</a>"
+  end
+
+  test "format_user_content auto-links URLs alongside mentions" do
+    result = format_user_content("@[Jane](1) shared https://example.com")
+    assert_includes result, "@Jane</a>"
+    assert_includes result, ">https://example.com</a>"
+  end
+
+  test "format_user_content does not double-link mention hrefs" do
+    result = format_user_content("@[Jane](1)")
+    # The profile link href should not itself be turned into a clickable URL
+    assert_equal 1, result.scan("<a ").length
+  end
+
+  test "format_user_content auto-links multiple URLs" do
+    result = format_user_content("See https://a.com and http://b.com")
+    assert_equal 2, result.scan('target="_blank"').length
+  end
+
+  test "format_user_content does not linkify plain text" do
+    result = format_user_content("no links here")
+    assert_not_includes result, "<a "
+  end
+
+  test "format_user_content strips trailing punctuation from URLs" do
+    result = format_user_content("Visit https://example.com.")
+    assert_includes result, ">https://example.com</a>."
+  end
+
+  test "format_user_content handles single-char URL path without trailing punct" do
+    result = format_user_content("See https://a.co/b")
+    assert_includes result, ">https://a.co/b</a>"
   end
 
   test "strip_mentions replaces mention syntax with plain @Name" do
