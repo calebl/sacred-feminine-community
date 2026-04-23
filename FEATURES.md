@@ -104,6 +104,7 @@
 - **User management** - View all users, remove (soft-delete), restore removed users
 - **Role management** - Promote/demote users between attendee and admin roles
 - **Invitation management** - Send invitations with optional cohort pre-assignment
+- **Bulk invitations** - Invite multiple users by email to a specific cohort at once, with an optional custom message included in the invitation email
 - **Invite links** - Generate shareable invitation links for specific users
 - **Impersonation** - Admins can impersonate users in development environment for debugging
 - **Job dashboard** - Solid Queue job monitoring via Mission Control (admin only)

@@ -1,23 +1,5 @@
-<p>Hello <%= @resource.name.presence || @resource.email %>,</p>
-
-<p>
-  You are invited you to make an account on our new <strong>Sacred Feminine Community</strong> platform.
-  If you would like to join, click the link below. If you do not wish to join, please ignore this email.
-</p>
-
-<p>
-  <%= link_to "Accept your invitation", accept_invitation_url(@resource, invitation_token: @token) %>
-</p>
-
-<% if @resource.invitation_due_at %>
-  <p>
-    <em>
-      Please accept by
-      <%= l(@resource.invitation_due_at, format: :'devise.mailer.invitation_instructions.accept_until_format') %>.
-      After that, the link will quietly expire.
-    </em>
-  </p>
-<% end %>
-
-
-<p>Hands at your back,<br>The Sacred Feminine Team</p>
+<%= render "shared/invitation_email_body",
+    recipient_name: @resource.name.presence,
+    custom_message: @resource.bulk_invitation&.message,
+    accept_url: accept_invitation_url(@resource, invitation_token: @token),
+    due_at: @resource.invitation_due_at %>

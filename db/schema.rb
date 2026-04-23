@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_04_18_140000) do
+ActiveRecord::Schema[8.2].define(version: 2026_04_23_203350) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -69,6 +69,19 @@ ActiveRecord::Schema[8.2].define(version: 2026_04_18_140000) do
     t.index ["created_at"], name: "index_audits_on_created_at"
     t.index ["request_uuid"], name: "index_audits_on_request_uuid"
     t.index ["user_id", "user_type"], name: "user_index"
+  end
+
+  create_table "bulk_invitations", force: :cascade do |t|
+    t.integer "cohort_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "failed_count", default: 0, null: false
+    t.integer "invited_by_id", null: false
+    t.text "message"
+    t.integer "sent_count", default: 0, null: false
+    t.integer "skipped_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["cohort_id"], name: "index_bulk_invitations_on_cohort_id"
+    t.index ["invited_by_id"], name: "index_bulk_invitations_on_invited_by_id"
   end
 
   create_table "cohort_memberships", force: :cascade do |t|
@@ -359,6 +372,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_04_18_140000) do
 
   create_table "users", force: :cascade do |t|
     t.text "bio"
+    t.integer "bulk_invitation_id"
     t.string "city"
     t.string "country"
     t.datetime "created_at", null: false
@@ -392,6 +406,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_04_18_140000) do
     t.boolean "show_on_map", default: false, null: false
     t.string "state"
     t.datetime "updated_at", null: false
+    t.index ["bulk_invitation_id"], name: "index_users_on_bulk_invitation_id"
     t.index ["discarded_at"], name: "index_users_on_discarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true
@@ -403,6 +418,8 @@ ActiveRecord::Schema[8.2].define(version: 2026_04_18_140000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "bulk_invitations", "cohorts"
+  add_foreign_key "bulk_invitations", "users", column: "invited_by_id"
   add_foreign_key "cohort_memberships", "cohorts"
   add_foreign_key "cohort_memberships", "users"
   add_foreign_key "cohorts", "users", column: "created_by_id"
@@ -443,4 +460,5 @@ ActiveRecord::Schema[8.2].define(version: 2026_04_18_140000) do
   add_foreign_key "posts", "users"
   add_foreign_key "push_subscriptions", "users"
   add_foreign_key "reactions", "users"
+  add_foreign_key "users", "bulk_invitations"
 end
