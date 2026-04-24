@@ -24,7 +24,7 @@
 
     <%= link_to new_admin_bulk_invitation_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-sf-gold/10 text-sf-gold rounded-xl hover:bg-sf-gold hover:text-white font-semibold transition shadow-sm text-sm" do %>
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-      Bulk Invite
+      Invite Cohort
     <% end %>
 
     <%= link_to admin_features_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 font-semibold transition shadow-sm text-sm" do %>
@@ -93,90 +93,110 @@
     </div>
   <% end %>
 
-  <% if @pending_users.present? %>
-    <div class="mt-8">
-      <h2 class="text-xl font-display font-semibold text-sf-black dark:text-white mb-4">Invited Users</h2>
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-x-auto">
-        <table class="min-w-full divide-y divide-sf-sand/20 dark:divide-gray-700">
-          <thead class="bg-sf-beige/30 dark:bg-gray-700">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Invited</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-sf-sand/10 dark:divide-gray-700">
-            <% @pending_users.each do |user| %>
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-sf-black dark:text-white"><%= user.name %></td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= user.email %></td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= time_ago_in_words(user.invitation_sent_at || user.created_at) %> ago</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <div class="flex items-center gap-3">
-                    <button type="button"
-                        data-controller="clipboard"
-                        data-clipboard-url-value="<%= admin_user_invite_link_path(user) %>"
-                        data-clipboard-confirm-value="This will generate a new invite link and invalidate the one previously sent via email. Continue?"
-                        data-action="click->clipboard#copy"
-                        class="text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer">
-                      Copy Invite Link
-                    </button>
-                    <%= button_to "Cancel Invite",
-                        admin_user_path(user),
-                        method: :delete,
-                        class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
-                        data: { turbo_confirm: "Cancel invitation for #{user.email}? This will permanently delete the invitation." } %>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  <% end %>
+  <% if @active_users.present? || @pending_users.present? %>
+    <div class="mt-8" data-controller="tabs" data-tabs-active-tab-value="users">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-hidden">
+        <!-- Tab headers -->
+        <div class="flex border-b border-sf-sand/20 dark:border-gray-700">
+          <button data-tabs-target="tab" data-action="click->tabs#select"
+                  data-tab-name="users"
+                  class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+            Users (<%= @active_users.length %>)
+          </button>
+          <button data-tabs-target="tab" data-action="click->tabs#select"
+                  data-tab-name="invited"
+                  class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer">
+            Invited Users (<%= @pending_users.length %>)
+          </button>
+        </div>
 
-  <% if @active_users.present? %>
-    <div class="mt-8">
-      <h2 class="text-xl font-display font-semibold text-sf-black dark:text-white mb-4">Users</h2>
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 overflow-x-auto">
-        <table class="min-w-full divide-y divide-sf-sand/20 dark:divide-gray-700">
-          <thead class="bg-sf-beige/30 dark:bg-gray-700">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-sf-sand/10 dark:divide-gray-700">
-            <% @active_users.each do |user| %>
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><%= link_to user.name, profile_path(user), class: "text-sf-black dark:text-white hover:text-sf-red transition" %></td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= user.email %></td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <div class="flex items-center gap-3">
-                    <%= button_to "Make Admin",
-                        admin_user_role_path(user),
-                        method: :patch,
-                        class: "text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer",
-                        data: { turbo_confirm: "Make #{user.name} an admin?\n\nAdmins can:\n• Invite and remove members\n• Restore removed members\n• Change user roles\n• Access the admin dashboard" } %>
-                    <%= button_to "Remove",
-                        admin_user_path(user),
-                        method: :delete,
-                        class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
-                        data: { turbo_confirm: "Remove #{user.name}? They will no longer be able to sign in." } %>
-                    <% if Rails.env.local? %>
-                      <%= button_to "Impersonate", admin_impersonation_path, params: { user_id: user.id },
-                          method: :post,
-                          class: "text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer" %>
-                    <% end %>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+        <!-- Users panel -->
+        <% if @active_users.present? %>
+          <div data-tabs-target="panel" data-panel-name="users">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-sf-sand/20 dark:divide-gray-700">
+                <thead class="bg-sf-beige/30 dark:bg-gray-700">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-sf-sand/10 dark:divide-gray-700">
+                  <% @active_users.each do |user| %>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"><%= link_to user.name, profile_path(user), class: "text-sf-black dark:text-white hover:text-sf-red transition" %></td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= user.email %></td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <div class="flex items-center gap-3">
+                          <%= button_to "Make Admin",
+                              admin_user_role_path(user),
+                              method: :patch,
+                              class: "text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer",
+                              data: { turbo_confirm: "Make #{user.name} an admin?\n\nAdmins can:\n• Invite and remove members\n• Restore removed members\n• Change user roles\n• Access the admin dashboard" } %>
+                          <%= button_to "Remove",
+                              admin_user_path(user),
+                              method: :delete,
+                              class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
+                              data: { turbo_confirm: "Remove #{user.name}? They will no longer be able to sign in." } %>
+                          <% if Rails.env.local? %>
+                            <%= button_to "Impersonate", admin_impersonation_path, params: { user_id: user.id },
+                                method: :post,
+                                class: "text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer" %>
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Invited Users panel -->
+        <% if @pending_users.present? %>
+          <div data-tabs-target="panel" data-panel-name="invited" class="hidden">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-sf-sand/20 dark:divide-gray-700">
+                <thead class="bg-sf-beige/30 dark:bg-gray-700">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Invited</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-sf-sand/10 dark:divide-gray-700">
+                  <% @pending_users.each do |user| %>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-sf-black dark:text-white"><%= user.name %></td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= user.email %></td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><%= time_ago_in_words(user.invitation_sent_at || user.created_at) %> ago</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <div class="flex items-center gap-3">
+                          <button type="button"
+                              data-controller="clipboard"
+                              data-clipboard-url-value="<%= admin_user_invite_link_path(user) %>"
+                              data-clipboard-confirm-value="This will generate a new invite link and invalidate the one previously sent via email. Continue?"
+                              data-action="click->clipboard#copy"
+                              class="text-sf-gold hover:text-sf-gold/80 font-medium text-sm transition-colors cursor-pointer">
+                            Copy Invite Link
+                          </button>
+                          <%= button_to "Cancel Invite",
+                              admin_user_path(user),
+                              method: :delete,
+                              class: "text-sf-red hover:text-sf-red/80 font-medium text-sm transition-colors cursor-pointer",
+                              data: { turbo_confirm: "Cancel invitation for #{user.email}? This will permanently delete the invitation." } %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
       </div>
     </div>
   <% end %>

@@ -46,4 +46,9 @@ class ApplicationController < ActionController::Base
   def policy_scope_required?
     false
   end
+
+  def append_info_to_payload(payload)
+    super
+    payload[:flash] = flash.to_hash
+  end
 end

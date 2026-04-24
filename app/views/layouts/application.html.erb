@@ -135,7 +135,17 @@
       </nav>
     <% end %>
 
-    <%# Flash messages hidden — keeping controller notices/alerts intact for now %>
+    <%# Flash toast messages %>
+    <div data-controller="flash" class="fixed top-4 right-4 z-[70] flex flex-col gap-3 pointer-events-none">
+      <div data-flash-target="container">
+        <% if flash[:notice] %>
+          <div data-flash-message-value="<%= j flash[:notice] %>" data-flash-type-value="notice"></div>
+        <% end %>
+        <% if flash[:alert] %>
+          <div data-flash-message-value="<%= j flash[:alert] %>" data-flash-type-value="alert"></div>
+        <% end %>
+      </div>
+    </div>
 
     <main class="flex-1 pb-20 md:pb-0">
       <%= content_for?(:content) ? yield(:content) : yield %>
