@@ -201,12 +201,14 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:admin)
     cohort = cohorts(:kabul_retreat)
     bulk_invitation = BulkInvitation.create!(cohort: cohort, invited_by: users(:admin))
-    User.invite!({ email: "newbie@example.com", name: "Newbie" }, users(:admin))
+    User.invite!({ email: "bulk-newbie@example.com", name: "Bulk Newbie", invited_cohort_ids: [ cohort.id ] }, users(:admin))
     User.last.update!(bulk_invitation: bulk_invitation)
+    User.invite!({ email: "solo-newbie@example.com", name: "Solo Newbie", invited_cohort_ids: [ cohort.id ] }, users(:admin))
 
     get cohort_path(cohort)
     assert_response :success
-    assert_match "newbie@example.com", response.body
+    assert_match "bulk-newbie@example.com", response.body
+    assert_match "solo-newbie@example.com", response.body
     assert_match "Invited (not yet joined)", response.body
   end
 
