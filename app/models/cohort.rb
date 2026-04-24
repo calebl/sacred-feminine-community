@@ -8,6 +8,8 @@ class Cohort < ApplicationRecord
   has_many :cohort_memberships
   has_many :members, through: :cohort_memberships, source: :user
   has_many :posts, dependent: :destroy
+  has_many :bulk_invitations, dependent: :destroy
+  has_many :bulk_invitations, dependent: :destroy
   has_one_attached :header_image
 
   validates :name, presence: true

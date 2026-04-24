@@ -1,0 +1,32 @@
+<p>Hello<% if recipient_name.present? %> <%= recipient_name %><% end %>,</p>
+
+<% if local_assigns[:preview] %>
+  <p data-email-preview-target="body" class="whitespace-pre-wrap"></p>
+<% elsif custom_message.present? %>
+  <%= simple_format(custom_message) %>
+<% else %>
+  <p>
+    You are invited you to make an account on our new <strong>Sacred Feminine Community</strong> platform.
+    If you would like to join, click the link below. If you do not wish to join, please ignore this email.
+  </p>
+<% end %>
+
+<p>
+  <% if accept_url %>
+    <%= link_to "Accept your invitation", accept_url %>
+  <% else %>
+    <span class="text-sf-gold underline">Accept your invitation</span>
+  <% end %>
+</p>
+
+<% if defined?(due_at) && due_at %>
+  <p>
+    <em>
+      Please accept by
+      <%= l(due_at, format: :'devise.mailer.invitation_instructions.accept_until_format') %>.
+      After that, the link will quietly expire.
+    </em>
+  </p>
+<% end %>
+
+<p>Hands at your back,<br>The Sacred Feminine Team</p>

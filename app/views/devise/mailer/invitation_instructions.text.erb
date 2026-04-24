@@ -1,6 +1,10 @@
-Hello <%= @resource.name.presence || @resource.email %>,
+Hello<%= " #{@resource.name}" if @resource.name.present? %>,
 
+<% if @resource.bulk_invitation&.message.present? %>
+<%= @resource.bulk_invitation.message %>
+<% else %>
 You are invited you to make an account on our new Sacred Feminine Community platform. If you would like to join, click the link below. If you do not wish to join, please ignore this email.
+<% end %>
 
 Accept your invitation:
 <%= accept_invitation_url(@resource, invitation_token: @token) %>

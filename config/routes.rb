@@ -98,6 +98,7 @@ Rails.application.routes.draw do
     resource :features, only: [ :show ]
     resource :impersonation, only: [ :create, :destroy ]
     resources :releases, only: [ :index ]
+    resources :bulk_invitations, only: [ :new, :create ]
     resources :users, only: [ :index, :update, :destroy ] do
       resource :role, only: [ :update ], module: :users
       resource :invite_link, only: [ :create ], module: :users

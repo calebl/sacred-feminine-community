@@ -11,7 +11,7 @@ class User < ApplicationRecord
   audited except: [ :encrypted_password, :reset_password_token, :reset_password_sent_at,
                     :remember_created_at, :invitation_token, :invitation_sent_at,
                     :invitation_accepted_at, :invitation_created_at, :current_password,
-                    :invited_cohort_ids ]
+                    :invited_cohort_ids, :bulk_invitation_id ]
 
   enum :role, { attendee: 0, admin: 1 }
   enum :dm_privacy, { nobody: 0, cohort_members: 1, everyone: 2 }, prefix: true
@@ -27,6 +27,8 @@ class User < ApplicationRecord
       .order(:name)
       .limit(10)
   }
+
+  belongs_to :bulk_invitation, optional: true
 
   has_many :cohort_memberships, dependent: :destroy
   has_many :cohorts, -> { kept }, through: :cohort_memberships

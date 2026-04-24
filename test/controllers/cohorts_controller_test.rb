@@ -195,4 +195,49 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_not_equal "", cohorts(:kabul_retreat).reload.name
   end
+
+  # Invited users in members tab
+  test "admin sees invited users in members tab" do
+    sign_in users(:admin)
+    cohort = cohorts(:kabul_retreat)
+    User.invite!({ email: "bulk-newbie@example.com", name: "Bulk Newbie", invited_cohort_ids: [ cohort.id ] }, users(:admin))
+    User.invite!({ email: "solo-newbie@example.com", name: "Solo Newbie", invited_cohort_ids: [ cohort.id ] }, users(:admin))
+
+    get cohort_path(cohort)
+    assert_response :success
+    assert_match "bulk-newbie@example.com", response.body
+    assert_match "solo-newbie@example.com", response.body
+    assert_match "Invited (not yet joined)", response.body
+  end
+
+  test "admin sees single-invite users in members tab" do
+    sign_in users(:admin)
+    cohort = cohorts(:kabul_retreat)
+    User.invite!({ email: "solo-invite@example.com", name: "Solo Invite", invited_cohort_ids: [ cohort.id ] }, users(:admin))
+
+    get cohort_path(cohort)
+    assert_response :success
+    assert_match "solo-invite@example.com", response.body
+    assert_match "Invited (not yet joined)", response.body
+  end
+
+  test "admin does not see single-invite users for other cohorts" do
+    sign_in users(:admin)
+    cohort = cohorts(:kabul_retreat)
+    other_cohort = cohorts(:bali_retreat)
+    User.invite!({ email: "wrong-cohort@example.com", name: "Wrong Cohort", invited_cohort_ids: [ other_cohort.id ] }, users(:admin))
+
+    get cohort_path(cohort)
+    assert_response :success
+    assert_no_match "wrong-cohort@example.com", response.body
+  end
+
+  test "attendee does not see invited users section" do
+    sign_in users(:attendee)
+    cohort = cohorts(:kabul_retreat)
+
+    get cohort_path(cohort)
+    assert_response :success
+    assert_no_match "Invited (not yet joined)", response.body
+  end
 end
