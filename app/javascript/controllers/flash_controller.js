@@ -1,12 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["container"]
-  static values = { message: String, type: String }
+  static targets = ["container", "notice", "alert"]
 
   connect() {
-    if (this.hasMessageValue && this.messageValue) {
-      this.show(this.messageValue, this.typeValue)
+    if (this.hasNoticeTarget) {
+      this.show(this.noticeTarget.dataset.message, "notice")
+    }
+    if (this.hasAlertTarget) {
+      this.show(this.alertTarget.dataset.message, "alert")
     }
   }
 
