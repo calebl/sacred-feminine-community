@@ -13,3 +13,7 @@ admin_in_yoga:
 attendee_in_yoga:
   user: attendee
   group: yoga_group
+
+attendee_two_in_reading_group:
+  user: attendee_two
+  group: reading_group

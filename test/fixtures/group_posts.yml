@@ -18,3 +18,10 @@ yoga_post:
   user: admin
   pinned: false
   created_at: <%= 1.hour.ago %>
+
+reading_group_post:
+  body: What should we read next?
+  group: reading_group
+  user: attendee_two
+  pinned: false
+  created_at: <%= 1.hour.ago %>

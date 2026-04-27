@@ -35,6 +35,13 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match "Group Chat", response.body
   end
 
+  test "admin can view posts and members of group they have not joined" do
+    sign_in users(:admin)
+    get group_path(groups(:reading_group))
+    assert_response :success
+    assert_match "Members", response.body
+  end
+
   test "member can view group with tabs" do
     sign_in users(:attendee)
     get group_path(groups(:book_club))

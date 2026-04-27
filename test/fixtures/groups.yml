@@ -7,3 +7,8 @@ yoga_group:
   name: Yoga Circle
   description: Daily yoga practice and mindfulness
   created_by_id: <%= ActiveRecord::FixtureSet.identify(:admin) %>
+
+reading_group:
+  name: Reading Group
+  description: A members-only reading group
+  created_by_id: <%= ActiveRecord::FixtureSet.identify(:attendee_two) %>
