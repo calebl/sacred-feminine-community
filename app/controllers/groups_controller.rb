@@ -17,7 +17,7 @@ class GroupsController < ApplicationController
     @active_group_id = @group.id
     @is_member = @group.member?(current_user)
 
-    return unless @is_member
+    return unless policy(@group).view_content?
 
     unless request.headers["Purpose"] == "prefetch"
       membership = @group.group_memberships.find_by(user: current_user)

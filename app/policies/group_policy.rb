@@ -19,6 +19,10 @@ class GroupPolicy < ApplicationPolicy
     user.admin? || (record.member?(user) && record.creator?(user))
   end
 
+  def view_content?
+    user.admin? || record.member?(user)
+  end
+
   def join?
     !record.member?(user)
   end
