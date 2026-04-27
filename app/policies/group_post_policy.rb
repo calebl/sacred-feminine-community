@@ -1,6 +1,6 @@
 class GroupPostPolicy < ApplicationPolicy
   def show?
-    GroupPolicy.new(user, record.group).view_content?
+    user.admin? || record.group.member?(user)
   end
 
   def create?
