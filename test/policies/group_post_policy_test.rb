@@ -9,6 +9,10 @@ class GroupPostPolicyTest < ActiveSupport::TestCase
     assert_not GroupPostPolicy.new(users(:attendee_two), group_posts(:book_club_post)).show?
   end
 
+  test "admin can show post in group they have not joined" do
+    assert GroupPostPolicy.new(users(:admin), group_posts(:reading_group_post)).show?
+  end
+
   test "member can create post" do
     post = GroupPost.new(group: groups(:book_club))
     assert GroupPostPolicy.new(users(:attendee), post).create?
