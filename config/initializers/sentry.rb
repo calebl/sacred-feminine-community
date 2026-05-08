@@ -7,6 +7,7 @@ Sentry.init do |config|
 
   # Add data like request headers and IP for users
   config.send_default_pii = true
+  config.traces_sample_rate = 1.0
 
   # Enable sending logs to Sentry
   config.enable_logs = true
