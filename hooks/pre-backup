@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+# Once pre-backup hook: checkpoint SQLite WAL files to ensure consistent backups.
+# This forces all pending write-ahead log data into the main database files
+# so that a file-level backup captures a consistent snapshot.
+
+STORAGE_DIR="/rails/storage"
+
+for db in "$STORAGE_DIR"/*.sqlite3; do
+  [ -f "$db" ] || continue
+  echo "Checkpointing $db..."
+  sqlite3 "$db" "PRAGMA wal_checkpoint(TRUNCATE);"
+done
+
+echo "Pre-backup checkpoint complete."

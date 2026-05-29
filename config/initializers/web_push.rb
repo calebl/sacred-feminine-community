@@ -1,14 +1,15 @@
 # VAPID keys for Web Push notifications.
 #
-# Generate a new key pair with:
-#   bin/rails runner "keys = WebPush.generate_key; puts keys.public_key; puts keys.private_key"
-#
-# Store them in Rails credentials:
+# Once injects VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY env vars automatically.
+# Alternatively, store them in Rails credentials:
 #   bin/rails credentials:edit
 #
 #   vapid:
 #     public_key: <public_key>
 #     private_key: <private_key>
+#
+# Generate a new key pair with:
+#   bin/rails runner "keys = WebPush.generate_key; puts keys.public_key; puts keys.private_key"
 #
 vapid_from_credentials = begin
   {
@@ -22,6 +23,6 @@ end
 
 Rails.application.config.vapid = {
   subject: "mailto:#{vapid_from_credentials[:subject] || "admin@sacredfeminine.community"}",
-  public_key: vapid_from_credentials[:public_key],
-  private_key: vapid_from_credentials[:private_key]
+  public_key: ENV["VAPID_PUBLIC_KEY"] || vapid_from_credentials[:public_key],
+  private_key: ENV["VAPID_PRIVATE_KEY"] || vapid_from_credentials[:private_key]
 }

@@ -69,6 +69,10 @@ USER 1000:1000
 COPY --chown=rails:rails --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --chown=rails:rails --from=build /rails /rails
 
+# Copy Once backup/restore hooks to the expected location
+COPY --chown=rails:rails hooks/ /hooks/
+RUN chmod +x /hooks/*
+
 # Entrypoint prepares the database.
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
