@@ -92,7 +92,7 @@ export default class extends Controller {
 
     if (atIndex >= 0) {
       const charBefore = atIndex > 0 ? text[atIndex - 1] : " "
-      if (charBefore === " " || charBefore === "\n" || atIndex === 0) {
+      if (atIndex === 0 || /\s/.test(charBefore)) {
         const query = textBeforeCursor.substring(atIndex + 1)
         if (query.length > 0 && query.length <= 50) {
           this.mentioning = true
