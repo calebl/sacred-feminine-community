@@ -57,6 +57,28 @@ class MentionControllerTest < ApplicationSystemTestCase
     assert_selector "[data-mention-target='input'] .mention-tag", text: "@Admin User"
   end
 
+  test "second mention on same line reopens dropdown when preceded by a non-breaking space" do
+    visit_chat
+
+    mention_input.click
+    mention_input.send_keys("@Admin")
+    assert_dropdown_visible
+    mention_input.send_keys(:enter)
+    assert_dropdown_hidden
+    assert_selector "[data-mention-target='input'] .mention-tag", text: "@Admin User"
+
+    # Real browsers often emit U+00A0 (non-breaking space) when the user presses
+    # spacebar adjacent to the trailing nbsp that `select()` leaves after a
+    # mention chip. Capybara's send_keys normalizes to a regular space, so
+    # inject the nbsp directly via JS to reproduce the real-browser failure mode.
+    insert_text_into_mention_input(" @A")
+
+    assert_dropdown_visible
+    mention_input.send_keys(:enter)
+    assert_dropdown_hidden
+    assert_selector "[data-mention-target='input'] .mention-tag", count: 2
+  end
+
   test "arrow keys navigate dropdown items" do
     visit_chat
 
@@ -92,5 +114,35 @@ class MentionControllerTest < ApplicationSystemTestCase
   def assert_dropdown_hidden
     assert_selector "[data-mention-target='dropdown'].hidden", visible: false, wait: 5
     assert_no_selector "[data-mention-target='dropdown']:not(.hidden)"
+  end
+
+  def insert_text_into_mention_input(text)
+    page.execute_script(<<~JS, text)
+      const text = arguments[0]
+      const input = document.querySelector("[data-mention-target='input']")
+      input.focus()
+
+      // Append text to the last text-node descendant so the new characters share
+      // a node with the trailing nbsp left by select() — matching how browsers
+      // append typed characters into the existing text node.
+      const walker = document.createTreeWalker(input, NodeFilter.SHOW_TEXT)
+      let last = null
+      while (walker.nextNode()) last = walker.currentNode
+      if (!last) {
+        last = document.createTextNode("")
+        input.appendChild(last)
+      }
+      last.textContent = last.textContent + text
+
+      // Place the cursor at the end of the modified text node.
+      const range = document.createRange()
+      range.setStart(last, last.textContent.length)
+      range.collapse(true)
+      const sel = window.getSelection()
+      sel.removeAllRanges()
+      sel.addRange(range)
+
+      input.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: text }))
+    JS
   end
 end
