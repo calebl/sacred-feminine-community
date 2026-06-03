@@ -36,18 +36,18 @@ class MentionSearchesController < ApplicationController
       cohort = Cohort.kept.find_by(id: params[:cohort_id])
       return nil unless cohort
       return nil unless cohort.member?(current_user) || current_user.admin?
-      members_plus_admins(cohort.members.kept)
+      members_plus_admins(cohort.members.kept).mentionable_in(:cohort)
     elsif params[:group_id].present?
       group = Group.kept.find_by(id: params[:group_id])
       return nil unless group
       return nil unless group.member?(current_user) || current_user.admin?
-      members_plus_admins(group.members.kept)
+      members_plus_admins(group.members.kept).mentionable_in(:group)
     elsif params[:conversation_id].present?
       conversation = Conversation.find_by(id: params[:conversation_id])
       return nil unless conversation&.participants&.include?(current_user)
       conversation.participants.kept
     else
-      User.kept
+      User.kept.mentionable_in(:feed)
     end
   end
 end

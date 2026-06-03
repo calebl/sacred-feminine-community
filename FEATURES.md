@@ -58,7 +58,7 @@
 - **Autocomplete popup** - Mention search with popup positioned above the cursor in contenteditable fields
 - **Notification tracking** - Mentions generate notifications; read/unread state is tracked via the unified Notification model
 - **Cross-context support** - Works in posts, comments, and direct messages
-- **Mention privacy settings** - Users control where they can be @mentioned: everywhere, groups and cohorts only, or nowhere
+- **Mention privacy settings** - Users control where they can be @mentioned: everywhere, groups and cohorts only, or nowhere. Privacy is enforced in the autocomplete dropdown (excluding users from contexts that violate their setting) as well as at notification time. Conversation/DM dropdowns are exempt — participants always appear there.
 
 ## Emoji Reactions
 - **Polymorphic reactions** - React to posts and comments with emojis

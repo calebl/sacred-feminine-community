@@ -90,4 +90,99 @@ class MentionSearchesControllerTest < ActionDispatch::IntegrationTest
     get mention_searches_path, params: { q: "", cohort_id: cohorts(:kabul_retreat).id }
     assert_response :success
   end
+
+  test "cohort dropdown excludes a member with mention_privacy nobody" do
+    sign_in users(:attendee)
+    users(:admin).update_column(:mention_privacy, 0)
+
+    get mention_searches_path, params: { q: "Admin User", cohort_id: cohorts(:kabul_retreat).id }
+    assert_response :success
+    assert_no_match "Admin User", response.body
+  end
+
+  test "cohort dropdown excludes a non-member admin with mention_privacy nobody" do
+    sign_in users(:attendee)
+    users(:admin_two).update_column(:mention_privacy, 0)
+
+    get mention_searches_path, params: { q: "Admin Two", cohort_id: cohorts(:kabul_retreat).id }
+    assert_response :success
+    assert_no_match "Admin Two", response.body
+  end
+
+  test "cohort dropdown still includes a non-member admin with mention_privacy groups_and_cohorts" do
+    sign_in users(:attendee)
+    users(:admin_two).update_column(:mention_privacy, 1)
+
+    get mention_searches_path, params: { q: "Admin Two", cohort_id: cohorts(:kabul_retreat).id }
+    assert_response :success
+    assert_match "Admin Two", response.body
+  end
+
+  test "group dropdown excludes a member with mention_privacy nobody" do
+    sign_in users(:attendee)
+    users(:admin).update_column(:mention_privacy, 0)
+
+    get mention_searches_path, params: { q: "Admin User", group_id: groups(:book_club).id }
+    assert_response :success
+    assert_no_match "Admin User", response.body
+  end
+
+  test "feed dropdown excludes users with mention_privacy groups_and_cohorts" do
+    sign_in users(:attendee)
+    users(:admin).update_column(:mention_privacy, 1)
+
+    get mention_searches_path, params: { q: "Admin User" }
+    assert_response :success
+    assert_no_match "Admin User", response.body
+  end
+
+  test "feed dropdown excludes users with mention_privacy nobody" do
+    sign_in users(:attendee)
+    users(:admin).update_column(:mention_privacy, 0)
+
+    get mention_searches_path, params: { q: "Admin User" }
+    assert_response :success
+    assert_no_match "Admin User", response.body
+  end
+
+  test "conversation dropdown returns participants regardless of mention_privacy" do
+    sign_in users(:admin)
+    users(:attendee).update_column(:mention_privacy, 0)
+
+    get mention_searches_path, params: { q: "Jane", conversation_id: conversations(:admin_attendee_convo).id }
+    assert_response :success
+    assert_match "Jane Attendee", response.body
+  end
+
+  test "self is excluded from cohort dropdown" do
+    sign_in users(:admin)
+
+    get mention_searches_path, params: { q: "Admin User", cohort_id: cohorts(:kabul_retreat).id }
+    assert_response :success
+    assert_no_match "Admin User", response.body
+  end
+
+  test "self is excluded from group dropdown" do
+    sign_in users(:admin)
+
+    get mention_searches_path, params: { q: "Admin User", group_id: groups(:book_club).id }
+    assert_response :success
+    assert_no_match "Admin User", response.body
+  end
+
+  test "self is excluded from conversation dropdown" do
+    sign_in users(:admin)
+
+    get mention_searches_path, params: { q: "Admin User", conversation_id: conversations(:admin_attendee_convo).id }
+    assert_response :success
+    assert_no_match "Admin User", response.body
+  end
+
+  test "self is excluded from global dropdown" do
+    sign_in users(:admin)
+
+    get mention_searches_path, params: { q: "Admin User" }
+    assert_response :success
+    assert_no_match "Admin User", response.body
+  end
 end

@@ -209,6 +209,64 @@ class UserTest < ActiveSupport::TestCase
     assert_not user.accepts_mentions_in?(nil)
   end
 
+  test "mentionable_in :cohort includes everywhere and groups_and_cohorts users" do
+    everywhere = users(:attendee)
+    everywhere.update_column(:mention_privacy, 2)
+    gc = users(:attendee_two)
+    gc.update_column(:mention_privacy, 1)
+    nobody = users(:admin)
+    nobody.update_column(:mention_privacy, 0)
+
+    ids = User.mentionable_in(:cohort).pluck(:id)
+    assert_includes ids, everywhere.id
+    assert_includes ids, gc.id
+    assert_not_includes ids, nobody.id
+  end
+
+  test "mentionable_in :group matches :cohort behavior" do
+    everywhere = users(:attendee)
+    everywhere.update_column(:mention_privacy, 2)
+    gc = users(:attendee_two)
+    gc.update_column(:mention_privacy, 1)
+    nobody = users(:admin)
+    nobody.update_column(:mention_privacy, 0)
+
+    ids = User.mentionable_in(:group).pluck(:id)
+    assert_includes ids, everywhere.id
+    assert_includes ids, gc.id
+    assert_not_includes ids, nobody.id
+  end
+
+  test "mentionable_in :feed only includes everywhere users" do
+    everywhere = users(:attendee)
+    everywhere.update_column(:mention_privacy, 2)
+    gc = users(:attendee_two)
+    gc.update_column(:mention_privacy, 1)
+    nobody = users(:admin)
+    nobody.update_column(:mention_privacy, 0)
+
+    ids = User.mentionable_in(:feed).pluck(:id)
+    assert_includes ids, everywhere.id
+    assert_not_includes ids, gc.id
+    assert_not_includes ids, nobody.id
+  end
+
+  test "mentionable_in :dm only includes everywhere users" do
+    everywhere = users(:attendee)
+    everywhere.update_column(:mention_privacy, 2)
+    gc = users(:attendee_two)
+    gc.update_column(:mention_privacy, 1)
+
+    ids = User.mentionable_in(:dm).pluck(:id)
+    assert_includes ids, everywhere.id
+    assert_not_includes ids, gc.id
+  end
+
+  test "mentionable_in returns none for unknown context" do
+    assert_empty User.mentionable_in(:unknown)
+    assert_empty User.mentionable_in(nil)
+  end
+
   test "notify_admins_of_acceptance enqueues CreateNotificationJob for each admin" do
     user = User.invite!({ email: "notify-test@example.com", name: "Notify Test" }, users(:admin))
     admin_count = User.admin.where.not(id: user.id).count
