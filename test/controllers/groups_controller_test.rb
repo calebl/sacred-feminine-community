@@ -41,7 +41,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match "Feed", response.body
     assert_match "Members", response.body
-    assert_match group_posts(:reading_group_post).body, response.body
+    assert_includes response.body, group_posts(:reading_group_post).body
     assert_no_match "Join this group to see posts", response.body
   end
 

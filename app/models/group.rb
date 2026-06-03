@@ -23,6 +23,10 @@ class Group < ApplicationRecord
     created_by_id == user.id
   end
 
+  def can_participate?(user)
+    user.admin? || member?(user)
+  end
+
   def unread_post_count(user)
     membership = group_memberships.find_by(user: user)
     return 0 unless membership

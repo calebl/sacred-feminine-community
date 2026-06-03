@@ -1,6 +1,6 @@
 class GroupPostCommentPolicy < ApplicationPolicy
   def create?
-    user.admin? || record.group_post.group.member?(user)
+    record.group_post.group.can_participate?(user)
   end
 
   def destroy?
