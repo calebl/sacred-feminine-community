@@ -27,6 +27,16 @@ class User < ApplicationRecord
       .order(:name)
       .limit(10)
   }
+  scope :mentionable_in, ->(context) {
+    case context
+    when :cohort, :group
+      where(mention_privacy: [ :groups_and_cohorts, :everywhere ])
+    when :feed, :dm
+      where(mention_privacy: :everywhere)
+    else
+      none
+    end
+  }
 
   belongs_to :bulk_invitation, optional: true
 
