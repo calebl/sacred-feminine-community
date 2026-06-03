@@ -16,6 +16,11 @@ class GroupPostCommentPolicyTest < ActiveSupport::TestCase
     assert_not GroupPostCommentPolicy.new(@attendee_two, @comment).create?
   end
 
+  test "admin can create a comment in a group they have not joined" do
+    comment = GroupPostComment.new(group_post: group_posts(:reading_group_post))
+    assert GroupPostCommentPolicy.new(@admin, comment).create?
+  end
+
   test "comment author can destroy their own comment" do
     assert GroupPostCommentPolicy.new(@admin, @comment).destroy?
   end

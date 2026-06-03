@@ -4,7 +4,7 @@ class GroupPostPolicy < ApplicationPolicy
   end
 
   def create?
-    record.group.member?(user)
+    user.admin? || record.group.member?(user)
   end
 
   def update?

@@ -39,7 +39,27 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:admin)
     get group_path(groups(:reading_group))
     assert_response :success
+    assert_match "Feed", response.body
     assert_match "Members", response.body
+    assert_match group_posts(:reading_group_post).body, response.body
+    assert_no_match "Join this group to see posts", response.body
+  end
+
+  test "non-member admin sees New Post button" do
+    sign_in users(:admin)
+    get group_path(groups(:reading_group), tab: :feed)
+    assert_response :success
+    assert_match "New Post", response.body
+  end
+
+  test "non-member admin can create a group post" do
+    sign_in users(:admin)
+    assert_difference "GroupPost.count" do
+      post group_group_posts_path(groups(:reading_group)), params: {
+        group_post: { body: "Admin posting without joining" }
+      }
+    end
+    assert_redirected_to group_group_post_path(groups(:reading_group), GroupPost.last)
   end
 
   test "member can view group with tabs" do
