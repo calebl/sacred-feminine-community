@@ -20,7 +20,7 @@ class GroupPolicy < ApplicationPolicy
   end
 
   def view_content?
-    user.admin? || record.member?(user)
+    record.can_participate?(user)
   end
 
   def join?

@@ -1,10 +1,10 @@
 class GroupPostPolicy < ApplicationPolicy
   def show?
-    user.admin? || record.group.member?(user)
+    record.group.can_participate?(user)
   end
 
   def create?
-    record.group.member?(user)
+    record.group.can_participate?(user)
   end
 
   def update?

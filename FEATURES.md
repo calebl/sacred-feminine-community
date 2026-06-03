@@ -34,6 +34,7 @@
 - **Photo attachments** - Attach up to 10 photos per post with inline preview and gallery display
 - **Post pinning** - Group creators/admins can pin posts
 - **Unread tracking** - Tracks unread posts per member
+- **Admin access** - Admins can view, post, and reply in any group without joining
 - **Soft-delete (archive)** - Groups are archived rather than permanently deleted
 
 ## Community Feed

@@ -23,6 +23,11 @@ class GroupPostPolicyTest < ActiveSupport::TestCase
     assert_not GroupPostPolicy.new(users(:attendee_two), post).create?
   end
 
+  test "admin can create post in group they have not joined" do
+    post = GroupPost.new(group: groups(:reading_group))
+    assert GroupPostPolicy.new(users(:admin), post).create?
+  end
+
   test "author can update own post" do
     assert GroupPostPolicy.new(users(:attendee), group_posts(:book_club_pinned)).update?
   end

@@ -35,7 +35,7 @@
   <% end %>
 </div>
 
-<% if @is_member %>
+<% if policy(@group).view_content? %>
   <div data-controller="tabs" data-tabs-active-tab-value="<%= @active_tab %>">
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-gold/20 dark:border-gray-700 overflow-hidden">
       <!-- Tab headers -->

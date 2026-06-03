@@ -33,6 +33,18 @@ class GroupTest < ActiveSupport::TestCase
     assert_not groups(:book_club).creator?(users(:admin))
   end
 
+  test "can_participate? is true for members" do
+    assert groups(:book_club).can_participate?(users(:attendee))
+  end
+
+  test "can_participate? is true for admins regardless of membership" do
+    assert groups(:reading_group).can_participate?(users(:admin))
+  end
+
+  test "can_participate? is false for non-member non-admin" do
+    assert_not groups(:book_club).can_participate?(users(:attendee_two))
+  end
+
   test "unread_post_count returns 0 for non-member" do
     assert_equal 0, groups(:book_club).unread_post_count(users(:attendee_two))
   end
