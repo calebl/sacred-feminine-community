@@ -29,6 +29,19 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Join Group", response.body
   end
 
+  test "non-member sees prominent join button in header" do
+    sign_in users(:attendee_two)
+    get group_path(groups(:book_club))
+    assert_select "form[action=?] button.btn-primary", group_group_membership_path(groups(:book_club)),
+                  text: "Join Group"
+  end
+
+  test "member does not see join button" do
+    sign_in users(:attendee)
+    get group_path(groups(:book_club))
+    assert_select "form[action=?] button", group_group_membership_path(groups(:book_club)), text: "Join Group", count: 0
+  end
+
   test "non-member does not see feed or chat" do
     sign_in users(:attendee_two)
     get group_path(groups(:book_club))
