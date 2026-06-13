@@ -25,9 +25,8 @@ class CohortsController < ApplicationController
     @members = @cohort.members.kept.includes(:cohort_memberships).load
     @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h
     @non_members = User.kept.where.not(id: @members.map(&:id)).where.not(invitation_accepted_at: nil).order(:name).pluck(:name, :id)
-    @posts = @cohort.posts.pinned_first
-                         .visible_to(current_user)
-                         .includes(:user, post_comments: :user)
+    @posts = policy_scope(@cohort.posts).pinned_first
+                                        .includes(:user, post_comments: :user)
     @invited_users = User.where(invitation_accepted_at: nil).select { |u| u.invited_cohort_ids&.map(&:to_i)&.include?(@cohort.id) }.sort_by(&:created_at).reverse
   end
 
