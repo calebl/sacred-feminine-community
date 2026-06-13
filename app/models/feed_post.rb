@@ -2,6 +2,7 @@ class FeedPost < ApplicationRecord
   include Mentionable
   include Reactable
   include HasPhotos
+  include Blockable
 
   belongs_to :user
 

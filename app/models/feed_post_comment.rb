@@ -2,6 +2,7 @@ class FeedPostComment < ApplicationRecord
   include Mentionable
   include Reactable
   include CommentNotifiable
+  include Blockable
 
   belongs_to :feed_post
   belongs_to :user

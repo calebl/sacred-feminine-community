@@ -24,8 +24,11 @@ class FeedPostPolicy < ApplicationPolicy
   end
 
   class Scope < ApplicationPolicy::Scope
+    # The community feed is visible to all members, minus content hidden by a
+    # block in either direction. Keeping the block filter here means every
+    # caller of policy_scope(FeedPost) gets it automatically.
     def resolve
-      scope.all
+      scope.visible_to(user)
     end
   end
 end

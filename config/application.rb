@@ -23,5 +23,9 @@ module Kabul
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Deliver `deliver_later` mail through a job that retries on Resend 429s,
+    # honoring the `retry-after` window Resend reports.
+    config.action_mailer.delivery_job = "ResendMailDeliveryJob"
   end
 end

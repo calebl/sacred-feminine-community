@@ -142,4 +142,16 @@ class CohortTest < ActiveSupport::TestCase
     cohort.update!(name: "Updated Name")
     assert cohort.audits.where(action: "update").exists?
   end
+
+  # Mens cohort
+  test "cohort defaults to not mens_cohort" do
+    cohort = cohorts(:kabul_retreat)
+    assert_not cohort.mens_cohort?
+  end
+
+  test "cohort can be designated as mens_cohort" do
+    cohort = cohorts(:kabul_retreat)
+    cohort.update!(mens_cohort: true)
+    assert cohort.reload.mens_cohort?
+  end
 end

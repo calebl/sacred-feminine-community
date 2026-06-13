@@ -17,6 +17,11 @@
     <%= f.text_area :description, rows: 3, class: "w-full" %>
   </div>
 
+  <div class="flex items-center gap-3">
+    <%= f.check_box :mens_cohort, class: "w-4 h-4 rounded border-gray-300 text-sf-gold focus:ring-sf-gold" %>
+    <%= f.label :mens_cohort, "Men's Cohort", class: "text-sm font-medium text-gray-700 dark:text-gray-300" %>
+  </div>
+
   <div>
     <%= f.label :retreat_location, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
     <%= f.text_field :retreat_location, class: "w-full" %>

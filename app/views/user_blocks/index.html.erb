@@ -1,0 +1,37 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-display font-bold text-sf-black dark:text-white">Blocked Users</h1>
+    <%= link_to "Back to Profile", profile_path(current_user), class: "btn-secondary px-4 py-2 text-sm" %>
+  </div>
+
+  <% if @blocked_users.empty? %>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8 text-center">
+      <p class="text-gray-500 dark:text-gray-400">You haven't blocked anyone.</p>
+    </div>
+  <% else %>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 divide-y divide-sf-sand/20 dark:divide-gray-700">
+      <% @blocked_users.each do |user| %>
+        <div class="flex items-center justify-between p-4 gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center font-bold text-sf-black dark:text-white flex-shrink-0">
+              <% if user.avatar.attached? %>
+                <%= image_tag user.avatar.variant(:display), class: "w-10 h-10 rounded-full object-cover" %>
+              <% else %>
+                <%= user.name.first.upcase %>
+              <% end %>
+            </div>
+            <div>
+              <p class="font-medium text-sf-black dark:text-white"><%= user.name %></p>
+              <% if user.visible_location.present? %>
+                <p class="text-xs text-gray-500 dark:text-gray-400"><%= user.visible_location %></p>
+              <% end %>
+            </div>
+          </div>
+          <%= button_to "Unblock", user_block_path(@block_ids_by_user[user.id]), method: :delete,
+              class: "btn-secondary px-4 py-1.5 text-sm",
+              data: { turbo_confirm: "Unblock #{user.name}?" } %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

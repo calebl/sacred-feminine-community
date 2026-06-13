@@ -8,7 +8,8 @@ class FeedPostsController < ApplicationController
   def index
     authorize FeedPost
     load_sidebar
-    @posts = policy_scope(FeedPost).pinned_first.includes(:user, feed_post_comments: :user)
+    @posts = policy_scope(FeedPost).pinned_first
+                                   .includes(:user, feed_post_comments: :user)
     @new_post = FeedPost.new
   end
 
@@ -16,9 +17,7 @@ class FeedPostsController < ApplicationController
     authorize @post
     load_sidebar
     @post.mark_as_read_by(current_user) unless request.headers["Purpose"] == "prefetch"
-    @comments = @post.feed_post_comments.top_level
-                     .includes(:user, :reactions, replies: [ :user, :reactions, { replies: [ :user, :reactions, { replies: [ :user, :reactions ] } ] } ])
-                     .order(created_at: :asc)
+    @comments = filtered_comments(@post)
     @new_comment = @post.feed_post_comments.build
   end
 
@@ -26,9 +25,7 @@ class FeedPostsController < ApplicationController
     authorize @post
     load_sidebar
     @editing = true
-    @comments = @post.feed_post_comments.top_level
-                     .includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ])
-                     .order(created_at: :asc)
+    @comments = filtered_comments(@post)
     @new_comment = @post.feed_post_comments.build
     render :show
   end
@@ -57,9 +54,7 @@ class FeedPostsController < ApplicationController
       else
         load_sidebar
         @editing = true
-        @comments = @post.feed_post_comments.top_level
-                         .includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ])
-                         .order(created_at: :asc)
+        @comments = filtered_comments(@post)
         @new_comment = @post.feed_post_comments.build
         render :show, status: :unprocessable_entity
       end
@@ -80,7 +75,8 @@ class FeedPostsController < ApplicationController
     else
       if params[:inline_feed]
         load_sidebar
-        @posts = policy_scope(FeedPost).pinned_first.includes(:user, feed_post_comments: :user)
+        @posts = policy_scope(FeedPost).pinned_first
+                                       .includes(:user, feed_post_comments: :user)
         @new_post = @post
         render :index, status: :unprocessable_entity
       end
@@ -115,6 +111,13 @@ class FeedPostsController < ApplicationController
       pin_path: feed_post_pin_path(post),
       mention_data: {}
     }
+  end
+
+  def filtered_comments(post)
+    post.feed_post_comments.top_level
+        .visible_to(current_user)
+        .includes(:user, :reactions, replies: [ :user, :reactions, { replies: [ :user, :reactions, { replies: [ :user, :reactions ] } ] } ])
+        .order(created_at: :asc)
   end
 
   def load_sidebar

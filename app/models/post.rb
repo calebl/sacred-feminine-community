@@ -3,6 +3,7 @@ class Post < ApplicationRecord
   include Reactable
   include HasPhotos
   include PostNotifiable
+  include Blockable
 
   belongs_to :cohort
   belongs_to :user

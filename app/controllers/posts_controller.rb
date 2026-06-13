@@ -14,7 +14,7 @@ class PostsController < ApplicationController
               .update(last_read_at: Time.current)
       @post.mark_as_read_by(current_user)
     end
-    @comments = @post.post_comments.top_level.includes(:user, :reactions, replies: [ :user, :reactions, { replies: [ :user, :reactions, { replies: [ :user, :reactions ] } ] } ]).order(created_at: :asc)
+    @comments = filtered_comments(@post)
     @new_comment = @post.post_comments.build
   end
 
@@ -22,7 +22,7 @@ class PostsController < ApplicationController
     authorize @post
     load_sidebar
     @editing = true
-    @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+    @comments = filtered_comments(@post)
     @new_comment = @post.post_comments.build
     render :show
   end
@@ -51,7 +51,7 @@ class PostsController < ApplicationController
       else
         load_sidebar
         @editing = true
-        @comments = @post.post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+        @comments = filtered_comments(@post)
         @new_comment = @post.post_comments.build
         render :show, status: :unprocessable_entity
       end
@@ -117,6 +117,13 @@ class PostsController < ApplicationController
     @active_cohort_id = @cohort.id
   end
 
+  def filtered_comments(post)
+    post.post_comments.top_level
+        .visible_to(current_user)
+        .includes(:user, :reactions, replies: [ :user, :reactions, { replies: [ :user, :reactions, { replies: [ :user, :reactions ] } ] } ])
+        .order(created_at: :asc)
+  end
+
   def load_cohort_show_data
     @active_tab = "feed"
     @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
@@ -125,7 +132,9 @@ class PostsController < ApplicationController
     @members = @cohort.members.kept.includes(:cohort_memberships).load
     @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h
     @non_members = User.kept.where.not(id: @members.map(&:id)).where.not(invitation_accepted_at: nil).order(:name).pluck(:name, :id)
-    @posts = @cohort.posts.pinned_first.includes(:user, post_comments: :user)
+    @posts = @cohort.posts.pinned_first
+                         .visible_to(current_user)
+                         .includes(:user, post_comments: :user)
     @show_form = true
   end
 end

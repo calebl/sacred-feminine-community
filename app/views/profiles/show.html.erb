@@ -51,11 +51,23 @@
       </div>
     <% end %>
 
-    <div class="flex gap-3">
+    <div class="flex gap-3 flex-wrap">
       <% if @user == current_user %>
         <%= link_to "Edit Profile", edit_profile_path(@user), class: "btn-secondary px-5 py-2.5" %>
-      <% elsif @user.accepts_direct_messages_from?(current_user) %>
-        <%= button_to "Send Message", conversations_path(recipient_id: @user.id), method: :post, class: "btn-primary px-5 py-2.5" %>
+        <%= link_to "Blocked Users", user_blocks_path, class: "btn-secondary px-5 py-2.5" %>
+      <% else %>
+        <% if @user.accepts_direct_messages_from?(current_user) %>
+          <%= button_to "Send Message", conversations_path(recipient_id: @user.id), method: :post, class: "btn-primary px-5 py-2.5" %>
+        <% end %>
+        <% if @block %>
+          <%= button_to "Unblock", user_block_path(@block), method: :delete,
+              class: "btn-secondary px-5 py-2.5",
+              data: { turbo_confirm: "Unblock #{@user.name}?" } %>
+        <% else %>
+          <%= button_to "Block", user_blocks_path(blocked_id: @user.id), method: :post,
+              class: "px-5 py-2.5 rounded-xl text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 transition",
+              data: { turbo_confirm: "Block #{@user.name}? You will no longer see each other's content, and they won't be able to message you." } %>
+        <% end %>
       <% end %>
     </div>
   </div>

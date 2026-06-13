@@ -2,6 +2,7 @@ class GroupPostComment < ApplicationRecord
   include Mentionable
   include Reactable
   include CommentNotifiable
+  include Blockable
 
   belongs_to :group_post
   belongs_to :user
