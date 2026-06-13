@@ -46,6 +46,21 @@ class UserBlocksControllerTest < ActionDispatch::IntegrationTest
     assert_match "has been unblocked", flash[:notice]
   end
 
+  test "user cannot block an admin" do
+    sign_in users(:attendee)
+    assert_no_difference "UserBlock.count" do
+      post user_blocks_path, params: { blocked_id: users(:admin_two).id }
+    end
+    assert flash[:alert].present?
+  end
+
+  test "block button is hidden on an admin's profile" do
+    sign_in users(:attendee)
+    get profile_path(users(:admin_two))
+    assert_response :success
+    assert_no_match "Block #{users(:admin_two).name}?", response.body
+  end
+
   test "user cannot unblock a block they did not create" do
     sign_in users(:admin)
     block = user_blocks(:attendee_blocks_attendee_two)

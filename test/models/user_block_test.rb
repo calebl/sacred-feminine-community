@@ -12,6 +12,12 @@ class UserBlockTest < ActiveSupport::TestCase
     assert_includes block.errors[:blocked], "cannot block yourself"
   end
 
+  test "cannot block an admin" do
+    block = UserBlock.new(blocker: users(:attendee), blocked: users(:admin))
+    assert_not block.valid?
+    assert_includes block.errors[:blocked], "cannot be blocked"
+  end
+
   test "cannot block the same user twice" do
     block = UserBlock.new(blocker: users(:attendee), blocked: users(:attendee_two))
     assert_not block.valid?
