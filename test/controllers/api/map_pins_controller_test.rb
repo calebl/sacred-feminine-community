@@ -55,6 +55,33 @@ class Api::MapPinsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "United States", admin_pin["country"]
   end
 
+  test "excludes pins of users the current user has blocked" do
+    # attendee blocks attendee_two via fixture
+    users(:attendee).update!(latitude: 48.8566, longitude: 2.3522)
+    users(:attendee_two).update!(show_on_map: true, latitude: 35.6762, longitude: 139.6503)
+
+    sign_in users(:attendee)
+    get api_map_pins_path(format: :json)
+    assert_response :success
+
+    names = JSON.parse(response.body).map { |p| p["name"] }
+    assert_not_includes names, "Sarah Member"
+    assert_includes names, "Jane Attendee"
+  end
+
+  test "blocking is mutual: blocked user does not see the blocker's pin" do
+    # attendee blocks attendee_two via fixture
+    users(:attendee).update!(latitude: 48.8566, longitude: 2.3522)
+    users(:attendee_two).update!(show_on_map: true, latitude: 35.6762, longitude: 139.6503)
+
+    sign_in users(:attendee_two)
+    get api_map_pins_path(format: :json)
+    assert_response :success
+
+    names = JSON.parse(response.body).map { |p| p["name"] }
+    assert_not_includes names, "Jane Attendee"
+  end
+
   test "unauthenticated user gets 401 for json" do
     get api_map_pins_path(format: :json)
     assert_response :unauthorized

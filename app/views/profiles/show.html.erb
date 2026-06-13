@@ -66,7 +66,7 @@
         <% elsif !@user.admin? %>
           <%= button_to "Block", user_blocks_path(blocked_id: @user.id), method: :post,
               class: "btn-danger px-5 py-2.5",
-              data: { turbo_confirm: "Block #{@user.name}? You will no longer see each other's content, and they won't be able to message you." } %>
+              data: { turbo_confirm: "Block #{@user.name}? You will no longer see each other's content or map pins, and they won't be able to message you." } %>
         <% end %>
       <% end %>
     </div>
