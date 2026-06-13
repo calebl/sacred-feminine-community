@@ -120,6 +120,7 @@
 - **Mention rendering** - @mentions are rendered as plain text (no profile link) for both parties whenever a block exists between them
 - **Mention autocomplete** - Users on either side of a block are excluded from each other's @mention autocomplete dropdown
 - **Direct messages** - Blocking prevents direct messages in both directions: neither party can start or send a DM to the other, and the "Send Message" button is hidden on the profile. This overrides DM privacy settings and applies even to admins.
+- **Map visibility** - Blocking is mutual on the member map: neither party sees the other's pin once a block exists, regardless of their `show_on_map` setting.
 - **Blocked users list** - Users can view all blocked users from their profile page and unblock anyone from that list
 
 ## Account Settings

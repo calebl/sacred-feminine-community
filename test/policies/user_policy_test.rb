@@ -34,4 +34,16 @@ class UserPolicyTest < ActiveSupport::TestCase
     assert_equal User.kept.count, scope.count
     assert_not_includes scope, users(:attendee_two)
   end
+
+  test "scope excludes users the current user has blocked" do
+    # attendee blocks attendee_two via fixture
+    scope = UserPolicy::Scope.new(users(:attendee), User).resolve
+    assert_not_includes scope, users(:attendee_two)
+  end
+
+  test "scope is mutual: excludes users who have blocked the current user" do
+    # attendee blocks attendee_two via fixture
+    scope = UserPolicy::Scope.new(users(:attendee_two), User).resolve
+    assert_not_includes scope, users(:attendee)
+  end
 end
