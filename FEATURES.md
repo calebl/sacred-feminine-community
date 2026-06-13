@@ -116,6 +116,7 @@
 
 ## Privacy & Blocking
 - **Block users** - Users can block other members from their profile page. Blocking is mutual for visibility: once a block exists, neither party sees the other's posts and comments across cohort, group, and community feeds or on individual post pages (a blocked user can no longer see the blocker's content either).
+- **Admins cannot be blocked** - Admins are exempt from being blocked: the Block button is hidden on an admin's profile and the block is rejected at the model level if attempted directly.
 - **Mention rendering** - @mentions are rendered as plain text (no profile link) for both parties whenever a block exists between them
 - **Mention autocomplete** - Users on either side of a block are excluded from each other's @mention autocomplete dropdown
 - **Direct messages** - Blocking prevents direct messages in both directions: neither party can start or send a DM to the other, and the "Send Message" button is hidden on the profile. This overrides DM privacy settings and applies even to admins.

@@ -4,10 +4,15 @@ class UserBlock < ApplicationRecord
 
   validates :blocked_id, uniqueness: { scope: :blocker_id }
   validate :cannot_block_self
+  validate :cannot_block_admin
 
   private
 
   def cannot_block_self
     errors.add(:blocked, "cannot block yourself") if blocker_id == blocked_id
+  end
+
+  def cannot_block_admin
+    errors.add(:blocked, "cannot be blocked") if blocked&.admin?
   end
 end
