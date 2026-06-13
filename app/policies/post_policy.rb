@@ -18,4 +18,14 @@ class PostPolicy < ApplicationPolicy
   def pin?
     user.admin?
   end
+
+  class Scope < ApplicationPolicy::Scope
+    # Cohort membership is already enforced by the controller before a cohort's
+    # posts are loaded, so the scope's job here is to drop content hidden by a
+    # block in either direction. Routing the feed through policy_scope means
+    # callers can't forget the block filter.
+    def resolve
+      scope.visible_to(user)
+    end
+  end
 end

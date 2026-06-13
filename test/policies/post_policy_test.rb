@@ -59,4 +59,11 @@ class PostPolicyTest < ActiveSupport::TestCase
   test "attendee cannot pin" do
     assert_not PostPolicy.new(users(:attendee), posts(:attendee_post)).pin?
   end
+
+  test "scope hides posts when a block exists in either direction" do
+    # attendee blocks attendee_two via fixture; blocking is mutual for visibility
+    scope = PostPolicy::Scope.new(users(:attendee_two), Post.all).resolve
+    assert_not_includes scope, posts(:attendee_post)   # authored by attendee
+    assert_includes scope, posts(:pinned_announcement) # authored by admin (no block)
+  end
 end

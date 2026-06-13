@@ -51,4 +51,11 @@ class GroupPostPolicyTest < ActiveSupport::TestCase
   test "non-author member cannot destroy post" do
     assert_not GroupPostPolicy.new(users(:attendee), group_posts(:book_club_post)).destroy?
   end
+
+  test "scope hides group posts when a block exists in either direction" do
+    # attendee blocks attendee_two via fixture; blocking is mutual for visibility
+    scope = GroupPostPolicy::Scope.new(users(:attendee_two), GroupPost.all).resolve
+    assert_not_includes scope, group_posts(:book_club_pinned) # authored by attendee
+    assert_includes scope, group_posts(:book_club_post)       # authored by admin (no block)
+  end
 end

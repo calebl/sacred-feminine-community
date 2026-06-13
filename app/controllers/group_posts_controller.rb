@@ -131,9 +131,8 @@ class GroupPostsController < ApplicationController
     @active_group_id = @group.id
     @is_member = true
     @members = @group.members.kept.includes(:group_memberships).load
-    @posts = @group.group_posts.pinned_first
-                          .visible_to(current_user)
-                          .includes(:user, group_post_comments: :user)
+    @posts = policy_scope(@group.group_posts).pinned_first
+                                             .includes(:user, group_post_comments: :user)
     @show_form = true
   end
 end
