@@ -71,6 +71,11 @@ class User < ApplicationRecord
   has_many :help_requests, dependent: :destroy
   has_many :help_request_replies, dependent: :destroy
 
+  has_many :user_blocks, foreign_key: :blocker_id, dependent: :destroy, inverse_of: :blocker
+  has_many :blocked_users, through: :user_blocks, source: :blocked
+  # Ensures UserBlock records are destroyed when this user is the blocked party (not just the blocker).
+  has_many :blocked_by_blocks, class_name: "UserBlock", foreign_key: :blocked_id, dependent: :destroy, inverse_of: :blocked
+
   has_one_attached :avatar do |attachable|
     attachable.variant :display, resize_to_fill: [ 200, 200 ]
   end
@@ -136,7 +141,28 @@ class User < ApplicationRecord
     end
   end
 
+  def blocks?(other_user)
+    blocked_user_ids.include?(other_user.id)
+  end
+
+  def blocked_user_ids
+    @blocked_user_ids ||= user_blocks.pluck(:blocked_id)
+  end
+
+  # Ids of users who have blocked this user.
+  def blocked_by_user_ids
+    @blocked_by_user_ids ||= blocked_by_blocks.pluck(:blocker_id)
+  end
+
+  # Ids of users whose content is hidden from this user. Blocking is mutual for
+  # visibility, so this covers both directions: people this user blocked and
+  # people who blocked this user.
+  def hidden_content_user_ids
+    (blocked_user_ids + blocked_by_user_ids).uniq
+  end
+
   def accepts_direct_messages_from?(sender)
+    return false if blocks?(sender) || sender.blocks?(self)
     return true if sender.admin?
 
     case dm_privacy

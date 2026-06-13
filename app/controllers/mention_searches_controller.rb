@@ -21,7 +21,7 @@ class MentionSearchesController < ApplicationController
 
     scope
       .with_attached_avatar
-      .where.not(id: current_user.id)
+      .where.not(id: [ current_user.id, *current_user.hidden_content_user_ids ])
       .where("name LIKE ?", "%#{User.sanitize_sql_like(query)}%")
       .order(:name)
       .limit(10)

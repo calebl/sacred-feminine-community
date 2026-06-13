@@ -5,6 +5,7 @@ class ProfilesController < ApplicationController
   def show
     authorize @user, :show_profile?
     @cohorts = @user.cohorts.includes(:members).order(retreat_start_date: :desc)
+    @block = current_user.user_blocks.find_by(blocked: @user) unless @user == current_user
   end
 
   def edit

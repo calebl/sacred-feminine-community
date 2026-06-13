@@ -3,6 +3,7 @@ class GroupPost < ApplicationRecord
   include Reactable
   include HasPhotos
   include PostNotifiable
+  include Blockable
 
   belongs_to :group
   belongs_to :user

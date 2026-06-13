@@ -122,6 +122,7 @@ class UserTest < ActiveSupport::TestCase
   test "accepts_direct_messages_from? returns true when privacy is everyone" do
     recipient = users(:attendee)
     sender = users(:attendee_two)
+    recipient.user_blocks.destroy_all # isolate the privacy rule from blocking
     recipient.update_column(:dm_privacy, 2) # everyone
     assert recipient.accepts_direct_messages_from?(sender)
   end
@@ -136,6 +137,7 @@ class UserTest < ActiveSupport::TestCase
   test "accepts_direct_messages_from? returns true for cohort member when privacy is cohort_members" do
     recipient = users(:attendee)
     sender = users(:attendee_two)
+    recipient.user_blocks.destroy_all # isolate the privacy rule from blocking
     recipient.update_column(:dm_privacy, 1) # cohort_members
     # put both in the same cohort
     CohortMembership.find_or_create_by!(cohort: cohorts(:kabul_retreat), user: sender)
@@ -169,6 +171,28 @@ class UserTest < ActiveSupport::TestCase
     sender = users(:attendee_two)
     recipient.update_column(:dm_privacy, 2) # everyone
     assert recipient.accepts_direct_messages_from?(sender)
+  end
+
+  test "accepts_direct_messages_from? returns false when recipient has blocked the sender" do
+    recipient = users(:attendee) # attendee blocks attendee_two via fixture
+    sender = users(:attendee_two)
+    recipient.update_column(:dm_privacy, 2) # everyone — block still wins
+    assert_not recipient.accepts_direct_messages_from?(sender)
+  end
+
+  test "accepts_direct_messages_from? returns false when the sender has blocked the recipient" do
+    recipient = users(:attendee_two)
+    sender = users(:attendee) # attendee blocks attendee_two via fixture
+    recipient.update_column(:dm_privacy, 2) # everyone — block still wins
+    assert_not recipient.accepts_direct_messages_from?(sender)
+  end
+
+  test "accepts_direct_messages_from? blocks an admin sender the recipient has blocked" do
+    recipient = users(:attendee) # attendee blocks attendee_two via fixture
+    sender = users(:attendee_two)
+    sender.update_column(:role, 1) # admin
+    recipient.update_column(:dm_privacy, 2) # everyone
+    assert_not recipient.accepts_direct_messages_from?(sender)
   end
 
   test "mention_privacy defaults to everywhere" do

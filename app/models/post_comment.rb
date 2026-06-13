@@ -2,6 +2,7 @@ class PostComment < ApplicationRecord
   include Mentionable
   include Reactable
   include CommentNotifiable
+  include Blockable
 
   belongs_to :post
   belongs_to :user

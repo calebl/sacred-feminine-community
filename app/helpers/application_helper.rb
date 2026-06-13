@@ -15,10 +15,15 @@ module ApplicationHelper
       %(<a href="#{url}" class="text-sf-gold underline hover:text-sf-gold/80" target="_blank" rel="noopener noreferrer">#{url}</a>)
     end
 
+    blocked_ids = blocked_mention_ids
     result = result.gsub(Mentionable::MENTION_PATTERN) do
       name = $1
-      id = $2
-      %(<a href="#{profile_path(id)}" class="text-sf-gold font-semibold hover:underline">@#{name}</a>)
+      id = $2.to_i
+      if blocked_ids.include?(id)
+        "@#{name}"
+      else
+        %(<a href="#{profile_path(id)}" class="text-sf-gold font-semibold hover:underline">@#{name}</a>)
+      end
     end
 
     result.html_safe
@@ -52,5 +57,18 @@ module ApplicationHelper
     else
       "bg-gray-100 dark:bg-gray-700 text-gray-500"
     end
+  end
+
+  private
+
+  # Ids of users on either side of a block with the viewer, so their @mentions
+  # render as plain text rather than profile links. Returns [] outside a request
+  # (e.g. helper tests) where no Warden session exists.
+  def blocked_mention_ids
+    return [] unless respond_to?(:current_user)
+
+    current_user&.hidden_content_user_ids || []
+  rescue Devise::MissingWarden
+    []
   end
 end

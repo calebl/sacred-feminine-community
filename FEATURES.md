@@ -20,6 +20,7 @@
 
 ## Cohorts
 - **CRUD management** - Admins create cohorts with name, description, header image, and retreat date range
+- **Men's cohort designation** - Cohorts can be flagged as a Men's Cohort via a checkbox in the admin form; flagged cohorts display a "Men's" badge on the cohort card
 - **Membership** - Users are added to cohorts; membership tracks read state for posts
 - **Discussion posts** - Members create posts within a cohort with comments, pinning, and unread tracking
 - **Photo attachments** - Attach up to 10 photos (JPEG, PNG, GIF, WebP) per post with inline preview and gallery display
@@ -51,7 +52,7 @@
 - **Member search** - Search for members when starting a new conversation
 - **Real-time delivery** - Messages broadcast via Turbo Streams to conversation participants
 - **DM notifications** - Real-time notification popover for incoming DMs (configurable per user)
-- **DM privacy controls** - All users (including admins) can restrict who can initiate DMs (nobody, cohort members, everyone); admins can always send DMs regardless of recipient settings
+- **DM privacy controls** - All users (including admins) can restrict who can initiate DMs (nobody, cohort members, everyone); admins can always send DMs regardless of recipient settings, except to users who have blocked them
 - **Unread counts** - Per-conversation unread message tracking
 
 ## @Mentions
@@ -78,6 +79,7 @@
 - **Background job processing** - Notifications created via `CreateNotificationJob` with group_key dedup for batching
 - **Web Push notifications** - Opt-in browser push notifications via VAPID/Web Push, triggered by the notification job
 - **Email notifications** - Master on/off toggle plus per-event-type toggles (mentions, DMs, new posts in your groups/cohorts, comments on your posts). Help request replies always send an email (subject to the master toggle). New members joining and new help requests never send email. Emails include only the generic notification title/body and links to the app and settings — no site content (message bodies, comment text, etc.). Delivered via `SendEmailNotificationJob` using Resend.com.
+- **Email rate-limit retries** - When Resend rate-limits us (HTTP 429), email jobs automatically retry (up to 5 attempts), waiting the duration Resend reports in its `retry-after` header before trying again. Covers both the asynchronous Devise/`deliver_later` path (via `ResendMailDeliveryJob`) and notification emails (via `ResendRateLimitRetryable` on `ApplicationJob`).
 - **New post notifications** - Members receive in-app, push, and email notifications when a new post is created in one of their groups or cohorts (author excluded; mentioned users receive only the mention notification to avoid duplicates).
 - **Real-time unread badges** - Navbar badge counts update in real-time via Turbo Streams, powered by `notifications.unread.count`
 - **PWA app icon badge** - Accurate server-side unread count displayed on the PWA app icon via the Badge API
@@ -111,6 +113,13 @@
 - **Job dashboard** - Solid Queue job monitoring via Mission Control (admin only)
 - **Changelog** - Automatic release changelog recorded on each Kamal deploy; viewable from admin dashboard
 - **Features overview** - FEATURES.md rendered as a styled page accessible from admin dashboard, showing the current platform feature set
+
+## Privacy & Blocking
+- **Block users** - Users can block other members from their profile page. Blocking is mutual for visibility: once a block exists, neither party sees the other's posts and comments across cohort, group, and community feeds or on individual post pages (a blocked user can no longer see the blocker's content either).
+- **Mention rendering** - @mentions are rendered as plain text (no profile link) for both parties whenever a block exists between them
+- **Mention autocomplete** - Users on either side of a block are excluded from each other's @mention autocomplete dropdown
+- **Direct messages** - Blocking prevents direct messages in both directions: neither party can start or send a DM to the other, and the "Send Message" button is hidden on the profile. This overrides DM privacy settings and applies even to admins.
+- **Blocked users list** - Users can view all blocked users from their profile page and unblock anyone from that list
 
 ## Account Settings
 - **Email change** - Users can update their email address

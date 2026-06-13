@@ -19,6 +19,9 @@ Rails.application.routes.draw do
   # Profiles
   resources :profiles, only: [ :show, :edit, :update ]
 
+  # User blocking
+  resources :user_blocks, only: [ :index, :create, :destroy ]
+
   # Account settings (email & password changes)
   namespace :account do
     resource :email, only: [ :edit, :update ]

@@ -42,6 +42,7 @@ class Conversations::MemberSearchesControllerTest < ActionDispatch::IntegrationT
 
   test "index shows selectable button for users accepting DMs" do
     @attendee.update_column(:dm_privacy, 2)
+    @attendee.user_blocks.destroy_all # isolate the privacy rule from blocking
     sign_in @attendee_two
     get conversations_member_searches_path(q: "Jane")
     assert_response :success

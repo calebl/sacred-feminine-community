@@ -14,7 +14,7 @@ class GroupPostsController < ApplicationController
                    .update(last_read_at: Time.current)
       @post.mark_as_read_by(current_user)
     end
-    @comments = @post.group_post_comments.top_level.includes(:user, :reactions, replies: [ :user, :reactions, { replies: [ :user, :reactions, { replies: [ :user, :reactions ] } ] } ]).order(created_at: :asc)
+    @comments = filtered_comments(@post)
     @new_comment = @post.group_post_comments.build
   end
 
@@ -22,7 +22,7 @@ class GroupPostsController < ApplicationController
     authorize @post
     load_sidebar
     @editing = true
-    @comments = @post.group_post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+    @comments = filtered_comments(@post)
     @new_comment = @post.group_post_comments.build
     render :show
   end
@@ -51,7 +51,7 @@ class GroupPostsController < ApplicationController
       else
         load_sidebar
         @editing = true
-        @comments = @post.group_post_comments.top_level.includes(:user, replies: [ :user, { replies: [ :user, { replies: :user } ] } ]).order(created_at: :asc)
+        @comments = filtered_comments(@post)
         @new_comment = @post.group_post_comments.build
         render :show, status: :unprocessable_entity
       end
@@ -117,6 +117,13 @@ class GroupPostsController < ApplicationController
     @active_group_id = @group.id
   end
 
+  def filtered_comments(post)
+    post.group_post_comments.top_level
+        .visible_to(current_user)
+        .includes(:user, :reactions, replies: [ :user, :reactions, { replies: [ :user, :reactions, { replies: [ :user, :reactions ] } ] } ])
+        .order(created_at: :asc)
+  end
+
   def load_group_show_data
     @active_tab = "feed"
     @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
@@ -124,7 +131,9 @@ class GroupPostsController < ApplicationController
     @active_group_id = @group.id
     @is_member = true
     @members = @group.members.kept.includes(:group_memberships).load
-    @posts = @group.group_posts.pinned_first.includes(:user, group_post_comments: :user)
+    @posts = @group.group_posts.pinned_first
+                          .visible_to(current_user)
+                          .includes(:user, group_post_comments: :user)
     @show_form = true
   end
 end
