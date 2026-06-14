@@ -79,6 +79,7 @@ Rails.application.routes.draw do
   resource :notifications, only: [ :show ] do
     resources :reads, only: [ :create ], module: :notifications
     resource :mark_all_read, only: [ :create ], module: :notifications
+    resource :seen, only: [ :create ], module: :notifications, controller: :seen
   end
 
   # Direct Messages

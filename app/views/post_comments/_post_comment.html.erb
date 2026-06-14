@@ -1,4 +1,10 @@
-<div id="<%= dom_id(comment) %>" data-controller="replies-toggle">
+<% comment_unread = unread_dot_for?(comment) %>
+<div id="<%= dom_id(comment) %>" data-controller="replies-toggle<%= " read-on-view" if comment_unread %>"
+     <%= tag.attributes(
+       "data-read-on-view-type-value": "post_comment",
+       "data-read-on-view-id-value": comment.id,
+       "data-read-on-view-url-value": notifications_seen_path
+     ) if comment_unread %>>
   <div class="flex items-start gap-3 p-3 rounded-xl bg-sf-beige/30 dark:bg-gray-700/50">
     <div class="flex-shrink-0 w-8 h-8 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white">
       <% if comment.user.avatar.attached? %>

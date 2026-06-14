@@ -26,6 +26,8 @@ class GroupsController < ApplicationController
         updates[:posts_last_read_at] = Time.current if @active_tab == "feed"
         membership.update(updates)
       end
+
+      @group.mark_member_alerts_seen_by(current_user) if @active_tab == "members"
     end
     @members = @group.members.kept.includes(:group_memberships).load
     @posts = policy_scope(@group.group_posts).pinned_first
