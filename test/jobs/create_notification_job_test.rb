@@ -109,6 +109,19 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     end
   end
 
+  test "help_request_reply notifications are delivered despite a block relationship" do
+    assert_difference "Notification.count", 1 do
+      CreateNotificationJob.perform_now(
+        user_id: @attendee.id,
+        actor_id: users(:attendee_two).id,
+        event_type: "help_request_reply",
+        title: "Help Request Reply",
+        body: "Attendee Two replied",
+        path: "/help_requests/1"
+      )
+    end
+  end
+
   test "still notifies when there is no block relationship" do
     assert_difference "Notification.count", 1 do
       CreateNotificationJob.perform_now(

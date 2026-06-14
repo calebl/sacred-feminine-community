@@ -1,9 +1,10 @@
 class CreateNotificationJob < ApplicationJob
   queue_as :default
 
-  # Operational alerts to admins that should reach them regardless of any
-  # block relationship with the actor (e.g. a blocked attendee's help request).
-  BLOCK_EXEMPT_EVENT_TYPES = %w[help_request].freeze
+  # Operational alerts on support threads that should reach their recipients
+  # regardless of any block relationship with the actor (e.g. a blocked
+  # attendee's help request or a reply on that thread).
+  BLOCK_EXEMPT_EVENT_TYPES = %w[help_request help_request_reply].freeze
 
   def perform(user_id:, actor_id:, event_type:, title:, body:, path:, notifiable_type: nil, notifiable_id: nil, group_key: nil)
     user = User.find_by(id: user_id)
