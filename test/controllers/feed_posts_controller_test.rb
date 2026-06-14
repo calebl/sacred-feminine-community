@@ -255,4 +255,18 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
     post_record.reload
     assert_equal 0, post_record.photos.count, "Photo should be removed"
   end
+
+  test "feed post links author and comment author names to their profiles" do
+    sign_in users(:attendee)
+    post_record = feed_posts(:public_post)
+
+    get feed_post_path(post_record)
+    assert_response :success
+
+    # Post author (admin)
+    assert_select "a[href=?]", profile_path(post_record.user), minimum: 1
+    # Comment author on a reply (attendee)
+    comment = feed_post_comments(:reply_to_admin_feed_comment)
+    assert_select "a[href=?]", profile_path(comment.user), minimum: 1
+  end
 end

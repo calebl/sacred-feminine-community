@@ -1,0 +1,34 @@
+<%#
+  Renders a user's avatar circle (image when attached, else uppercase initial).
+  Links to the user's profile by default.
+
+  Locals:
+    user  - required User
+    size: - :sm (w-6), :md (w-8, default), :lg (w-10)
+    link: - wrap in a profile link (default true). Set false when already inside
+            an <a>/<button> to avoid nested interactive elements.
+    bg:   - background classes for the circle (default sf-sand)
+    class: - extra classes for the circle
+%>
+<% size = local_assigns.fetch(:size, :md) %>
+<% link = local_assigns.fetch(:link, true) %>
+<% bg = local_assigns.fetch(:bg, "bg-sf-sand/50 dark:bg-gray-700") %>
+<% extra_classes = local_assigns[:class] %>
+<% dims = { sm: "w-6 h-6 text-xs", md: "w-8 h-8 text-sm", lg: "w-10 h-10 text-base" }[size] %>
+<% circle_classes = "#{dims} #{bg} rounded-full flex items-center justify-center font-bold text-sf-black dark:text-white overflow-hidden flex-shrink-0 #{extra_classes}" %>
+
+<% circle = capture do %>
+  <div class="<%= circle_classes %>">
+    <% if user.avatar.attached? %>
+      <%= image_tag user.avatar.variant(:display), alt: user.name, class: "w-full h-full object-cover" %>
+    <% else %>
+      <%= user.name.first.upcase %>
+    <% end %>
+  </div>
+<% end %>
+
+<% if link %>
+  <%= link_to circle, profile_path(user), class: "block hover:opacity-80 transition", title: user.name %>
+<% else %>
+  <%= circle %>
+<% end %>

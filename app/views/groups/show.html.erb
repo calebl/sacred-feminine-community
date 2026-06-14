@@ -97,13 +97,7 @@
             <% @members.each do |member| %>
               <div class="flex items-center justify-between">
                 <%= link_to profile_path(member), class: "flex items-center gap-3 hover:opacity-80 transition" do %>
-                  <div class="w-8 h-8 rounded-full bg-sf-gold/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white flex-shrink-0">
-                    <% if member.avatar.attached? %>
-                      <%= image_tag member.avatar.variant(:display), class: "w-8 h-8 rounded-full object-cover" %>
-                    <% else %>
-                      <%= member.name.first.upcase %>
-                    <% end %>
-                  </div>
+                  <%= render "shared/avatar", user: member, size: :md, link: false, bg: "bg-sf-gold/50 dark:bg-gray-700" %>
                   <div>
                     <p class="text-sm font-medium text-sf-black dark:text-white"><%= member.name %></p>
                   </div>
