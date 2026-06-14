@@ -34,11 +34,18 @@ class UnreadIndicatorsRenderingTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(cohorts(:bali_retreat), :unread_dot)} span.bg-sf-gold", false
   end
 
-  test "group dot renders for an unread group notification" do
+  test "group dot renders for an unread group post notification" do
+    Notification.create!(user: @user, event_type: "new_post", title: "x",
+                         notifiable: group_posts(:book_club_post))
+    get authenticated_root_path
+    assert_select "##{dom_id(groups(:book_club), :unread_dot)} span.bg-sf-gold"
+  end
+
+  test "group dot does not render for a new_member notification" do
     Notification.create!(user: @user, event_type: "new_member", title: "x",
                          notifiable: groups(:book_club))
     get authenticated_root_path
-    assert_select "##{dom_id(groups(:book_club), :unread_dot)} span.bg-sf-gold"
+    assert_select "##{dom_id(groups(:book_club), :unread_dot)} span.bg-sf-gold", false
   end
 
   test "scroll-into-view observer attaches to an unread post in the cohort feed" do

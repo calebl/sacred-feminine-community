@@ -247,28 +247,4 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     assert_not group.reload.discarded?
   end
-
-  # new_member notification clearing
-  test "visiting the members tab clears unread new_member notifications for that group" do
-    sign_in users(:attendee)
-    group = groups(:book_club)
-    notification = Notification.create!(user: users(:attendee), event_type: "new_member",
-                                        title: "x", notifiable: group)
-
-    get group_path(group, tab: "members")
-
-    assert_response :success
-    assert_not_nil notification.reload.read_at
-  end
-
-  test "visiting the feed tab does not clear new_member notifications" do
-    sign_in users(:attendee)
-    group = groups(:book_club)
-    notification = Notification.create!(user: users(:attendee), event_type: "new_member",
-                                        title: "x", notifiable: group)
-
-    get group_path(group, tab: "feed")
-
-    assert_nil notification.reload.read_at
-  end
 end

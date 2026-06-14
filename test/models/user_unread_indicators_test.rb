@@ -35,15 +35,19 @@ class UserUnreadIndicatorsTest < ActiveSupport::TestCase
     assert_not_includes @user.unread_cohort_ids, cohorts(:bali_retreat).id
   end
 
-  test "unread_group_ids maps group posts, comments, and new_member to their group" do
+  test "unread_group_ids maps group posts and comments to their group" do
     unread(event_type: "new_post", notifiable: group_posts(:book_club_post))
     unread(event_type: "mention", notifiable: group_post_comments(:attendee_group_comment))
-    unread(event_type: "new_member", notifiable: groups(:yoga_group))
 
     ids = @user.unread_group_ids
     assert_includes ids, groups(:book_club).id
-    assert_includes ids, groups(:yoga_group).id
     assert_not_includes ids, groups(:reading_group).id
+  end
+
+  test "unread_group_ids ignores new_member notifications" do
+    unread(event_type: "new_member", notifiable: groups(:yoga_group))
+
+    assert_not_includes @user.unread_group_ids, groups(:yoga_group).id
   end
 
   test "unread_for_post? only for matching unread post/mention" do

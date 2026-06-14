@@ -26,15 +26,14 @@ module UnreadIndicators
     end
   end
 
-  # Group ids with unread activity: posts/comments (mapped to their group) plus
-  # new_member rows (notifiable = Group directly).
+  # Group ids with unread activity: new posts/comments/mentions mapped to their
+  # group. new_member notifications deliberately do not light the dot.
   def unread_group_ids
     @unread_group_ids ||= begin
       post_ids = unread_notifiable_ids("GroupPost")
       comment_ids = unread_notifiable_ids("GroupPostComment")
       ids = GroupPost.where(id: post_ids).distinct.pluck(:group_id)
       ids += GroupPostComment.where(id: comment_ids).joins(:group_post).distinct.pluck("group_posts.group_id")
-      ids += unread_notifiable_ids("Group")
       ids.to_set
     end
   end

@@ -41,15 +41,6 @@ class Group < ApplicationRecord
     end
   end
 
-  # new_member notifications have no scroll target, so they are cleared when the
-  # member visits the group's members view.
-  def mark_member_alerts_seen_by(user)
-    cleared = user.notifications.unread
-                  .where(event_type: "new_member", notifiable_type: "Group", notifiable_id: id)
-                  .update_all(read_at: Time.current)
-    BroadcastUnreadBadgeJob.perform_later(user.id) if cleared.positive?
-  end
-
   private
 
   def add_creator_as_member

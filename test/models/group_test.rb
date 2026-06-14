@@ -106,17 +106,4 @@ class GroupTest < ActiveSupport::TestCase
     assert_not_includes result, groups(:book_club)
     assert_not_includes result, groups(:yoga_group)
   end
-
-  test "mark_member_alerts_seen_by clears this group's unread new_member notifications only" do
-    user = users(:attendee)
-    group = groups(:book_club)
-    here = Notification.create!(user: user, event_type: "new_member", title: "x", notifiable: group)
-    elsewhere = Notification.create!(user: user, event_type: "new_member", title: "x",
-                                     notifiable: groups(:yoga_group))
-
-    group.mark_member_alerts_seen_by(user)
-
-    assert_not_nil here.reload.read_at
-    assert_nil elsewhere.reload.read_at
-  end
 end
