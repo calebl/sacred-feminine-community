@@ -48,4 +48,21 @@ class ReactableTest < ActiveSupport::TestCase
       assert count.positive?
     end
   end
+
+  test "reactor_names_by_emoji groups reactor names under each emoji" do
+    post = posts(:attendee_post)
+    names = post.reactor_names_by_emoji
+
+    assert_equal [ users(:admin).name ], names["👍"]
+    assert_equal [ users(:attendee).name ], names["❤️"]
+  end
+
+  test "reactor_names_by_emoji collects multiple names for the same emoji" do
+    post = posts(:attendee_post)
+    post.reactions.create!(user: users(:admin_two), emoji: "❤️")
+
+    names = post.reactor_names_by_emoji
+
+    assert_equal [ users(:attendee).name, users(:admin_two).name ].sort, names["❤️"].sort
+  end
 end

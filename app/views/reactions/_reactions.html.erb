@@ -11,15 +11,22 @@
      class="flex items-center gap-1 flex-wrap <%= 'mt-2' unless local_assigns[:inline] %>">
 
   <% grouped = reactable.grouped_reactions %>
+  <% names_by_emoji = reactable.reactor_names_by_emoji %>
 
   <% grouped.each do |emoji, count| %>
     <button type="button"
             data-action="emoji-reaction#react"
             data-emoji="<%= emoji %>"
-            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border transition cursor-pointer
+            class="relative group inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border transition cursor-pointer
                    <%= user_reaction&.emoji == emoji ? 'border-sf-gold bg-sf-gold/10 text-sf-gold' : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-sf-gold/50' %>">
       <span><%= emoji %></span>
       <span><%= count %></span>
+      <span class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-1 z-50
+                   whitespace-nowrap px-2 py-1 rounded-lg text-xs
+                   bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
+                   text-gray-700 dark:text-gray-200 shadow-lg pointer-events-none">
+        <%= names_by_emoji[emoji].to_sentence %>
+      </span>
     </button>
   <% end %>
 
