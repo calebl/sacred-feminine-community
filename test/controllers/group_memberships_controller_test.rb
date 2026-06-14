@@ -12,9 +12,9 @@ class GroupMembershipsControllerTest < ActionDispatch::IntegrationTest
     assert group.member?(users(:attendee_two))
   end
 
-  test "joining from the index returns a turbo stream with the member checkmark" do
+  test "joining from the index removes the card and inserts the group alphabetically in the sidebar" do
     sign_in users(:attendee_two)
-    group = groups(:book_club)
+    group = groups(:book_club) # "Book Club..." sorts before the member's "Reading Group"
 
     assert_difference "GroupMembership.count" do
       post group_group_membership_path(group),
@@ -24,8 +24,28 @@ class GroupMembershipsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal "text/vnd.turbo-stream.html", response.media_type
-    assert_match "You&#39;re a member", response.body
+    assert_select "turbo-stream[action=?][target=?]", "remove_with_fade",
+                  ActionView::RecordIdentifier.dom_id(group)
+    # Inserted before the alphabetically-later group already in the sidebar
+    assert_select "turbo-stream[action=?][target=?]", "before",
+                  ActionView::RecordIdentifier.dom_id(groups(:reading_group), :sidebar) do
+      assert_select "a[href=?][data-controller=?]", group_path(group), "flash-highlight"
+    end
     assert group.member?(users(:attendee_two))
+  end
+
+  test "joining a group that sorts last appends it to the sidebar" do
+    sign_in users(:attendee_two)
+    group = groups(:yoga_group) # "Yoga Circle" sorts after the member's "Reading Group"
+
+    post group_group_membership_path(group),
+         params: { context: "index" },
+         as: :turbo_stream
+
+    assert_response :success
+    assert_select "turbo-stream[action=?][target=?]", "append", "sidebar_groups" do
+      assert_select "a[href=?]", group_path(group)
+    end
   end
 
   test "already a member cannot join again" do

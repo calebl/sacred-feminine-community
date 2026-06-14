@@ -2,36 +2,25 @@ require "test_helper"
 
 class GroupsControllerTest < ActionDispatch::IntegrationTest
   # Index
-  test "any user sees all groups on index" do
+  test "index lists groups the user has not joined with a join icon" do
     sign_in users(:attendee)
     get groups_path
     assert_response :success
-    assert_match "Book Club", response.body
-    assert_match "Yoga Circle", response.body
+    assert_select "##{ActionView::RecordIdentifier.dom_id(groups(:reading_group))}"
+    assert_select "form[action=?] button[title=?]", group_group_membership_path(groups(:reading_group)), "Join group"
+  end
+
+  test "index hides groups the user has already joined" do
+    sign_in users(:attendee)
+    get groups_path
+    assert_select "##{ActionView::RecordIdentifier.dom_id(groups(:book_club))}", count: 0
+    assert_select "form[action=?]", group_group_membership_path(groups(:book_club)), count: 0
   end
 
   test "index shows New Group button for all users" do
     sign_in users(:attendee)
     get groups_path
     assert_select "a[href=?]", new_group_path
-  end
-
-  test "index shows join icon for groups the user has not joined" do
-    sign_in users(:attendee)
-    get groups_path
-    assert_select "form[action=?] button[title=?]", group_group_membership_path(groups(:reading_group)), "Join group"
-  end
-
-  test "index hides join icon for groups the user has joined" do
-    sign_in users(:attendee)
-    get groups_path
-    assert_select "form[action=?]", group_group_membership_path(groups(:book_club)), count: 0
-  end
-
-  test "index shows member checkmark for groups the user has joined" do
-    sign_in users(:attendee)
-    get groups_path
-    assert_select "##{ActionView::RecordIdentifier.dom_id(groups(:book_club), :join)}[title=?]", "You're a member"
   end
 
   # Show - public visibility
