@@ -1,10 +1,14 @@
 class CreateNotificationJob < ApplicationJob
   queue_as :default
 
+  # Operational alerts to admins that should reach them regardless of any
+  # block relationship with the actor (e.g. a blocked attendee's help request).
+  BLOCK_EXEMPT_EVENT_TYPES = %w[help_request].freeze
+
   def perform(user_id:, actor_id:, event_type:, title:, body:, path:, notifiable_type: nil, notifiable_id: nil, group_key: nil)
     user = User.find_by(id: user_id)
     return unless user
-    return if blocked_relationship?(user, actor_id)
+    return if suppressed_for_block?(user, actor_id, event_type)
 
     notification = if group_key.present?
       upsert_grouped(user, actor_id: actor_id, event_type: event_type, title: title, body: body, path: path,
@@ -33,9 +37,11 @@ class CreateNotificationJob < ApplicationJob
 
   # Suppress notifications between users in a block relationship. Blocking
   # hides content mutually, so neither the blocker nor the blocked party
-  # should be notified about the other's activity.
-  def blocked_relationship?(user, actor_id)
+  # should be notified about the other's activity. Operational admin alerts
+  # are exempt so they always reach admins.
+  def suppressed_for_block?(user, actor_id, event_type)
     return false if actor_id.nil?
+    return false if BLOCK_EXEMPT_EVENT_TYPES.include?(event_type)
 
     user.hidden_content_user_ids.include?(actor_id)
   end
