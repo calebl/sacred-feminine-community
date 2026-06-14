@@ -77,11 +77,12 @@
 - **Comment notifications** - Post authors and prior commenters receive a notification when new comments are added
 - **Admin invitation alerts** - Admins receive an in-app notification when a user accepts an invitation
 - **Background job processing** - Notifications created via `CreateNotificationJob` with group_key dedup for batching
+- **Block-aware suppression** - `CreateNotificationJob` skips any notification (and its push/email/badge side effects) when the recipient and actor are in a block relationship, in either direction. Centralized so it applies to every event type (mentions, comments, posts, DMs, group joins, etc.).
 - **Web Push notifications** - Opt-in browser push notifications via VAPID/Web Push, triggered by the notification job
 - **Email notifications** - Master on/off toggle plus per-event-type toggles (mentions, DMs, new posts in your groups/cohorts, comments on your posts). Help request replies always send an email (subject to the master toggle). New members joining and new help requests never send email. Emails include only the generic notification title/body and links to the app and settings — no site content (message bodies, comment text, etc.). Delivered via `SendEmailNotificationJob` using Resend.com.
 - **Email rate-limit retries** - When Resend rate-limits us (HTTP 429), email jobs automatically retry (up to 5 attempts), waiting the duration Resend reports in its `retry-after` header before trying again. Covers both the asynchronous Devise/`deliver_later` path (via `ResendMailDeliveryJob`) and notification emails (via `ResendRateLimitRetryable` on `ApplicationJob`).
 - **New post notifications** - Members receive in-app, push, and email notifications when a new post is created in one of their groups or cohorts (author excluded; mentioned users receive only the mention notification to avoid duplicates).
-- **New group member notifications** - Existing members of a group receive an in-app and push notification (no email) when a new person joins, linking to the group. The joining member is excluded, as is anyone in a block relationship with them (blocking suppresses notifications mutually).
+- **New group member notifications** - Existing members of a group receive an in-app and push notification (no email) when a new person joins, linking to the group (the joining member is excluded; block-aware suppression is applied centrally in `CreateNotificationJob`).
 - **Real-time unread badges** - Navbar badge counts update in real-time via Turbo Streams, powered by `notifications.unread.count`
 - **PWA app icon badge** - Accurate server-side unread count displayed on the PWA app icon via the Badge API
 

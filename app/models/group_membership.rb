@@ -12,10 +12,8 @@ class GroupMembership < ApplicationRecord
   private
 
   def notify_group_of_new_member
-    # Exclude the joiner and anyone in a block relationship with them
-    # (blocking hides content mutually, so neither side should be notified).
-    excluded_ids = [ user_id ] + user.hidden_content_user_ids
-    recipient_ids = group.group_memberships.where.not(user_id: excluded_ids).pluck(:user_id)
+    # Block-aware suppression is handled centrally in CreateNotificationJob.
+    recipient_ids = group.group_memberships.where.not(user_id: user_id).pluck(:user_id)
 
     recipient_ids.each do |recipient_id|
       CreateNotificationJob.perform_later(

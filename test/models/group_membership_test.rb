@@ -46,29 +46,6 @@ class GroupMembershipTest < ActiveSupport::TestCase
     assert_empty recipient_ids
   end
 
-  test "does not notify a member who blocked the joining user" do
-    # attendee has blocked attendee_two (see user_blocks fixture)
-    group = groups(:book_club) # attendee and admin are members
-    joiner = users(:attendee_two)
-
-    GroupMembership.create!(group: group, user: joiner)
-
-    recipient_ids = new_member_jobs.map { |j| j["arguments"].last["user_id"] }
-    assert_not_includes recipient_ids, users(:attendee).id
-    assert_includes recipient_ids, users(:admin).id
-  end
-
-  test "does not notify a member the joining user has blocked" do
-    # attendee blocked attendee_two; here the blocker joins a group with the blocked member
-    group = groups(:reading_group) # attendee_two is a member
-    joiner = users(:attendee)
-
-    GroupMembership.create!(group: group, user: joiner)
-
-    recipient_ids = new_member_jobs.map { |j| j["arguments"].last["user_id"] }
-    assert_not_includes recipient_ids, users(:attendee_two).id
-  end
-
   private
 
   def new_member_jobs
