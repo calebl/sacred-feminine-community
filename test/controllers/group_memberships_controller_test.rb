@@ -12,6 +12,22 @@ class GroupMembershipsControllerTest < ActionDispatch::IntegrationTest
     assert group.member?(users(:attendee_two))
   end
 
+  test "joining from the index returns a turbo stream with the member checkmark" do
+    sign_in users(:attendee_two)
+    group = groups(:book_club)
+
+    assert_difference "GroupMembership.count" do
+      post group_group_membership_path(group),
+           params: { context: "index" },
+           as: :turbo_stream
+    end
+
+    assert_response :success
+    assert_equal "text/vnd.turbo-stream.html", response.media_type
+    assert_match "You&#39;re a member", response.body
+    assert group.member?(users(:attendee_two))
+  end
+
   test "already a member cannot join again" do
     sign_in users(:attendee)
     group = groups(:book_club)

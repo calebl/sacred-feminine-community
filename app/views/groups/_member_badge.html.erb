@@ -1,0 +1,9 @@
+<%= tag.div id: dom_id(group, :join),
+    class: ["absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-sf-gold/20 text-sf-gold",
+            ("opacity-0 transition-opacity duration-300" if local_assigns[:animate])],
+    title: "You're a member",
+    data: (local_assigns[:animate] ? { controller: "fade-in" } : {}) do %>
+  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+<% end %>

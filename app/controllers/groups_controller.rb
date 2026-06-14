@@ -7,6 +7,7 @@ class GroupsController < ApplicationController
     skip_authorization
     load_sidebar
     @groups = policy_scope(Group).includes(:members).order(:name)
+    @joined_group_ids = current_user.group_ids.to_set
   end
 
   def show

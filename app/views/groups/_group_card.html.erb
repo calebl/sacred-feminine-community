@@ -1,21 +1,36 @@
-<%= link_to group_path(group), class: "bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-gold/20 dark:border-gray-700 overflow-hidden block hover:shadow-md transition" do %>
-  <div class="relative">
-    <div class="w-full h-16 bg-sf-gold/10"></div>
-    <div class="absolute inset-0 flex items-center px-5">
-      <h2 class="text-lg font-display font-semibold text-sf-gold"><%= group.name %></h2>
-    </div>
-  </div>
-  <div class="p-5">
-    <div class="flex items-center justify-between">
-      <div>
-        <% if group.description.present? %>
-          <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2"><%= group.description %></p>
-        <% end %>
-      </div>
-      <div class="text-right">
-        <p class="text-2xl font-bold text-sf-gold"><%= group.members.size %></p>
-        <p class="text-xs text-gray-400 dark:text-gray-500">members</p>
+<div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-gold/20 dark:border-gray-700 overflow-hidden hover:shadow-md transition">
+  <%= link_to group_path(group), class: "block" do %>
+    <div class="relative">
+      <div class="w-full h-16 bg-sf-gold/10"></div>
+      <div class="absolute inset-0 flex items-center pl-5 pr-14">
+        <h2 class="text-lg font-display font-semibold text-sf-gold truncate"><%= group.name %></h2>
       </div>
     </div>
-  </div>
-<% end %>
+    <div class="p-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <% if group.description.present? %>
+            <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2"><%= group.description %></p>
+          <% end %>
+        </div>
+        <div class="text-right">
+          <p class="text-2xl font-bold text-sf-gold"><%= group.members.size %></p>
+          <p class="text-xs text-gray-400 dark:text-gray-500">members</p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+  <% if @joined_group_ids.include?(group.id) %>
+    <%= render "groups/member_badge", group: group %>
+  <% else %>
+    <%= button_to group_group_membership_path(group), method: :post,
+        params: { context: "index" },
+        id: dom_id(group, :join),
+        class: "absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-sf-gold/20 text-sf-gold hover:bg-sf-gold hover:text-white transition cursor-pointer",
+        title: "Join group", aria: { label: "Join group" } do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14" />
+      </svg>
+    <% end %>
+  <% end %>
+</div>
