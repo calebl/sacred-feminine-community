@@ -13,15 +13,9 @@
       <% @blocked_users.each do |user| %>
         <div class="flex items-center justify-between p-4 gap-4">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center font-bold text-sf-black dark:text-white flex-shrink-0">
-              <% if user.avatar.attached? %>
-                <%= image_tag user.avatar.variant(:display), class: "w-10 h-10 rounded-full object-cover" %>
-              <% else %>
-                <%= user.name.first.upcase %>
-              <% end %>
-            </div>
+            <%= render "shared/avatar", user: user, size: :lg %>
             <div>
-              <p class="font-medium text-sf-black dark:text-white"><%= user.name %></p>
+              <p class="font-medium text-sf-black dark:text-white"><%= link_to user.name, profile_path(user), class: "hover:text-sf-gold transition" %></p>
               <% if user.visible_location.present? %>
                 <p class="text-xs text-gray-500 dark:text-gray-400"><%= user.visible_location %></p>
               <% end %>

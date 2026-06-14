@@ -47,6 +47,13 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
     assert_select "body[data-current-conversation-id='#{@conversation.id}']"
   end
 
+  test "show links the other participant to their profile" do
+    sign_in @admin
+    get conversation_path(@conversation)
+    assert_response :success
+    assert_select "a[href=?]", profile_path(@attendee), minimum: 1
+  end
+
   test "show denies non-participant" do
     sign_in @attendee_two
     get conversation_path(@conversation)
