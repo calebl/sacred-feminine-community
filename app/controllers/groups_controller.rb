@@ -6,7 +6,7 @@ class GroupsController < ApplicationController
   def index
     skip_authorization
     load_sidebar
-    @groups = policy_scope(Group).includes(:members).order(:name)
+    @groups = policy_scope(Group).not_joined_by(current_user).includes(:members).order(:name)
   end
 
   def show

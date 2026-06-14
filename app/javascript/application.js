@@ -10,6 +10,14 @@ if ("serviceWorker" in navigator) {
 import "trix"
 import "@rails/actiontext"
 
+// Custom Turbo Stream action: fade an element out, then remove it
+Turbo.StreamActions.remove_with_fade = function () {
+  this.targetElements.forEach((element) => {
+    element.classList.add("opacity-0")
+    setTimeout(() => element.remove(), 300)
+  })
+}
+
 // Override Turbo's default browser confirm() with custom dialog
 Turbo.setConfirmMethod((message) => {
   const el = document.getElementById("confirm-dialog")

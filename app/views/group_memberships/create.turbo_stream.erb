@@ -1,0 +1,13 @@
+<%# Fade out and remove the joined group's card from the index grid %>
+<%= turbo_stream.action :remove_with_fade, dom_id(@group) %>
+
+<%# Insert the group alphabetically into the "Groups" sidebar section %>
+<% if (successor = current_user.group_following(@group)) %>
+  <%= turbo_stream.before dom_id(successor, :sidebar) do %>
+    <%= render "shared/sidebar_group_link", group: @group, flash: true %>
+  <% end %>
+<% else %>
+  <%= turbo_stream.append "sidebar_groups" do %>
+    <%= render "shared/sidebar_group_link", group: @group, flash: true %>
+  <% end %>
+<% end %>

@@ -1,0 +1,5 @@
+<% active = defined?(@active_group_id) && @active_group_id == group.id %>
+<%= link_to group.name, group_path(group),
+    id: dom_id(group, :sidebar),
+    class: "block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors #{active ? 'bg-sf-gold/10 text-sf-gold font-semibold' : 'text-gray-700 dark:text-gray-300 hover:bg-sf-gold/10 hover:text-sf-gold'}",
+    data: (local_assigns[:flash] ? { controller: "flash-highlight", flash_highlight_highlight_class: "bg-sf-gold/10 text-sf-gold" } : {}) %>

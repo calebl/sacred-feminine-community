@@ -13,6 +13,8 @@ class Group < ApplicationRecord
   validates :name, presence: true
   validate :acceptable_header_image
 
+  scope :not_joined_by, ->(user) { where.not(id: user.group_ids) }
+
   after_create :add_creator_as_member
 
   def member?(user)

@@ -97,4 +97,13 @@ class GroupTest < ActiveSupport::TestCase
       group.destroy
     end
   end
+
+  test "not_joined_by excludes groups the user belongs to" do
+    user = users(:attendee) # member of book_club and yoga_group, not reading_group
+    result = Group.not_joined_by(user)
+
+    assert_includes result, groups(:reading_group)
+    assert_not_includes result, groups(:book_club)
+    assert_not_includes result, groups(:yoga_group)
+  end
 end

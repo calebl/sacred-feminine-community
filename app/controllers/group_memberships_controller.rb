@@ -7,7 +7,14 @@ class GroupMembershipsController < ApplicationController
     membership = @group.group_memberships.build(user: current_user)
 
     if membership.save
-      redirect_to @group, notice: "You joined the group."
+      respond_to do |format|
+        if params[:context] == "index"
+          format.turbo_stream
+          format.html { redirect_to groups_path }
+        else
+          format.html { redirect_to @group, notice: "You joined the group." }
+        end
+      end
     else
       redirect_to @group, alert: membership.errors.full_messages.join(", ")
     end

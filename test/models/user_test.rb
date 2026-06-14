@@ -345,4 +345,18 @@ class UserTest < ActiveSupport::TestCase
     variant = user.avatar.variant(:display)
     assert_not_nil variant
   end
+
+  test "group_following returns the next group alphabetically" do
+    # attendee_two belongs to reading_group; Book Club sorts before Reading Group
+    user = users(:attendee_two)
+    user.groups << groups(:book_club)
+
+    assert_equal groups(:reading_group), user.group_following(groups(:book_club))
+  end
+
+  test "group_following returns nil when the group sorts last" do
+    user = users(:attendee_two) # only member of reading_group
+
+    assert_nil user.group_following(groups(:reading_group))
+  end
 end

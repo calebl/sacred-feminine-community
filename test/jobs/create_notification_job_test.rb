@@ -54,6 +54,87 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     end
   end
 
+  test "does nothing when the recipient has blocked the actor" do
+    # attendee has blocked attendee_two (see user_blocks fixture)
+    assert_no_difference "Notification.count" do
+      CreateNotificationJob.perform_now(
+        user_id: @attendee.id,
+        actor_id: users(:attendee_two).id,
+        event_type: "new_post",
+        title: "Attendee Two",
+        body: "Posted in a group",
+        path: "/test"
+      )
+    end
+  end
+
+  test "does nothing when the actor has blocked the recipient" do
+    # attendee blocked attendee_two; here attendee_two is the recipient and attendee the actor
+    assert_no_difference "Notification.count" do
+      CreateNotificationJob.perform_now(
+        user_id: users(:attendee_two).id,
+        actor_id: @attendee.id,
+        event_type: "new_post",
+        title: "Attendee",
+        body: "Posted in a group",
+        path: "/test"
+      )
+    end
+  end
+
+  test "does not enqueue downstream jobs for a blocked relationship" do
+    assert_no_enqueued_jobs only: [ SendPushNotificationJob, SendEmailNotificationJob, BroadcastUnreadBadgeJob ] do
+      CreateNotificationJob.perform_now(
+        user_id: @attendee.id,
+        actor_id: users(:attendee_two).id,
+        event_type: "new_post",
+        title: "Attendee Two",
+        body: "Posted in a group",
+        path: "/test"
+      )
+    end
+  end
+
+  test "help_request notifications reach admins despite a block relationship" do
+    # attendee has blocked attendee_two; an admin alert from attendee_two must still arrive
+    assert_difference "Notification.count", 1 do
+      CreateNotificationJob.perform_now(
+        user_id: @attendee.id,
+        actor_id: users(:attendee_two).id,
+        event_type: "help_request",
+        title: "New Help Request",
+        body: "Attendee Two: needs help",
+        path: "/help_requests/1"
+      )
+    end
+  end
+
+  test "help_request_reply notifications are delivered despite a block relationship" do
+    assert_difference "Notification.count", 1 do
+      CreateNotificationJob.perform_now(
+        user_id: @attendee.id,
+        actor_id: users(:attendee_two).id,
+        event_type: "help_request_reply",
+        title: "Help Request Reply",
+        body: "Attendee Two replied",
+        path: "/help_requests/1"
+      )
+    end
+  end
+
+  test "still notifies when there is no block relationship" do
+    assert_difference "Notification.count", 1 do
+      CreateNotificationJob.perform_now(
+        user_id: @admin.id,
+        actor_id: @attendee.id,
+        event_type: "new_post",
+        title: "Attendee",
+        body: "Posted in a group",
+        path: "/test"
+      )
+    end
+  end
+
   test "does nothing if user not found" do
     assert_no_difference "Notification.count" do
       CreateNotificationJob.perform_now(

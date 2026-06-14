@@ -141,6 +141,12 @@ class User < ApplicationRecord
     end
   end
 
+  # The group that sorts immediately after the given group in this user's
+  # alphabetical list of groups, or nil if it sorts last.
+  def group_following(group)
+    groups.order(:name).where("name > ?", group.name).first
+  end
+
   def blocks?(other_user)
     blocked_user_ids.include?(other_user.id)
   end
