@@ -19,6 +19,18 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "reactions_for_feed_post_#{feed_posts(:public_post).id}"
   end
 
+  test "reaction stream renders reactor names for the hover tooltip" do
+    sign_in users(:attendee_two)
+    post reactions_path,
+      params: { reactable_type: "FeedPost", reactable_id: feed_posts(:public_post).id, emoji: "🔥" },
+      as: :turbo_stream
+
+    assert_response :success
+    # public_post already has admin's 🔥 reaction; both names should appear in the tooltip.
+    assert_includes response.body, users(:admin).name
+    assert_includes response.body, users(:attendee_two).name
+  end
+
   test "destroy toggles reaction off" do
     reaction = reactions(:admin_thumbs_up_post)
     sign_in users(:admin)

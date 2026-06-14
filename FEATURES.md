@@ -67,6 +67,7 @@
 - **Allowed set** - Six emoji options: thumbs up, heart, laughing, surprised, prayer, fire
 - **One reaction per user** - Users can place one reaction per item, changeable via update
 - **Grouped display** - Reactions shown as aggregated counts by emoji
+- **Hover to see who reacted** - Hovering a reaction pill reveals a tooltip listing the names of everyone who reacted with that emoji
 
 ## Notifications
 - **Unified notification model** - Single `Notification` model is the source of truth for all alerts (mentions, DMs, comments on your posts, admin events)
