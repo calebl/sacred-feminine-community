@@ -5,12 +5,11 @@ class GroupMembershipTest < ActiveSupport::TestCase
 
   test "joining a group notifies the existing members" do
     group = groups(:book_club) # attendee (creator) and admin are members
-    joiner = users(:attendee_two)
+    joiner = users(:admin_two)
 
     GroupMembership.create!(group: group, user: joiner)
 
-    jobs = new_member_jobs
-    recipient_ids = jobs.map { |j| j["arguments"].last["user_id"] }
+    recipient_ids = new_member_jobs.map { |j| j["arguments"].last["user_id"] }
 
     assert_includes recipient_ids, users(:attendee).id
     assert_includes recipient_ids, users(:admin).id
@@ -18,7 +17,7 @@ class GroupMembershipTest < ActiveSupport::TestCase
 
   test "joining a group does not notify the joining member" do
     group = groups(:book_club)
-    joiner = users(:attendee_two)
+    joiner = users(:admin_two)
 
     GroupMembership.create!(group: group, user: joiner)
 
@@ -28,12 +27,11 @@ class GroupMembershipTest < ActiveSupport::TestCase
 
   test "new_member notification carries the actor, group name, and group path" do
     group = groups(:book_club)
-    joiner = users(:attendee_two)
+    joiner = users(:admin_two)
 
     GroupMembership.create!(group: group, user: joiner)
 
-    job = new_member_jobs.first
-    args = job["arguments"].last
+    args = new_member_jobs.first["arguments"].last
 
     assert_equal joiner.id, args["actor_id"]
     assert_equal joiner.name, args["title"]
@@ -42,11 +40,33 @@ class GroupMembershipTest < ActiveSupport::TestCase
   end
 
   test "creating a group does not notify anyone (creator is the only member)" do
-    creator = users(:attendee)
-    group = Group.create!(name: "Solo Group", creator: creator)
+    group = Group.create!(name: "Solo Group", creator: users(:attendee))
 
     recipient_ids = new_member_jobs.map { |j| j["arguments"].last["user_id"] }
     assert_empty recipient_ids
+  end
+
+  test "does not notify a member who blocked the joining user" do
+    # attendee has blocked attendee_two (see user_blocks fixture)
+    group = groups(:book_club) # attendee and admin are members
+    joiner = users(:attendee_two)
+
+    GroupMembership.create!(group: group, user: joiner)
+
+    recipient_ids = new_member_jobs.map { |j| j["arguments"].last["user_id"] }
+    assert_not_includes recipient_ids, users(:attendee).id
+    assert_includes recipient_ids, users(:admin).id
+  end
+
+  test "does not notify a member the joining user has blocked" do
+    # attendee blocked attendee_two; here the blocker joins a group with the blocked member
+    group = groups(:reading_group) # attendee_two is a member
+    joiner = users(:attendee)
+
+    GroupMembership.create!(group: group, user: joiner)
+
+    recipient_ids = new_member_jobs.map { |j| j["arguments"].last["user_id"] }
+    assert_not_includes recipient_ids, users(:attendee_two).id
   end
 
   private

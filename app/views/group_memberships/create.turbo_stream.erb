@@ -2,9 +2,7 @@
 <%= turbo_stream.action :remove_with_fade, dom_id(@group) %>
 
 <%# Insert the group alphabetically into the "Groups" sidebar section %>
-<% ordered = current_user.groups.order(:name).to_a %>
-<% successor = ordered[(ordered.index { |g| g.id == @group.id }).to_i + 1] %>
-<% if successor %>
+<% if (successor = current_user.group_following(@group)) %>
   <%= turbo_stream.before dom_id(successor, :sidebar) do %>
     <%= render "shared/sidebar_group_link", group: @group, flash: true %>
   <% end %>
