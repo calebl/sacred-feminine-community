@@ -1,0 +1,47 @@
+<%# Real-time refresh of every unread indicator for `user`. Broadcast over the
+    [user, :unread_badge] stream. Targets not present on the current page are
+    harmless no-ops. Locals: user. %>
+<% count = user.total_unread_count %>
+
+<turbo-stream action="replace" target="desktop_unread_badge">
+  <template>
+    <span id="desktop_unread_badge" data-controller="app-badge" data-app-badge-count-value="<%= count %>">
+      <% if count > 0 %>
+        <span class="absolute -top-1 -right-1 bg-sf-red text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1"><%= count > 99 ? "99+" : count %></span>
+      <% end %>
+    </span>
+  </template>
+</turbo-stream>
+
+<turbo-stream action="replace" target="mobile_unread_badge">
+  <template>
+    <span id="mobile_unread_badge">
+      <% if count > 0 %>
+        <span class="absolute -top-1 -right-2 bg-sf-red text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5"><%= count > 99 ? "99+" : count %></span>
+      <% end %>
+    </span>
+  </template>
+</turbo-stream>
+
+<% messages_unread = user.unread_messages? %>
+<% [ "desktop_messages_dot", "mobile_messages_dot" ].each do |dot_id| %>
+  <turbo-stream action="replace" target="<%= dot_id %>">
+    <template><%= render "shared/unread_dot", dom_id: dot_id, unread: messages_unread %></template>
+  </turbo-stream>
+<% end %>
+
+<% unread_cohort_ids = user.unread_cohort_ids %>
+<% user.cohorts.each do |cohort| %>
+  <% dot_id = dom_id(cohort, :unread_dot) %>
+  <turbo-stream action="replace" target="<%= dot_id %>">
+    <template><%= render "shared/unread_dot", dom_id: dot_id, unread: unread_cohort_ids.include?(cohort.id) %></template>
+  </turbo-stream>
+<% end %>
+
+<% unread_group_ids = user.unread_group_ids %>
+<% user.groups.each do |group| %>
+  <% dot_id = dom_id(group, :unread_dot) %>
+  <turbo-stream action="replace" target="<%= dot_id %>">
+    <template><%= render "shared/unread_dot", dom_id: dot_id, unread: unread_group_ids.include?(group.id) %></template>
+  </turbo-stream>
+<% end %>

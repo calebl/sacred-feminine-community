@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   include Discard::Model
+  include UnreadIndicators
 
   devise :invitable, :database_authenticatable,
          :recoverable, :rememberable, :validatable

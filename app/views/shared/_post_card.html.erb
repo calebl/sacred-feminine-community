@@ -3,7 +3,14 @@
   top_level_comments = (comments_by_parent[nil] || []).sort_by(&:created_at)
 %>
 
-<div id="<%= dom_id(post) %>" class="p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700 bg-white dark:bg-gray-800" data-controller="replies-section post-edit">
+<% post_unread = unread_dot_for?(post) %>
+<div id="<%= dom_id(post) %>" class="p-4 rounded-xl border border-sf-sand/20 dark:border-gray-700 bg-white dark:bg-gray-800"
+     data-controller="replies-section post-edit<%= " read-on-view" if post_unread %>"
+     <%= tag.attributes(
+       "data-read-on-view-type-value": post.model_name.param_key,
+       "data-read-on-view-id-value": post.id,
+       "data-read-on-view-url-value": notifications_seen_path
+     ) if post_unread %>>
   <div class="flex items-start justify-between gap-3">
     <div class="flex-1 min-w-0">
       <% if post.pinned? %>

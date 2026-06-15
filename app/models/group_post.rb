@@ -20,8 +20,16 @@ class GroupPost < ApplicationRecord
                .where("(notifiable_type = 'GroupPost' AND notifiable_id = ?) OR (notifiable_type = 'GroupPostComment' AND notifiable_id IN (?))",
                        id, group_post_comments.select(:id))
                .update_all(read_at: Time.current)
-    Notification.unread.where(user: user, event_type: "new_comment",
+    Notification.unread.where(user: user, event_type: [ "new_comment", "new_post" ],
                               notifiable_type: "GroupPost", notifiable_id: id)
+               .update_all(read_at: Time.current)
+  end
+
+  # Cleared when the post card scrolls into view in a feed: the post itself
+  # (new_post + mention), but NOT comments — those clear when seen individually.
+  def mark_seen_by(user)
+    Notification.unread.where(user: user, notifiable_type: "GroupPost", notifiable_id: id,
+                              event_type: [ "new_post", "mention" ])
                .update_all(read_at: Time.current)
   end
 

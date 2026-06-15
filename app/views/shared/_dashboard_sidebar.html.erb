@@ -35,8 +35,11 @@
     <div class="space-y-1">
       <% @sidebar_cohorts.each do |cohort| %>
         <% active = defined?(@active_cohort_id) && @active_cohort_id == cohort.id %>
-        <%= link_to cohort.name, cohort_path(cohort),
-            class: "block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors #{active ? 'bg-sf-gold/10 text-sf-gold font-semibold' : 'text-gray-700 dark:text-gray-300 hover:bg-sf-gold/10 hover:text-sf-gold'}" %>
+        <%= link_to cohort_path(cohort),
+            class: "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 #{active ? 'bg-sf-gold/10 text-sf-gold font-semibold' : 'text-gray-700 dark:text-gray-300 hover:bg-sf-gold/10 hover:text-sf-gold'}" do %>
+          <%= render "shared/unread_dot", dom_id: dom_id(cohort, :unread_dot), unread: unread_cohort_ids.include?(cohort.id) %>
+          <span class="truncate"><%= cohort.name %></span>
+        <% end %>
       <% end %>
     </div>
   <% else %>

@@ -1,0 +1,7 @@
+<%# Always-present span so Turbo stream replaces have a stable target.
+    Locals: dom_id (String), unread (Boolean). %>
+<span id="<%= dom_id %>" class="inline-flex shrink-0">
+  <% if unread %>
+    <span class="w-2 h-2 bg-sf-gold rounded-full" title="Unread"></span>
+  <% end %>
+</span>

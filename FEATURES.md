@@ -86,6 +86,8 @@
 - **New post notifications** - Members receive in-app, push, and email notifications when a new post is created in one of their groups or cohorts (author excluded; mentioned users receive only the mention notification to avoid duplicates).
 - **New group member notifications** - Existing members of a group receive an in-app and push notification (no email) when a new person joins, linking to the group (the joining member is excluded; block-aware suppression is applied centrally in `CreateNotificationJob`).
 - **Real-time unread badges** - Navbar badge counts update in real-time via Turbo Streams, powered by `notifications.unread.count`
+- **Per-context unread indicators** - Gold dots show *where* unread activity is: next to "Messages" in the top bar (unread DM notifications) and to the left of each cohort/group in the sidebar (unread posts, comments, or mentions). New members joining a group do not light the dot. Driven by the `Notification` model and broadcast in real time over the same `[user, :unread_badge]` Turbo stream as the count badges.
+- **Scroll-into-view read marking** - A cohort/group dot clears as the specific post or comment actually scrolls into view (`read-on-view` Stimulus controller → `Notifications::SeenController`). Comments are collapsed by default, so they only count as seen once expanded and on screen. Note: `new_comment` notifications are grouped per post, so seeing one new comment clears the post's whole group.
 - **PWA app icon badge** - Accurate server-side unread count displayed on the PWA app icon via the Badge API
 
 ## Interactive Map
