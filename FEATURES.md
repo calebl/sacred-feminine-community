@@ -13,6 +13,7 @@
 
 ## User Profiles
 - **View/edit profiles** - Users can view any member's profile and edit their own
+- **Author links to profiles** - Names and avatars link to the author's profile wherever they appear (feed/cohort/group posts and comments, direct messages, conversation header, help desk, blocked-users list), via the shared `shared/_avatar` partial. Links are omitted where a profile link would be invalid or misleading (notification rows, conversation list rows, DM toasts, autocomplete dropdowns, and one's own profile/self contexts).
 - **Avatar upload** - Profile photos stored via Active Storage with cropping support (image_cropper Stimulus controller)
 - **Bio and location fields** - Name, bio, city, state, country
 - **Map visibility toggle** - Users opt in/out of appearing on the member map (`show_on_map`)

@@ -26,16 +26,10 @@
 
       <!-- Author info -->
       <div class="flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500 mb-3">
-        <div class="flex items-center gap-2">
-          <div class="w-6 h-6 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-xs font-bold">
-            <% if post.user.avatar.attached? %>
-              <%= image_tag post.user.avatar.variant(resize_to_fill: [24, 24]), class: "w-6 h-6 rounded-full object-cover" %>
-            <% else %>
-              <%= post.user.name.first.upcase %>
-            <% end %>
-          </div>
+        <%= link_to profile_path(post.user), class: "flex items-center gap-2 hover:text-sf-gold transition" do %>
+          <%= render "shared/avatar", user: post.user, size: :sm, link: false %>
           <span><%= post.user.name %></span>
-        </div>
+        <% end %>
         <span>&middot;</span>
         <span><%= time_ago_in_words(post.created_at) %> ago</span>
       </div>

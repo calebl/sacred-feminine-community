@@ -7,7 +7,7 @@
     <div>
       <h1 class="text-2xl font-display font-bold text-sf-black dark:text-white"><%= @help_request.subject %></h1>
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-        Asked by <span class="font-medium"><%= @help_request.user.name %></span>
+        Asked by <%= link_to @help_request.user.name, profile_path(@help_request.user), class: "font-medium hover:text-sf-gold transition" %>
         &middot; <%= time_ago_in_words(@help_request.created_at) %> ago
       </p>
     </div>
@@ -37,7 +37,7 @@
     <% @replies.each do |reply| %>
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-4 <%= reply.user.admin? ? 'border-l-4 border-l-sf-gold' : '' %>">
         <div class="flex items-center gap-2 mb-2">
-          <span class="text-sm font-semibold text-sf-black dark:text-white"><%= reply.user.name %></span>
+          <%= link_to reply.user.name, profile_path(reply.user), class: "text-sm font-semibold text-sf-black dark:text-white hover:text-sf-gold transition" %>
           <% if reply.user.admin? %>
             <span class="text-xs bg-sf-gold/10 text-sf-gold px-2 py-0.5 rounded-full font-medium">Admin</span>
           <% end %>

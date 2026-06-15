@@ -3,13 +3,7 @@
   <%= render layout: "shared/back_header", locals: { path: conversations_path } do %>
     <% if @other_users.any? %>
       <% first_other = @other_users.first %>
-      <div class="w-10 h-10 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-lg font-bold text-sf-black dark:text-white">
-        <% if first_other.avatar.attached? %>
-          <%= image_tag first_other.avatar.variant(:display), class: "w-10 h-10 rounded-full object-cover" %>
-        <% else %>
-          <%= first_other.name.first.upcase %>
-        <% end %>
-      </div>
+      <%= render "shared/avatar", user: first_other, size: :lg, link: @other_users.size == 1 && first_other.kept? %>
       <div>
         <% if @other_users.size == 1 %>
           <% if first_other.kept? %>

@@ -1,16 +1,10 @@
 <div id="<%= dom_id(comment) %>" data-controller="replies-toggle">
   <div class="flex items-start gap-3 p-3 rounded-xl bg-sf-beige/30 dark:bg-gray-700/50">
-    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-sf-sand/50 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-sf-black dark:text-white">
-      <% if comment.user.avatar.attached? %>
-        <%= image_tag comment.user.avatar.variant(resize_to_fill: [32, 32]), class: "w-8 h-8 rounded-full object-cover" %>
-      <% else %>
-        <%= comment.user.name.first.upcase %>
-      <% end %>
-    </div>
+    <%= render "shared/avatar", user: comment.user, size: :md %>
     <div class="flex-1 min-w-0">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="text-sm font-semibold text-sf-black dark:text-white"><%= comment.user.name %></span>
+          <%= link_to comment.user.name, profile_path(comment.user), class: "text-sm font-semibold text-sf-black dark:text-white hover:text-sf-gold transition" %>
           <span class="text-xs text-gray-400 dark:text-gray-500"><%= time_ago_in_words(comment.created_at) %> ago</span>
         </div>
         <% if policy(comment).destroy? %>
