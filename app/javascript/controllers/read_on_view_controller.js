@@ -16,7 +16,11 @@ export default class extends Controller {
     this.observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) this.markSeen()
+          // The initial callback can fire with isIntersecting=true while only a
+          // sliver is on screen, so require the configured visible ratio too.
+          if (entry.isIntersecting && entry.intersectionRatio >= this.thresholdValue) {
+            this.markSeen()
+          }
         }
       },
       { threshold: this.thresholdValue }

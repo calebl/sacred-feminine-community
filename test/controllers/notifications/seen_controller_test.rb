@@ -49,4 +49,17 @@ class Notifications::SeenControllerTest < ActionDispatch::IntegrationTest
     post notifications_seen_path, params: { type: "post", id: @post.id }
     assert_redirected_to new_user_session_path
   end
+
+  test "create returns not_found (no oracle) and does not mark for an unviewable post" do
+    outsider = users(:attendee_two) # not a member of @post's cohort
+    sign_in outsider
+    notification = Notification.create!(user: outsider, event_type: "new_post",
+                                        title: "x", notifiable: @post)
+
+    post notifications_seen_path, params: { type: "post", id: @post.id }
+
+    # Same response as a missing record, so existence can't be probed.
+    assert_response :not_found
+    assert_nil notification.reload.read_at
+  end
 end

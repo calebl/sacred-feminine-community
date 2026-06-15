@@ -47,10 +47,9 @@ module UnreadIndicators
   end
 
   def unread_for_post_comment?(comment)
-    unread_notification_rows.any? do |event, type, id|
-      (type == "PostComment" && id == comment.id && event == "mention") ||
-        (type == "Post" && id == comment.post_id && event == "new_comment")
-    end
+    unread_comment?(comment, "PostComment",
+                    parent_type: "Post", parent_id: comment.post_id,
+                    last_read_at: post_reads_by_post[comment.post_id])
   end
 
   def unread_for_group_post?(group_post)
@@ -60,13 +59,40 @@ module UnreadIndicators
   end
 
   def unread_for_group_post_comment?(comment)
-    unread_notification_rows.any? do |event, type, id|
-      (type == "GroupPostComment" && id == comment.id && event == "mention") ||
-        (type == "GroupPost" && id == comment.group_post_id && event == "new_comment")
-    end
+    unread_comment?(comment, "GroupPostComment",
+                    parent_type: "GroupPost", parent_id: comment.group_post_id,
+                    last_read_at: group_post_reads_by_post[comment.group_post_id])
   end
 
   private
+
+  # A comment lights/clears its parent's grouped new_comment notification only if
+  # it is genuinely unread for this user — i.e. not authored by them and created
+  # after they last read the post. Without this, expanding a thread on a
+  # previously-read post would let an old (oldest-first) or self-authored comment
+  # clear the group before the actually-new comment scrolls into view. A direct
+  # mention on the comment always counts, regardless of read state.
+  def unread_comment?(comment, comment_type, parent_type:, parent_id:, last_read_at:)
+    has_mention = unread_notification_rows.any? do |event, type, id|
+      type == comment_type && id == comment.id && event == "mention"
+    end
+    return true if has_mention
+
+    return false if comment.user_id == id
+    return false if last_read_at && comment.created_at <= last_read_at
+
+    unread_notification_rows.any? do |event, type, id|
+      type == parent_type && id == parent_id && event == "new_comment"
+    end
+  end
+
+  def post_reads_by_post
+    @post_reads_by_post ||= PostRead.where(user_id: id).pluck(:post_id, :last_read_at).to_h
+  end
+
+  def group_post_reads_by_post
+    @group_post_reads_by_post ||= GroupPostRead.where(user_id: id).pluck(:group_post_id, :last_read_at).to_h
+  end
 
   def unread_notifiable_ids(notifiable_type)
     unread_notification_rows.filter_map { |_event, type, id| id if type == notifiable_type }.uniq

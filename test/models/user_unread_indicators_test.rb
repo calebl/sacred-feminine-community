@@ -59,9 +59,32 @@ class UserUnreadIndicatorsTest < ActiveSupport::TestCase
   end
 
   test "unread_for_post_comment? covers comment mentions and the post's grouped new_comment" do
-    comment = post_comments(:admin_comment)
+    comment = post_comments(:admin_comment) # authored by admin, not @user
     unread(event_type: "new_comment", notifiable: comment.post)
 
     assert @user.unread_for_post_comment?(comment)
+  end
+
+  test "unread_for_post_comment? ignores the user's own comments" do
+    own_comment = post_comments(:attendee_comment) # authored by @user
+    unread(event_type: "new_comment", notifiable: own_comment.post)
+
+    assert_not @user.unread_for_post_comment?(own_comment)
+  end
+
+  test "unread_for_post_comment? ignores comments already read via PostRead" do
+    comment = post_comments(:admin_comment)
+    unread(event_type: "new_comment", notifiable: comment.post)
+    PostRead.create!(user: @user, post: comment.post, last_read_at: Time.current)
+
+    assert_not User.find(@user.id).unread_for_post_comment?(comment)
+  end
+
+  test "unread_for_post_comment? still counts a direct mention even when read" do
+    comment = post_comments(:admin_comment)
+    unread(event_type: "mention", notifiable: comment)
+    PostRead.create!(user: @user, post: comment.post, last_read_at: Time.current)
+
+    assert User.find(@user.id).unread_for_post_comment?(comment)
   end
 end
