@@ -39,6 +39,17 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Germany", users(:attendee).country
   end
 
+  test "user defaults to the light theme" do
+    assert_predicate users(:attendee), :theme_light?
+  end
+
+  test "user can update their theme preference" do
+    sign_in users(:attendee)
+    patch profile_path(users(:attendee)), params: { user: { theme: "dark" } }
+    assert_redirected_to profile_path(users(:attendee))
+    assert_predicate users(:attendee).reload, :theme_dark?
+  end
+
   test "user cannot update another user profile" do
     sign_in users(:attendee)
     patch profile_path(users(:admin)), params: {

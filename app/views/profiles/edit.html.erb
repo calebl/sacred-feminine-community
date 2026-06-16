@@ -73,6 +73,14 @@
         <%= f.label :show_on_map, "Show me on the community map", class: "text-sm text-gray-700 dark:text-gray-300" %>
       </div>
 
+      <div>
+        <%= f.label :theme, "Appearance", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.select :theme,
+              [ [ "Light", "light" ], [ "Dark", "dark" ], [ "System (match device)", "system" ] ],
+              {}, class: "w-full" %>
+        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Choose a light or dark theme, or follow your device setting.</p>
+      </div>
+
       <fieldset>
         <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mentions</legend>
         <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Choose where other members can @mention you.</p>
