@@ -36,6 +36,11 @@
         </div>
       </div>
 
+      <div class="flex items-center gap-2">
+        <%= f.check_box :show_on_map, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+        <%= f.label :show_on_map, "Show me on the community map", class: "text-sm text-gray-700 dark:text-gray-300" %>
+      </div>
+
       <div data-controller="image-cropper" data-image-cropper-aspect-ratio-value="1" data-image-cropper-file-name-value="cropped_avatar.jpg">
         <%= f.label :avatar, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
         <% if @user.avatar.attached? %>
@@ -66,11 +71,6 @@
         </div>
 
         <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Upload a profile photo. You can crop it after selecting.</p>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <%= f.check_box :show_on_map, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
-        <%= f.label :show_on_map, "Show me on the community map", class: "text-sm text-gray-700 dark:text-gray-300" %>
       </div>
 
       <div>
