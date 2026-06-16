@@ -81,6 +81,8 @@
         <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Choose a light or dark theme, or follow your device setting.</p>
       </div>
 
+      <h2 class="text-base font-display font-semibold text-sf-black dark:text-white">Privacy Settings</h2>
+
       <fieldset>
         <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mentions</legend>
         <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Choose where other members can @mention you.</p>
@@ -120,17 +122,20 @@
         <% if @user.dm_privacy_nobody? %>
           <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Community admins can still send you messages.</p>
         <% end %>
-        <div class="flex items-center gap-2 mt-3 pt-3 border-t border-sf-sand/10 dark:border-gray-700"
-             data-controller="notification-preview"
-             data-notification-preview-name-value="<%= @user.name %>"
-             data-notification-preview-initial-value="<%= @user.name.first.upcase %>"
-             <% if @user.avatar.attached? %>data-notification-preview-avatar-url-value="<%= rails_representation_path(@user.avatar.variant(:display)) %>"<% end %>>
-          <%= f.check_box :dm_notifications, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
-          <%= f.label :dm_notifications, "Show message notification popups", class: "text-sm text-gray-700 dark:text-gray-300" %>
-          <button type="button" data-action="notification-preview#preview"
-                  class="ml-auto text-xs text-sf-gold hover:text-sf-blue transition cursor-pointer">Preview</button>
-        </div>
       </fieldset>
+
+      <h2 class="text-base font-display font-semibold text-sf-black dark:text-white">Notification Settings</h2>
+
+      <div class="flex items-center gap-2"
+           data-controller="notification-preview"
+           data-notification-preview-name-value="<%= @user.name %>"
+           data-notification-preview-initial-value="<%= @user.name.first.upcase %>"
+           <% if @user.avatar.attached? %>data-notification-preview-avatar-url-value="<%= rails_representation_path(@user.avatar.variant(:display)) %>"<% end %>>
+        <%= f.check_box :dm_notifications, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+        <%= f.label :dm_notifications, "Show message notification popups", class: "text-sm text-gray-700 dark:text-gray-300" %>
+        <button type="button" data-action="notification-preview#preview"
+                class="ml-auto text-xs text-sf-gold hover:text-sf-blue transition cursor-pointer">Preview</button>
+      </div>
 
       <fieldset data-controller="toggle-visibility">
         <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Notifications</legend>
