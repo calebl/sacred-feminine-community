@@ -17,6 +17,7 @@ class User < ApplicationRecord
   enum :role, { attendee: 0, admin: 1 }
   enum :dm_privacy, { nobody: 0, cohort_members: 1, everyone: 2 }, prefix: true
   enum :mention_privacy, { nobody: 0, groups_and_cohorts: 1, everywhere: 2 }, prefix: :mention_privacy
+  enum :theme, { light: 0, dark: 1, system: 2 }, prefix: true
 
   # Includes users who accepted an invitation OR were created manually (no invitation token or accepted_at)
   scope :active_users, -> { kept.where.not(invitation_accepted_at: nil).or(kept.where(invitation_token: nil, invitation_accepted_at: nil)) }

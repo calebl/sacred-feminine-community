@@ -65,10 +65,10 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_match(/FAQ/i, response.body)
   end
 
-  test "dashboard displays Groups placeholder" do
+  test "dashboard displays My Groups placeholder" do
     sign_in users(:attendee)
     get authenticated_root_path
-    assert_select "h3", text: "Groups"
+    assert_select "h3", text: "My Groups"
   end
 
   test "dashboard uses dashboard layout with sidebar" do

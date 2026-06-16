@@ -31,7 +31,7 @@ class ProfilesController < ApplicationController
 
   def profile_params
     params.require(:user).permit(:name, :bio, :city, :state, :country, :show_on_map, :avatar, :dm_privacy, :dm_notifications, :mention_privacy,
-                                 :email_notifications_enabled,
+                                 :theme, :email_notifications_enabled,
                                  :email_on_mention, :email_on_direct_message, :email_on_new_comment, :email_on_new_post)
   end
 end

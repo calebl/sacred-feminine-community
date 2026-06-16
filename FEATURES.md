@@ -138,7 +138,7 @@
 - **ActionCable** - WebSocket-backed real-time updates via Solid Cable
 
 ## UI/UX
-- **Dark mode** - Toggle between light and dark themes (Stimulus controller)
+- **Theme preference** - Users choose light, dark, or system (match device) appearance from their profile edit page. Saved per-user (defaults to light) and applied server-side on page load to avoid flicker.
 - **Responsive layout** - TailwindCSS-based responsive design
 - **Clipboard copying** - Copy-to-clipboard functionality for invite links
 - **Confirmation dialogs** - Custom confirmation dialog for destructive actions
