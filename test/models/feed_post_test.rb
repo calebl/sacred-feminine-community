@@ -1,6 +1,8 @@
 require "test_helper"
 
 class FeedPostTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   test "requires body" do
     post = FeedPost.new(user: users(:attendee))
     assert_not post.valid?
@@ -129,5 +131,72 @@ class FeedPostTest < ActiveSupport::TestCase
 
     post.mark_as_read_by(reader)
     assert_equal 0, Notification.unread.where(user: reader, event_type: "mention", notifiable_type: "FeedPostComment", notifiable_id: comment.id).count
+  end
+
+  test "admin feed post enqueues new_post notifications for all other users" do
+    author = users(:admin)
+
+    FeedPost.create!(user: author, body: "Community announcement")
+
+    recipient_ids = new_post_recipient_ids
+    assert_includes recipient_ids, users(:attendee).id
+    assert_includes recipient_ids, users(:attendee_two).id
+    assert_includes recipient_ids, users(:admin_two).id
+    assert_not_includes recipient_ids, author.id
+  end
+
+  test "member feed post does not enqueue new_post notifications" do
+    FeedPost.create!(user: users(:attendee), body: "Just a member post")
+
+    assert_empty new_post_recipient_ids
+  end
+
+  test "admin feed post does not double-notify mentioned users" do
+    mentioned = users(:attendee)
+
+    FeedPost.create!(user: users(:admin), body: "Hey @[#{mentioned.name}](#{mentioned.id})")
+
+    assert_not_includes new_post_recipient_ids, mentioned.id
+  end
+
+  test "new_post notification body is generic and path points to the feed post" do
+    post = FeedPost.create!(user: users(:admin), body: "SECRET CONTENT that should never leak")
+
+    jobs = enqueued_new_post_jobs
+    assert jobs.any?
+    jobs.each do |j|
+      args = j["arguments"].last
+      assert_no_match(/SECRET CONTENT/, args["body"])
+      assert_equal "Posted in the community feed", args["body"]
+      assert_equal "/feed/#{post.id}", args["path"]
+    end
+  end
+
+  test "mark_as_read_by clears new_post notifications" do
+    post = feed_posts(:public_post)
+    reader = users(:attendee)
+
+    Notification.create!(
+      user: reader, actor: users(:admin),
+      event_type: "new_post", title: "Post", body: "test",
+      path: "/feed/#{post.id}",
+      notifiable_type: "FeedPost", notifiable_id: post.id
+    )
+
+    post.mark_as_read_by(reader)
+    assert_equal 0, Notification.unread.where(user: reader, event_type: "new_post", notifiable_type: "FeedPost", notifiable_id: post.id).count
+  end
+
+  private
+
+  def enqueued_new_post_jobs
+    enqueued_jobs.select do |j|
+      j["job_class"] == "CreateNotificationJob" &&
+        j["arguments"].last["event_type"] == "new_post"
+    end
+  end
+
+  def new_post_recipient_ids
+    enqueued_new_post_jobs.map { |j| j["arguments"].last["user_id"] }
   end
 end
