@@ -2,6 +2,7 @@ class FeedPost < ApplicationRecord
   include Mentionable
   include Reactable
   include HasPhotos
+  include PostNotifiable
   include Blockable
 
   belongs_to :user
@@ -22,7 +23,7 @@ class FeedPost < ApplicationRecord
                .where("(notifiable_type = 'FeedPost' AND notifiable_id = ?) OR (notifiable_type = 'FeedPostComment' AND notifiable_id IN (?))",
                        id, feed_post_comments.select(:id))
                .update_all(read_at: Time.current)
-    Notification.unread.where(user: user, event_type: "new_comment",
+    Notification.unread.where(user: user, event_type: [ "new_comment", "new_post" ],
                               notifiable_type: "FeedPost", notifiable_id: id)
                .update_all(read_at: Time.current)
   end
@@ -35,5 +36,25 @@ class FeedPost < ApplicationRecord
     else
       comments.count
     end
+  end
+
+  private
+
+  # Only admin-authored feed posts broadcast to the whole community. Member posts
+  # notify no one here (their @mentions are still handled by Mentionable). The
+  # PostNotifiable callback subtracts the author and already-mentioned users, so
+  # returning every user id is safe.
+  def post_container_member_ids
+    return [] unless user.admin?
+
+    User.pluck(:id)
+  end
+
+  def new_post_notification_body
+    "Posted in the community feed"
+  end
+
+  def new_post_notification_path
+    "/feed/#{id}"
   end
 end
