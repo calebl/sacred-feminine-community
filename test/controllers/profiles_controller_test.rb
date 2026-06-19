@@ -153,6 +153,24 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "failed update with a newly uploaded avatar re-renders edit without error" do
+    user = users.attendee
+    sign_in user
+
+    # A blank name fails validation; the just-uploaded avatar is attached in
+    # memory but its blob is never persisted. Rendering a variant/URL for that
+    # unpersisted blob used to raise "Cannot get a signed_id for a new record".
+    patch profile_path(user), params: {
+      user: {
+        name: "",
+        avatar: fixture_file_upload("avatar.png", "image/png")
+      }
+    }
+
+    assert_response :unprocessable_entity
+    assert_not user.reload.avatar.attached?
+  end
+
   test "profile shows cohorts the user belongs to" do
     sign_in users.admin
     get profile_path(users.attendee)
