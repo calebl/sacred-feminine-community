@@ -2,7 +2,7 @@ require "test_helper"
 
 class BroadcastUnreadBadgeJobTest < ActiveJob::TestCase
   test "broadcasts turbo stream to user's unread_badge channel" do
-    user = users(:admin)
+    user = users.admin
 
     assert_nothing_raised do
       BroadcastUnreadBadgeJob.perform_now(user.id)
@@ -10,10 +10,10 @@ class BroadcastUnreadBadgeJobTest < ActiveJob::TestCase
   end
 
   test "renders partial with correct unread count" do
-    user = users(:admin)
+    user = users.admin
     # Create an unread notification
     Notification.create!(
-      user: user, actor: users(:attendee),
+      user: user, actor: users.attendee,
       event_type: "mention", title: "Test", body: "test", path: "/test"
     )
 
@@ -30,8 +30,8 @@ class BroadcastUnreadBadgeJobTest < ActiveJob::TestCase
   end
 
   test "direct message enqueues notification job which triggers badge broadcast" do
-    conversation = conversations(:admin_attendee_convo)
-    admin = users(:admin)
+    conversation = conversations.admin_attendee_convo
+    admin = users.admin
 
     assert_enqueued_with(job: CreateNotificationJob) do
       DirectMessage.create!(

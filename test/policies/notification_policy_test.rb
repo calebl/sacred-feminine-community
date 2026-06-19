@@ -2,9 +2,9 @@ require "test_helper"
 
 class NotificationPolicyTest < ActiveSupport::TestCase
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @notification = notifications(:admin_new_member)
+    @admin = users.admin
+    @attendee = users.attendee
+    @notification = notifications.admin_new_member
   end
 
   test "notification recipient can update their notification" do
@@ -22,7 +22,7 @@ class NotificationPolicyTest < ActiveSupport::TestCase
   end
 
   test "scope returns empty for a user with no notifications" do
-    scope = NotificationPolicy::Scope.new(users(:attendee_two), Notification).resolve
+    scope = NotificationPolicy::Scope.new(users.attendee_two, Notification).resolve
     assert_empty scope
   end
 end

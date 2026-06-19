@@ -3,7 +3,7 @@ require "test_helper"
 class CohortsControllerTest < ActionDispatch::IntegrationTest
   # Index
   test "attendee sees all cohorts on index" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get cohorts_path
     assert_response :success
     assert_match "Kabul Retreat", response.body
@@ -11,48 +11,48 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "attendee can click cohorts they belong to" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get cohorts_path
-    assert_select "a[href=?]", cohort_path(cohorts(:kabul_retreat)), text: /Kabul Retreat/
+    assert_select "a[href=?]", cohort_path(cohorts.kabul_retreat), text: /Kabul Retreat/
   end
 
   test "attendee cannot click cohorts they do not belong to" do
-    sign_in users(:attendee_two)
+    sign_in users.attendee_two
     get cohorts_path
-    assert_select "a[href=?]", cohort_path(cohorts(:kabul_retreat)), count: 0
+    assert_select "a[href=?]", cohort_path(cohorts.kabul_retreat), count: 0
     assert_match "Kabul Retreat", response.body
   end
 
   test "admin can click all cohorts" do
-    sign_in users(:admin)
+    sign_in users.admin
     get cohorts_path
     assert_response :success
-    assert_select "a[href=?]", cohort_path(cohorts(:kabul_retreat))
-    assert_select "a[href=?]", cohort_path(cohorts(:bali_retreat))
+    assert_select "a[href=?]", cohort_path(cohorts.kabul_retreat)
+    assert_select "a[href=?]", cohort_path(cohorts.bali_retreat)
   end
 
   # Show
   test "member can view their cohort" do
-    sign_in users(:attendee)
-    get cohort_path(cohorts(:kabul_retreat))
+    sign_in users.attendee
+    get cohort_path(cohorts.kabul_retreat)
     assert_response :success
   end
 
   test "non-member cannot view cohort" do
-    sign_in users(:attendee_two)
-    get cohort_path(cohorts(:kabul_retreat))
+    sign_in users.attendee_two
+    get cohort_path(cohorts.kabul_retreat)
     assert_redirected_to root_path
   end
 
   test "admin can view any cohort" do
-    sign_in users(:admin)
-    get cohort_path(cohorts(:bali_retreat))
+    sign_in users.admin
+    get cohort_path(cohorts.bali_retreat)
     assert_response :success
   end
 
   # Create
   test "admin can create cohort" do
-    sign_in users(:admin)
+    sign_in users.admin
     assert_difference "Cohort.count" do
       post cohorts_path, params: {
         cohort: { name: "New Retreat", retreat_location: "Costa Rica", retreat_start_date: "2026-06-01", retreat_end_date: "2026-06-04" }
@@ -62,34 +62,34 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "attendee cannot create cohort" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get new_cohort_path
     assert_redirected_to root_path
   end
 
   # Update
   test "admin can update cohort" do
-    sign_in users(:admin)
-    patch cohort_path(cohorts(:kabul_retreat)), params: {
+    sign_in users.admin
+    patch cohort_path(cohorts.kabul_retreat), params: {
       cohort: { name: "Updated Name" }
     }
-    assert_redirected_to cohort_path(cohorts(:kabul_retreat))
-    assert_equal "Updated Name", cohorts(:kabul_retreat).reload.name
+    assert_redirected_to cohort_path(cohorts.kabul_retreat)
+    assert_equal "Updated Name", cohorts.kabul_retreat.reload.name
   end
 
   test "attendee cannot update cohort" do
-    sign_in users(:attendee)
-    patch cohort_path(cohorts(:kabul_retreat)), params: {
+    sign_in users.attendee
+    patch cohort_path(cohorts.kabul_retreat), params: {
       cohort: { name: "Hacked" }
     }
     assert_redirected_to root_path
-    assert_not_equal "Hacked", cohorts(:kabul_retreat).reload.name
+    assert_not_equal "Hacked", cohorts.kabul_retreat.reload.name
   end
 
   # Destroy (soft-delete)
   test "admin can archive cohort" do
-    sign_in users(:admin)
-    cohort = cohorts(:bali_retreat)
+    sign_in users.admin
+    cohort = cohorts.bali_retreat
 
     assert_no_difference "Cohort.count" do
       delete cohort_path(cohort)
@@ -101,8 +101,8 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "attendee cannot archive cohort" do
-    sign_in users(:attendee)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.attendee
+    cohort = cohorts.kabul_retreat
 
     delete cohort_path(cohort)
 
@@ -111,8 +111,8 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "archived cohort is not accessible" do
-    sign_in users(:admin)
-    cohort = cohorts(:bali_retreat)
+    sign_in users.admin
+    cohort = cohorts.bali_retreat
     cohort.discard
 
     get cohort_path(cohort)
@@ -121,9 +121,9 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
 
   # Mark as read
   test "show marks group chat as read" do
-    sign_in users(:attendee)
-    cohort = cohorts(:kabul_retreat)
-    membership = cohort.cohort_memberships.find_by(user: users(:attendee))
+    sign_in users.attendee
+    cohort = cohorts.kabul_retreat
+    membership = cohort.cohort_memberships.find_by(user: users.attendee)
     assert_nil membership.last_read_at
 
     get cohort_path(cohort)
@@ -133,8 +133,8 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show displays New Post button" do
-    sign_in users(:attendee)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.attendee
+    cohort = cohorts.kabul_retreat
     get cohort_path(cohort, tab: :feed)
     assert_response :success
     assert_match "New Post", response.body
@@ -142,8 +142,8 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
 
   # Image removal
   test "admin can remove header image" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
     cohort.header_image.attach(io: StringIO.new("fake"), filename: "photo.jpg", content_type: "image/jpeg")
     assert cohort.header_image.attached?
 
@@ -156,14 +156,14 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
 
   # Edit
   test "admin can access edit form" do
-    sign_in users(:admin)
-    get edit_cohort_path(cohorts(:kabul_retreat))
+    sign_in users.admin
+    get edit_cohort_path(cohorts.kabul_retreat)
     assert_response :success
   end
 
   test "edit form includes image cropper" do
-    sign_in users(:admin)
-    get edit_cohort_path(cohorts(:kabul_retreat))
+    sign_in users.admin
+    get edit_cohort_path(cohorts.kabul_retreat)
     assert_select "[data-controller='image-cropper']"
     assert_select "[data-image-cropper-target='fileInput']"
     assert_select "[data-image-cropper-target='cropperWrap']"
@@ -171,7 +171,7 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "new form includes image cropper" do
-    sign_in users(:admin)
+    sign_in users.admin
     get new_cohort_path
     assert_select "[data-controller='image-cropper']"
     assert_select "[data-image-cropper-target='fileInput']"
@@ -179,7 +179,7 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
 
   # Create with invalid params
   test "admin sees form again on invalid create" do
-    sign_in users(:admin)
+    sign_in users.admin
     assert_no_difference "Cohort.count" do
       post cohorts_path, params: { cohort: { name: "" } }
     end
@@ -188,20 +188,20 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
 
   # Update with invalid params
   test "admin sees form again on invalid update" do
-    sign_in users(:admin)
-    patch cohort_path(cohorts(:kabul_retreat)), params: {
+    sign_in users.admin
+    patch cohort_path(cohorts.kabul_retreat), params: {
       cohort: { name: "" }
     }
     assert_response :unprocessable_entity
-    assert_not_equal "", cohorts(:kabul_retreat).reload.name
+    assert_not_equal "", cohorts.kabul_retreat.reload.name
   end
 
   # Invited users in members tab
   test "admin sees invited users in members tab" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
-    User.invite!({ email: "bulk-newbie@example.com", name: "Bulk Newbie", invited_cohort_ids: [ cohort.id ] }, users(:admin))
-    User.invite!({ email: "solo-newbie@example.com", name: "Solo Newbie", invited_cohort_ids: [ cohort.id ] }, users(:admin))
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
+    User.invite!({ email: "bulk-newbie@example.com", name: "Bulk Newbie", invited_cohort_ids: [ cohort.id ] }, users.admin)
+    User.invite!({ email: "solo-newbie@example.com", name: "Solo Newbie", invited_cohort_ids: [ cohort.id ] }, users.admin)
 
     get cohort_path(cohort)
     assert_response :success
@@ -211,9 +211,9 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "admin sees single-invite users in members tab" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
-    User.invite!({ email: "solo-invite@example.com", name: "Solo Invite", invited_cohort_ids: [ cohort.id ] }, users(:admin))
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
+    User.invite!({ email: "solo-invite@example.com", name: "Solo Invite", invited_cohort_ids: [ cohort.id ] }, users.admin)
 
     get cohort_path(cohort)
     assert_response :success
@@ -222,10 +222,10 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "admin does not see single-invite users for other cohorts" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
-    other_cohort = cohorts(:bali_retreat)
-    User.invite!({ email: "wrong-cohort@example.com", name: "Wrong Cohort", invited_cohort_ids: [ other_cohort.id ] }, users(:admin))
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
+    other_cohort = cohorts.bali_retreat
+    User.invite!({ email: "wrong-cohort@example.com", name: "Wrong Cohort", invited_cohort_ids: [ other_cohort.id ] }, users.admin)
 
     get cohort_path(cohort)
     assert_response :success
@@ -233,8 +233,8 @@ class CohortsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "attendee does not see invited users section" do
-    sign_in users(:attendee)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.attendee
+    cohort = cohorts.kabul_retreat
 
     get cohort_path(cohort)
     assert_response :success

@@ -4,20 +4,20 @@ class GroupMembershipTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   test "joining a group notifies the existing members" do
-    group = groups(:book_club) # attendee (creator) and admin are members
-    joiner = users(:admin_two)
+    group = groups.book_club # attendee (creator) and admin are members
+    joiner = users.admin_two
 
     GroupMembership.create!(group: group, user: joiner)
 
     recipient_ids = new_member_jobs.map { |j| j["arguments"].last["user_id"] }
 
-    assert_includes recipient_ids, users(:attendee).id
-    assert_includes recipient_ids, users(:admin).id
+    assert_includes recipient_ids, users.attendee.id
+    assert_includes recipient_ids, users.admin.id
   end
 
   test "joining a group does not notify the joining member" do
-    group = groups(:book_club)
-    joiner = users(:admin_two)
+    group = groups.book_club
+    joiner = users.admin_two
 
     GroupMembership.create!(group: group, user: joiner)
 
@@ -26,8 +26,8 @@ class GroupMembershipTest < ActiveSupport::TestCase
   end
 
   test "new_member notification carries the actor, group name, and group path" do
-    group = groups(:book_club)
-    joiner = users(:admin_two)
+    group = groups.book_club
+    joiner = users.admin_two
 
     GroupMembership.create!(group: group, user: joiner)
 
@@ -40,7 +40,7 @@ class GroupMembershipTest < ActiveSupport::TestCase
   end
 
   test "creating a group does not notify anyone (creator is the only member)" do
-    group = Group.create!(name: "Solo Group", creator: users(:attendee))
+    group = Group.create!(name: "Solo Group", creator: users.attendee)
 
     recipient_ids = new_member_jobs.map { |j| j["arguments"].last["user_id"] }
     assert_empty recipient_ids

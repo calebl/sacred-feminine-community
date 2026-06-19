@@ -2,13 +2,13 @@ require "test_helper"
 
 class FeedPostsControllerTest < ActionDispatch::IntegrationTest
   test "authenticated user can view feed index" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get feed_posts_path
     assert_response :success
   end
 
   test "feed index preserves post formatting with whitespace-pre-wrap" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get feed_posts_path
     assert_response :success
     assert_select "div.whitespace-pre-wrap", minimum: 1
@@ -20,19 +20,19 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "authenticated user can view feed post" do
-    sign_in users(:attendee)
-    get feed_post_path(feed_posts(:public_post))
+    sign_in users.attendee
+    get feed_post_path(feed_posts.public_post)
     assert_response :success
   end
 
   test "any authenticated user can view any feed post" do
-    sign_in users(:attendee_two)
-    get feed_post_path(feed_posts(:public_post))
+    sign_in users.attendee_two
+    get feed_post_path(feed_posts.public_post)
     assert_response :success
   end
 
   test "authenticated user can create feed post" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     assert_difference "FeedPost.count" do
       post feed_posts_path, params: {
         feed_post: { body: "My first public post" }
@@ -42,7 +42,7 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "inline create redirects to feed index on success" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     assert_difference "FeedPost.count" do
       post feed_posts_path, params: {
         inline_feed: "1",
@@ -53,7 +53,7 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "inline create renders index on validation failure" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     assert_no_difference "FeedPost.count" do
       post feed_posts_path, params: {
         inline_feed: "1",
@@ -64,24 +64,24 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "author can delete own feed post" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     assert_difference "FeedPost.count", -1 do
-      delete feed_post_path(feed_posts(:attendee_feed_post))
+      delete feed_post_path(feed_posts.attendee_feed_post)
     end
     assert_redirected_to feed_posts_path
   end
 
   test "admin can delete any feed post" do
-    sign_in users(:admin)
+    sign_in users.admin
     assert_difference "FeedPost.count", -1 do
-      delete feed_post_path(feed_posts(:attendee_feed_post))
+      delete feed_post_path(feed_posts.attendee_feed_post)
     end
   end
 
   test "non-author non-admin cannot delete feed post" do
-    sign_in users(:attendee_two)
+    sign_in users.attendee_two
     assert_no_difference "FeedPost.count" do
-      delete feed_post_path(feed_posts(:attendee_feed_post))
+      delete feed_post_path(feed_posts.attendee_feed_post)
     end
     assert_redirected_to root_path
   end
@@ -96,109 +96,109 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "author can edit own feed post" do
-    sign_in users(:attendee)
-    get edit_feed_post_path(feed_posts(:attendee_feed_post))
+    sign_in users.attendee
+    get edit_feed_post_path(feed_posts.attendee_feed_post)
     assert_response :success
   end
 
   test "non-author non-admin cannot edit feed post" do
-    sign_in users(:attendee_two)
-    get edit_feed_post_path(feed_posts(:attendee_feed_post))
+    sign_in users.attendee_two
+    get edit_feed_post_path(feed_posts.attendee_feed_post)
     assert_redirected_to root_path
   end
 
   test "author can update own feed post" do
-    sign_in users(:attendee)
-    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+    sign_in users.attendee
+    patch feed_post_path(feed_posts.attendee_feed_post), params: {
       feed_post: { body: "Updated content" }
     }
-    assert_redirected_to feed_post_path(feed_posts(:attendee_feed_post))
-    assert_equal "Updated content", feed_posts(:attendee_feed_post).reload.body
+    assert_redirected_to feed_post_path(feed_posts.attendee_feed_post)
+    assert_equal "Updated content", feed_posts.attendee_feed_post.reload.body
   end
 
   test "non-author non-admin cannot update feed post" do
-    sign_in users(:attendee_two)
-    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+    sign_in users.attendee_two
+    patch feed_post_path(feed_posts.attendee_feed_post), params: {
       feed_post: { body: "Hacked" }
     }
     assert_redirected_to root_path
-    assert_not_equal "Hacked", feed_posts(:attendee_feed_post).reload.body
+    assert_not_equal "Hacked", feed_posts.attendee_feed_post.reload.body
   end
 
   test "update with blank body re-renders show with errors" do
-    sign_in users(:attendee)
-    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+    sign_in users.attendee
+    patch feed_post_path(feed_posts.attendee_feed_post), params: {
       feed_post: { body: "" }
     }
     assert_response :unprocessable_entity
   end
 
   test "viewing feed post marks it as read" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     assert_difference "FeedPostRead.count" do
-      get feed_post_path(feed_posts(:public_post))
+      get feed_post_path(feed_posts.public_post)
     end
   end
 
   test "feed index renders post-scoped reply containers" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get feed_posts_path
     assert_response :success
-    assert_select "#post_comments_for_#{feed_posts(:public_post).id}"
+    assert_select "#post_comments_for_#{feed_posts.public_post.id}"
   end
 
   test "feed index shows reply count with reply text" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get feed_posts_path
     assert_response :success
     assert_select "button", text: /\d+ repl(y|ies)/
   end
 
   test "feed index displays user avatars on posts" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get feed_posts_path
     assert_response :success
     assert_select "div.w-6.h-6.rounded-full", minimum: 1
   end
 
   test "feed show uses post-scoped reply container" do
-    sign_in users(:attendee)
-    get feed_post_path(feed_posts(:public_post))
+    sign_in users.attendee
+    get feed_post_path(feed_posts.public_post)
     assert_response :success
-    assert_select "#post_comments_for_#{feed_posts(:public_post).id}"
+    assert_select "#post_comments_for_#{feed_posts.public_post.id}"
   end
 
   test "feed show uses reply terminology" do
-    sign_in users(:attendee)
-    get feed_post_path(feed_posts(:public_post))
+    sign_in users.attendee
+    get feed_post_path(feed_posts.public_post)
     assert_response :success
     assert_select "h2", text: /Replies/
   end
 
   test "inline edit updates post via turbo stream" do
-    sign_in users(:attendee)
-    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+    sign_in users.attendee
+    patch feed_post_path(feed_posts.attendee_feed_post), params: {
       inline_edit: "1",
       feed_post: { body: "Inline updated content" }
     }, as: :turbo_stream
     assert_response :success
-    assert_equal "Inline updated content", feed_posts(:attendee_feed_post).reload.body
+    assert_equal "Inline updated content", feed_posts.attendee_feed_post.reload.body
   end
 
   test "inline edit with blank body returns unprocessable entity" do
-    sign_in users(:attendee)
-    original_body = feed_posts(:attendee_feed_post).body
-    patch feed_post_path(feed_posts(:attendee_feed_post)), params: {
+    sign_in users.attendee
+    original_body = feed_posts.attendee_feed_post.body
+    patch feed_post_path(feed_posts.attendee_feed_post), params: {
       inline_edit: "1",
       feed_post: { body: "" }
     }, as: :turbo_stream
     assert_response :unprocessable_entity
-    assert_equal original_body, feed_posts(:attendee_feed_post).reload.body
+    assert_equal original_body, feed_posts.attendee_feed_post.reload.body
   end
 
   test "updating post text preserves existing photos" do
-    sign_in users(:attendee)
-    post_record = feed_posts(:attendee_feed_post)
+    sign_in users.attendee
+    post_record = feed_posts.attendee_feed_post
 
     # Attach a photo to the post
     photo = fixture_file_upload("avatar.png", "image/png")
@@ -217,8 +217,8 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "updating post can add new photos while keeping existing ones" do
-    sign_in users(:attendee)
-    post_record = feed_posts(:attendee_feed_post)
+    sign_in users.attendee
+    post_record = feed_posts.attendee_feed_post
 
     # Attach a photo to the post
     photo1 = fixture_file_upload("avatar.png", "image/png")
@@ -237,8 +237,8 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "removing existing photo via remove_photos param still works" do
-    sign_in users(:attendee)
-    post_record = feed_posts(:attendee_feed_post)
+    sign_in users.attendee
+    post_record = feed_posts.attendee_feed_post
 
     # Attach a photo to the post
     photo = fixture_file_upload("avatar.png", "image/png")
@@ -257,8 +257,8 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "feed post links author and comment author names to their profiles" do
-    sign_in users(:attendee)
-    post_record = feed_posts(:public_post)
+    sign_in users.attendee
+    post_record = feed_posts.public_post
 
     get feed_post_path(post_record)
     assert_response :success
@@ -266,7 +266,7 @@ class FeedPostsControllerTest < ActionDispatch::IntegrationTest
     # Post author (admin)
     assert_select "a[href=?]", profile_path(post_record.user), minimum: 1
     # Comment author on a reply (attendee)
-    comment = feed_post_comments(:reply_to_admin_feed_comment)
+    comment = feed_post_comments.reply_to_admin_feed_comment
     assert_select "a[href=?]", profile_path(comment.user), minimum: 1
   end
 end

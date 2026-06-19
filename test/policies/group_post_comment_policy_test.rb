@@ -2,10 +2,10 @@ require "test_helper"
 
 class GroupPostCommentPolicyTest < ActiveSupport::TestCase
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @attendee_two = users(:attendee_two)
-    @comment = group_post_comments(:admin_group_comment)
+    @admin = users.admin
+    @attendee = users.attendee
+    @attendee_two = users.attendee_two
+    @comment = group_post_comments.admin_group_comment
   end
 
   test "group member can create a comment" do
@@ -17,7 +17,7 @@ class GroupPostCommentPolicyTest < ActiveSupport::TestCase
   end
 
   test "admin can create a comment in a group they have not joined" do
-    comment = GroupPostComment.new(group_post: group_posts(:reading_group_post))
+    comment = GroupPostComment.new(group_post: group_posts.reading_group_post)
     assert GroupPostCommentPolicy.new(@admin, comment).create?
   end
 
@@ -26,7 +26,7 @@ class GroupPostCommentPolicyTest < ActiveSupport::TestCase
   end
 
   test "admin can destroy any comment" do
-    other_comment = group_post_comments(:attendee_group_comment)
+    other_comment = group_post_comments.attendee_group_comment
     assert GroupPostCommentPolicy.new(@admin, other_comment).destroy?
   end
 

@@ -2,31 +2,31 @@ require "test_helper"
 
 class GroupPostsControllerTest < ActionDispatch::IntegrationTest
   test "member can view post" do
-    sign_in users(:attendee)
-    get group_group_post_path(groups(:book_club), group_posts(:book_club_post))
+    sign_in users.attendee
+    get group_group_post_path(groups.book_club, group_posts.book_club_post)
     assert_response :success
   end
 
   test "non-member cannot view post" do
-    sign_in users(:attendee_two)
-    get group_group_post_path(groups(:book_club), group_posts(:book_club_post))
+    sign_in users.attendee_two
+    get group_group_post_path(groups.book_club, group_posts.book_club_post)
     assert_redirected_to root_path
   end
 
   test "member can create post" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     assert_difference "GroupPost.count" do
-      post group_group_posts_path(groups(:book_club)), params: {
+      post group_group_posts_path(groups.book_club), params: {
         group_post: { body: "Some post content" }
       }
     end
-    assert_redirected_to group_group_post_path(groups(:book_club), GroupPost.last)
+    assert_redirected_to group_group_post_path(groups.book_club, GroupPost.last)
   end
 
   test "non-member cannot create post" do
-    sign_in users(:attendee_two)
+    sign_in users.attendee_two
     assert_no_difference "GroupPost.count" do
-      post group_group_posts_path(groups(:book_club)), params: {
+      post group_group_posts_path(groups.book_club), params: {
         group_post: { body: "Content" }
       }
     end
@@ -34,9 +34,9 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "invalid inline post renders group show" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     assert_no_difference "GroupPost.count" do
-      post group_group_posts_path(groups(:book_club)), params: {
+      post group_group_posts_path(groups.book_club), params: {
         inline_feed: "1",
         group_post: { body: "" }
       }
@@ -45,122 +45,122 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "author can delete own post" do
-    sign_in users(:admin)
+    sign_in users.admin
     assert_difference "GroupPost.count", -1 do
-      delete group_group_post_path(groups(:book_club), group_posts(:book_club_post))
+      delete group_group_post_path(groups.book_club, group_posts.book_club_post)
     end
-    assert_redirected_to group_path(groups(:book_club), tab: :feed)
+    assert_redirected_to group_path(groups.book_club, tab: :feed)
   end
 
   test "admin can delete any post" do
-    sign_in users(:admin)
+    sign_in users.admin
     assert_difference "GroupPost.count", -1 do
-      delete group_group_post_path(groups(:book_club), group_posts(:book_club_pinned))
+      delete group_group_post_path(groups.book_club, group_posts.book_club_pinned)
     end
   end
 
   test "unauthenticated user cannot access posts" do
-    get group_group_post_path(groups(:book_club), group_posts(:book_club_post))
+    get group_group_post_path(groups.book_club, group_posts.book_club_post)
     assert_redirected_to new_user_session_path
   end
 
   test "viewing post marks it as read" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     assert_difference "GroupPostRead.count" do
-      get group_group_post_path(groups(:book_club), group_posts(:book_club_post))
+      get group_group_post_path(groups.book_club, group_posts.book_club_post)
     end
   end
 
   test "inline create redirects to group on success" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     assert_difference "GroupPost.count" do
-      post group_group_posts_path(groups(:book_club)), params: {
+      post group_group_posts_path(groups.book_club), params: {
         inline_feed: "1",
         group_post: { body: "Content here" }
       }
     end
-    assert_redirected_to group_path(groups(:book_club), tab: :feed)
+    assert_redirected_to group_path(groups.book_club, tab: :feed)
   end
 
   test "creating a post with mentions creates mention records" do
-    sign_in users(:attendee)
-    mentioned = users(:admin)
+    sign_in users.attendee
+    mentioned = users.admin
     assert_difference "Mention.count" do
-      post group_group_posts_path(groups(:book_club)), params: {
+      post group_group_posts_path(groups.book_club), params: {
         group_post: { body: "Hello @[#{mentioned.name}](#{mentioned.id})" }
       }
     end
     mention = Mention.last
     assert_equal mentioned, mention.user
-    assert_equal users(:attendee), mention.mentioner
+    assert_equal users.attendee, mention.mentioner
     assert_equal "GroupPost", mention.mentionable_type
   end
 
   test "viewing post marks mention notifications as read" do
-    sign_in users(:admin)
-    mentioned_post = group_posts(:book_club_post)
+    sign_in users.admin
+    mentioned_post = group_posts.book_club_post
     notification = Notification.create!(
-      user: users(:admin),
-      actor: users(:attendee),
+      user: users.admin,
+      actor: users.attendee,
       event_type: "mention",
-      title: "#{users(:attendee).name} mentioned you",
+      title: "#{users.attendee.name} mentioned you",
       body: "In a post",
-      path: group_group_post_path(groups(:book_club), mentioned_post),
+      path: group_group_post_path(groups.book_club, mentioned_post),
       notifiable_type: "GroupPost",
       notifiable_id: mentioned_post.id
     )
-    get group_group_post_path(groups(:book_club), mentioned_post)
+    get group_group_post_path(groups.book_club, mentioned_post)
     assert notification.reload.read_at.present?
   end
 
   test "author can edit own post" do
-    sign_in users(:attendee)
-    get edit_group_group_post_path(groups(:book_club), group_posts(:book_club_pinned))
+    sign_in users.attendee
+    get edit_group_group_post_path(groups.book_club, group_posts.book_club_pinned)
     assert_response :success
   end
 
   test "non-author member cannot edit post" do
-    sign_in users(:attendee)
-    get edit_group_group_post_path(groups(:book_club), group_posts(:book_club_post))
+    sign_in users.attendee
+    get edit_group_group_post_path(groups.book_club, group_posts.book_club_post)
     assert_redirected_to root_path
   end
 
   test "admin cannot edit another user's post" do
-    sign_in users(:admin)
-    get edit_group_group_post_path(groups(:book_club), group_posts(:book_club_pinned))
+    sign_in users.admin
+    get edit_group_group_post_path(groups.book_club, group_posts.book_club_pinned)
     assert_redirected_to root_path
   end
 
   test "author can update own post" do
-    sign_in users(:attendee)
-    patch group_group_post_path(groups(:book_club), group_posts(:book_club_pinned)), params: {
+    sign_in users.attendee
+    patch group_group_post_path(groups.book_club, group_posts.book_club_pinned), params: {
       group_post: { body: "Updated post content" }
     }
-    assert_redirected_to group_group_post_path(groups(:book_club), group_posts(:book_club_pinned))
-    assert_equal "Updated post content", group_posts(:book_club_pinned).reload.body
+    assert_redirected_to group_group_post_path(groups.book_club, group_posts.book_club_pinned)
+    assert_equal "Updated post content", group_posts.book_club_pinned.reload.body
   end
 
   test "non-author member cannot update post" do
-    sign_in users(:attendee)
-    patch group_group_post_path(groups(:book_club), group_posts(:book_club_post)), params: {
+    sign_in users.attendee
+    patch group_group_post_path(groups.book_club, group_posts.book_club_post), params: {
       group_post: { body: "Hacked" }
     }
     assert_redirected_to root_path
-    assert_not_equal "Hacked", group_posts(:book_club_post).reload.body
+    assert_not_equal "Hacked", group_posts.book_club_post.reload.body
   end
 
   test "update with blank body re-renders show with errors" do
-    sign_in users(:attendee)
-    patch group_group_post_path(groups(:book_club), group_posts(:book_club_pinned)), params: {
+    sign_in users.attendee
+    patch group_group_post_path(groups.book_club, group_posts.book_club_pinned), params: {
       group_post: { body: "" }
     }
     assert_response :unprocessable_entity
   end
 
   test "inline create renders group show on validation failure" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     assert_no_difference "GroupPost.count" do
-      post group_group_posts_path(groups(:book_club)), params: {
+      post group_group_posts_path(groups.book_club), params: {
         inline_feed: "1",
         group_post: { body: "" }
       }
@@ -170,64 +170,64 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "group show renders post-scoped reply containers" do
-    sign_in users(:attendee)
-    get group_path(groups(:book_club), tab: :feed)
+    sign_in users.attendee
+    get group_path(groups.book_club, tab: :feed)
     assert_response :success
-    assert_select "#post_comments_for_#{group_posts(:book_club_post).id}"
+    assert_select "#post_comments_for_#{group_posts.book_club_post.id}"
   end
 
   test "group show shows reply count with reply text" do
-    sign_in users(:attendee)
-    get group_path(groups(:book_club), tab: :feed)
+    sign_in users.attendee
+    get group_path(groups.book_club, tab: :feed)
     assert_response :success
     assert_select "button", text: /\d+ repl(y|ies)/
   end
 
   test "group show displays user avatars on posts" do
-    sign_in users(:attendee)
-    get group_path(groups(:book_club), tab: :feed)
+    sign_in users.attendee
+    get group_path(groups.book_club, tab: :feed)
     assert_response :success
     assert_select "div.w-6.h-6.rounded-full", minimum: 1
   end
 
   test "group post show uses post-scoped reply container" do
-    sign_in users(:attendee)
-    get group_group_post_path(groups(:book_club), group_posts(:book_club_post))
+    sign_in users.attendee
+    get group_group_post_path(groups.book_club, group_posts.book_club_post)
     assert_response :success
-    assert_select "#post_comments_for_#{group_posts(:book_club_post).id}"
+    assert_select "#post_comments_for_#{group_posts.book_club_post.id}"
   end
 
   test "group post show uses reply terminology" do
-    sign_in users(:attendee)
-    get group_group_post_path(groups(:book_club), group_posts(:book_club_post))
+    sign_in users.attendee
+    get group_group_post_path(groups.book_club, group_posts.book_club_post)
     assert_response :success
     assert_select "h2", text: /Replies/
   end
 
   test "inline edit updates group post via turbo stream" do
-    sign_in users(:attendee)
-    patch group_group_post_path(groups(:book_club), group_posts(:book_club_pinned)), params: {
+    sign_in users.attendee
+    patch group_group_post_path(groups.book_club, group_posts.book_club_pinned), params: {
       inline_edit: "1",
       group_post: { body: "Inline updated content" }
     }, as: :turbo_stream
     assert_response :success
-    assert_equal "Inline updated content", group_posts(:book_club_pinned).reload.body
+    assert_equal "Inline updated content", group_posts.book_club_pinned.reload.body
   end
 
   test "inline edit with blank body returns unprocessable entity for group post" do
-    sign_in users(:attendee)
-    original_body = group_posts(:book_club_pinned).body
-    patch group_group_post_path(groups(:book_club), group_posts(:book_club_pinned)), params: {
+    sign_in users.attendee
+    original_body = group_posts.book_club_pinned.body
+    patch group_group_post_path(groups.book_club, group_posts.book_club_pinned), params: {
       inline_edit: "1",
       group_post: { body: "" }
     }, as: :turbo_stream
     assert_response :unprocessable_entity
-    assert_equal original_body, group_posts(:book_club_pinned).reload.body
+    assert_equal original_body, group_posts.book_club_pinned.reload.body
   end
 
   test "updating post text preserves existing photos" do
-    sign_in users(:attendee)
-    post_record = group_posts(:book_club_pinned)
+    sign_in users.attendee
+    post_record = group_posts.book_club_pinned
 
     # Attach a photo to the post
     photo = fixture_file_upload("avatar.png", "image/png")
@@ -235,19 +235,19 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, post_record.photos.count
 
     # Update the post body without changing photos
-    patch group_group_post_path(groups(:book_club), post_record), params: {
+    patch group_group_post_path(groups.book_club, post_record), params: {
       group_post: { body: "Updated text without touching photos" }
     }
 
-    assert_redirected_to group_group_post_path(groups(:book_club), post_record)
+    assert_redirected_to group_group_post_path(groups.book_club, post_record)
     post_record.reload
     assert_equal "Updated text without touching photos", post_record.body
     assert_equal 1, post_record.photos.count, "Photo should still be attached"
   end
 
   test "updating post can add new photos while keeping existing ones" do
-    sign_in users(:attendee)
-    post_record = group_posts(:book_club_pinned)
+    sign_in users.attendee
+    post_record = group_posts.book_club_pinned
 
     # Attach a photo to the post
     photo1 = fixture_file_upload("avatar.png", "image/png")
@@ -256,18 +256,18 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
 
     # Update and add a second photo
     photo2 = fixture_file_upload("avatar.png", "image/png")
-    patch group_group_post_path(groups(:book_club), post_record), params: {
+    patch group_group_post_path(groups.book_club, post_record), params: {
       group_post: { body: "Updated with new photo", photos: [ photo2 ] }
     }
 
-    assert_redirected_to group_group_post_path(groups(:book_club), post_record)
+    assert_redirected_to group_group_post_path(groups.book_club, post_record)
     post_record.reload
     assert_equal 2, post_record.photos.count, "Should have both photos"
   end
 
   test "removing existing photo via remove_photos param still works" do
-    sign_in users(:attendee)
-    post_record = group_posts(:book_club_pinned)
+    sign_in users.attendee
+    post_record = group_posts.book_club_pinned
 
     # Attach a photo to the post
     photo = fixture_file_upload("avatar.png", "image/png")
@@ -275,12 +275,12 @@ class GroupPostsControllerTest < ActionDispatch::IntegrationTest
     photo_id = post_record.photos.first.id
 
     # Remove the photo via remove_photos param
-    patch group_group_post_path(groups(:book_club), post_record), params: {
+    patch group_group_post_path(groups.book_club, post_record), params: {
       group_post: { body: "Text update" },
       remove_photos: [ photo_id ]
     }
 
-    assert_redirected_to group_group_post_path(groups(:book_club), post_record)
+    assert_redirected_to group_group_post_path(groups.book_club, post_record)
     post_record.reload
     assert_equal 0, post_record.photos.count, "Photo should be removed"
   end

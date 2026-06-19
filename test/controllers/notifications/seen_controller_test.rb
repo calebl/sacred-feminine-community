@@ -4,8 +4,8 @@ class Notifications::SeenControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 
   setup do
-    @user = users(:attendee)
-    @post = posts(:pinned_announcement)
+    @user = users.attendee
+    @post = posts.pinned_announcement
   end
 
   test "create marks the post's notifications read and re-broadcasts" do
@@ -23,7 +23,7 @@ class Notifications::SeenControllerTest < ActionDispatch::IntegrationTest
 
   test "create handles comments" do
     sign_in @user
-    comment = post_comments(:admin_comment)
+    comment = post_comments.admin_comment
     notification = Notification.create!(user: @user, event_type: "new_comment",
                                         title: "x", notifiable: comment.post)
 
@@ -51,7 +51,7 @@ class Notifications::SeenControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create returns not_found (no oracle) and does not mark for an unviewable post" do
-    outsider = users(:attendee_two) # not a member of @post's cohort
+    outsider = users.attendee_two # not a member of @post's cohort
     sign_in outsider
     notification = Notification.create!(user: outsider, event_type: "new_post",
                                         title: "x", notifiable: @post)

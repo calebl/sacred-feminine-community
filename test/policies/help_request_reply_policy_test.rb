@@ -2,10 +2,10 @@ require "test_helper"
 
 class HelpRequestReplyPolicyTest < ActiveSupport::TestCase
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @attendee_two = users(:attendee_two)
-    @request = help_requests(:open_request)
+    @admin = users.admin
+    @attendee = users.attendee
+    @attendee_two = users.attendee_two
+    @request = help_requests.open_request
   end
 
   test "admin can reply to any request" do

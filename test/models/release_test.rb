@@ -36,7 +36,7 @@ class ReleaseTest < ActiveSupport::TestCase
   end
 
   test "enforces unique version" do
-    existing = releases(:v1)
+    existing = releases.v1
     duplicate = Release.new(
       version: existing.version,
       commit_sha: "newsha123",
@@ -48,8 +48,8 @@ class ReleaseTest < ActiveSupport::TestCase
   end
 
   test "recent scope orders by deployed_at descending" do
-    releases = Release.recent
-    assert_equal releases(:v2), releases.first
-    assert_equal releases(:v1), releases.second
+    recent = Release.recent
+    assert_equal releases.v2, recent.first
+    assert_equal releases.v1, recent.second
   end
 end

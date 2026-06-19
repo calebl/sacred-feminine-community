@@ -2,9 +2,9 @@ require "test_helper"
 
 class Account::UserPolicyTest < ActiveSupport::TestCase
   setup do
-    @attendee = users(:attendee)
-    @attendee_two = users(:attendee_two)
-    @admin = users(:admin)
+    @attendee = users.attendee
+    @attendee_two = users.attendee_two
+    @admin = users.admin
   end
 
   test "user can update their own email" do

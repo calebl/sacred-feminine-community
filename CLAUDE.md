@@ -78,7 +78,11 @@ See [FEATURES.md](FEATURES.md) for a comprehensive list of all platform features
 ## Testing
 
 - Framework: Minitest with parallel workers
-- Fixtures for all models
+- Test data comes from Oaken seeds, not Rails fixtures. Shared/test-only seeds live in
+  `db/seeds/` and `db/seeds/test/`; reach records with dot notation (`users.admin`,
+  `cohorts.kabul_retreat`), not the old `users(:admin)` fixture accessors. Add new test
+  records by editing the matching `db/seeds/test/*.rb` file. `test/fixtures/files/` is
+  still used for `file_fixture` uploads.
 - Geocoder is stubbed in test_helper.rb (returns NYC coordinates)
 - Devise test helpers included for integration tests
 - All new changes in PRs must include test coverage for the introduced behavior

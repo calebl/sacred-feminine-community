@@ -4,8 +4,8 @@ class MentionControllerTest < ApplicationSystemTestCase
   include Devise::Test::IntegrationHelpers
 
   setup do
-    @user = users(:attendee)
-    @conversation = conversations(:admin_attendee_convo)
+    @user = users.attendee
+    @conversation = conversations.admin_attendee_convo
     sign_in @user
   end
 

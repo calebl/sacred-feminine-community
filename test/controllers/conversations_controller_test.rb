@@ -2,10 +2,10 @@ require "test_helper"
 
 class ConversationsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @attendee_two = users(:attendee_two)
-    @conversation = conversations(:admin_attendee_convo)
+    @admin = users.admin
+    @attendee = users.attendee
+    @attendee_two = users.attendee_two
+    @conversation = conversations.admin_attendee_convo
   end
 
   # Index

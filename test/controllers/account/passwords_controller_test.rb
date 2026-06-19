@@ -2,7 +2,7 @@ require "test_helper"
 
 class Account::PasswordsControllerTest < ActionDispatch::IntegrationTest
   test "authenticated user can view password edit page" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get edit_account_password_path
     assert_response :success
   end
@@ -13,7 +13,7 @@ class Account::PasswordsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "user can update password with correct current password" do
-    user = users(:attendee)
+    user = users.attendee
     sign_in user
     patch account_password_path, params: {
       user: {
@@ -27,7 +27,7 @@ class Account::PasswordsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "user cannot update password with wrong current password" do
-    user = users(:attendee)
+    user = users.attendee
     sign_in user
     patch account_password_path, params: {
       user: {
@@ -41,7 +41,7 @@ class Account::PasswordsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "user cannot update password when confirmation does not match" do
-    user = users(:attendee)
+    user = users.attendee
     sign_in user
     patch account_password_path, params: {
       user: {
@@ -55,7 +55,7 @@ class Account::PasswordsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "user cannot set password shorter than minimum length" do
-    user = users(:attendee)
+    user = users.attendee
     sign_in user
     patch account_password_path, params: {
       user: {
@@ -69,7 +69,7 @@ class Account::PasswordsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "user remains signed in after password change" do
-    user = users(:attendee)
+    user = users.attendee
     sign_in user
     patch account_password_path, params: {
       user: {

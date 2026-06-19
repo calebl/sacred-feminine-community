@@ -2,8 +2,8 @@ require "test_helper"
 
 class NotificationMailerTest < ActionMailer::TestCase
   setup do
-    @user = users(:attendee)
-    @actor = users(:admin)
+    @user = users.attendee
+    @actor = users.admin
     @notification = Notification.create!(
       user: @user,
       actor: @actor,
@@ -44,7 +44,7 @@ class NotificationMailerTest < ActionMailer::TestCase
     # Even if a notification has a notifiable association, the email only uses
     # the generic title/body fields — never content from the linked record.
     dm = DirectMessage.create!(
-      conversation: conversations(:admin_attendee_convo),
+      conversation: conversations.admin_attendee_convo,
       sender: @actor,
       body: "secret private content that must not leak"
     )

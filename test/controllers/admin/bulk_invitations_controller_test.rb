@@ -2,7 +2,7 @@ require "test_helper"
 
 class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   test "admin can access bulk invitation form" do
-    sign_in users(:admin)
+    sign_in users.admin
     get new_admin_bulk_invitation_path
     assert_response :success
     assert_select "select[name='cohort_id']"
@@ -11,7 +11,7 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "attendee cannot access bulk invitation form" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get new_admin_bulk_invitation_path
     assert_redirected_to root_path
   end
@@ -22,8 +22,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "admin can submit bulk invite and creates bulk invitation record" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     assert_difference "BulkInvitation.count" do
       post admin_bulk_invitations_path, params: {
@@ -39,8 +39,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invite enqueues ProcessBulkInvitationJob" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     assert_enqueued_with(job: ProcessBulkInvitationJob) do
       post admin_bulk_invitations_path, params: {
@@ -51,8 +51,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invite stores custom message on BulkInvitation" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     post admin_bulk_invitations_path, params: {
       cohort_id: cohort.id,
@@ -63,12 +63,12 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
     bulk_invitation = BulkInvitation.last
     assert_equal "Welcome to our retreat!", bulk_invitation.message
     assert_equal cohort, bulk_invitation.cohort
-    assert_equal users(:admin), bulk_invitation.invited_by
+    assert_equal users.admin, bulk_invitation.invited_by
   end
 
   test "bulk invite without custom message stores nil message" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     post admin_bulk_invitations_path, params: {
       cohort_id: cohort.id,
@@ -79,8 +79,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invite with empty emails shows error" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     assert_no_difference "BulkInvitation.count" do
       post admin_bulk_invitations_path, params: {
@@ -94,8 +94,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invite with empty emails preserves locked cohort" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     post admin_bulk_invitations_path, params: {
       cohort_id: cohort.id,
@@ -109,8 +109,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invite with empty emails preserves cohort select" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     post admin_bulk_invitations_path, params: {
       cohort_id: cohort.id,
@@ -123,8 +123,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invite filters invalid email formats before enqueuing" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     assert_enqueued_with(job: ProcessBulkInvitationJob) do
       post admin_bulk_invitations_path, params: {
@@ -137,8 +137,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invite deduplicates emails" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     post admin_bulk_invitations_path, params: {
       cohort_id: cohort.id,
@@ -149,8 +149,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invite parses comma-separated emails" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     post admin_bulk_invitations_path, params: {
       cohort_id: cohort.id,
@@ -161,8 +161,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invite parses semicolon-separated emails" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     post admin_bulk_invitations_path, params: {
       cohort_id: cohort.id,
@@ -173,8 +173,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "attendee cannot create bulk invitations" do
-    sign_in users(:attendee)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.attendee
+    cohort = cohorts.kabul_retreat
 
     assert_no_difference "BulkInvitation.count" do
       post admin_bulk_invitations_path, params: {
@@ -187,8 +187,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invitation form locks cohort when cohort_id is provided" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
     get new_admin_bulk_invitation_path(cohort_id: cohort.id)
     assert_response :success
     assert_select "input[type='hidden'][name='cohort_id'][value='#{cohort.id}']"
@@ -198,9 +198,9 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invitation form defaults message to previous bulk invitation message" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
-    BulkInvitation.create!(cohort: cohort, invited_by: users(:admin), message: "Welcome to our retreat!")
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
+    BulkInvitation.create!(cohort: cohort, invited_by: users.admin, message: "Welcome to our retreat!")
 
     get new_admin_bulk_invitation_path(cohort_id: cohort.id)
     assert_response :success
@@ -208,7 +208,7 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invitation form shows cohort select without cohort_id param" do
-    sign_in users(:admin)
+    sign_in users.admin
     get new_admin_bulk_invitation_path
     assert_response :success
     assert_select "select[name='cohort_id']"
@@ -216,8 +216,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invite redirects to cohort path when locked_cohort is present" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     post admin_bulk_invitations_path, params: {
       cohort_id: cohort.id,
@@ -229,8 +229,8 @@ class Admin::BulkInvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "bulk invite defaults to admin dashboard without locked_cohort" do
-    sign_in users(:admin)
-    cohort = cohorts(:kabul_retreat)
+    sign_in users.admin
+    cohort = cohorts.kabul_retreat
 
     post admin_bulk_invitations_path, params: {
       cohort_id: cohort.id,

@@ -2,9 +2,9 @@ require "test_helper"
 
 class MentionTest < ActiveSupport::TestCase
   setup do
-    @cohort = cohorts(:kabul_retreat)
-    @admin = users(:admin)
-    @attendee = users(:attendee)
+    @cohort = cohorts.kabul_retreat
+    @admin = users.admin
+    @attendee = users.attendee
     @post = @cohort.posts.create!(body: "Hello", user: @attendee)
   end
 

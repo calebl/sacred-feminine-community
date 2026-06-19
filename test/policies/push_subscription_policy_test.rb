@@ -2,9 +2,9 @@ require "test_helper"
 
 class PushSubscriptionPolicyTest < ActiveSupport::TestCase
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @subscription = push_subscriptions(:admin_sub)
+    @admin = users.admin
+    @attendee = users.attendee
+    @subscription = push_subscriptions.admin_sub
   end
 
   test "any user can create a push subscription" do

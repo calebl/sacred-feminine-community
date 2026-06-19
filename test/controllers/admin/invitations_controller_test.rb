@@ -2,13 +2,13 @@ require "test_helper"
 
 class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   test "admin can access invitation form" do
-    sign_in users(:admin)
+    sign_in users.admin
     get new_user_invitation_path
     assert_response :success
   end
 
   test "attendee cannot access invitation form" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get new_user_invitation_path
     assert_redirected_to root_path
     assert_equal "Not authorized", flash[:alert]
@@ -20,7 +20,7 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "admin can send invitation" do
-    sign_in users(:admin)
+    sign_in users.admin
     assert_difference "User.count" do
       post user_invitation_path, params: {
         user: { email: "newmember@example.com", name: "New Member" }
@@ -35,7 +35,7 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "invitation email is enqueued for async delivery" do
-    sign_in users(:admin)
+    sign_in users.admin
     assert_enqueued_emails 1 do
       post user_invitation_path, params: {
         user: { email: "async@example.com", name: "Async Test" }
@@ -44,7 +44,7 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "attendee cannot send invitation" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     assert_no_difference "User.count" do
       post user_invitation_path, params: {
         user: { email: "newmember@example.com", name: "New Member" }
@@ -54,7 +54,7 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "invalid invitation re-renders form" do
-    sign_in users(:admin)
+    sign_in users.admin
     assert_no_difference "User.count" do
       post user_invitation_path, params: {
         user: { email: "", name: "" }
@@ -64,7 +64,7 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "unauthenticated user can access invitation acceptance page" do
-    user = User.invite!({ email: "accept-test@example.com", name: "Accept Test" }, users(:admin))
+    user = User.invite!({ email: "accept-test@example.com", name: "Accept Test" }, users.admin)
     raw_token = user.raw_invitation_token
 
     get accept_user_invitation_path(invitation_token: raw_token)
@@ -72,7 +72,7 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "unauthenticated user can accept invitation and set password" do
-    user = User.invite!({ email: "accept-test2@example.com", name: "Accept Test" }, users(:admin))
+    user = User.invite!({ email: "accept-test2@example.com", name: "Accept Test" }, users.admin)
     raw_token = user.raw_invitation_token
 
     put user_invitation_path, params: {
@@ -89,7 +89,7 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "admin can create invitation via copy link and get JSON response" do
-    sign_in users(:admin)
+    sign_in users.admin
     assert_difference "User.count" do
       post user_invitation_path, params: {
         user: { email: "copylink@example.com", name: "Copy Link User" },
@@ -103,7 +103,7 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "copy link delivery method does not send email" do
-    sign_in users(:admin)
+    sign_in users.admin
     assert_no_enqueued_emails do
       post user_invitation_path, params: {
         user: { email: "nomail@example.com", name: "No Mail" },
@@ -113,7 +113,7 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "copy link with invalid params returns JSON errors" do
-    sign_in users(:admin)
+    sign_in users.admin
     post user_invitation_path, params: {
       user: { email: "", name: "" },
       delivery_method: "link"
@@ -125,16 +125,16 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "invitation form displays available cohorts" do
-    sign_in users(:admin)
+    sign_in users.admin
     get new_user_invitation_path
     assert_response :success
     assert_select "input[name='user[invited_cohort_ids][]']", count: Cohort.kept.count
   end
 
   test "admin can send invitation with cohort selections" do
-    sign_in users(:admin)
-    kabul = cohorts(:kabul_retreat)
-    bali = cohorts(:bali_retreat)
+    sign_in users.admin
+    kabul = cohorts.kabul_retreat
+    bali = cohorts.bali_retreat
 
     assert_difference "User.count" do
       post user_invitation_path, params: {
@@ -147,10 +147,10 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "cohort memberships are created when invitation is accepted" do
-    kabul = cohorts(:kabul_retreat)
-    bali = cohorts(:bali_retreat)
+    kabul = cohorts.kabul_retreat
+    bali = cohorts.bali_retreat
 
-    user = User.invite!({ email: "cohort-accept@example.com", name: "Cohort Accept", invited_cohort_ids: [ kabul.id, bali.id ] }, users(:admin))
+    user = User.invite!({ email: "cohort-accept@example.com", name: "Cohort Accept", invited_cohort_ids: [ kabul.id, bali.id ] }, users.admin)
     raw_token = user.raw_invitation_token
 
     assert_difference "CohortMembership.count", 2 do
@@ -170,8 +170,8 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "copy link invitation preserves cohort selections" do
-    sign_in users(:admin)
-    kabul = cohorts(:kabul_retreat)
+    sign_in users.admin
+    kabul = cohorts.kabul_retreat
 
     post user_invitation_path, params: {
       user: { email: "link-cohort@example.com", name: "Link Cohort", invited_cohort_ids: [ kabul.id.to_s ] },
@@ -184,7 +184,7 @@ class Admin::InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "accepted invitation token cannot be reused" do
-    user = User.invite!({ email: "reuse@example.com", name: "Reuse Test" }, users(:admin))
+    user = User.invite!({ email: "reuse@example.com", name: "Reuse Test" }, users.admin)
     raw_token = user.raw_invitation_token
 
     put user_invitation_path, params: {

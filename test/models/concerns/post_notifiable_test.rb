@@ -3,9 +3,9 @@ require "test_helper"
 class PostNotifiableTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   test "cohort post enqueues new_post notifications for other members" do
-    cohort = cohorts(:kabul_retreat)
-    author = users(:admin)
-    other_member = users(:attendee)
+    cohort = cohorts.kabul_retreat
+    author = users.admin
+    other_member = users.attendee
 
     enqueued = []
     assert_enqueued_with(job: CreateNotificationJob) do
@@ -22,8 +22,8 @@ class PostNotifiableTest < ActiveSupport::TestCase
   end
 
   test "cohort post does not notify the author" do
-    cohort = cohorts(:kabul_retreat)
-    author = users(:admin)
+    cohort = cohorts.kabul_retreat
+    author = users.admin
 
     Post.create!(cohort: cohort, user: author, body: "My own post")
 
@@ -37,9 +37,9 @@ class PostNotifiableTest < ActiveSupport::TestCase
   end
 
   test "cohort post does not duplicate notifications for mentioned users" do
-    cohort = cohorts(:kabul_retreat)
-    author = users(:admin)
-    mentioned = users(:attendee)
+    cohort = cohorts.kabul_retreat
+    author = users.admin
+    mentioned = users.attendee
 
     Post.create!(cohort: cohort, user: author, body: "Hey @[#{mentioned.name}](#{mentioned.id})")
 
@@ -51,9 +51,9 @@ class PostNotifiableTest < ActiveSupport::TestCase
   end
 
   test "group post enqueues new_post notifications for other members" do
-    group = groups(:book_club)
-    author = users(:attendee)
-    other_member = users(:admin)
+    group = groups.book_club
+    author = users.attendee
+    other_member = users.admin
 
     GroupPost.create!(group: group, user: author, body: "Hello group")
 
@@ -65,8 +65,8 @@ class PostNotifiableTest < ActiveSupport::TestCase
   end
 
   test "new_post notification body is generic (no post body content)" do
-    cohort = cohorts(:kabul_retreat)
-    Post.create!(cohort: cohort, user: users(:admin), body: "SECRET CONTENT that should never leak")
+    cohort = cohorts.kabul_retreat
+    Post.create!(cohort: cohort, user: users.admin, body: "SECRET CONTENT that should never leak")
 
     jobs = enqueued_jobs.select { |j| j["arguments"].last["event_type"] == "new_post" }
     assert jobs.any?
@@ -78,8 +78,8 @@ class PostNotifiableTest < ActiveSupport::TestCase
   end
 
   test "notification path points to the post" do
-    cohort = cohorts(:kabul_retreat)
-    post = Post.create!(cohort: cohort, user: users(:admin), body: "Hello")
+    cohort = cohorts.kabul_retreat
+    post = Post.create!(cohort: cohort, user: users.admin, body: "Hello")
 
     jobs = enqueued_jobs.select { |j| j["arguments"].last["event_type"] == "new_post" }
     jobs.each do |j|

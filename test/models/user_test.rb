@@ -21,19 +21,19 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "admin? returns true for admin role" do
-    assert users(:admin).admin?
+    assert users.admin.admin?
   end
 
   test "admin? returns false for attendee role" do
-    assert_not users(:attendee).admin?
+    assert_not users.attendee.admin?
   end
 
   test "attendee? returns true for attendee role" do
-    assert users(:attendee).attendee?
+    assert users.attendee.attendee?
   end
 
   test "full_location combines city, state, and country" do
-    user = users(:admin)
+    user = users.admin
     assert_equal "Los Angeles, California, United States", user.full_location
   end
 
@@ -58,59 +58,59 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "enqueues geocode job when city changes" do
-    user = users(:attendee)
+    user = users.attendee
     assert_enqueued_with(job: GeocodeUserJob) do
       user.update!(city: "Berlin")
     end
   end
 
   test "enqueues geocode job when country changes" do
-    user = users(:attendee)
+    user = users.attendee
     assert_enqueued_with(job: GeocodeUserJob) do
       user.update!(country: "Germany")
     end
   end
 
   test "enqueues geocode job when state changes" do
-    user = users(:attendee)
+    user = users.attendee
     assert_enqueued_with(job: GeocodeUserJob) do
       user.update!(state: "Ile-de-France")
     end
   end
 
   test "rejects invalid avatar content type" do
-    user = users(:attendee)
+    user = users.attendee
     user.avatar.attach(io: StringIO.new("fake"), filename: "test.txt", content_type: "text/plain")
     assert_not user.valid?
     assert_includes user.errors[:avatar], "must be a JPEG, PNG, GIF, or WebP"
   end
 
   test "rejects avatar over 5MB" do
-    user = users(:attendee)
+    user = users.attendee
     user.avatar.attach(io: StringIO.new("x" * 6.megabytes), filename: "big.png", content_type: "image/png")
     assert_not user.valid?
     assert_includes user.errors[:avatar], "must be less than 5MB"
   end
 
   test "discarded user is not active for authentication" do
-    user = users(:attendee)
+    user = users.attendee
     user.discard
     assert_not user.active_for_authentication?
   end
 
   test "kept user is active for authentication" do
-    user = users(:attendee)
+    user = users.attendee
     assert user.active_for_authentication?
   end
 
   test "inactive message returns account_removed for discarded user" do
-    user = users(:attendee)
+    user = users.attendee
     user.discard
     assert_equal :account_removed, user.inactive_message
   end
 
   test "inactive message returns default for kept user" do
-    user = users(:attendee)
+    user = users.attendee
     assert_not_equal :account_removed, user.inactive_message
   end
 
@@ -120,76 +120,76 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "accepts_direct_messages_from? returns true when privacy is everyone" do
-    recipient = users(:attendee)
-    sender = users(:attendee_two)
+    recipient = users.attendee
+    sender = users.attendee_two
     recipient.user_blocks.destroy_all # isolate the privacy rule from blocking
     recipient.update_column(:dm_privacy, 2) # everyone
     assert recipient.accepts_direct_messages_from?(sender)
   end
 
   test "accepts_direct_messages_from? returns false when privacy is nobody" do
-    recipient = users(:attendee)
-    sender = users(:attendee_two)
+    recipient = users.attendee
+    sender = users.attendee_two
     recipient.update_column(:dm_privacy, 0) # nobody
     assert_not recipient.accepts_direct_messages_from?(sender)
   end
 
   test "accepts_direct_messages_from? returns true for cohort member when privacy is cohort_members" do
-    recipient = users(:attendee)
-    sender = users(:attendee_two)
+    recipient = users.attendee
+    sender = users.attendee_two
     recipient.user_blocks.destroy_all # isolate the privacy rule from blocking
     recipient.update_column(:dm_privacy, 1) # cohort_members
     # put both in the same cohort
-    CohortMembership.find_or_create_by!(cohort: cohorts(:kabul_retreat), user: sender)
+    CohortMembership.find_or_create_by!(cohort: cohorts.kabul_retreat, user: sender)
     assert recipient.accepts_direct_messages_from?(sender)
   end
 
   test "accepts_direct_messages_from? returns false for non-cohort member when privacy is cohort_members" do
-    recipient = users(:attendee)
-    sender = users(:attendee_two)
+    recipient = users.attendee
+    sender = users.attendee_two
     recipient.update_column(:dm_privacy, 1) # cohort_members
     # attendee_two is not in any shared cohort with attendee
     assert_not recipient.accepts_direct_messages_from?(sender)
   end
 
   test "accepts_direct_messages_from? returns true when sender is admin regardless of privacy" do
-    recipient = users(:attendee)
-    sender = users(:admin)
+    recipient = users.attendee
+    sender = users.admin
     recipient.update_column(:dm_privacy, 0) # nobody
     assert recipient.accepts_direct_messages_from?(sender)
   end
 
   test "accepts_direct_messages_from? returns false when recipient is admin with privacy nobody" do
-    recipient = users(:admin)
-    sender = users(:attendee_two)
+    recipient = users.admin
+    sender = users.attendee_two
     recipient.update_column(:dm_privacy, 0) # nobody
     assert_not recipient.accepts_direct_messages_from?(sender)
   end
 
   test "accepts_direct_messages_from? returns true when recipient is admin with privacy everyone" do
-    recipient = users(:admin)
-    sender = users(:attendee_two)
+    recipient = users.admin
+    sender = users.attendee_two
     recipient.update_column(:dm_privacy, 2) # everyone
     assert recipient.accepts_direct_messages_from?(sender)
   end
 
   test "accepts_direct_messages_from? returns false when recipient has blocked the sender" do
-    recipient = users(:attendee) # attendee blocks attendee_two via fixture
-    sender = users(:attendee_two)
+    recipient = users.attendee # attendee blocks attendee_two via fixture
+    sender = users.attendee_two
     recipient.update_column(:dm_privacy, 2) # everyone — block still wins
     assert_not recipient.accepts_direct_messages_from?(sender)
   end
 
   test "accepts_direct_messages_from? returns false when the sender has blocked the recipient" do
-    recipient = users(:attendee_two)
-    sender = users(:attendee) # attendee blocks attendee_two via fixture
+    recipient = users.attendee_two
+    sender = users.attendee # attendee blocks attendee_two via fixture
     recipient.update_column(:dm_privacy, 2) # everyone — block still wins
     assert_not recipient.accepts_direct_messages_from?(sender)
   end
 
   test "accepts_direct_messages_from? blocks an admin sender the recipient has blocked" do
-    recipient = users(:attendee) # attendee blocks attendee_two via fixture
-    sender = users(:attendee_two)
+    recipient = users.attendee # attendee blocks attendee_two via fixture
+    sender = users.attendee_two
     sender.update_column(:role, 1) # admin
     recipient.update_column(:dm_privacy, 2) # everyone
     assert_not recipient.accepts_direct_messages_from?(sender)
@@ -201,7 +201,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "accepts_mentions_in? returns true for all contexts when everywhere" do
-    user = users(:attendee)
+    user = users.attendee
     user.update_column(:mention_privacy, 2)
     assert user.accepts_mentions_in?(:group)
     assert user.accepts_mentions_in?(:cohort)
@@ -210,7 +210,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "accepts_mentions_in? returns true for group and cohort when groups_and_cohorts" do
-    user = users(:attendee)
+    user = users.attendee
     user.update_column(:mention_privacy, 1)
     assert user.accepts_mentions_in?(:group)
     assert user.accepts_mentions_in?(:cohort)
@@ -219,7 +219,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "accepts_mentions_in? returns false for all contexts when nobody" do
-    user = users(:attendee)
+    user = users.attendee
     user.update_column(:mention_privacy, 0)
     assert_not user.accepts_mentions_in?(:group)
     assert_not user.accepts_mentions_in?(:cohort)
@@ -228,17 +228,17 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "accepts_mentions_in? returns false for nil context" do
-    user = users(:attendee)
+    user = users.attendee
     user.update_column(:mention_privacy, 2)
     assert_not user.accepts_mentions_in?(nil)
   end
 
   test "mentionable_in :cohort includes everywhere and groups_and_cohorts users" do
-    everywhere = users(:attendee)
+    everywhere = users.attendee
     everywhere.update_column(:mention_privacy, 2)
-    gc = users(:attendee_two)
+    gc = users.attendee_two
     gc.update_column(:mention_privacy, 1)
-    nobody = users(:admin)
+    nobody = users.admin
     nobody.update_column(:mention_privacy, 0)
 
     ids = User.mentionable_in(:cohort).pluck(:id)
@@ -248,11 +248,11 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "mentionable_in :group matches :cohort behavior" do
-    everywhere = users(:attendee)
+    everywhere = users.attendee
     everywhere.update_column(:mention_privacy, 2)
-    gc = users(:attendee_two)
+    gc = users.attendee_two
     gc.update_column(:mention_privacy, 1)
-    nobody = users(:admin)
+    nobody = users.admin
     nobody.update_column(:mention_privacy, 0)
 
     ids = User.mentionable_in(:group).pluck(:id)
@@ -262,11 +262,11 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "mentionable_in :feed only includes everywhere users" do
-    everywhere = users(:attendee)
+    everywhere = users.attendee
     everywhere.update_column(:mention_privacy, 2)
-    gc = users(:attendee_two)
+    gc = users.attendee_two
     gc.update_column(:mention_privacy, 1)
-    nobody = users(:admin)
+    nobody = users.admin
     nobody.update_column(:mention_privacy, 0)
 
     ids = User.mentionable_in(:feed).pluck(:id)
@@ -276,9 +276,9 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "mentionable_in :dm only includes everywhere users" do
-    everywhere = users(:attendee)
+    everywhere = users.attendee
     everywhere.update_column(:mention_privacy, 2)
-    gc = users(:attendee_two)
+    gc = users.attendee_two
     gc.update_column(:mention_privacy, 1)
 
     ids = User.mentionable_in(:dm).pluck(:id)
@@ -292,7 +292,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "notify_admins_of_acceptance enqueues CreateNotificationJob for each admin" do
-    user = User.invite!({ email: "notify-test@example.com", name: "Notify Test" }, users(:admin))
+    user = User.invite!({ email: "notify-test@example.com", name: "Notify Test" }, users.admin)
     admin_count = User.admin.where.not(id: user.id).count
 
     assert_enqueued_jobs admin_count, only: CreateNotificationJob do
@@ -301,7 +301,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "notify_admins_of_acceptance links the notification to the new member's profile" do
-    user = User.invite!({ email: "notify-path@example.com", name: "Notify Path" }, users(:admin))
+    user = User.invite!({ email: "notify-path@example.com", name: "Notify Path" }, users.admin)
 
     user.accept_invitation!
 
@@ -314,10 +314,10 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "create_invited_cohort_memberships creates memberships for stored cohort ids" do
-    kabul = cohorts(:kabul_retreat)
-    bali = cohorts(:bali_retreat)
+    kabul = cohorts.kabul_retreat
+    bali = cohorts.bali_retreat
 
-    user = User.invite!({ email: "model-test@example.com", name: "Model Test", invited_cohort_ids: [ kabul.id, bali.id ] }, users(:admin))
+    user = User.invite!({ email: "model-test@example.com", name: "Model Test", invited_cohort_ids: [ kabul.id, bali.id ] }, users.admin)
     assert_equal [ kabul.id, bali.id ].sort, user.invited_cohort_ids.map(&:to_i).sort
 
     user.accept_invitation!
@@ -329,10 +329,10 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "create_invited_cohort_memberships ignores discarded cohorts" do
-    kabul = cohorts(:kabul_retreat)
+    kabul = cohorts.kabul_retreat
     kabul.discard
 
-    user = User.invite!({ email: "discard-test@example.com", name: "Discard Test", invited_cohort_ids: [ kabul.id ] }, users(:admin))
+    user = User.invite!({ email: "discard-test@example.com", name: "Discard Test", invited_cohort_ids: [ kabul.id ] }, users.admin)
     user.accept_invitation!
     user.reload
 
@@ -340,7 +340,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "create_invited_cohort_memberships does nothing when no cohort ids" do
-    user = User.invite!({ email: "no-cohorts@example.com", name: "No Cohorts" }, users(:admin))
+    user = User.invite!({ email: "no-cohorts@example.com", name: "No Cohorts" }, users.admin)
 
     assert_no_difference "CohortMembership.count" do
       user.accept_invitation!
@@ -348,7 +348,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "avatar has a display variant" do
-    user = users(:attendee)
+    user = users.attendee
     user.avatar.attach(
       io: file_fixture("avatar.png").open,
       filename: "avatar.png",
@@ -361,15 +361,15 @@ class UserTest < ActiveSupport::TestCase
 
   test "group_following returns the next group alphabetically" do
     # attendee_two belongs to reading_group; Book Club sorts before Reading Group
-    user = users(:attendee_two)
-    user.groups << groups(:book_club)
+    user = users.attendee_two
+    user.groups << groups.book_club
 
-    assert_equal groups(:reading_group), user.group_following(groups(:book_club))
+    assert_equal groups.reading_group, user.group_following(groups.book_club)
   end
 
   test "group_following returns nil when the group sorts last" do
-    user = users(:attendee_two) # only member of reading_group
+    user = users.attendee_two # only member of reading_group
 
-    assert_nil user.group_following(groups(:reading_group))
+    assert_nil user.group_following(groups.reading_group)
   end
 end

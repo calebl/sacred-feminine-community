@@ -7,7 +7,7 @@ class Notifications::MarkAllReadsControllerTest < ActionDispatch::IntegrationTes
   end
 
   test "create marks all unread notifications as read" do
-    user = users(:admin)
+    user = users.admin
     sign_in user
     Notification.where(user: user).update_all(read_at: nil)
     assert user.notifications.unread.count > 0
@@ -18,8 +18,8 @@ class Notifications::MarkAllReadsControllerTest < ActionDispatch::IntegrationTes
   end
 
   test "create does not affect other users notifications" do
-    admin = users(:admin)
-    attendee = users(:attendee)
+    admin = users.admin
+    attendee = users.attendee
     sign_in admin
 
     Notification.where(user: admin).update_all(read_at: nil)
