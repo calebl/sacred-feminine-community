@@ -152,8 +152,8 @@ GEM
     devise_invitable (2.0.12)
       actionmailer (>= 5.0)
       devise (>= 4.6)
-    discard (1.4.0)
-      activerecord (>= 4.2, < 9.0)
+    discard (2.0.0)
+      activerecord (>= 7.0, < 9.0)
     docile (1.4.1)
     dotenv (3.2.0)
     drb (2.2.3)
@@ -197,7 +197,7 @@ GEM
       prism (>= 1.3.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
-    json (2.19.8)
+    json (2.19.9)
     jwt (3.2.0)
       base64
     kamal (2.11.0)
@@ -487,7 +487,7 @@ DEPENDENCIES
   debug
   devise (~> 5.0)
   devise_invitable (~> 2.0)
-  discard (~> 1.4)
+  discard (~> 2.0)
   geocoder (~> 1.8)
   image_processing (~> 1.2)
   importmap-rails
