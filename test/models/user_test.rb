@@ -300,6 +300,19 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "notify_admins_of_acceptance links the notification to the new member's profile" do
+    user = User.invite!({ email: "notify-path@example.com", name: "Notify Path" }, users(:admin))
+
+    user.accept_invitation!
+
+    args = enqueued_jobs.find do |j|
+      j["job_class"] == "CreateNotificationJob" &&
+        j["arguments"].last["event_type"] == "new_member"
+    end["arguments"].last
+
+    assert_equal "/profiles/#{user.id}", args["path"]
+  end
+
   test "create_invited_cohort_memberships creates memberships for stored cohort ids" do
     kabul = cohorts(:kabul_retreat)
     bali = cohorts(:bali_retreat)

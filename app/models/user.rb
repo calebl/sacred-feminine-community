@@ -203,7 +203,7 @@ class User < ApplicationRecord
         event_type: "new_member",
         title: "New Member",
         body: "#{name} has joined the community",
-        path: "/admin/dashboard"
+        path: "/profiles/#{id}"
       )
     end
   end

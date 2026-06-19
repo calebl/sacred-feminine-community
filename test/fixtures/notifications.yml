@@ -4,7 +4,7 @@ admin_new_member:
   event_type: new_member
   title: New Member
   body: Jane Attendee has joined the community
-  path: /admin/dashboard
+  path: /profiles/<%= ActiveRecord::FixtureSet.identify(:attendee) %>
   read_at: null
 
 admin_read_notification:
@@ -13,5 +13,5 @@ admin_read_notification:
   event_type: new_member
   title: New Member
   body: Sarah Member has joined the community
-  path: /admin/dashboard
+  path: /profiles/<%= ActiveRecord::FixtureSet.identify(:attendee_two) %>
   read_at: <%= Time.current %>

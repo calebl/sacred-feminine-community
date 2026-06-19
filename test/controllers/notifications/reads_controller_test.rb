@@ -8,7 +8,7 @@ class Notifications::ReadsControllerTest < ActionDispatch::IntegrationTest
 
     post notifications_reads_path(notification_id: notification.id)
 
-    assert_redirected_to "/admin/dashboard"
+    assert_redirected_to notification.path
     assert_not_nil notification.reload.read_at
   end
 
