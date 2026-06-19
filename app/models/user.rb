@@ -99,6 +99,15 @@ class User < ApplicationRecord
     full_location if show_on_map
   end
 
+  # True only when the avatar is attached AND its blob is persisted. After a
+  # failed update the form re-renders with the just-uploaded (but unsaved)
+  # avatar still attached in memory; generating a URL or variant for that new
+  # blob raises "Cannot get a signed_id for a new record", so views must guard
+  # avatar rendering with this rather than a bare `avatar.attached?`.
+  def avatar_displayable?
+    avatar.attached? && avatar.blob&.persisted?
+  end
+
   def active_for_authentication?
     super && !discarded?
   end

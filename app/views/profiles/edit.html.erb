@@ -43,7 +43,7 @@
 
       <div data-controller="image-cropper" data-image-cropper-aspect-ratio-value="1" data-image-cropper-file-name-value="cropped_avatar.jpg">
         <%= f.label :avatar, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
-        <% if @user.avatar.attached? %>
+        <% if @user.avatar_displayable? %>
           <div data-image-cropper-target="existingImage" class="mb-3">
             <%= image_tag @user.avatar.variant(:display), class: "w-16 h-16 rounded-full object-cover" %>
           </div>
@@ -130,7 +130,7 @@
            data-controller="notification-preview"
            data-notification-preview-name-value="<%= @user.name %>"
            data-notification-preview-initial-value="<%= @user.name.first.upcase %>"
-           <% if @user.avatar.attached? %>data-notification-preview-avatar-url-value="<%= rails_representation_path(@user.avatar.variant(:display)) %>"<% end %>>
+           <% if @user.avatar_displayable? %>data-notification-preview-avatar-url-value="<%= rails_representation_path(@user.avatar.variant(:display)) %>"<% end %>>
         <%= f.check_box :dm_notifications, class: "rounded border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
         <%= f.label :dm_notifications, "Show message notification popups", class: "text-sm text-gray-700 dark:text-gray-300" %>
         <button type="button" data-action="notification-preview#preview"
