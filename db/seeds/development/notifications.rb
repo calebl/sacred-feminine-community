@@ -54,12 +54,13 @@ all_users.each do |user|
   )
 
   # Read: new member notification
+  new_member = others.sample
   user.notifications.create!(
-    actor: others.sample,
+    actor: new_member,
     event_type: "new_member",
     title: "New Member",
-    body: "#{others.sample.name} has joined the community",
-    path: "/admin/dashboard",
+    body: "#{new_member.name} has joined the community",
+    path: "/profiles/#{new_member.id}",
     read_at: notification_base_time + 4.hours,
     created_at: notification_base_time + 2.hours
   )
