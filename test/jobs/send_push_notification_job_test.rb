@@ -2,7 +2,7 @@ require "test_helper"
 
 class SendPushNotificationJobTest < ActiveJob::TestCase
   setup do
-    @admin = users(:admin)
+    @admin = users.admin
     @original_vapid = Rails.application.config.vapid
     Rails.application.config.vapid = {
       subject: "mailto:test@example.com",
@@ -29,7 +29,7 @@ class SendPushNotificationJobTest < ActiveJob::TestCase
   end
 
   test "removes expired subscriptions" do
-    sub = push_subscriptions(:admin_sub)
+    sub = push_subscriptions.admin_sub
 
     fake_response = Struct.new(:body, :code).new("expired", "410")
     WebPush.define_singleton_method(:payload_send) { |**_| raise WebPush::ExpiredSubscription.new(fake_response, "host") }
@@ -40,7 +40,7 @@ class SendPushNotificationJobTest < ActiveJob::TestCase
   end
 
   test "removes invalid subscriptions" do
-    sub = push_subscriptions(:admin_sub)
+    sub = push_subscriptions.admin_sub
 
     fake_response = Struct.new(:body, :code).new("invalid", "404")
     WebPush.define_singleton_method(:payload_send) { |**_| raise WebPush::InvalidSubscription.new(fake_response, "host") }
@@ -80,7 +80,7 @@ class SendPushNotificationJobTest < ActiveJob::TestCase
 
   test "payload includes unread count" do
     Notification.create!(
-      user: @admin, actor: users(:attendee),
+      user: @admin, actor: users.attendee,
       event_type: "mention", title: "Test", body: "test", path: "/test"
     )
 
@@ -103,11 +103,11 @@ class SendPushNotificationJobTest < ActiveJob::TestCase
       SendPushNotificationJob.perform_now(@admin.id, "Test", "Hello", "/test")
     end
 
-    assert PushSubscription.find_by(id: push_subscriptions(:admin_sub).id).present?
+    assert PushSubscription.find_by(id: push_subscriptions.admin_sub.id).present?
   end
 
   test "direct message enqueues notification job which triggers push" do
-    conversation = conversations(:admin_attendee_convo)
+    conversation = conversations.admin_attendee_convo
 
     assert_enqueued_with(job: CreateNotificationJob) do
       DirectMessage.create!(

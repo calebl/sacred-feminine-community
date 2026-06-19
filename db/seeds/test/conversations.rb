@@ -1,0 +1,1 @@
+conversations.create :admin_attendee_convo

@@ -2,32 +2,32 @@ require "test_helper"
 
 class DashboardControllerTest < ActionDispatch::IntegrationTest
   test "authenticated user can see dashboard" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get authenticated_root_path
     assert_response :success
   end
 
   test "dashboard displays community map" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get authenticated_root_path(tab: "map")
     assert_select "[data-controller='map']"
   end
 
   test "dashboard displays member directory" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get authenticated_root_path(tab: "members")
     assert_select "[data-member-search-target='card']", minimum: 1
     assert_select "a[data-name='Jane Attendee']"
   end
 
   test "dashboard displays feed by default" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get authenticated_root_path
     assert_select "h3", text: "Posts"
   end
 
   test "members panel hides location when show_on_map is false" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get authenticated_root_path(tab: "members")
     assert_response :success
     # attendee_two has show_on_map: false, city: Tokyo, country: Japan
@@ -38,7 +38,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "members panel shows location when show_on_map is true" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get authenticated_root_path(tab: "members")
     assert_response :success
     # admin has show_on_map: true, city: Los Angeles
@@ -53,26 +53,26 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "dashboard sidebar displays user cohorts" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get authenticated_root_path
     assert_select "h3", text: "My Cohorts"
     assert_select "a[href*='cohorts']", minimum: 1
   end
 
   test "dashboard displays FAQs panel" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get authenticated_root_path(tab: "faqs")
     assert_match(/FAQ/i, response.body)
   end
 
   test "dashboard displays My Groups placeholder" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get authenticated_root_path
     assert_select "h3", text: "My Groups"
   end
 
   test "dashboard uses dashboard layout with sidebar" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get authenticated_root_path
     assert_select "h3", text: "Explore"
   end

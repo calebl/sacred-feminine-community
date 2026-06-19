@@ -2,10 +2,10 @@ require "test_helper"
 
 class HelpRequestsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @attendee_two = users(:attendee_two)
-    @help_request = help_requests(:open_request)
+    @admin = users.admin
+    @attendee = users.attendee
+    @attendee_two = users.attendee_two
+    @help_request = help_requests.open_request
   end
 
   # Index
@@ -27,16 +27,16 @@ class HelpRequestsControllerTest < ActionDispatch::IntegrationTest
     sign_in @attendee
     get help_requests_path
     assert_response :success
-    assert_select "h2", text: help_requests(:open_request).subject
-    assert_select "h2", text: help_requests(:closed_request).subject, count: 0
+    assert_select "h2", text: help_requests.open_request.subject
+    assert_select "h2", text: help_requests.closed_request.subject, count: 0
   end
 
   test "index with status=closed shows closed requests" do
     sign_in @attendee
     get help_requests_path(status: :closed)
     assert_response :success
-    assert_select "h2", text: help_requests(:closed_request).subject
-    assert_select "h2", text: help_requests(:open_request).subject, count: 0
+    assert_select "h2", text: help_requests.closed_request.subject
+    assert_select "h2", text: help_requests.open_request.subject, count: 0
   end
 
   test "unauthenticated user is redirected" do

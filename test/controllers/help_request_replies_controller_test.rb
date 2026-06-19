@@ -2,10 +2,10 @@ require "test_helper"
 
 class HelpRequestRepliesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @attendee_two = users(:attendee_two)
-    @help_request = help_requests(:open_request)
+    @admin = users.admin
+    @attendee = users.attendee
+    @attendee_two = users.attendee_two
+    @help_request = help_requests.open_request
   end
 
   test "admin can reply to a request" do

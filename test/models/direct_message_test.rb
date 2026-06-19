@@ -6,15 +6,15 @@ class DirectMessageTest < ActiveSupport::TestCase
   include Turbo::Broadcastable::TestHelper
 
   test "requires body" do
-    msg = DirectMessage.new(conversation: conversations(:admin_attendee_convo), sender: users(:admin))
+    msg = DirectMessage.new(conversation: conversations.admin_attendee_convo, sender: users.admin)
     assert_not msg.valid?
     assert_includes msg.errors[:body], "can't be blank"
   end
 
   test "valid with all attributes" do
     msg = DirectMessage.new(
-      conversation: conversations(:admin_attendee_convo),
-      sender: users(:admin),
+      conversation: conversations.admin_attendee_convo,
+      sender: users.admin,
       body: "Hello!"
     )
     assert msg.valid?
@@ -22,8 +22,8 @@ class DirectMessageTest < ActiveSupport::TestCase
 
   test "rejects body over 5000 characters" do
     msg = DirectMessage.new(
-      conversation: conversations(:admin_attendee_convo),
-      sender: users(:admin),
+      conversation: conversations.admin_attendee_convo,
+      sender: users.admin,
       body: "x" * 5001
     )
     assert_not msg.valid?
@@ -31,8 +31,8 @@ class DirectMessageTest < ActiveSupport::TestCase
   end
 
   test "broadcast callback eager-loads sender avatar" do
-    conversation = conversations(:admin_attendee_convo)
-    sender = users(:admin)
+    conversation = conversations.admin_attendee_convo
+    sender = users.admin
 
     # Verify create succeeds without errors (broadcast callback runs)
     message = DirectMessage.create!(
@@ -47,17 +47,17 @@ class DirectMessageTest < ActiveSupport::TestCase
   end
 
   test "notification broadcasts to recipient with dm_notifications enabled" do
-    conversation = conversations(:admin_attendee_convo)
-    sender = users(:admin)
+    conversation = conversations.admin_attendee_convo
+    sender = users.admin
 
-    assert_turbo_stream_broadcasts [ users(:attendee), :dm_notifications ] do
+    assert_turbo_stream_broadcasts [ users.attendee, :dm_notifications ] do
       DirectMessage.create!(body: "Hello!", conversation: conversation, sender: sender)
     end
   end
 
   test "notification does not broadcast to sender" do
-    conversation = conversations(:admin_attendee_convo)
-    sender = users(:admin)
+    conversation = conversations.admin_attendee_convo
+    sender = users.admin
 
     assert_no_turbo_stream_broadcasts [ sender, :dm_notifications ] do
       DirectMessage.create!(body: "Hello!", conversation: conversation, sender: sender)
@@ -65,9 +65,9 @@ class DirectMessageTest < ActiveSupport::TestCase
   end
 
   test "notification skips recipients with dm_notifications disabled" do
-    conversation = conversations(:admin_attendee_convo)
-    sender = users(:admin)
-    recipient = users(:attendee)
+    conversation = conversations.admin_attendee_convo
+    sender = users.admin
+    recipient = users.attendee
     recipient.update!(dm_notifications: false)
 
     assert_no_turbo_stream_broadcasts [ recipient, :dm_notifications ] do
@@ -76,21 +76,21 @@ class DirectMessageTest < ActiveSupport::TestCase
   end
 
   test "create_notifications enqueues notification jobs for recipients" do
-    conversation = conversations(:admin_attendee_convo)
+    conversation = conversations.admin_attendee_convo
 
     assert_enqueued_with(job: CreateNotificationJob) do
-      DirectMessage.create!(body: "Hello!", conversation: conversation, sender: users(:admin))
+      DirectMessage.create!(body: "Hello!", conversation: conversation, sender: users.admin)
     end
   end
 
   test "create_notifications excludes mentioned users from DM notifications" do
-    conversation = conversations(:admin_attendee_convo)
-    attendee = users(:attendee)
+    conversation = conversations.admin_attendee_convo
+    attendee = users.attendee
 
     DirectMessage.create!(
       body: "Hey @[#{attendee.name}](#{attendee.id})",
       conversation: conversation,
-      sender: users(:admin)
+      sender: users.admin
     )
 
     # The attendee was mentioned, so they should NOT get a direct_message notification
@@ -104,17 +104,17 @@ class DirectMessageTest < ActiveSupport::TestCase
   end
 
   test "broadcasts to conversation stream" do
-    conversation = conversations(:admin_attendee_convo)
+    conversation = conversations.admin_attendee_convo
 
     assert_turbo_stream_broadcasts conversation do
-      DirectMessage.create!(body: "Stream test", conversation: conversation, sender: users(:admin))
+      DirectMessage.create!(body: "Stream test", conversation: conversation, sender: users.admin)
     end
   end
 
   test "body is encrypted in the database" do
     msg = DirectMessage.create!(
-      conversation: conversations(:admin_attendee_convo),
-      sender: users(:admin),
+      conversation: conversations.admin_attendee_convo,
+      sender: users.admin,
       body: "Secret message"
     )
 

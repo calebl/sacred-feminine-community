@@ -2,8 +2,8 @@ require "test_helper"
 
 class ProcessBulkInvitationJobTest < ActiveJob::TestCase
   setup do
-    @admin = users(:admin)
-    @cohort = cohorts(:kabul_retreat)
+    @admin = users.admin
+    @cohort = cohorts.kabul_retreat
     @bulk_invitation = BulkInvitation.create!(
       cohort: @cohort,
       invited_by: @admin,
@@ -37,7 +37,7 @@ class ProcessBulkInvitationJobTest < ActiveJob::TestCase
   end
 
   test "adds existing active users to cohort and increments skipped_count" do
-    existing_user = users(:attendee)
+    existing_user = users.attendee
 
     assert_no_difference "User.count" do
       ProcessBulkInvitationJob.perform_now(@bulk_invitation.id, emails: [ existing_user.email ], inviter_id: @admin.id)
@@ -50,7 +50,7 @@ class ProcessBulkInvitationJobTest < ActiveJob::TestCase
   end
 
   test "resends invitation to pending users and adds cohort" do
-    pending_user = users(:pending_invite)
+    pending_user = users.pending_invite
 
     assert_no_difference "User.count" do
       ProcessBulkInvitationJob.perform_now(@bulk_invitation.id, emails: [ pending_user.email ], inviter_id: @admin.id)
@@ -95,8 +95,8 @@ class ProcessBulkInvitationJobTest < ActiveJob::TestCase
   end
 
   test "handles mix of new, existing, and pending users" do
-    pending_user = users(:pending_invite)
-    existing_user = users(:attendee)
+    pending_user = users.pending_invite
+    existing_user = users.attendee
     emails = [ "brand-new@example.com", existing_user.email, pending_user.email ]
 
     assert_difference "User.count", 1 do

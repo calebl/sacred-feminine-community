@@ -2,7 +2,7 @@ require "test_helper"
 
 class Api::VapidKeysControllerTest < ActionDispatch::IntegrationTest
   test "returns vapid public key for authenticated user" do
-    sign_in users(:admin)
+    sign_in users.admin
     get api_vapid_key_path, as: :json
     assert_response :success
     json = JSON.parse(response.body)

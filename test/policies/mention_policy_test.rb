@@ -2,10 +2,10 @@ require "test_helper"
 
 class MentionPolicyTest < ActiveSupport::TestCase
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @attendee_two = users(:attendee_two)
-    @cohort = cohorts(:kabul_retreat)
+    @admin = users.admin
+    @attendee = users.attendee
+    @attendee_two = users.attendee_two
+    @cohort = cohorts.kabul_retreat
     @post = @cohort.posts.create!(body: "Hello", user: @attendee)
   end
 

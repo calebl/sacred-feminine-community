@@ -30,20 +30,11 @@ module ActiveSupport
       end
     end
 
-    fixtures :all
-
-    # Oaken's test_setup is intentionally excluded here. Including
-    # `Oaken.loader.test_setup` defines accessor methods (e.g. `users`, `cohorts`)
-    # that conflict with Rails fixture accessors of the same name. Fixture accessors
-    # accept a symbol argument — `users(:attendee)` — while Oaken's accessors take
-    # no arguments and use dot notation — `users.admin`. With both active, Oaken's
-    # method wins and every `users(:attendee)` call raises an ArgumentError.
-    #
-    # To adopt Oaken in tests, either:
-    #   1. Register models under distinct names (`register :seed_users, User`) so
-    #      the Oaken accessor (`seed_users.admin`) doesn't shadow the fixture method.
-    #   2. Migrate fully from fixtures to Oaken seeds, replacing all
-    #      `model(:fixture_key)` calls with `model.label` dot-notation.
+    # Test data is provided entirely by Oaken seeds (db/seeds + db/seeds/test).
+    # Records are reached via dot notation — `users.admin`, `cohorts.kabul_retreat` —
+    # rather than Rails fixture accessors. test_setup relies on fixtures' transactional
+    # wrapping internally, so each test still runs inside a rolled-back transaction.
+    include Oaken.loader.test_setup
   end
 end
 

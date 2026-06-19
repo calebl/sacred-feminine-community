@@ -2,64 +2,64 @@ require "test_helper"
 
 class GroupTest < ActiveSupport::TestCase
   test "requires name" do
-    group = Group.new(creator: users(:admin))
+    group = Group.new(creator: users.admin)
     assert_not group.valid?
     assert_includes group.errors[:name], "can't be blank"
   end
 
   test "valid with name and creator" do
-    group = Group.new(name: "Test Group", creator: users(:admin))
+    group = Group.new(name: "Test Group", creator: users.admin)
     assert group.valid?
   end
 
   test "creator is automatically added as member" do
-    group = Group.create!(name: "New Group", creator: users(:attendee_two))
-    assert group.member?(users(:attendee_two))
+    group = Group.create!(name: "New Group", creator: users.attendee_two)
+    assert group.member?(users.attendee_two)
   end
 
   test "member? returns true for members" do
-    assert groups(:book_club).member?(users(:attendee))
+    assert groups.book_club.member?(users.attendee)
   end
 
   test "member? returns false for non-members" do
-    assert_not groups(:book_club).member?(users(:attendee_two))
+    assert_not groups.book_club.member?(users.attendee_two)
   end
 
   test "creator? returns true for the creator" do
-    assert groups(:book_club).creator?(users(:attendee))
+    assert groups.book_club.creator?(users.attendee)
   end
 
   test "creator? returns false for non-creator" do
-    assert_not groups(:book_club).creator?(users(:admin))
+    assert_not groups.book_club.creator?(users.admin)
   end
 
   test "can_participate? is true for members" do
-    assert groups(:book_club).can_participate?(users(:attendee))
+    assert groups.book_club.can_participate?(users.attendee)
   end
 
   test "can_participate? is true for admins regardless of membership" do
-    assert groups(:reading_group).can_participate?(users(:admin))
+    assert groups.reading_group.can_participate?(users.admin)
   end
 
   test "can_participate? is false for non-member non-admin" do
-    assert_not groups(:book_club).can_participate?(users(:attendee_two))
+    assert_not groups.book_club.can_participate?(users.attendee_two)
   end
 
   test "unread_post_count returns 0 for non-member" do
-    assert_equal 0, groups(:book_club).unread_post_count(users(:attendee_two))
+    assert_equal 0, groups.book_club.unread_post_count(users.attendee_two)
   end
 
   test "unread_post_count counts all non-author posts when posts_last_read_at is nil" do
-    group = groups(:book_club)
-    user = users(:attendee)
+    group = groups.book_club
+    user = users.attendee
     expected = group.group_posts.where.not(user: user).count
     assert_operator expected, :>, 0
     assert_equal expected, group.unread_post_count(user)
   end
 
   test "unread_post_count counts only posts after posts_last_read_at" do
-    group = groups(:book_club)
-    user = users(:attendee)
+    group = groups.book_club
+    user = users.attendee
     membership = group.group_memberships.find_by(user: user)
     membership.update!(posts_last_read_at: 2.hours.ago)
 
@@ -69,7 +69,7 @@ class GroupTest < ActiveSupport::TestCase
   end
 
   test "rejects non-image header_image" do
-    group = Group.new(name: "Test", creator: users(:admin))
+    group = Group.new(name: "Test", creator: users.admin)
     group.header_image.attach(
       io: StringIO.new("not an image"),
       filename: "test.txt",
@@ -80,7 +80,7 @@ class GroupTest < ActiveSupport::TestCase
   end
 
   test "rejects oversized header_image" do
-    group = Group.new(name: "Test", creator: users(:admin))
+    group = Group.new(name: "Test", creator: users.admin)
     group.header_image.attach(
       io: StringIO.new("x" * (11 * 1024 * 1024)),
       filename: "big.jpg",
@@ -91,7 +91,7 @@ class GroupTest < ActiveSupport::TestCase
   end
 
   test "destroying group destroys posts" do
-    group = groups(:book_club)
+    group = groups.book_club
     assert group.group_posts.any?
     assert_difference "GroupPost.count", -group.group_posts.count do
       group.destroy
@@ -99,11 +99,11 @@ class GroupTest < ActiveSupport::TestCase
   end
 
   test "not_joined_by excludes groups the user belongs to" do
-    user = users(:attendee) # member of book_club and yoga_group, not reading_group
+    user = users.attendee # member of book_club and yoga_group, not reading_group
     result = Group.not_joined_by(user)
 
-    assert_includes result, groups(:reading_group)
-    assert_not_includes result, groups(:book_club)
-    assert_not_includes result, groups(:yoga_group)
+    assert_includes result, groups.reading_group
+    assert_not_includes result, groups.book_club
+    assert_not_includes result, groups.yoga_group
   end
 end

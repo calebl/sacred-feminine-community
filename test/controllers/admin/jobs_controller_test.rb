@@ -2,13 +2,13 @@ require "test_helper"
 
 class Admin::JobsControllerTest < ActionDispatch::IntegrationTest
   test "admin can access solid queue dashboard" do
-    sign_in users(:admin)
+    sign_in users.admin
     get "/admin/jobs"
     assert_response :success
   end
 
   test "attendee cannot access solid queue dashboard" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get "/admin/jobs"
     assert_response :not_found
   end

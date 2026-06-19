@@ -2,60 +2,60 @@ require "test_helper"
 
 class GroupPostPolicyTest < ActiveSupport::TestCase
   test "member can show post in their group" do
-    assert GroupPostPolicy.new(users(:attendee), group_posts(:book_club_pinned)).show?
+    assert GroupPostPolicy.new(users.attendee, group_posts.book_club_pinned).show?
   end
 
   test "non-member cannot show post" do
-    assert_not GroupPostPolicy.new(users(:attendee_two), group_posts(:book_club_post)).show?
+    assert_not GroupPostPolicy.new(users.attendee_two, group_posts.book_club_post).show?
   end
 
   test "admin can show post in group they have not joined" do
-    assert GroupPostPolicy.new(users(:admin), group_posts(:reading_group_post)).show?
+    assert GroupPostPolicy.new(users.admin, group_posts.reading_group_post).show?
   end
 
   test "member can create post" do
-    post = GroupPost.new(group: groups(:book_club))
-    assert GroupPostPolicy.new(users(:attendee), post).create?
+    post = GroupPost.new(group: groups.book_club)
+    assert GroupPostPolicy.new(users.attendee, post).create?
   end
 
   test "non-member cannot create post" do
-    post = GroupPost.new(group: groups(:book_club))
-    assert_not GroupPostPolicy.new(users(:attendee_two), post).create?
+    post = GroupPost.new(group: groups.book_club)
+    assert_not GroupPostPolicy.new(users.attendee_two, post).create?
   end
 
   test "admin can create post in group they have not joined" do
-    post = GroupPost.new(group: groups(:reading_group))
-    assert GroupPostPolicy.new(users(:admin), post).create?
+    post = GroupPost.new(group: groups.reading_group)
+    assert GroupPostPolicy.new(users.admin, post).create?
   end
 
   test "author can update own post" do
-    assert GroupPostPolicy.new(users(:attendee), group_posts(:book_club_pinned)).update?
+    assert GroupPostPolicy.new(users.attendee, group_posts.book_club_pinned).update?
   end
 
   test "admin cannot update another user's post" do
-    assert_not GroupPostPolicy.new(users(:admin), group_posts(:book_club_pinned)).update?
+    assert_not GroupPostPolicy.new(users.admin, group_posts.book_club_pinned).update?
   end
 
   test "non-author member cannot update post" do
-    assert_not GroupPostPolicy.new(users(:attendee), group_posts(:book_club_post)).update?
+    assert_not GroupPostPolicy.new(users.attendee, group_posts.book_club_post).update?
   end
 
   test "author can destroy own post" do
-    assert GroupPostPolicy.new(users(:attendee), group_posts(:book_club_pinned)).destroy?
+    assert GroupPostPolicy.new(users.attendee, group_posts.book_club_pinned).destroy?
   end
 
   test "admin can destroy any post" do
-    assert GroupPostPolicy.new(users(:admin), group_posts(:book_club_pinned)).destroy?
+    assert GroupPostPolicy.new(users.admin, group_posts.book_club_pinned).destroy?
   end
 
   test "non-author member cannot destroy post" do
-    assert_not GroupPostPolicy.new(users(:attendee), group_posts(:book_club_post)).destroy?
+    assert_not GroupPostPolicy.new(users.attendee, group_posts.book_club_post).destroy?
   end
 
   test "scope hides group posts when a block exists in either direction" do
     # attendee blocks attendee_two via fixture; blocking is mutual for visibility
-    scope = GroupPostPolicy::Scope.new(users(:attendee_two), GroupPost.all).resolve
-    assert_not_includes scope, group_posts(:book_club_pinned) # authored by attendee
-    assert_includes scope, group_posts(:book_club_post)       # authored by admin (no block)
+    scope = GroupPostPolicy::Scope.new(users.attendee_two, GroupPost.all).resolve
+    assert_not_includes scope, group_posts.book_club_pinned # authored by attendee
+    assert_includes scope, group_posts.book_club_post       # authored by admin (no block)
   end
 end

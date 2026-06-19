@@ -2,9 +2,9 @@ require "test_helper"
 
 class HelpRequests::StatusesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @help_request = help_requests(:open_request)
+    @admin = users.admin
+    @attendee = users.attendee
+    @help_request = help_requests.open_request
   end
 
   test "admin can close a request" do

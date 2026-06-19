@@ -2,76 +2,76 @@ require "test_helper"
 
 class ProfilesControllerTest < ActionDispatch::IntegrationTest
   test "authenticated user can view any profile" do
-    sign_in users(:attendee)
-    get profile_path(users(:admin))
+    sign_in users.attendee
+    get profile_path(users.admin)
     assert_response :success
   end
 
   test "unauthenticated user is redirected to sign in" do
-    get profile_path(users(:admin))
+    get profile_path(users.admin)
     assert_redirected_to new_user_session_path
   end
 
   test "user can edit own profile" do
-    sign_in users(:attendee)
-    get edit_profile_path(users(:attendee))
+    sign_in users.attendee
+    get edit_profile_path(users.attendee)
     assert_response :success
   end
 
   test "user cannot edit another user profile" do
-    sign_in users(:attendee)
-    get edit_profile_path(users(:admin))
+    sign_in users.attendee
+    get edit_profile_path(users.admin)
     assert_redirected_to root_path
     assert_equal "You are not authorized to perform this action.", flash[:alert]
   end
 
   test "user can update own profile" do
-    sign_in users(:attendee)
-    patch profile_path(users(:attendee)), params: {
+    sign_in users.attendee
+    patch profile_path(users.attendee), params: {
       user: { name: "Updated Name", city: "Berlin", state: "Berlin", country: "Germany", show_on_map: true }
     }
-    assert_redirected_to profile_path(users(:attendee))
+    assert_redirected_to profile_path(users.attendee)
 
-    users(:attendee).reload
-    assert_equal "Updated Name", users(:attendee).name
-    assert_equal "Berlin", users(:attendee).city
-    assert_equal "Berlin", users(:attendee).state
-    assert_equal "Germany", users(:attendee).country
+    users.attendee.reload
+    assert_equal "Updated Name", users.attendee.name
+    assert_equal "Berlin", users.attendee.city
+    assert_equal "Berlin", users.attendee.state
+    assert_equal "Germany", users.attendee.country
   end
 
   test "user defaults to the light theme" do
-    assert_predicate users(:attendee), :theme_light?
+    assert_predicate users.attendee, :theme_light?
   end
 
   test "user can update their theme preference" do
-    sign_in users(:attendee)
-    patch profile_path(users(:attendee)), params: { user: { theme: "dark" } }
-    assert_redirected_to profile_path(users(:attendee))
-    assert_predicate users(:attendee).reload, :theme_dark?
+    sign_in users.attendee
+    patch profile_path(users.attendee), params: { user: { theme: "dark" } }
+    assert_redirected_to profile_path(users.attendee)
+    assert_predicate users.attendee.reload, :theme_dark?
   end
 
   test "user cannot update another user profile" do
-    sign_in users(:attendee)
-    patch profile_path(users(:admin)), params: {
+    sign_in users.attendee
+    patch profile_path(users.admin), params: {
       user: { name: "Hacked" }
     }
     assert_redirected_to root_path
-    assert_not_equal "Hacked", users(:admin).reload.name
+    assert_not_equal "Hacked", users.admin.reload.name
   end
 
   test "shows mini map when user has location and show_on_map" do
-    user = users(:admin)
+    user = users.admin
     user.update_columns(latitude: 34.0522, longitude: -118.2437, show_on_map: true)
-    sign_in users(:attendee)
+    sign_in users.attendee
     get profile_path(user)
     assert_response :success
     assert_select "[data-controller='profile-map']"
   end
 
   test "profile map container has z-index below navbar to prevent overlap" do
-    user = users(:admin)
+    user = users.admin
     user.update_columns(latitude: 34.0522, longitude: -118.2437, show_on_map: true)
-    sign_in users(:attendee)
+    sign_in users.attendee
     get profile_path(user)
 
     navbar = css_select("nav.sticky.top-0").first
@@ -85,39 +85,39 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "hides location text when show_on_map is false" do
-    sign_in users(:admin)
-    get profile_path(users(:attendee_two))
+    sign_in users.admin
+    get profile_path(users.attendee_two)
     assert_response :success
     assert_no_match "Tokyo", response.body
     assert_no_match "Japan", response.body
   end
 
   test "shows location text when show_on_map is true" do
-    sign_in users(:attendee)
-    get profile_path(users(:admin))
+    sign_in users.attendee
+    get profile_path(users.admin)
     assert_response :success
     assert_match "Los Angeles", response.body
   end
 
   test "hides mini map when show_on_map is false" do
-    user = users(:attendee_two)
+    user = users.attendee_two
     user.update_columns(latitude: 35.6762, longitude: 139.6503)
-    sign_in users(:admin)
+    sign_in users.admin
     get profile_path(user)
     assert_response :success
     assert_select "[data-controller='profile-map']", count: 0
   end
 
   test "hides mini map when coordinates are missing" do
-    user = users(:attendee)
-    sign_in users(:admin)
+    user = users.attendee
+    sign_in users.admin
     get profile_path(user)
     assert_response :success
     assert_select "[data-controller='profile-map']", count: 0
   end
 
   test "user can remove avatar" do
-    user = users(:attendee)
+    user = users.attendee
     user.avatar.attach(
       io: file_fixture("avatar.png").open,
       filename: "avatar.png",
@@ -134,8 +134,8 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "edit profile page includes image cropper for avatar" do
-    sign_in users(:attendee)
-    get edit_profile_path(users(:attendee))
+    sign_in users.attendee
+    get edit_profile_path(users.attendee)
     assert_response :success
     assert_select "[data-controller='image-cropper']" do
       assert_select "[data-image-cropper-aspect-ratio-value='1']"
@@ -146,40 +146,40 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update with invalid params re-renders edit" do
-    sign_in users(:attendee)
-    patch profile_path(users(:attendee)), params: {
+    sign_in users.attendee
+    patch profile_path(users.attendee), params: {
       user: { name: "" }
     }
     assert_response :unprocessable_entity
   end
 
   test "profile shows cohorts the user belongs to" do
-    sign_in users(:admin)
-    get profile_path(users(:attendee))
+    sign_in users.admin
+    get profile_path(users.attendee)
     assert_response :success
     assert_select "h2", text: "Cohorts"
-    assert_select "h2", text: cohorts(:kabul_retreat).name
+    assert_select "h2", text: cohorts.kabul_retreat.name
   end
 
   test "profile cohorts are clickable for users with access" do
-    sign_in users(:admin)
-    get profile_path(users(:attendee))
-    assert_select "a[href=?]", cohort_path(cohorts(:kabul_retreat)), text: /#{cohorts(:kabul_retreat).name}/
+    sign_in users.admin
+    get profile_path(users.attendee)
+    assert_select "a[href=?]", cohort_path(cohorts.kabul_retreat), text: /#{cohorts.kabul_retreat.name}/
   end
 
   test "profile cohorts are not clickable for users without access" do
-    sign_in users(:attendee_two)
-    get profile_path(users(:attendee))
-    assert_select "a[href=?]", cohort_path(cohorts(:kabul_retreat)), count: 0
-    assert_select "h2", text: cohorts(:kabul_retreat).name
+    sign_in users.attendee_two
+    get profile_path(users.attendee)
+    assert_select "a[href=?]", cohort_path(cohorts.kabul_retreat), count: 0
+    assert_select "h2", text: cohorts.kabul_retreat.name
   end
 
   test "profile lists cohorts ordered by retreat_start_date newest first" do
-    user = users(:attendee)
-    newer = cohorts(:kabul_retreat)  # retreat_start_date: 2025-09-15
-    older = cohorts(:bali_retreat)   # retreat_start_date: 2024-03-01
+    user = users.attendee
+    newer = cohorts.kabul_retreat  # retreat_start_date: 2025-09-15
+    older = cohorts.bali_retreat   # retreat_start_date: 2024-03-01
 
-    sign_in users(:admin)
+    sign_in users.admin
     get profile_path(user)
     assert_response :success
 
@@ -189,14 +189,14 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "profile hides cohorts section when user has no cohorts" do
-    sign_in users(:admin)
-    get profile_path(users(:attendee_two))
+    sign_in users.admin
+    get profile_path(users.attendee_two)
     assert_response :success
     assert_select "h2", text: "Cohorts", count: 0
   end
 
   test "user can update dm_privacy setting" do
-    user = users(:attendee)
+    user = users.attendee
     sign_in user
     patch profile_path(user), params: {
       user: { name: user.name, dm_privacy: "nobody" }
@@ -206,38 +206,38 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "profile shows send message button when recipient allows DMs" do
-    sign_in users(:admin)
-    user = users(:attendee)
+    sign_in users.admin
+    user = users.attendee
     user.update_column(:dm_privacy, 2) # everyone
     get profile_path(user)
     assert_select "button", text: "Send Message"
   end
 
   test "profile hides send message button when recipient blocks DMs" do
-    sign_in users(:attendee_two)
-    user = users(:attendee)
+    sign_in users.attendee_two
+    user = users.attendee
     user.update_column(:dm_privacy, 0) # nobody
     get profile_path(user)
     assert_select "button", text: "Send Message", count: 0
   end
 
   test "profile shows send message button for admin even when recipient blocks DMs" do
-    sign_in users(:admin)
-    user = users(:attendee)
+    sign_in users.admin
+    user = users.attendee
     user.update_column(:dm_privacy, 0) # nobody
     get profile_path(user)
     assert_select "button", text: "Send Message"
   end
 
   test "edit profile displays dm_privacy radio buttons" do
-    sign_in users(:attendee)
-    get edit_profile_path(users(:attendee))
+    sign_in users.attendee
+    get edit_profile_path(users.attendee)
     assert_response :success
     assert_select "input[type=radio][name='user[dm_privacy]']", count: 3
   end
 
   test "edit profile shows admin note when dm_privacy is nobody" do
-    user = users(:attendee)
+    user = users.attendee
     user.update_column(:dm_privacy, 0) # nobody
     sign_in user
     get edit_profile_path(user)
@@ -245,7 +245,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "edit profile hides admin note when dm_privacy is not nobody" do
-    user = users(:attendee)
+    user = users.attendee
     user.update_column(:dm_privacy, 2) # everyone
     sign_in user
     get edit_profile_path(user)
@@ -253,14 +253,14 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "edit profile shows dm_privacy radios for admin" do
-    sign_in users(:admin)
-    get edit_profile_path(users(:admin))
+    sign_in users.admin
+    get edit_profile_path(users.admin)
     assert_response :success
     assert_select "input[type=radio][name='user[dm_privacy]']", count: 3
   end
 
   test "admin can update dm_privacy setting" do
-    admin = users(:admin)
+    admin = users.admin
     sign_in admin
     patch profile_path(admin), params: {
       user: { name: admin.name, dm_privacy: "nobody" }
@@ -270,7 +270,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "user can update mention_privacy setting" do
-    user = users(:attendee)
+    user = users.attendee
     sign_in user
     patch profile_path(user), params: {
       user: { name: user.name, mention_privacy: "nobody" }
@@ -280,15 +280,15 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "edit profile displays mention_privacy radio buttons" do
-    sign_in users(:attendee)
-    get edit_profile_path(users(:attendee))
+    sign_in users.attendee
+    get edit_profile_path(users.attendee)
     assert_response :success
     assert_select "input[type=radio][name='user[mention_privacy]']", count: 3
   end
 
   test "edit profile displays email notification checkboxes" do
-    sign_in users(:attendee)
-    get edit_profile_path(users(:attendee))
+    sign_in users.attendee
+    get edit_profile_path(users.attendee)
     assert_response :success
     assert_select "input[type=checkbox][name='user[email_notifications_enabled]']"
     assert_select "input[type=checkbox][name='user[email_on_mention]']"
@@ -298,7 +298,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "user can update email notification preferences" do
-    user = users(:attendee)
+    user = users.attendee
     sign_in user
     patch profile_path(user), params: {
       user: { name: user.name, email_on_mention: "0", email_on_direct_message: "1" }
@@ -310,7 +310,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "user can disable all email notifications via master toggle" do
-    user = users(:attendee)
+    user = users.attendee
     sign_in user
     patch profile_path(user), params: {
       user: { name: user.name, email_notifications_enabled: "0" }

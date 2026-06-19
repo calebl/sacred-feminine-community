@@ -7,13 +7,13 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show displays notification center" do
-    sign_in users(:attendee)
+    sign_in users.attendee
     get notifications_path
     assert_response :success
   end
 
   test "show displays all caught up when no notifications" do
-    user = users(:admin)
+    user = users.admin
     sign_in user
     Notification.where(user: user).delete_all
 
@@ -23,7 +23,7 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show lists recent notifications including read ones" do
-    sign_in users(:admin)
+    sign_in users.admin
     get notifications_path
     assert_response :success
     assert_match "Jane Attendee has joined the community", response.body
@@ -31,7 +31,7 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show displays unread dot for unread notifications" do
-    user = users(:admin)
+    user = users.admin
     sign_in user
     Notification.where(user: user).update_all(read_at: nil)
 
@@ -41,7 +41,7 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show does not display unread dot for read notifications" do
-    user = users(:admin)
+    user = users.admin
     sign_in user
     Notification.where(user: user).update_all(read_at: Time.current)
 
@@ -51,7 +51,7 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show displays mark all as read button when unread notifications exist" do
-    user = users(:admin)
+    user = users.admin
     sign_in user
     Notification.where(user: user).update_all(read_at: nil)
 
@@ -61,7 +61,7 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show hides mark all as read button when all read" do
-    user = users(:admin)
+    user = users.admin
     sign_in user
     Notification.where(user: user).update_all(read_at: Time.current)
 

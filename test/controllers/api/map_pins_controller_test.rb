@@ -3,10 +3,10 @@ require "test_helper"
 class Api::MapPinsControllerTest < ActionDispatch::IntegrationTest
   test "returns only opted-in users with coordinates" do
     # Set coordinates on opted-in users
-    users(:admin).update!(latitude: 34.0522, longitude: -118.2437)
-    users(:attendee).update!(latitude: 48.8566, longitude: 2.3522)
+    users.admin.update!(latitude: 34.0522, longitude: -118.2437)
+    users.attendee.update!(latitude: 48.8566, longitude: 2.3522)
 
-    sign_in users(:attendee)
+    sign_in users.attendee
     get api_map_pins_path(format: :json)
     assert_response :success
 
@@ -23,7 +23,7 @@ class Api::MapPinsControllerTest < ActionDispatch::IntegrationTest
 
   test "excludes users without coordinates" do
     # attendee has show_on_map: true but no lat/lng set
-    sign_in users(:attendee)
+    sign_in users.attendee
     get api_map_pins_path(format: :json)
     assert_response :success
 
@@ -32,8 +32,8 @@ class Api::MapPinsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "pin includes state field" do
-    users(:admin).update!(latitude: 34.0522, longitude: -118.2437)
-    sign_in users(:admin)
+    users.admin.update!(latitude: 34.0522, longitude: -118.2437)
+    sign_in users.admin
     get api_map_pins_path(format: :json)
 
     pins = JSON.parse(response.body)
@@ -42,8 +42,8 @@ class Api::MapPinsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "pin JSON includes all expected fields" do
-    users(:admin).update!(latitude: 34.0522, longitude: -118.2437)
-    sign_in users(:admin)
+    users.admin.update!(latitude: 34.0522, longitude: -118.2437)
+    sign_in users.admin
     get api_map_pins_path(format: :json)
 
     pins = JSON.parse(response.body)
@@ -57,10 +57,10 @@ class Api::MapPinsControllerTest < ActionDispatch::IntegrationTest
 
   test "excludes pins of users the current user has blocked" do
     # attendee blocks attendee_two via fixture
-    users(:attendee).update!(latitude: 48.8566, longitude: 2.3522)
-    users(:attendee_two).update!(show_on_map: true, latitude: 35.6762, longitude: 139.6503)
+    users.attendee.update!(latitude: 48.8566, longitude: 2.3522)
+    users.attendee_two.update!(show_on_map: true, latitude: 35.6762, longitude: 139.6503)
 
-    sign_in users(:attendee)
+    sign_in users.attendee
     get api_map_pins_path(format: :json)
     assert_response :success
 
@@ -71,10 +71,10 @@ class Api::MapPinsControllerTest < ActionDispatch::IntegrationTest
 
   test "blocking is mutual: blocked user does not see the blocker's pin" do
     # attendee blocks attendee_two via fixture
-    users(:attendee).update!(latitude: 48.8566, longitude: 2.3522)
-    users(:attendee_two).update!(show_on_map: true, latitude: 35.6762, longitude: 139.6503)
+    users.attendee.update!(latitude: 48.8566, longitude: 2.3522)
+    users.attendee_two.update!(show_on_map: true, latitude: 35.6762, longitude: 139.6503)
 
-    sign_in users(:attendee_two)
+    sign_in users.attendee_two
     get api_map_pins_path(format: :json)
     assert_response :success
 

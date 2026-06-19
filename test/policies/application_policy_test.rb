@@ -2,8 +2,8 @@ require "test_helper"
 
 class ApplicationPolicyTest < ActiveSupport::TestCase
   setup do
-    @user = users(:attendee)
-    @record = users(:admin)
+    @user = users.attendee
+    @record = users.admin
     @policy = ApplicationPolicy.new(@user, @record)
   end
 

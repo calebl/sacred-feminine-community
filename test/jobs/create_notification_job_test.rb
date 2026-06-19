@@ -2,8 +2,8 @@ require "test_helper"
 
 class CreateNotificationJobTest < ActiveJob::TestCase
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
+    @admin = users.admin
+    @attendee = users.attendee
   end
 
   test "creates a notification for the user" do
@@ -59,7 +59,7 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     assert_no_difference "Notification.count" do
       CreateNotificationJob.perform_now(
         user_id: @attendee.id,
-        actor_id: users(:attendee_two).id,
+        actor_id: users.attendee_two.id,
         event_type: "new_post",
         title: "Attendee Two",
         body: "Posted in a group",
@@ -72,7 +72,7 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     # attendee blocked attendee_two; here attendee_two is the recipient and attendee the actor
     assert_no_difference "Notification.count" do
       CreateNotificationJob.perform_now(
-        user_id: users(:attendee_two).id,
+        user_id: users.attendee_two.id,
         actor_id: @attendee.id,
         event_type: "new_post",
         title: "Attendee",
@@ -86,7 +86,7 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     assert_no_enqueued_jobs only: [ SendPushNotificationJob, SendEmailNotificationJob, BroadcastUnreadBadgeJob ] do
       CreateNotificationJob.perform_now(
         user_id: @attendee.id,
-        actor_id: users(:attendee_two).id,
+        actor_id: users.attendee_two.id,
         event_type: "new_post",
         title: "Attendee Two",
         body: "Posted in a group",
@@ -100,7 +100,7 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     assert_difference "Notification.count", 1 do
       CreateNotificationJob.perform_now(
         user_id: @attendee.id,
-        actor_id: users(:attendee_two).id,
+        actor_id: users.attendee_two.id,
         event_type: "help_request",
         title: "New Help Request",
         body: "Attendee Two: needs help",
@@ -113,7 +113,7 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     assert_difference "Notification.count", 1 do
       CreateNotificationJob.perform_now(
         user_id: @attendee.id,
-        actor_id: users(:attendee_two).id,
+        actor_id: users.attendee_two.id,
         event_type: "help_request_reply",
         title: "Help Request Reply",
         body: "Attendee Two replied",
@@ -149,7 +149,7 @@ class CreateNotificationJobTest < ActiveJob::TestCase
   end
 
   test "sets notifiable when provided" do
-    post = posts(:pinned_announcement)
+    post = posts.pinned_announcement
 
     CreateNotificationJob.perform_now(
       user_id: @admin.id,
@@ -206,7 +206,7 @@ class CreateNotificationJobTest < ActiveJob::TestCase
       group_key: "feed_post_comments:1"
     )
 
-    second_commenter = users(:attendee_two)
+    second_commenter = users.attendee_two
     CreateNotificationJob.perform_now(
       user_id: @admin.id,
       actor_id: second_commenter.id,
@@ -235,7 +235,7 @@ class CreateNotificationJobTest < ActiveJob::TestCase
         body: "You were mentioned",
         path: "/test",
         notifiable_type: "Post",
-        notifiable_id: posts(:attendee_post).id
+        notifiable_id: posts.attendee_post.id
       )
     end
   end

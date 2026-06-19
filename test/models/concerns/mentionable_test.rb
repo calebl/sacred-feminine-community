@@ -2,10 +2,10 @@ require "test_helper"
 
 class MentionableTest < ActiveSupport::TestCase
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @attendee_two = users(:attendee_two)
-    @cohort = cohorts(:kabul_retreat)
+    @admin = users.admin
+    @attendee = users.attendee
+    @attendee_two = users.attendee_two
+    @cohort = cohorts.kabul_retreat
   end
 
   test "extracts mentions from post body" do
@@ -57,7 +57,7 @@ class MentionableTest < ActiveSupport::TestCase
   end
 
   test "works with DirectMessage sender" do
-    conversation = conversations(:admin_attendee_convo)
+    conversation = conversations.admin_attendee_convo
 
     message = DirectMessage.create!(
       body: "Hey @[#{@attendee.name}](#{@attendee.id})",
@@ -71,7 +71,7 @@ class MentionableTest < ActiveSupport::TestCase
   end
 
   test "works with PostComment" do
-    post_record = posts(:attendee_post)
+    post_record = posts.attendee_post
 
     comment = PostComment.create!(
       body: "Great point @[#{@admin.name}](#{@admin.id})",
@@ -83,7 +83,7 @@ class MentionableTest < ActiveSupport::TestCase
   end
 
   test "works with GroupPostComment" do
-    group = groups(:book_club)
+    group = groups.book_club
     group_post = group.group_posts.create!(body: "Test post", user: @admin)
 
     comment = GroupPostComment.create!(
@@ -135,7 +135,7 @@ class MentionableTest < ActiveSupport::TestCase
 
   test "respects mention_groups_and_cohorts privacy blocks feed comment mentions" do
     @admin.update_column(:mention_privacy, 1)
-    feed_post = feed_posts(:public_post)
+    feed_post = feed_posts.public_post
     comment = FeedPostComment.create!(
       body: "@[#{@admin.name}](#{@admin.id}) check this",
       feed_post: feed_post,
@@ -146,7 +146,7 @@ class MentionableTest < ActiveSupport::TestCase
 
   test "mention_everywhere allows feed comment mentions" do
     @admin.update_column(:mention_privacy, 2)
-    feed_post = feed_posts(:public_post)
+    feed_post = feed_posts.public_post
     comment = FeedPostComment.create!(
       body: "@[#{@admin.name}](#{@admin.id}) check this",
       feed_post: feed_post,
@@ -157,7 +157,7 @@ class MentionableTest < ActiveSupport::TestCase
 
   test "respects mention_groups_and_cohorts privacy in group post" do
     @admin.update_column(:mention_privacy, 1)
-    group = groups(:book_club)
+    group = groups.book_club
     group_post = group.group_posts.create!(
       body: "Hey @[#{@admin.name}](#{@admin.id})",
       user: @attendee
@@ -167,7 +167,7 @@ class MentionableTest < ActiveSupport::TestCase
 
   test "mention_nobody blocks group post mentions" do
     @admin.update_column(:mention_privacy, 0)
-    group = groups(:book_club)
+    group = groups.book_club
     group_post = group.group_posts.create!(
       body: "Hey @[#{@admin.name}](#{@admin.id})",
       user: @attendee
@@ -186,7 +186,7 @@ class MentionableTest < ActiveSupport::TestCase
   end
 
   test "ignores discarded users" do
-    pending = users(:pending_invite)
+    pending = users.pending_invite
 
     post_record = @cohort.posts.create!(
       body: "@[#{pending.name}](#{pending.id})",

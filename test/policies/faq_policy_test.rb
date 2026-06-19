@@ -2,9 +2,9 @@ require "test_helper"
 
 class FaqPolicyTest < ActiveSupport::TestCase
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @faq = faqs(:active_faq)
+    @admin = users.admin
+    @attendee = users.attendee
+    @faq = faqs.active_faq
   end
 
   test "anyone can view the FAQ index" do

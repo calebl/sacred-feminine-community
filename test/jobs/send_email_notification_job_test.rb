@@ -4,8 +4,8 @@ class SendEmailNotificationJobTest < ActiveJob::TestCase
   include ActionMailer::TestHelper
 
   setup do
-    @user = users(:attendee)
-    @actor = users(:admin)
+    @user = users.attendee
+    @actor = users.admin
     @notification = Notification.create!(
       user: @user,
       actor: @actor,

@@ -1,7 +1,0 @@
-admin_in_convo:
-  conversation: admin_attendee_convo
-  user: admin
-
-attendee_in_convo:
-  conversation: admin_attendee_convo
-  user: attendee

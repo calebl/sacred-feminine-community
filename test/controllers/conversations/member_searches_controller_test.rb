@@ -2,9 +2,9 @@ require "test_helper"
 
 class Conversations::MemberSearchesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
-    @attendee_two = users(:attendee_two)
+    @admin = users.admin
+    @attendee = users.attendee
+    @attendee_two = users.attendee_two
   end
 
   test "index requires authentication" do

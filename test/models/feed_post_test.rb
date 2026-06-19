@@ -4,13 +4,13 @@ class FeedPostTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   test "requires body" do
-    post = FeedPost.new(user: users(:attendee))
+    post = FeedPost.new(user: users.attendee)
     assert_not post.valid?
     assert_includes post.errors[:body], "can't be blank"
   end
 
   test "valid with body" do
-    post = FeedPost.new(user: users(:attendee), body: "Hello world")
+    post = FeedPost.new(user: users.attendee, body: "Hello world")
     assert post.valid?
   end
 
@@ -25,7 +25,7 @@ class FeedPostTest < ActiveSupport::TestCase
   end
 
   test "destroying post destroys comments" do
-    post = feed_posts(:public_post)
+    post = feed_posts.public_post
     assert post.feed_post_comments.any?
     assert_difference "FeedPostComment.count", -post.feed_post_comments.count do
       post.destroy
@@ -33,8 +33,8 @@ class FeedPostTest < ActiveSupport::TestCase
   end
 
   test "unread_comment_count returns all non-author comments when no read record exists" do
-    post = feed_posts(:public_post)
-    reader = users(:attendee)
+    post = feed_posts.public_post
+    reader = users.attendee
 
     expected = post.feed_post_comments.where.not(user: reader).count
     assert_operator expected, :>, 0
@@ -42,8 +42,8 @@ class FeedPostTest < ActiveSupport::TestCase
   end
 
   test "unread_comment_count returns zero for own comments" do
-    post = feed_posts(:public_post)
-    author = users(:admin)
+    post = feed_posts.public_post
+    author = users.admin
 
     # Admin authored the post and all non-reply comments; create a read record in the future
     FeedPostRead.create!(feed_post: post, user: author, last_read_at: Time.current)
@@ -52,8 +52,8 @@ class FeedPostTest < ActiveSupport::TestCase
   end
 
   test "unread_comment_count returns only comments after last_read_at" do
-    post = feed_posts(:public_post)
-    reader = users(:attendee)
+    post = feed_posts.public_post
+    reader = users.attendee
 
     # Mark as read at a time between existing comments
     read_at = 25.minutes.ago
@@ -65,8 +65,8 @@ class FeedPostTest < ActiveSupport::TestCase
   end
 
   test "mark_as_read_by creates or updates feed_post_read" do
-    post = feed_posts(:public_post)
-    reader = users(:attendee)
+    post = feed_posts.public_post
+    reader = users.attendee
 
     assert_difference "FeedPostRead.count", 1 do
       post.mark_as_read_by(reader)
@@ -76,8 +76,8 @@ class FeedPostTest < ActiveSupport::TestCase
   end
 
   test "mark_as_read_by updates existing read record" do
-    post = feed_posts(:public_post)
-    reader = users(:attendee)
+    post = feed_posts.public_post
+    reader = users.attendee
     FeedPostRead.create!(feed_post: post, user: reader, last_read_at: 1.hour.ago)
 
     assert_no_difference "FeedPostRead.count" do
@@ -88,11 +88,11 @@ class FeedPostTest < ActiveSupport::TestCase
   end
 
   test "mark_as_read_by clears unread mention notifications" do
-    post = feed_posts(:public_post)
-    reader = users(:attendee)
+    post = feed_posts.public_post
+    reader = users.attendee
 
     Notification.create!(
-      user: reader, actor: users(:admin),
+      user: reader, actor: users.admin,
       event_type: "mention", title: "Mention", body: "test",
       path: "/feed/#{post.id}",
       notifiable_type: "FeedPost", notifiable_id: post.id
@@ -103,11 +103,11 @@ class FeedPostTest < ActiveSupport::TestCase
   end
 
   test "mark_as_read_by clears new_comment notifications" do
-    post = feed_posts(:public_post)
-    reader = users(:attendee)
+    post = feed_posts.public_post
+    reader = users.attendee
 
     Notification.create!(
-      user: reader, actor: users(:admin),
+      user: reader, actor: users.admin,
       event_type: "new_comment", title: "Comment", body: "test",
       path: "/feed/#{post.id}",
       notifiable_type: "FeedPost", notifiable_id: post.id
@@ -118,12 +118,12 @@ class FeedPostTest < ActiveSupport::TestCase
   end
 
   test "mark_as_read_by clears mention notifications on comments" do
-    post = feed_posts(:public_post)
-    reader = users(:attendee)
+    post = feed_posts.public_post
+    reader = users.attendee
     comment = post.feed_post_comments.first
 
     Notification.create!(
-      user: reader, actor: users(:admin),
+      user: reader, actor: users.admin,
       event_type: "mention", title: "Mention", body: "test",
       path: "/feed/#{post.id}",
       notifiable_type: "FeedPostComment", notifiable_id: comment.id
@@ -134,33 +134,33 @@ class FeedPostTest < ActiveSupport::TestCase
   end
 
   test "admin feed post enqueues new_post notifications for all other users" do
-    author = users(:admin)
+    author = users.admin
 
     FeedPost.create!(user: author, body: "Community announcement")
 
     recipient_ids = new_post_recipient_ids
-    assert_includes recipient_ids, users(:attendee).id
-    assert_includes recipient_ids, users(:attendee_two).id
-    assert_includes recipient_ids, users(:admin_two).id
+    assert_includes recipient_ids, users.attendee.id
+    assert_includes recipient_ids, users.attendee_two.id
+    assert_includes recipient_ids, users.admin_two.id
     assert_not_includes recipient_ids, author.id
   end
 
   test "member feed post does not enqueue new_post notifications" do
-    FeedPost.create!(user: users(:attendee), body: "Just a member post")
+    FeedPost.create!(user: users.attendee, body: "Just a member post")
 
     assert_empty new_post_recipient_ids
   end
 
   test "admin feed post does not double-notify mentioned users" do
-    mentioned = users(:attendee)
+    mentioned = users.attendee
 
-    FeedPost.create!(user: users(:admin), body: "Hey @[#{mentioned.name}](#{mentioned.id})")
+    FeedPost.create!(user: users.admin, body: "Hey @[#{mentioned.name}](#{mentioned.id})")
 
     assert_not_includes new_post_recipient_ids, mentioned.id
   end
 
   test "new_post notification body is generic and path points to the feed post" do
-    post = FeedPost.create!(user: users(:admin), body: "SECRET CONTENT that should never leak")
+    post = FeedPost.create!(user: users.admin, body: "SECRET CONTENT that should never leak")
 
     jobs = enqueued_new_post_jobs
     assert jobs.any?
@@ -173,11 +173,11 @@ class FeedPostTest < ActiveSupport::TestCase
   end
 
   test "mark_as_read_by clears new_post notifications" do
-    post = feed_posts(:public_post)
-    reader = users(:attendee)
+    post = feed_posts.public_post
+    reader = users.attendee
 
     Notification.create!(
-      user: reader, actor: users(:admin),
+      user: reader, actor: users.admin,
       event_type: "new_post", title: "Post", body: "test",
       path: "/feed/#{post.id}",
       notifiable_type: "FeedPost", notifiable_id: post.id

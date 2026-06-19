@@ -11,8 +11,8 @@ class BlockingVisibilityTest < ActionDispatch::IntegrationTest
     # admin is a member of kabul_retreat and book_club (see fixtures), so it can
     # view those cohort/group feeds. admin blocks attendee, who has authored
     # content on every surface below.
-    @viewer = users(:admin)
-    @blocked = users(:attendee)
+    @viewer = users.admin
+    @blocked = users.attendee
     @viewer.user_blocks.create!(blocked: @blocked)
     sign_in @viewer
   end
@@ -40,14 +40,14 @@ class BlockingVisibilityTest < ActionDispatch::IntegrationTest
   end
 
   test "cohort feed hides posts authored by a blocked user" do
-    get cohort_path(cohorts(:kabul_retreat))
+    get cohort_path(cohorts.kabul_retreat)
     assert_response :success
     assert_no_match "This is my first post in the cohort.", response.body # attendee's cohort post
     assert_match "Welcome to our retreat! We are excited to have you.", response.body # admin's cohort post
   end
 
   test "group feed hides posts authored by a blocked user" do
-    get group_path(groups(:book_club))
+    get group_path(groups.book_club)
     assert_response :success
     assert_no_match "Welcome to our book club! Share your favorite reads.", response.body # attendee's group post
     assert_match "Just finished an amazing novel.", response.body # admin's group post
@@ -55,7 +55,7 @@ class BlockingVisibilityTest < ActionDispatch::IntegrationTest
 
   test "post comments hide comments authored by a blocked user" do
     # pinned_announcement is admin's own post; attendee commented on it.
-    get cohort_post_path(cohorts(:kabul_retreat), posts(:pinned_announcement))
+    get cohort_post_path(cohorts.kabul_retreat, posts.pinned_announcement)
     assert_response :success
     assert_no_match "Thank you for the welcome!", response.body # attendee's comment
   end

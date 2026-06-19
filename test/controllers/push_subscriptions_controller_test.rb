@@ -2,7 +2,7 @@ require "test_helper"
 
 class PushSubscriptionsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @admin = users(:admin)
+    @admin = users.admin
   end
 
   test "create stores a new push subscription" do
@@ -26,7 +26,7 @@ class PushSubscriptionsControllerTest < ActionDispatch::IntegrationTest
 
   test "create updates existing subscription by endpoint" do
     sign_in @admin
-    existing = push_subscriptions(:admin_sub)
+    existing = push_subscriptions.admin_sub
 
     assert_no_difference "PushSubscription.count" do
       post push_subscriptions_path, params: {
@@ -46,7 +46,7 @@ class PushSubscriptionsControllerTest < ActionDispatch::IntegrationTest
 
   test "destroy removes subscription by endpoint" do
     sign_in @admin
-    sub = push_subscriptions(:admin_sub)
+    sub = push_subscriptions.admin_sub
 
     assert_difference "PushSubscription.count", -1 do
       delete push_subscription_path(sub), as: :json
@@ -84,7 +84,7 @@ class PushSubscriptionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "unauthenticated user cannot destroy subscription" do
-    sub = push_subscriptions(:admin_sub)
+    sub = push_subscriptions.admin_sub
     delete push_subscription_path(sub), as: :json
     assert_response :unauthorized
   end

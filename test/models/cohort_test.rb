@@ -2,52 +2,52 @@ require "test_helper"
 
 class CohortTest < ActiveSupport::TestCase
   test "requires name" do
-    cohort = Cohort.new(creator: users(:admin))
+    cohort = Cohort.new(creator: users.admin)
     assert_not cohort.valid?
     assert_includes cohort.errors[:name], "can't be blank"
   end
 
   test "member? returns true for a member" do
-    assert cohorts(:kabul_retreat).member?(users(:attendee))
+    assert cohorts.kabul_retreat.member?(users.attendee)
   end
 
   test "member? returns false for a non-member" do
-    assert_not cohorts(:bali_retreat).member?(users(:attendee_two))
+    assert_not cohorts.bali_retreat.member?(users.attendee_two)
   end
 
   test "has many members through cohort_memberships" do
-    cohort = cohorts(:kabul_retreat)
-    assert_includes cohort.members, users(:admin)
-    assert_includes cohort.members, users(:attendee)
+    cohort = cohorts.kabul_retreat
+    assert_includes cohort.members, users.admin
+    assert_includes cohort.members, users.attendee
   end
 
   test "belongs to creator" do
-    assert_equal users(:admin), cohorts(:kabul_retreat).creator
+    assert_equal users.admin, cohorts.kabul_retreat.creator
   end
 
   test "rejects invalid header image content type" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.header_image.attach(io: StringIO.new("fake"), filename: "test.txt", content_type: "text/plain")
     assert_not cohort.valid?
     assert_includes cohort.errors[:header_image], "must be a JPEG, PNG, GIF, or WebP"
   end
 
   test "rejects header image over 10MB" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.header_image.attach(io: StringIO.new("x" * 11.megabytes), filename: "big.png", content_type: "image/png")
     assert_not cohort.valid?
     assert_includes cohort.errors[:header_image], "must be less than 10MB"
   end
 
   test "accepts valid header image" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.header_image.attach(io: StringIO.new("fake"), filename: "photo.jpg", content_type: "image/jpeg")
     assert cohort.valid?
   end
 
   # Date range validation
   test "rejects end date before start date" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.retreat_start_date = Date.new(2025, 9, 15)
     cohort.retreat_end_date = Date.new(2025, 9, 10)
     assert_not cohort.valid?
@@ -55,49 +55,49 @@ class CohortTest < ActiveSupport::TestCase
   end
 
   test "accepts end date equal to start date" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.retreat_start_date = Date.new(2025, 9, 15)
     cohort.retreat_end_date = Date.new(2025, 9, 15)
     assert cohort.valid?
   end
 
   test "allows blank end date" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.retreat_end_date = nil
     assert cohort.valid?
   end
 
   # Date range formatting
   test "formatted_date_range with same month" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.retreat_start_date = Date.new(2025, 10, 5)
     cohort.retreat_end_date = Date.new(2025, 10, 7)
     assert_equal "Oct 5 – 7, 2025", cohort.formatted_date_range
   end
 
   test "formatted_date_range with different months" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.retreat_start_date = Date.new(2025, 10, 30)
     cohort.retreat_end_date = Date.new(2025, 11, 3)
     assert_equal "Oct 30 – Nov 3, 2025", cohort.formatted_date_range
   end
 
   test "formatted_date_range with different years" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.retreat_start_date = Date.new(2025, 12, 30)
     cohort.retreat_end_date = Date.new(2026, 1, 3)
     assert_equal "Dec 30, 2025 – Jan 3, 2026", cohort.formatted_date_range
   end
 
   test "formatted_date_range with no end date" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.retreat_start_date = Date.new(2025, 10, 5)
     cohort.retreat_end_date = nil
     assert_equal "Oct 5, 2025", cohort.formatted_date_range
   end
 
   test "formatted_date_range with no start date" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.retreat_start_date = nil
     cohort.retreat_end_date = nil
     assert_nil cohort.formatted_date_range
@@ -105,7 +105,7 @@ class CohortTest < ActiveSupport::TestCase
 
   # Soft-delete
   test "soft-delete sets discarded_at" do
-    cohort = cohorts(:bali_retreat)
+    cohort = cohorts.bali_retreat
     assert_nil cohort.discarded_at
     cohort.discard
     assert_not_nil cohort.reload.discarded_at
@@ -113,14 +113,14 @@ class CohortTest < ActiveSupport::TestCase
   end
 
   test "soft-deleted cohort is excluded from kept scope" do
-    cohort = cohorts(:bali_retreat)
+    cohort = cohorts.bali_retreat
     assert_includes Cohort.kept, cohort
     cohort.discard
     assert_not_includes Cohort.kept, cohort
   end
 
   test "soft-delete preserves memberships" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     membership_count = cohort.cohort_memberships.count
     assert membership_count > 0
     cohort.discard
@@ -128,7 +128,7 @@ class CohortTest < ActiveSupport::TestCase
   end
 
   test "undiscard restores cohort" do
-    cohort = cohorts(:bali_retreat)
+    cohort = cohorts.bali_retreat
     cohort.discard
     assert cohort.discarded?
     cohort.undiscard
@@ -138,19 +138,19 @@ class CohortTest < ActiveSupport::TestCase
 
   # Auditing
   test "creates audit on cohort update" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.update!(name: "Updated Name")
     assert cohort.audits.where(action: "update").exists?
   end
 
   # Mens cohort
   test "cohort defaults to not mens_cohort" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     assert_not cohort.mens_cohort?
   end
 
   test "cohort can be designated as mens_cohort" do
-    cohort = cohorts(:kabul_retreat)
+    cohort = cohorts.kabul_retreat
     cohort.update!(mens_cohort: true)
     assert cohort.reload.mens_cohort?
   end

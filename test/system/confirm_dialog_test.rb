@@ -4,8 +4,8 @@ class ConfirmDialogTest < ApplicationSystemTestCase
   include Devise::Test::IntegrationHelpers
 
   setup do
-    @admin = users(:admin)
-    @cohort = cohorts(:kabul_retreat)
+    @admin = users.admin
+    @cohort = cohorts.kabul_retreat
     sign_in @admin
   end
 

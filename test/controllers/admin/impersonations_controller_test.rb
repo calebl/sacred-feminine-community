@@ -2,8 +2,8 @@ require "test_helper"
 
 class Admin::ImpersonationsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @admin = users(:admin)
-    @attendee = users(:attendee)
+    @admin = users.admin
+    @attendee = users.attendee
   end
 
   # Create (start impersonation)

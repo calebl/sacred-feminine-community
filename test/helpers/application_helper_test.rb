@@ -112,17 +112,17 @@ class ApplicationHelperTest < ActionView::TestCase
   end
 
   test "total_unread_count delegates to the user" do
-    user = users(:admin)
+    user = users.admin
     assert_equal user.total_unread_count, total_unread_count(user)
   end
 
   test "help_requests_need_attention returns true when admin has open requests" do
-    def self.current_user; users(:admin); end
+    def self.current_user; users.admin; end
     assert help_requests_need_attention?
   end
 
   test "help_requests_need_attention returns false for a non-admin" do
-    def self.current_user; users(:attendee); end
+    def self.current_user; users.attendee; end
     assert_not help_requests_need_attention?
   end
 
