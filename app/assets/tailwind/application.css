@@ -51,6 +51,18 @@ select {
   @apply dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100;
 }
 
+/* Prevent iOS Safari from auto-zooming (and forcing horizontal scroll) when a
+   sub-16px field is focused. Mobile only so desktop keeps its 14px form styling. */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select,
+  trix-editor,
+  [contenteditable] {
+    font-size: 16px !important;
+  }
+}
+
 input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
