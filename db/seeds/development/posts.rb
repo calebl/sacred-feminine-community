@@ -383,4 +383,23 @@ seed_post cohorts.european_sisters,
     { user: users.noor,  body: "My abuela had the same relationship with her garden. These grandmothers are still teaching us." }
   ]
 
+# --- Sacred Masculine Gathering ---
+
+seed_post cohorts.sacred_masculine,
+  author: users.atlas, pinned: true, time_offset: post_base_time + 6.hours,
+  body: "What to bring for March:\n\n- Warm layers, the mornings are still cold in the canyon\n- A drum or rattle if you have one\n- Something to put on the altar\n- A letter to yourself you're willing to burn\n\nWe start Friday at dusk with the fire and we close Monday morning. Come with whatever you're carrying.",
+  comments: [
+    { user: users.cassian, body: "I'll bring the big frame drum and a couple of spares." },
+    { user: users.odin,    body: "Can carpool from Boise if anyone needs a ride down." },
+    { user: users.sol,     body: "Putting my name on that carpool. Thanks, Odin." }
+  ]
+
+seed_post cohorts.sacred_masculine,
+  author: users.sol, pinned: false, time_offset: post_base_time + 30.hours,
+  body: "Been sitting with what came up in the last circle. Took me most of a week to admit that I've been keeping busy so I don't have to feel any of it.\n\nGrateful for a place where I can say that out loud and not have anyone try to fix me.",
+  comments: [
+    { user: users.atlas,   body: "That's the work. Glad you named it here." },
+    { user: users.cassian, body: "Thank you for trusting the circle with that, brother." }
+  ]
+
 puts "Seeded posts with comments for all cohorts"

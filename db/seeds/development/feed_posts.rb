@@ -104,4 +104,19 @@ seed_feed_post author: users.admin, time_offset: feed_post_base_time + 42.hours,
     { user: users.cosima, emoji: "🔥" }
   ]
 
+# From the men's cohort. Visible to everyone on the default setting, hidden from
+# anyone who chose "female cohort members only" — and hidden from Odin's feed in
+# the other direction, since he chose "male cohort members only".
+seed_feed_post author: users.atlas, time_offset: feed_post_base_time + 50.hours,
+  body: "Our brothers' circle is meeting at the trailhead an hour before sunrise on Saturday. Bring a drum if you have one, warm layers if you don't.\n\nWe'll walk in silence to the overlook and open the circle there.",
+  comments: [
+    { user: users.cassian, body: "I'll bring the extra drums and a thermos of coffee for the walk back." },
+    { user: users.sol,     body: "Counting on that coffee. See you at the trailhead." }
+  ],
+  reactions: [
+    { user: users.cassian, emoji: "🔥" },
+    { user: users.odin,    emoji: "🔥" },
+    { user: users.sol,     emoji: "🙏" }
+  ]
+
 puts "Seeded #{FeedPost.count} feed posts with comments and reactions"

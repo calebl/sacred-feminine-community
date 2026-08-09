@@ -70,4 +70,27 @@ cohorts.create :european_sisters,
   cohort_memberships.create cohort: cohorts.european_sisters, user: user
 end
 
+cohorts.create :sacred_masculine,
+  name: "Sacred Masculine Gathering",
+  description: "Brothers gathering for grief work, drum, and accountability in the red rocks.",
+  retreat_location: "Sedona, Arizona",
+  retreat_start_date: Date.new(2026, 3, 6),
+  retreat_end_date: Date.new(2026, 3, 9),
+  mens_cohort: true,
+  creator: users.admin
+
+[ users.atlas, users.cassian, users.odin, users.sol ].each do |user|
+  cohort_memberships.create cohort: cohorts.sacred_masculine, user: user
+end
+
+# Cassian also joins a women's-flagged cohort: belonging to any men's cohort is
+# what classifies a member, so he still counts as a male cohort member there.
+cohort_memberships.create cohort: cohorts.desert_rose, user: users.cassian
+
+# Content filtering preferences, set here because each is only valid once the
+# member's cohort memberships exist. Odin sees only the men's side; Ember sees
+# only the women's side. Everyone else stays on the default (both).
+users.odin.update!(cohort_gender_privacy: :men_only)
+users.ember.update!(cohort_gender_privacy: :women_only)
+
 puts "Seeded #{Cohort.count} cohorts with memberships"
