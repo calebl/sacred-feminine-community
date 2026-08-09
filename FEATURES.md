@@ -128,12 +128,12 @@
 - **Admins are exempt** - Admin-authored content and admin notifications always reach everyone regardless of the setting, and no one's setting can hide their content from an admin. An admin's own setting still narrows what that admin sees.
 - **Direct messages** - The filter blocks new conversations and hides excluded members from recipient search, in both directions. Admins can still message anyone. Existing conversations remain readable, but new messages in them do not notify across the filter.
 - **Block users** - Users can block other members from their profile page. Blocking is mutual for visibility: once a block exists, neither party sees the other's posts and comments across cohort, group, and community feeds or on individual post pages (a blocked user can no longer see the blocker's content either).
-- **Admins cannot be blocked** - Admins are exempt from being blocked: the Block button is hidden on an admin's profile and the block is rejected at the model level if attempted directly.
+- **Admins cannot be blocked** - Admins are exempt from being blocked: the Block button is hidden on an admin's profile and the block is rejected at the model level if attempted directly. The admin's profile explains why, so the missing button isn't a mystery.
 - **Mention rendering** - @mentions are rendered as plain text (no profile link) for both parties whenever a block exists between them
 - **Mention autocomplete** - Users on either side of a block are excluded from each other's @mention autocomplete dropdown
 - **Direct messages** - Blocking prevents direct messages in both directions: neither party can start or send a DM to the other, and the "Send Message" button is hidden on the profile. This overrides DM privacy settings and applies even to admins.
 - **Map visibility** - Blocking is mutual on the member map: neither party sees the other's pin once a block exists, regardless of their `show_on_map` setting.
-- **Blocked users list** - Users can view all blocked users from their profile page and unblock anyone from that list
+- **Blocked users list** - Users can view all blocked users from their profile page and unblock anyone from that list; the page states what blocking does and that admins can't be blocked
 
 ## Account Settings
 - **Email change** - Users can update their email address

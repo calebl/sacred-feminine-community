@@ -64,6 +64,15 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type=radio][name='user[cohort_gender_privacy]']", 3
   end
 
+  test "cohort gender content note about admins shows before any option is chosen" do
+    sign_in users.attendee
+    assert_predicate users.attendee, :cohort_gender_privacy_all_members?
+
+    get edit_profile_path(users.attendee)
+    assert_response :success
+    assert_match "Community admins are never filtered", response.body
+  end
+
   test "user cannot update another user profile" do
     sign_in users.attendee
     patch profile_path(users.admin), params: {

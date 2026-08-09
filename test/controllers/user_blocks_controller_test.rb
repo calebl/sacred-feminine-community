@@ -61,6 +61,27 @@ class UserBlocksControllerTest < ActionDispatch::IntegrationTest
     assert_no_match "Block #{users.admin_two.name}?", response.body
   end
 
+  test "an admin's profile explains why they cannot be blocked" do
+    sign_in users.attendee
+    get profile_path(users.admin_two)
+    assert_response :success
+    assert_match "Community admins can't be blocked or filtered out", response.body
+  end
+
+  test "a non-admin profile does not show the admin exemption note" do
+    sign_in users.attendee
+    get profile_path(users.attendee_two)
+    assert_response :success
+    assert_no_match "Community admins can't be blocked or filtered out", response.body
+  end
+
+  test "blocked users list explains that admins cannot be blocked" do
+    sign_in users.attendee
+    get user_blocks_path
+    assert_response :success
+    assert_match "Community admins can't be blocked", response.body
+  end
+
   test "user cannot unblock a block they did not create" do
     sign_in users.admin
     block = user_blocks.attendee_blocks_attendee_two
