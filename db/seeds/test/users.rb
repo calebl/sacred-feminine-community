@@ -32,7 +32,8 @@ users.create :women_only_member,
   city: "Lisbon", country: "Portugal", show_on_map: false,
   cohort_gender_privacy: :women_only
 
+# men_only is only valid for a male cohort member, so it is set in
+# cohort_memberships.rb once this user is in the men's cohort.
 users.create :men_only_member,
   name: "Marcus Member", email: "marcus@example.com", role: :attendee,
-  city: "Oslo", country: "Norway", show_on_map: false,
-  cohort_gender_privacy: :men_only
+  city: "Oslo", country: "Norway", show_on_map: false

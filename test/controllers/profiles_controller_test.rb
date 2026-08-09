@@ -57,11 +57,30 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_predicate users.attendee.reload, :cohort_gender_privacy_women_only?
   end
 
-  test "edit profile page includes the cohort gender content options" do
+  test "edit profile page offers a female member everyone or women only" do
     sign_in users.attendee
     get edit_profile_path(users.attendee)
     assert_response :success
-    assert_select "input[type=radio][name='user[cohort_gender_privacy]']", 3
+    assert_select "input[type=radio][name='user[cohort_gender_privacy]']", 2
+    assert_select "input[type=radio][value=all_members]"
+    assert_select "input[type=radio][value=women_only]"
+    assert_select "input[type=radio][value=men_only]", 0
+  end
+
+  test "edit profile page offers a male member everyone or men only" do
+    sign_in users.male_member
+    get edit_profile_path(users.male_member)
+    assert_response :success
+    assert_select "input[type=radio][name='user[cohort_gender_privacy]']", 2
+    assert_select "input[type=radio][value=men_only]"
+    assert_select "input[type=radio][value=women_only]", 0
+  end
+
+  test "user cannot exclude their own side of the community" do
+    sign_in users.attendee
+    patch profile_path(users.attendee), params: { user: { cohort_gender_privacy: "men_only" } }
+    assert_response :unprocessable_entity
+    assert_predicate users.attendee.reload, :cohort_gender_privacy_all_members?
   end
 
   test "cohort gender content note about admins shows before any option is chosen" do
@@ -70,7 +89,8 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get edit_profile_path(users.attendee)
     assert_response :success
-    assert_match "Community admins are never filtered", response.body
+    assert_match "community admins are never filtered", response.body
+    assert_match "You can only filter out the other side of the community, never your own", response.body
   end
 
   test "user cannot update another user profile" do

@@ -124,24 +124,25 @@
         <% end %>
       </fieldset>
 
+      <%# Members can filter out the other side of the community, never their own,
+          so only the two options valid for this member are offered. %>
+      <% own_side = @user.male_cohort_member? ? "men_only" : "women_only" %>
       <fieldset>
         <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Content From</legend>
         <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Choose whose content you see. Members of a Men's Cohort count as male cohort members; everyone else counts as female.</p>
         <div class="space-y-2">
           <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-            <%= f.radio_button :cohort_gender_privacy, "all_members", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            <%= f.radio_button :cohort_gender_privacy, "all_members", checked: @user.effective_cohort_gender_privacy == "all_members",
+                class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
             Male and female cohort members
           </label>
           <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-            <%= f.radio_button :cohort_gender_privacy, "women_only", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
-            Female cohort members only
-          </label>
-          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-            <%= f.radio_button :cohort_gender_privacy, "men_only", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
-            Male cohort members only
+            <%= f.radio_button :cohort_gender_privacy, own_side, checked: @user.effective_cohort_gender_privacy == own_side,
+                class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            <%= @user.male_cohort_member? ? "Male cohort members only" : "Female cohort members only" %>
           </label>
         </div>
-        <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Excluding a group hides your content from them too. Community admins are never filtered — their posts and announcements stay visible either way.</p>
+        <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">You can only filter out the other side of the community, never your own. Excluding a group hides your content from them too, and community admins are never filtered — their posts and announcements stay visible either way.</p>
       </fieldset>
 
       <h2 class="text-base font-display font-semibold text-sf-black dark:text-white">Notification Settings</h2>

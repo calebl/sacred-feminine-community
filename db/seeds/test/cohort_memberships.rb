@@ -8,3 +8,6 @@ cohort_memberships.create :men_only_member_in_mens, user: users.men_only_member,
 cohort_memberships.create :male_member_in_kabul, user: users.male_member, cohort: cohorts.kabul_retreat
 cohort_memberships.create :women_only_member_in_kabul, user: users.women_only_member, cohort: cohorts.kabul_retreat
 cohort_memberships.create :men_only_member_in_kabul, user: users.men_only_member, cohort: cohorts.kabul_retreat
+
+# Now that they are in a men's cohort, men_only becomes a valid preference.
+users.men_only_member.update!(cohort_gender_privacy: :men_only)

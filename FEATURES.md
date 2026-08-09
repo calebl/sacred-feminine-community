@@ -18,7 +18,7 @@
 - **Bio and location fields** - Name, bio, city, state, country
 - **Map visibility toggle** - Users opt in/out of appearing on the member map (`show_on_map`)
 - **DM privacy settings** - All users (including admins) control who can message them: nobody, cohort members only, or everyone
-- **Cohort gender content settings** - Users choose whose content they see: male and female cohort members (default), female cohort members only, or male cohort members only (see Privacy, Blocking & Content Filtering)
+- **Cohort gender content settings** - Users choose whose content they see: male and female cohort members (default) or their own side only — nobody can filter out their own side (see Privacy, Blocking & Content Filtering)
 
 ## Cohorts
 - **CRUD management** - Admins create cohorts with name, description, header image, and retreat date range
@@ -124,6 +124,7 @@
 
 ## Privacy, Blocking & Content Filtering
 - **Cohort gender content filtering** - Each user chooses whose content they see from their profile settings: male and female cohort members (default), female cohort members only, or male cohort members only. Classification comes from the cohort's Men's Cohort flag — a non-admin in a men's cohort is a male cohort member; everyone else (women's-cohort members, users with no cohort, and admins) is a female cohort member.
+- **Members can only exclude the other side** - A female cohort member cannot filter out female cohort members, and a male cohort member cannot filter out male cohort members. The profile form offers only the two valid options and the model rejects an invalid one. If a later cohort change strands an already-saved setting (a woman who joins a men's cohort), it stops taking effect and behaves as "male and female cohort members" until she picks again.
 - **Filtering is mutual** - Like blocking, excluding a side of the community also hides your own content from them, even if they never changed their own setting. It applies to cohort, group, and community feeds, comments, member lists, the member map, @mention autocomplete and rendering, and notifications.
 - **Admins are exempt** - Admin-authored content and admin notifications always reach everyone regardless of the setting, and no one's setting can hide their content from an admin. An admin's own setting still narrows what that admin sees.
 - **Direct messages** - The filter blocks new conversations and hides excluded members from recipient search, in both directions. Admins can still message anyone. Existing conversations remain readable, but new messages in them do not notify across the filter.

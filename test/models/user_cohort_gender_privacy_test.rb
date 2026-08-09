@@ -68,10 +68,63 @@ class UserCohortGenderPrivacyTest < ActiveSupport::TestCase
     assert_not_includes hidden, users.male_member.id
   end
 
-  test "a female member who sets men_only does not hide their own content" do
-    users.attendee.update!(cohort_gender_privacy: :men_only)
+  test "a female cohort member cannot exclude female cohort members" do
+    female = users.attendee
+    female.cohort_gender_privacy = :men_only
 
-    assert_not_includes users.attendee.cohort_gender_hidden_user_ids, users.attendee.id
+    assert_not female.valid?
+    assert_includes female.errors[:cohort_gender_privacy], "can't hide female cohort members' content while you are one"
+  end
+
+  test "a male cohort member cannot exclude male cohort members" do
+    male = users.male_member
+    male.cohort_gender_privacy = :women_only
+
+    assert_not male.valid?
+    assert_includes male.errors[:cohort_gender_privacy], "can't hide male cohort members' content while you are one"
+  end
+
+  test "an admin counts as female and cannot exclude female cohort members" do
+    admin = users.admin
+    admin.cohort_gender_privacy = :men_only
+
+    assert_not admin.valid?
+  end
+
+  test "each side can still exclude the other" do
+    assert users.attendee.update(cohort_gender_privacy: :women_only)
+    assert users.male_member.update(cohort_gender_privacy: :men_only)
+  end
+
+  test "a membership change that strands a setting falls back to all_members" do
+    female = users.attendee
+    female.update!(cohort_gender_privacy: :women_only)
+
+    # Joining a men's cohort reclassifies her; women_only would now exclude her
+    # own side, so it stops taking effect rather than hiding everyone.
+    CohortMembership.create!(user: female, cohort: cohorts.mens_gathering)
+    female = User.find(female.id)
+
+    assert_predicate female, :male_cohort_member?
+    assert_predicate female, :cohort_gender_privacy_women_only?
+    assert_equal "all_members", female.effective_cohort_gender_privacy
+    assert_not_includes female.cohort_gender_hidden_user_ids, users.male_member.id
+  end
+
+  test "a stranded setting does not hide its owner from the other side either" do
+    female = users.attendee
+    female.update!(cohort_gender_privacy: :women_only)
+    CohortMembership.create!(user: female, cohort: cohorts.mens_gathering)
+
+    assert_not_includes User.find(users.male_member.id).cohort_gender_hidden_user_ids, female.id
+  end
+
+  test "a stranded setting does not block unrelated profile updates" do
+    female = users.attendee
+    female.update!(cohort_gender_privacy: :women_only)
+    CohortMembership.create!(user: female, cohort: cohorts.mens_gathering)
+
+    assert User.find(female.id).update(bio: "Updated bio")
   end
 
   test "the filter is mutual even when only one side sets a preference" do
@@ -95,6 +148,7 @@ class UserCohortGenderPrivacyTest < ActiveSupport::TestCase
   end
 
   test "an admin's own preference still narrows what they see" do
+    # An admin counts as a female cohort member, so women_only is valid for them.
     users.admin.update!(cohort_gender_privacy: :women_only)
 
     assert_includes users.admin.reload.cohort_gender_hidden_user_ids, users.male_member.id

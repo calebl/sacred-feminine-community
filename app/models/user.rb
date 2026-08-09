@@ -102,6 +102,9 @@ class User < ApplicationRecord
 
   validates :name, presence: true
   validate :acceptable_avatar
+  # Only on change: a later cohort membership change can invalidate a setting
+  # that was legitimate when chosen, and that must not block unrelated saves.
+  validate :cohort_gender_privacy_keeps_own_side, if: :cohort_gender_privacy_changed?
 
   def full_location
     [ city, state, country ].compact.join(", ")
@@ -197,6 +200,17 @@ class User < ApplicationRecord
     !male_cohort_member?
   end
 
+  # A member may exclude the other side of the community, but never their own.
+  # The setting is validated on change, but a later cohort membership change can
+  # strand an already-valid choice (a woman who joins a men's cohort keeps her
+  # women_only setting), so reading it always goes through here.
+  def effective_cohort_gender_privacy
+    return "all_members" if cohort_gender_privacy_men_only? && female_cohort_member?
+    return "all_members" if cohort_gender_privacy_women_only? && male_cohort_member?
+
+    cohort_gender_privacy
+  end
+
   # Ids of users whose content is hidden from this user by the cohort gender
   # preference. Mutual, exactly like blocking: it applies when this user's
   # setting excludes the other's side of the community, OR when the other's
@@ -211,7 +225,7 @@ class User < ApplicationRecord
     return @cohort_gender_hidden_user_ids if defined?(@cohort_gender_hidden_user_ids)
 
     excluded_by_me =
-      case cohort_gender_privacy
+      case effective_cohort_gender_privacy
       when "women_only" then User.male_cohort_members
       when "men_only" then User.female_cohort_members.attendee
       else User.none
@@ -219,16 +233,19 @@ class User < ApplicationRecord
 
     # Nobody's preference can hide their content from an admin — admins are
     # outside this filter in both directions, and only their own setting (above)
-    # narrows what they see.
+    # narrows what they see. Each set is restricted to members the setting is
+    # valid for, mirroring effective_cohort_gender_privacy from the other side.
     excluding_me =
       if admin?
         User.none
+      elsif male_cohort_member?
+        User.female_cohort_members.attendee.where(cohort_gender_privacy: :women_only)
       else
-        User.attendee.where(cohort_gender_privacy: male_cohort_member? ? :women_only : :men_only)
+        User.male_cohort_members.where(cohort_gender_privacy: :men_only)
       end
 
-    # Subtract self: a men_only viewer is classified female and would otherwise
-    # land in their own excluded set and hide their own content.
+    # Subtract self, belt and braces: no valid setting can put a user in their
+    # own excluded set.
     @cohort_gender_hidden_user_ids =
       (excluded_by_me.pluck(:id) + excluding_me.pluck(:id)).uniq - [ id ]
   end
@@ -286,6 +303,15 @@ class User < ApplicationRecord
 
   def enqueue_geocode
     GeocodeUserJob.perform_later(id)
+  end
+
+  # Members can filter out the other side of the community, never their own.
+  def cohort_gender_privacy_keeps_own_side
+    if cohort_gender_privacy_men_only? && female_cohort_member?
+      errors.add(:cohort_gender_privacy, "can't hide female cohort members' content while you are one")
+    elsif cohort_gender_privacy_women_only? && male_cohort_member?
+      errors.add(:cohort_gender_privacy, "can't hide male cohort members' content while you are one")
+    end
   end
 
   def acceptable_avatar
