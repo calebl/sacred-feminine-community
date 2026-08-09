@@ -129,9 +129,10 @@ class PostsController < ApplicationController
     @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
     @sidebar_groups = current_user.groups.order(:name)
     @active_cohort_id = @cohort.id
-    @members = @cohort.members.kept.includes(:cohort_memberships).load
+    @members = policy_scope(@cohort.members).includes(:cohort_memberships).load
     @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h
-    @non_members = User.kept.where.not(id: @members.map(&:id)).where.not(invitation_accepted_at: nil).order(:name).pluck(:name, :id)
+    # Deliberately unfiltered — see the matching note in CohortsController#show.
+    @non_members = User.kept.where.not(id: @cohort.member_ids).where.not(invitation_accepted_at: nil).order(:name).pluck(:name, :id)
     @posts = policy_scope(@cohort.posts).pinned_first
                                         .includes(:user, post_comments: :user)
     @show_form = true

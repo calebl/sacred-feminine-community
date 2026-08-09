@@ -22,9 +22,12 @@ class CohortsController < ApplicationController
         membership.update(updates)
       end
     end
-    @members = @cohort.members.kept.includes(:cohort_memberships).load
+    @members = policy_scope(@cohort.members).includes(:cohort_memberships).load
     @membership_ids = CohortMembership.where(cohort: @cohort, user_id: @members.map(&:id)).pluck(:user_id, :id).to_h
-    @non_members = User.kept.where.not(id: @members.map(&:id)).where.not(invitation_accepted_at: nil).order(:name).pluck(:name, :id)
+    # Deliberately unfiltered: this is the admin "Add Member" select, not a
+    # browsable member list. Hiding people here would let one member's block or
+    # cohort gender preference obstruct a legitimate admin action.
+    @non_members = User.kept.where.not(id: @cohort.member_ids).where.not(invitation_accepted_at: nil).order(:name).pluck(:name, :id)
     @posts = policy_scope(@cohort.posts).pinned_first
                                         .includes(:user, post_comments: :user)
     @invited_users = User.where(invitation_accepted_at: nil).select { |u| u.invited_cohort_ids&.map(&:to_i)&.include?(@cohort.id) }.sort_by(&:created_at).reverse

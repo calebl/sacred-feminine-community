@@ -13,3 +13,7 @@ post_comments.create :reply_to_admin_comment,
 post_comments.create :nested_reply,
   post: posts.attendee_post, user: users.admin, parent: post_comments.reply_to_admin_comment,
   body: "You're welcome!", created_at: 15.minutes.ago
+
+post_comments.create :male_member_comment,
+  post: posts.pinned_announcement, user: users.male_member,
+  body: "A comment from a male cohort member.", created_at: 20.minutes.ago

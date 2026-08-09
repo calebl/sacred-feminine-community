@@ -51,6 +51,7 @@ class Conversations::MemberSearchesControllerTest < ActionDispatch::IntegrationT
 
   test "index shows not-accepting indicator when DMs are blocked" do
     @attendee.update_column(:dm_privacy, 0)
+    @attendee.user_blocks.destroy_all # isolate the privacy rule from blocking
     sign_in @attendee_two
     get conversations_member_searches_path(q: "Jane")
     assert_response :success

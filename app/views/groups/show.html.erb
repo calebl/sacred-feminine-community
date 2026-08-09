@@ -74,7 +74,7 @@
 
           <div class="space-y-3">
             <% @posts.each do |post| %>
-              <%= render "shared/post_card", post: post, comments: post.group_post_comments,
+              <%= render "shared/post_card", post: post, comments: visible_comments(post.group_post_comments),
                   comment_partial: "group_post_comments/group_post_comment",
                   comment_locals: { group: @group, group_post: post },
                   comment_form_model: [@group, post, GroupPostComment.new],

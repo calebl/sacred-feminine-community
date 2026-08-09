@@ -124,6 +124,28 @@
         <% end %>
       </fieldset>
 
+      <fieldset>
+        <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Content From</legend>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Choose whose content you see. Members of a Men's Cohort count as male cohort members; everyone else counts as female.</p>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.radio_button :cohort_gender_privacy, "all_members", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            Male and female cohort members
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.radio_button :cohort_gender_privacy, "women_only", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            Female cohort members only
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= f.radio_button :cohort_gender_privacy, "men_only", class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600" %>
+            Male cohort members only
+          </label>
+        </div>
+        <% unless @user.cohort_gender_privacy_all_members? %>
+          <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">This hides your content from them too, and community admins' posts stay visible either way.</p>
+        <% end %>
+      </fieldset>
+
       <h2 class="text-base font-display font-semibold text-sf-black dark:text-white">Notification Settings</h2>
 
       <div class="flex items-center gap-2"

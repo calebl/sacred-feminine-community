@@ -9,3 +9,7 @@ feed_posts.create :pinned_feed_post,
 feed_posts.create :attendee_feed_post,
   body: "Hello everyone, excited to be here!",
   user: users.attendee, pinned: false, created_at: 1.hour.ago
+
+feed_posts.create :male_member_feed_post,
+  body: "A feed post from a male cohort member.",
+  user: users.male_member, pinned: false, created_at: 2.hours.ago

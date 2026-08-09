@@ -13,3 +13,12 @@ cohorts.create :bali_retreat,
   retreat_start_date: Date.new(2024, 3, 1),
   retreat_end_date: Date.new(2024, 3, 4),
   creator: users.admin
+
+cohorts.create :mens_gathering,
+  name: "Men's Gathering 2025",
+  description: "Sacred Masculine gathering",
+  retreat_location: "Sedona, Arizona",
+  retreat_start_date: Date.new(2025, 10, 1),
+  retreat_end_date: Date.new(2025, 10, 4),
+  mens_cohort: true,
+  creator: users.admin

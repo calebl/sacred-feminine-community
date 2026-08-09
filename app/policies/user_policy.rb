@@ -12,8 +12,8 @@ class UserPolicy < ApplicationPolicy
   end
 
   class Scope < ApplicationPolicy::Scope
-    # Blocking is mutual for visibility, so hide users on either side of a block
-    # (people this user blocked and people who blocked this user).
+    # Hide users whose content is hidden from this one, in either direction: a
+    # block by either party, or a cohort gender preference on either side.
     def resolve
       scope.kept.where.not(id: user.hidden_content_user_ids)
     end

@@ -18,6 +18,7 @@ class User < ApplicationRecord
   enum :dm_privacy, { nobody: 0, cohort_members: 1, everyone: 2 }, prefix: true
   enum :mention_privacy, { nobody: 0, groups_and_cohorts: 1, everywhere: 2 }, prefix: :mention_privacy
   enum :theme, { light: 0, dark: 1, system: 2 }, prefix: true
+  enum :cohort_gender_privacy, { all_members: 0, women_only: 1, men_only: 2 }, prefix: true
 
   # Includes users who accepted an invitation OR were created manually (no invitation token or accepted_at)
   scope :active_users, -> { kept.where.not(invitation_accepted_at: nil).or(kept.where(invitation_token: nil, invitation_accepted_at: nil)) }
@@ -29,6 +30,17 @@ class User < ApplicationRecord
       .order(:name)
       .limit(10)
   }
+  # A "male cohort member" is a non-admin who belongs to at least one cohort
+  # flagged as a men's cohort. Everyone else — women's-cohort members, users with
+  # no cohort at all, and every admin — counts as a female cohort member.
+  # Expressed as subqueries so callers never iterate users in Ruby.
+  scope :in_mens_cohort, -> {
+    where(id: CohortMembership.joins(:cohort)
+                              .where(cohorts: { mens_cohort: true, discarded_at: nil })
+                              .select(:user_id))
+  }
+  scope :male_cohort_members, -> { attendee.in_mens_cohort }
+  scope :female_cohort_members, -> { where.not(id: male_cohort_members.select(:id)) }
   scope :mentionable_in, ->(context) {
     case context
     when :cohort, :group
@@ -171,16 +183,71 @@ class User < ApplicationRecord
     @blocked_by_user_ids ||= blocked_by_blocks.pluck(:blocker_id)
   end
 
-  # Ids of users whose content is hidden from this user. Blocking is mutual for
-  # visibility, so this covers both directions: people this user blocked and
-  # people who blocked this user.
+  # Admins are never classified as male cohort members: their content stays
+  # visible to everyone regardless of the cohort gender preference, the same way
+  # they cannot be blocked (see UserBlock).
+  def male_cohort_member?
+    return false if admin?
+    return @male_cohort_member if defined?(@male_cohort_member)
+
+    @male_cohort_member = cohorts.exists?(mens_cohort: true)
+  end
+
+  def female_cohort_member?
+    !male_cohort_member?
+  end
+
+  # Ids of users whose content is hidden from this user by the cohort gender
+  # preference. Mutual, exactly like blocking: it applies when this user's
+  # setting excludes the other's side of the community, OR when the other's
+  # setting excludes this user's side. Admins are absent from both candidate
+  # sets, so admin-authored content is never hidden.
+  #
+  # The costliest case is a men_only viewer, where the excluded set is nearly the
+  # whole attendee table: one indexed SELECT id, plucked once per request. If the
+  # user table ever outgrows that, split Blockable#visible_to into two predicates
+  # and keep this side as a subquery relation instead of an array.
+  def cohort_gender_hidden_user_ids
+    return @cohort_gender_hidden_user_ids if defined?(@cohort_gender_hidden_user_ids)
+
+    excluded_by_me =
+      case cohort_gender_privacy
+      when "women_only" then User.male_cohort_members
+      when "men_only" then User.female_cohort_members.attendee
+      else User.none
+      end
+
+    # Nobody's preference can hide their content from an admin — admins are
+    # outside this filter in both directions, and only their own setting (above)
+    # narrows what they see.
+    excluding_me =
+      if admin?
+        User.none
+      else
+        User.attendee.where(cohort_gender_privacy: male_cohort_member? ? :women_only : :men_only)
+      end
+
+    # Subtract self: a men_only viewer is classified female and would otherwise
+    # land in their own excluded set and hide their own content.
+    @cohort_gender_hidden_user_ids =
+      (excluded_by_me.pluck(:id) + excluding_me.pluck(:id)).uniq - [ id ]
+  end
+
+  # Ids of users whose content is hidden from this user, for any reason: a block
+  # in either direction, or a cohort gender preference on either side. Every
+  # content surface funnels through here (Blockable#visible_to, UserPolicy::Scope,
+  # CreateNotificationJob, mention autocomplete and rendering), so a new hiding
+  # rule only has to be added in one place.
   def hidden_content_user_ids
-    (blocked_user_ids + blocked_by_user_ids).uniq
+    @hidden_content_user_ids ||=
+      (blocked_user_ids + blocked_by_user_ids + cohort_gender_hidden_user_ids).uniq
   end
 
   def accepts_direct_messages_from?(sender)
     return false if blocks?(sender) || sender.blocks?(self)
     return true if sender.admin?
+    # Blocking overrides admins (above); the cohort gender filter never does.
+    return false if hidden_content_user_ids.include?(sender.id)
 
     case dm_privacy
     when "everyone"

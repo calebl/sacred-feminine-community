@@ -18,10 +18,11 @@
 - **Bio and location fields** - Name, bio, city, state, country
 - **Map visibility toggle** - Users opt in/out of appearing on the member map (`show_on_map`)
 - **DM privacy settings** - All users (including admins) control who can message them: nobody, cohort members only, or everyone
+- **Cohort gender content settings** - Users choose whose content they see: male and female cohort members (default), female cohort members only, or male cohort members only (see Privacy, Blocking & Content Filtering)
 
 ## Cohorts
 - **CRUD management** - Admins create cohorts with name, description, header image, and retreat date range
-- **Men's cohort designation** - Cohorts can be flagged as a Men's Cohort via a checkbox in the admin form; flagged cohorts display a "Men's" badge on the cohort card
+- **Men's cohort designation** - Cohorts can be flagged as a Men's Cohort via a checkbox in the admin form; flagged cohorts display a "Men's" badge on the cohort card. The flag also classifies members for content filtering: a non-admin in a men's cohort is a male cohort member, everyone else (including admins and users with no cohort) is a female cohort member
 - **Membership** - Users are added to cohorts; membership tracks read state for posts
 - **Discussion posts** - Members create posts within a cohort with comments, pinning, and unread tracking
 - **Photo attachments** - Attach up to 10 photos (JPEG, PNG, GIF, WebP) per post with inline preview and gallery display
@@ -79,13 +80,13 @@
 - **Comment notifications** - Post authors and prior commenters receive a notification when new comments are added
 - **Admin invitation alerts** - Admins receive an in-app notification when a user accepts an invitation
 - **Background job processing** - Notifications created via `CreateNotificationJob` with group_key dedup for batching
-- **Block-aware suppression** - `CreateNotificationJob` skips any notification (and its push/email/badge side effects) when the recipient and actor are in a block relationship, in either direction. Centralized so it applies to every event type (mentions, comments, posts, DMs, group joins, etc.). Operational support-thread alerts (`help_request`, `help_request_reply`) are exempt so they always reach their recipients regardless of blocks.
+- **Hidden-author suppression** - `CreateNotificationJob` skips any notification (and its push/email/badge side effects) when the actor's content is hidden from the recipient — a block, or a cohort gender preference, in either direction. Centralized so it applies to every event type (mentions, comments, posts, DMs, group joins, etc.). Operational support-thread alerts (`help_request`, `help_request_reply`) are exempt so they always reach their recipients.
 - **Web Push notifications** - Opt-in browser push notifications via VAPID/Web Push, triggered by the notification job
 - **Email notifications** - Master on/off toggle plus per-event-type toggles (mentions, DMs, new posts in your groups/cohorts, comments on your posts). Help request replies always send an email (subject to the master toggle). New members joining and new help requests never send email. Emails include only the generic notification title/body and links to the app and settings — no site content (message bodies, comment text, etc.). Delivered via `SendEmailNotificationJob` using Resend.com.
 - **Email rate-limit retries** - When Resend rate-limits us (HTTP 429), email jobs automatically retry (up to 5 attempts), waiting the duration Resend reports in its `retry-after` header before trying again. Covers both the asynchronous Devise/`deliver_later` path (via `ResendMailDeliveryJob`) and notification emails (via `ResendRateLimitRetryable` on `ApplicationJob`).
 - **New post notifications** - Members receive in-app, push, and email notifications when a new post is created in one of their groups or cohorts (author excluded; mentioned users receive only the mention notification to avoid duplicates).
-- **Admin community-feed announcements** - When an admin posts on the main community feed, every other user receives an in-app, push, and email `new_post` notification linking to the post. Feed posts by non-admin members do not broadcast (only their @mentions notify). Author and mentioned users are excluded to avoid duplicates; block-aware suppression and per-user email preferences (`email_on_new_post?`) apply as usual.
-- **New group member notifications** - Existing members of a group receive an in-app and push notification (no email) when a new person joins, linking to the group (the joining member is excluded; block-aware suppression is applied centrally in `CreateNotificationJob`).
+- **Admin community-feed announcements** - When an admin posts on the main community feed, every other user receives an in-app, push, and email `new_post` notification linking to the post. Feed posts by non-admin members do not broadcast (only their @mentions notify). Author and mentioned users are excluded to avoid duplicates; hidden-author suppression and per-user email preferences (`email_on_new_post?`) apply as usual.
+- **New group member notifications** - Existing members of a group receive an in-app and push notification (no email) when a new person joins, linking to the group (the joining member is excluded; hidden-author suppression is applied centrally in `CreateNotificationJob`).
 - **Real-time unread badges** - Navbar badge counts update in real-time via Turbo Streams, powered by `notifications.unread.count`
 - **Per-context unread indicators** - Gold dots show *where* unread activity is: next to "Messages" in the top bar (unread DM notifications) and to the left of each cohort/group in the sidebar (unread posts, comments, or mentions). New members joining a group do not light the dot. Driven by the `Notification` model and broadcast in real time over the same `[user, :unread_badge]` Turbo stream as the count badges.
 - **Scroll-into-view read marking** - A cohort/group dot clears as the specific post or comment actually scrolls into view (`read-on-view` Stimulus controller → `Notifications::SeenController`). Comments are collapsed by default, so they only count as seen once expanded and on screen. Note: `new_comment` notifications are grouped per post, so seeing one new comment clears the post's whole group.
@@ -121,7 +122,11 @@
 - **Changelog** - Automatic release changelog recorded on each Kamal deploy; viewable from admin dashboard
 - **Features overview** - FEATURES.md rendered as a styled page accessible from admin dashboard, showing the current platform feature set
 
-## Privacy & Blocking
+## Privacy, Blocking & Content Filtering
+- **Cohort gender content filtering** - Each user chooses whose content they see from their profile settings: male and female cohort members (default), female cohort members only, or male cohort members only. Classification comes from the cohort's Men's Cohort flag — a non-admin in a men's cohort is a male cohort member; everyone else (women's-cohort members, users with no cohort, and admins) is a female cohort member.
+- **Filtering is mutual** - Like blocking, excluding a side of the community also hides your own content from them, even if they never changed their own setting. It applies to cohort, group, and community feeds, comments, member lists, the member map, @mention autocomplete and rendering, and notifications.
+- **Admins are exempt** - Admin-authored content and admin notifications always reach everyone regardless of the setting, and no one's setting can hide their content from an admin. An admin's own setting still narrows what that admin sees.
+- **Direct messages** - The filter blocks new conversations and hides excluded members from recipient search, in both directions. Admins can still message anyone. Existing conversations remain readable, but new messages in them do not notify across the filter.
 - **Block users** - Users can block other members from their profile page. Blocking is mutual for visibility: once a block exists, neither party sees the other's posts and comments across cohort, group, and community feeds or on individual post pages (a blocked user can no longer see the blocker's content either).
 - **Admins cannot be blocked** - Admins are exempt from being blocked: the Block button is hidden on an admin's profile and the block is rejected at the model level if attempted directly.
 - **Mention rendering** - @mentions are rendered as plain text (no profile link) for both parties whenever a block exists between them

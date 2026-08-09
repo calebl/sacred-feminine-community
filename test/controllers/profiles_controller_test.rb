@@ -50,6 +50,20 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_predicate users.attendee.reload, :theme_dark?
   end
 
+  test "user can update their cohort gender content preference" do
+    sign_in users.attendee
+    patch profile_path(users.attendee), params: { user: { cohort_gender_privacy: "women_only" } }
+    assert_redirected_to profile_path(users.attendee)
+    assert_predicate users.attendee.reload, :cohort_gender_privacy_women_only?
+  end
+
+  test "edit profile page includes the cohort gender content options" do
+    sign_in users.attendee
+    get edit_profile_path(users.attendee)
+    assert_response :success
+    assert_select "input[type=radio][name='user[cohort_gender_privacy]']", 3
+  end
+
   test "user cannot update another user profile" do
     sign_in users.attendee
     patch profile_path(users.admin), params: {

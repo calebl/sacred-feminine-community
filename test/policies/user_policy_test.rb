@@ -30,7 +30,9 @@ class UserPolicyTest < ActiveSupport::TestCase
 
   test "scope returns only kept users" do
     users.attendee_two.discard
-    scope = UserPolicy::Scope.new(users.attendee, User).resolve
+    # Viewed as an admin: no block and no cohort gender preference applies, so
+    # discarding is the only thing narrowing the scope here.
+    scope = UserPolicy::Scope.new(users.admin, User).resolve
     assert_equal User.kept.count, scope.count
     assert_not_includes scope, users.attendee_two
   end
