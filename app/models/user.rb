@@ -104,7 +104,7 @@ class User < ApplicationRecord
   validate :acceptable_avatar
   # Only on change: a later cohort membership change can invalidate a setting
   # that was legitimate when chosen, and that must not block unrelated saves.
-  validate :cohort_gender_privacy_keeps_own_side, if: :cohort_gender_privacy_changed?
+  validate :cohort_gender_privacy_is_permitted, if: :cohort_gender_privacy_changed?
 
   def full_location
     [ city, state, country ].compact.join(", ")
@@ -200,11 +200,13 @@ class User < ApplicationRecord
     !male_cohort_member?
   end
 
-  # A member may exclude the other side of the community, but never their own.
-  # The setting is validated on change, but a later cohort membership change can
-  # strand an already-valid choice (a woman who joins a men's cohort keeps her
-  # women_only setting), so reading it always goes through here.
+  # Admins always see all content, and a member may exclude the other side of the
+  # community but never their own. The setting is validated on change, but a
+  # later role or cohort membership change can strand an already-valid choice (a
+  # woman who joins a men's cohort keeps her women_only setting), so reading it
+  # always goes through here.
   def effective_cohort_gender_privacy
+    return "all_members" if admin?
     return "all_members" if cohort_gender_privacy_men_only? && female_cohort_member?
     return "all_members" if cohort_gender_privacy_women_only? && male_cohort_member?
 
@@ -305,9 +307,12 @@ class User < ApplicationRecord
     GeocodeUserJob.perform_later(id)
   end
 
-  # Members can filter out the other side of the community, never their own.
-  def cohort_gender_privacy_keeps_own_side
-    if cohort_gender_privacy_men_only? && female_cohort_member?
+  # Admins see all content, and members can filter out the other side of the
+  # community but never their own.
+  def cohort_gender_privacy_is_permitted
+    if admin? && !cohort_gender_privacy_all_members?
+      errors.add(:cohort_gender_privacy, "isn't available to admin accounts, which see all content")
+    elsif cohort_gender_privacy_men_only? && female_cohort_member?
       errors.add(:cohort_gender_privacy, "can't hide female cohort members' content while you are one")
     elsif cohort_gender_privacy_women_only? && male_cohort_member?
       errors.add(:cohort_gender_privacy, "can't hide male cohort members' content while you are one")

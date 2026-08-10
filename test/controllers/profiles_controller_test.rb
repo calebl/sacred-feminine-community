@@ -76,6 +76,21 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type=radio][value=women_only]", 0
   end
 
+  test "edit profile page disables the cohort gender options for an admin" do
+    sign_in users.admin
+    get edit_profile_path(users.admin)
+    assert_response :success
+    assert_select "input[type=radio][name='user[cohort_gender_privacy]'][disabled]", 2
+    assert_match "Admin accounts see all content", response.body
+  end
+
+  test "admin cannot set a cohort gender preference" do
+    sign_in users.admin
+    patch profile_path(users.admin), params: { user: { cohort_gender_privacy: "women_only" } }
+    assert_response :unprocessable_entity
+    assert_predicate users.admin.reload, :cohort_gender_privacy_all_members?
+  end
+
   test "user cannot exclude their own side of the community" do
     sign_in users.attendee
     patch profile_path(users.attendee), params: { user: { cohort_gender_privacy: "men_only" } }

@@ -84,11 +84,12 @@ class UserCohortGenderPrivacyTest < ActiveSupport::TestCase
     assert_includes male.errors[:cohort_gender_privacy], "can't hide male cohort members' content while you are one"
   end
 
-  test "an admin counts as female and cannot exclude female cohort members" do
+  test "an admin cannot exclude either side" do
     admin = users.admin
-    admin.cohort_gender_privacy = :men_only
 
-    assert_not admin.valid?
+    assert_not admin.update(cohort_gender_privacy: :men_only)
+    assert_not admin.update(cohort_gender_privacy: :women_only)
+    assert_predicate admin.reload, :cohort_gender_privacy_all_members?
   end
 
   test "each side can still exclude the other" do
@@ -147,11 +148,24 @@ class UserCohortGenderPrivacyTest < ActiveSupport::TestCase
     assert_empty users.admin_two.cohort_gender_hidden_user_ids
   end
 
-  test "an admin's own preference still narrows what they see" do
-    # An admin counts as a female cohort member, so women_only is valid for them.
-    users.admin.update!(cohort_gender_privacy: :women_only)
+  test "an admin cannot choose a cohort gender preference" do
+    admin = users.admin
+    admin.cohort_gender_privacy = :women_only
 
-    assert_includes users.admin.reload.cohort_gender_hidden_user_ids, users.male_member.id
+    assert_not admin.valid?
+    assert_includes admin.errors[:cohort_gender_privacy],
+                    "isn't available to admin accounts, which see all content"
+  end
+
+  test "a stranded preference has no effect once a member becomes an admin" do
+    member = users.women_only_member
+    member.update!(role: :admin)
+    member = User.find(member.id)
+
+    assert_predicate member, :cohort_gender_privacy_women_only?
+    assert_equal "all_members", member.effective_cohort_gender_privacy
+    assert_empty member.cohort_gender_hidden_user_ids
+    assert_not_includes User.find(users.male_member.id).hidden_content_user_ids, member.id
   end
 
   test "hidden_content_user_ids still covers blocks" do
