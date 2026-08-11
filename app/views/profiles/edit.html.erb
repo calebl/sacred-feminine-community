@@ -127,6 +127,15 @@
       <%# Members can filter out the other side of the community, never their own,
           so only the two options valid for this member are offered. %>
       <% own_side = @user.male_cohort_member? ? "men_only" : "women_only" %>
+      <%# An admin has no side, so the option is labelled generically rather than
+          guessing one — it is disabled for them either way. %>
+      <% own_side_label = if @user.admin?
+           "Their own side of the community only"
+         elsif @user.male_cohort_member?
+           "Men's cohort members only"
+         else
+           "Women's cohort members only"
+         end %>
       <fieldset>
         <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Content From</legend>
         <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Choose whose content you see. Members of a Men's Cohort count as male cohort members; everyone else counts as female.</p>
@@ -141,7 +150,7 @@
             <%= f.radio_button :cohort_gender_privacy, own_side, checked: @user.effective_cohort_gender_privacy == own_side,
                 disabled: @user.admin?,
                 class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50" %>
-            <%= @user.male_cohort_member? ? "Men's cohort members only" : "Women's cohort members only" %>
+            <%= own_side_label %>
           </label>
         </div>
         <% if @user.admin? %>

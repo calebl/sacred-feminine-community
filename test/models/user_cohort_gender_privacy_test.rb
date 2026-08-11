@@ -51,6 +51,16 @@ class UserCohortGenderPrivacyTest < ActiveSupport::TestCase
     assert_equal User.count, (male_ids + female_ids).uniq.size
   end
 
+  test "the filterable scopes exclude admins on both sides" do
+    CohortMembership.create!(user: users.admin, cohort: cohorts.mens_gathering)
+
+    assert_not_includes User.filterable_male_members.pluck(:id), users.admin.id
+    assert_not_includes User.filterable_female_members.pluck(:id), users.admin.id
+    # ...while the classification scopes still count that admin as female, which
+    # is why the hidden-set queries go through the filterable pair instead.
+    assert_includes User.female_cohort_members.pluck(:id), users.admin.id
+  end
+
   test "women_only hides male cohort members but never admins" do
     hidden = users.women_only_member.cohort_gender_hidden_user_ids
 
@@ -194,6 +204,13 @@ class UserCohortGenderPrivacyTest < ActiveSupport::TestCase
     users.men_only_member.update!(dm_privacy: :everyone)
 
     assert users.men_only_member.reload.accepts_direct_messages_from?(users.admin)
+  end
+
+  test "hides_content_from? follows hidden_content_user_ids in both directions" do
+    assert users.women_only_member.hides_content_from?(users.male_member)
+    assert users.male_member.hides_content_from?(users.women_only_member)
+    assert_not users.women_only_member.hides_content_from?(users.attendee)
+    assert_not users.women_only_member.hides_content_from?(users.admin)
   end
 
   test "hidden_content_user_ids is memoized" do

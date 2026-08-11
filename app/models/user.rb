@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   include Discard::Model
   include UnreadIndicators
+  include CohortGenderFiltering
 
   devise :invitable, :database_authenticatable,
          :recoverable, :rememberable, :validatable
@@ -30,17 +31,6 @@ class User < ApplicationRecord
       .order(:name)
       .limit(10)
   }
-  # A "male cohort member" is a non-admin who belongs to at least one cohort
-  # flagged as a men's cohort. Everyone else — women's-cohort members, users with
-  # no cohort at all, and every admin — counts as a female cohort member.
-  # Expressed as subqueries so callers never iterate users in Ruby.
-  scope :in_mens_cohort, -> {
-    where(id: CohortMembership.joins(:cohort)
-                              .where(cohorts: { mens_cohort: true, discarded_at: nil })
-                              .select(:user_id))
-  }
-  scope :male_cohort_members, -> { attendee.in_mens_cohort }
-  scope :female_cohort_members, -> { where.not(id: male_cohort_members.select(:id)) }
   scope :mentionable_in, ->(context) {
     case context
     when :cohort, :group
@@ -102,9 +92,6 @@ class User < ApplicationRecord
 
   validates :name, presence: true
   validate :acceptable_avatar
-  # Only on change: a later cohort membership change can invalidate a setting
-  # that was legitimate when chosen, and that must not block unrelated saves.
-  validate :cohort_gender_privacy_is_permitted, if: :cohort_gender_privacy_changed?
 
   def full_location
     [ city, state, country ].compact.join(", ")
@@ -186,87 +173,27 @@ class User < ApplicationRecord
     @blocked_by_user_ids ||= blocked_by_blocks.pluck(:blocker_id)
   end
 
-  # Admins are never classified as male cohort members: their content stays
-  # visible to everyone regardless of the cohort gender preference, the same way
-  # they cannot be blocked (see UserBlock).
-  def male_cohort_member?
-    return false if admin?
-    return @male_cohort_member if defined?(@male_cohort_member)
-
-    @male_cohort_member = cohorts.exists?(mens_cohort: true)
-  end
-
-  def female_cohort_member?
-    !male_cohort_member?
-  end
-
-  # Admins always see all content, and a member may exclude the other side of the
-  # community but never their own. The setting is validated on change, but a
-  # later role or cohort membership change can strand an already-valid choice (a
-  # woman who joins a men's cohort keeps her women_only setting), so reading it
-  # always goes through here.
-  def effective_cohort_gender_privacy
-    return "all_members" if admin?
-    return "all_members" if cohort_gender_privacy_men_only? && female_cohort_member?
-    return "all_members" if cohort_gender_privacy_women_only? && male_cohort_member?
-
-    cohort_gender_privacy
-  end
-
-  # Ids of users whose content is hidden from this user by the cohort gender
-  # preference. Mutual, exactly like blocking: it applies when this user's
-  # setting excludes the other's side of the community, OR when the other's
-  # setting excludes this user's side. Admins are absent from both candidate
-  # sets, so admin-authored content is never hidden.
-  #
-  # The costliest case is a men_only viewer, where the excluded set is nearly the
-  # whole attendee table: one indexed SELECT id, plucked once per request. If the
-  # user table ever outgrows that, split Blockable#visible_to into two predicates
-  # and keep this side as a subquery relation instead of an array.
-  def cohort_gender_hidden_user_ids
-    return @cohort_gender_hidden_user_ids if defined?(@cohort_gender_hidden_user_ids)
-
-    excluded_by_me =
-      case effective_cohort_gender_privacy
-      when "women_only" then User.male_cohort_members
-      when "men_only" then User.female_cohort_members.attendee
-      else User.none
-      end
-
-    # Nobody's preference can hide their content from an admin — admins are
-    # outside this filter in both directions, and only their own setting (above)
-    # narrows what they see. Each set is restricted to members the setting is
-    # valid for, mirroring effective_cohort_gender_privacy from the other side.
-    excluding_me =
-      if admin?
-        User.none
-      elsif male_cohort_member?
-        User.female_cohort_members.attendee.where(cohort_gender_privacy: :women_only)
-      else
-        User.male_cohort_members.where(cohort_gender_privacy: :men_only)
-      end
-
-    # Subtract self, belt and braces: no valid setting can put a user in their
-    # own excluded set.
-    @cohort_gender_hidden_user_ids =
-      (excluded_by_me.pluck(:id) + excluding_me.pluck(:id)).uniq - [ id ]
-  end
-
   # Ids of users whose content is hidden from this user, for any reason: a block
   # in either direction, or a cohort gender preference on either side. Every
-  # content surface funnels through here (Blockable#visible_to, UserPolicy::Scope,
-  # CreateNotificationJob, mention autocomplete and rendering), so a new hiding
-  # rule only has to be added in one place.
+  # content surface funnels through here (Blockable#visible_to and
+  # .reject_hidden_from, UserPolicy::Scope, CreateNotificationJob, direct message
+  # delivery, mention autocomplete and rendering), so a new hiding rule only has
+  # to be added in one place.
   def hidden_content_user_ids
     @hidden_content_user_ids ||=
       (blocked_user_ids + blocked_by_user_ids + cohort_gender_hidden_user_ids).uniq
+  end
+
+  # True when none of the other user's content should reach this one.
+  def hides_content_from?(other)
+    hidden_content_user_ids.include?(other.id)
   end
 
   def accepts_direct_messages_from?(sender)
     return false if blocks?(sender) || sender.blocks?(self)
     return true if sender.admin?
     # Blocking overrides admins (above); the cohort gender filter never does.
-    return false if hidden_content_user_ids.include?(sender.id)
+    return false if hides_content_from?(sender)
 
     case dm_privacy
     when "everyone"
@@ -305,18 +232,6 @@ class User < ApplicationRecord
 
   def enqueue_geocode
     GeocodeUserJob.perform_later(id)
-  end
-
-  # Admins see all content, and members can filter out the other side of the
-  # community but never their own.
-  def cohort_gender_privacy_is_permitted
-    if admin? && !cohort_gender_privacy_all_members?
-      errors.add(:cohort_gender_privacy, "isn't available to admin accounts, which see all content")
-    elsif cohort_gender_privacy_men_only? && female_cohort_member?
-      errors.add(:cohort_gender_privacy, "can't hide female cohort members' content while you are one")
-    elsif cohort_gender_privacy_women_only? && male_cohort_member?
-      errors.add(:cohort_gender_privacy, "can't hide male cohort members' content while you are one")
-    end
   end
 
   def acceptable_avatar
