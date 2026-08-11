@@ -59,4 +59,30 @@ class BlockingVisibilityTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_match "Thank you for the welcome!", response.body # attendee's comment
   end
+
+  # Replies render from the association rather than the filtered comment list,
+  # so they need their own guard rail on every surface that draws a thread.
+  test "post comments hide nested replies authored by a blocked user" do
+    get cohort_post_path(cohorts.kabul_retreat, posts.pinned_announcement)
+    assert_response :success
+    assert_no_match "A nested reply from the attendee.", response.body
+    assert_match "A nested reply from a male cohort member.", response.body # unblocked sibling stays
+  end
+
+  test "cohort feed card comments hide nested replies authored by a blocked user" do
+    get cohort_path(cohorts.kabul_retreat)
+    assert_response :success
+    assert_no_match "A nested reply from the attendee.", response.body
+  end
+
+  test "reply counts exclude a blocked author" do
+    get cohort_post_path(cohorts.kabul_retreat, posts.pinned_announcement)
+    assert_response :success
+
+    # Five comments on the post, two of them by the blocked attendee.
+    assert_match "Replies (3)", response.body
+    # Two replies under the admin's comment, one of them by the blocked attendee.
+    assert_equal "1 reply",
+                 css_select("#reply_count_for_#{post_comments.announcement_comment.id} button").text.strip
+  end
 end

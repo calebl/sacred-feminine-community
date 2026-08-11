@@ -11,7 +11,7 @@
 
 <div class="space-y-3">
   <% @feed_posts.each do |post| %>
-    <%= render "shared/post_card", post: post, comments: visible_comments(post.feed_post_comments),
+    <%= render "shared/post_card", post: post, comments: post.visible_comments(current_user),
         comment_partial: "feed_post_comments/feed_post_comment",
         comment_locals: { feed_post: post },
         comment_form_model: [post, FeedPostComment.new],

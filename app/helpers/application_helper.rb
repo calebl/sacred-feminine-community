@@ -59,17 +59,6 @@ module ApplicationHelper
     end
   end
 
-  # Drops comments authored by users hidden from the viewer (a block or a cohort
-  # gender preference, either direction). Filters in memory on purpose: post
-  # lists preload their comments with `includes`, and calling `visible_to` here
-  # would discard that preload and issue a query per post.
-  def visible_comments(comments)
-    hidden_ids = viewer_hidden_content_user_ids
-    return comments if hidden_ids.empty?
-
-    comments.reject { |comment| hidden_ids.include?(comment.user_id) }
-  end
-
   private
 
   # Ids of users whose content is hidden from the viewer, so e.g. their @mentions

@@ -65,6 +65,47 @@ class CohortGenderVisibilityTest < ActionDispatch::IntegrationTest
     assert_no_match "A comment from a male cohort member.", response.body
   end
 
+  # Replies render from the association rather than the filtered comment list,
+  # so they need their own guard rail on every surface that draws a thread.
+  test "post page hides nested replies from an excluded cohort gender" do
+    get cohort_post_path(cohorts.kabul_retreat, posts.pinned_announcement)
+    assert_response :success
+    assert_no_match "A nested reply from a male cohort member.", response.body
+    assert_match "A nested reply from the attendee.", response.body # sibling reply stays
+  end
+
+  test "cohort feed card hides nested replies from an excluded cohort gender" do
+    get cohort_path(cohorts.kabul_retreat)
+    assert_response :success
+    assert_no_match "A nested reply from a male cohort member.", response.body
+    assert_match "A nested reply from the attendee.", response.body
+  end
+
+  test "group feed card hides nested replies from an excluded cohort gender" do
+    get group_path(groups.book_club)
+    assert_response :success
+    assert_no_match "A nested reply from a male cohort member.", response.body
+    assert_match "Kicking off a thread.", response.body # the admin parent stays
+  end
+
+  test "community feed hides nested replies from an excluded cohort gender" do
+    get feed_posts_path
+    assert_response :success
+    assert_no_match "A nested reply from a male cohort member.", response.body
+    assert_match "Kicking off a thread.", response.body
+  end
+
+  test "reply counts exclude an excluded cohort gender" do
+    get cohort_post_path(cohorts.kabul_retreat, posts.pinned_announcement)
+    assert_response :success
+
+    # Five comments on the post, two of them by the excluded male member.
+    assert_match "Replies (3)", response.body
+    # Two replies under the admin's comment, one of them by the excluded member.
+    assert_equal "1 reply",
+                 css_select("#reply_count_for_#{post_comments.announcement_comment.id} button").text.strip
+  end
+
   test "dashboard member list omits an excluded cohort gender" do
     get authenticated_root_path(tab: "members")
     assert_response :success

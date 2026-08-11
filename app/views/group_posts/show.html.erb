@@ -11,7 +11,7 @@
   form_url: group_group_post_path(@group, @post),
   form_extras: { group_id: @group.id },
   comment_form_model: [@group, @post, @new_comment],
-  comments_count: @post.group_post_comments.count,
+  comments_count: @post.visible_comments(current_user).size,
   mention_data: { "mention-group-id-value": @group.id }
 } do %>
   <% @comments.each do |comment| %>
