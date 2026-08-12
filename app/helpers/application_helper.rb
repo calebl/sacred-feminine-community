@@ -15,11 +15,11 @@ module ApplicationHelper
       %(<a href="#{url}" class="text-sf-gold underline hover:text-sf-gold/80" target="_blank" rel="noopener noreferrer">#{url}</a>)
     end
 
-    blocked_ids = blocked_mention_ids
+    hidden_ids = viewer_hidden_content_user_ids
     result = result.gsub(Mentionable::MENTION_PATTERN) do
       name = $1
       id = $2.to_i
-      if blocked_ids.include?(id)
+      if hidden_ids.include?(id)
         "@#{name}"
       else
         %(<a href="#{profile_path(id)}" class="text-sf-gold font-semibold hover:underline">@#{name}</a>)
@@ -61,10 +61,10 @@ module ApplicationHelper
 
   private
 
-  # Ids of users on either side of a block with the viewer, so their @mentions
+  # Ids of users whose content is hidden from the viewer, so e.g. their @mentions
   # render as plain text rather than profile links. Returns [] outside a request
   # (e.g. helper tests) where no Warden session exists.
-  def blocked_mention_ids
+  def viewer_hidden_content_user_ids
     return [] unless respond_to?(:current_user)
 
     current_user&.hidden_content_user_ids || []

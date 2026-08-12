@@ -10,7 +10,7 @@
   post_path: feed_post_path(@post),
   form_url: feed_post_path(@post),
   comment_form_model: [@post, @new_comment],
-  comments_count: @post.feed_post_comments.count
+  comments_count: @post.visible_comments(current_user).size
 } do %>
   <% @comments.each do |comment| %>
     <%= render "feed_post_comments/feed_post_comment", comment: comment, feed_post: @post %>

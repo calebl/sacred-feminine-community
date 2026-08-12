@@ -124,6 +124,42 @@
         <% end %>
       </fieldset>
 
+      <%# Members can filter out the other side of the community, never their own,
+          so only the two options valid for this member are offered. %>
+      <% own_side = @user.male_cohort_member? ? "men_only" : "women_only" %>
+      <%# An admin has no side, so the option is labelled generically rather than
+          guessing one — it is disabled for them either way. %>
+      <% own_side_label = if @user.admin?
+           "Their own side of the community only"
+         elsif @user.male_cohort_member?
+           "Men's cohort members only"
+         else
+           "Women's cohort members only"
+         end %>
+      <fieldset>
+        <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Content From</legend>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Choose whose content you see. Members of a Men's Cohort count as male cohort members; everyone else counts as female.</p>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 text-sm <%= @user.admin? ? "text-gray-400 dark:text-gray-500" : "text-gray-700 dark:text-gray-300" %>">
+            <%= f.radio_button :cohort_gender_privacy, "all_members", checked: @user.effective_cohort_gender_privacy == "all_members",
+                disabled: @user.admin?,
+                class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50" %>
+            Men's cohorts and women's cohorts
+          </label>
+          <label class="flex items-center gap-2 text-sm <%= @user.admin? ? "text-gray-400 dark:text-gray-500" : "text-gray-700 dark:text-gray-300" %>">
+            <%= f.radio_button :cohort_gender_privacy, own_side, checked: @user.effective_cohort_gender_privacy == own_side,
+                disabled: @user.admin?,
+                class: "border-gray-300 text-sf-gold focus:ring-sf-gold dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50" %>
+            <%= own_side_label %>
+          </label>
+        </div>
+        <% if @user.admin? %>
+          <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Admin accounts see all content, so this setting isn't available to you.</p>
+        <% else %>
+          <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">You can only filter out the other side of the community, never your own. Excluding a group hides your content from them too, and community admins are never filtered — their posts and announcements stay visible either way.</p>
+        <% end %>
+      </fieldset>
+
       <h2 class="text-base font-display font-semibold text-sf-black dark:text-white">Notification Settings</h2>
 
       <div class="flex items-center gap-2"

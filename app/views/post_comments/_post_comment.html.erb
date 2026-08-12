@@ -1,4 +1,5 @@
 <% comment_unread = unread_dot_for?(comment) %>
+<% visible_replies = comment.visible_replies(current_user) %>
 <div id="<%= dom_id(comment) %>" data-controller="replies-toggle<%= " read-on-view" if comment_unread %>"
      <%= tag.attributes(
        "data-read-on-view-type-value": "post_comment",
@@ -32,11 +33,11 @@
           </button>
           <%= render "reactions/reactions", reactable: comment, inline: true %>
           <span id="reply_count_for_<%= comment.id %>">
-            <% if comment.replies.any? %>
+            <% if visible_replies.any? %>
               <button type="button"
                       data-action="replies-toggle#toggle"
                       class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 mt-1 cursor-pointer transition">
-                <%= pluralize(comment.replies.size, "reply") %>
+                <%= pluralize(visible_replies.size, "reply") %>
               </button>
             <% end %>
           </span>
@@ -73,7 +74,7 @@
 
   <%# Nested replies %>
   <div id="replies_for_<%= comment.id %>" data-replies-toggle-target="replies" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2 hidden">
-    <% comment.replies.sort_by(&:created_at).each do |reply| %>
+    <% visible_replies.each do |reply| %>
       <%= render "post_comments/post_comment", comment: reply, cohort: cohort, post: post %>
     <% end %>
   </div>

@@ -150,4 +150,55 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_includes notification_icon_bg(Notification.new(event_type: "new_comment")), "green"
     assert_includes notification_icon_bg(Notification.new(event_type: "help_request")), "purple"
   end
+
+  test "format_user_content renders a blocked user's mention as plain text" do
+    # attendee blocks attendee_two (see the user_blocks seeds)
+    def self.current_user; users.attendee; end
+    blocked = users.attendee_two
+
+    result = format_user_content("Hi @[#{blocked.name}](#{blocked.id})")
+
+    assert_includes result, "@#{blocked.name}"
+    assert_not_includes result, "/profiles/#{blocked.id}"
+  end
+
+  test "format_user_content renders a mention as plain text across the cohort gender boundary" do
+    def self.current_user; users.women_only_member; end
+    excluded = users.male_member
+
+    result = format_user_content("Hi @[#{excluded.name}](#{excluded.id})")
+
+    assert_includes result, "@#{excluded.name}"
+    assert_not_includes result, "/profiles/#{excluded.id}"
+    assert_not_includes result, "<a "
+  end
+
+  test "format_user_content plain-texts the mention for the excluded member too" do
+    # Mutual: male_member never changed their own setting, but women_only_member did.
+    def self.current_user; users.male_member; end
+    excluder = users.women_only_member
+
+    result = format_user_content("Hi @[#{excluder.name}](#{excluder.id})")
+
+    assert_includes result, "@#{excluder.name}"
+    assert_not_includes result, "/profiles/#{excluder.id}"
+  end
+
+  test "format_user_content still links admin mentions for a filtered viewer" do
+    def self.current_user; users.men_only_member; end
+    admin = users.admin
+
+    result = format_user_content("Hi @[#{admin.name}](#{admin.id})")
+
+    assert_includes result, "/profiles/#{admin.id}"
+  end
+
+  test "format_user_content links mentions when nothing is hidden" do
+    def self.current_user; users.admin; end
+    mentioned = users.male_member
+
+    result = format_user_content("Hi @[#{mentioned.name}](#{mentioned.id})")
+
+    assert_includes result, "/profiles/#{mentioned.id}"
+  end
 end

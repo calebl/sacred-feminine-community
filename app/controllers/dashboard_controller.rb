@@ -4,7 +4,7 @@ class DashboardController < ApplicationController
 
   def show
     skip_authorization
-    @members = User.active_users.order(:name)
+    @members = policy_scope(User).active_users.order(:name)
     @sidebar_cohorts = current_user.cohorts.order(retreat_start_date: :desc)
     @sidebar_groups = current_user.groups.order(:name)
     @active_tab = params[:tab].presence || "feed"

@@ -9,3 +9,7 @@ posts.create :attendee_post,
 posts.create :bali_post,
   body: "Here is an update on the Bali retreat plans.",
   cohort: cohorts.bali_retreat, user: users.admin, pinned: false, created_at: 1.hour.ago
+
+posts.create :male_member_post,
+  body: "A cohort post from a male cohort member.",
+  cohort: cohorts.kabul_retreat, user: users.male_member, pinned: false, created_at: 2.hours.ago

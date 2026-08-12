@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_06_15_000000) do
+ActiveRecord::Schema[8.2].define(version: 2026_08_01_000000) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -385,6 +385,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_06_15_000000) do
     t.text "bio"
     t.integer "bulk_invitation_id"
     t.string "city"
+    t.integer "cohort_gender_privacy", default: 0, null: false
     t.string "country"
     t.datetime "created_at", null: false
     t.datetime "discarded_at"
@@ -419,6 +420,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_06_15_000000) do
     t.integer "theme", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["bulk_invitation_id"], name: "index_users_on_bulk_invitation_id"
+    t.index ["cohort_gender_privacy"], name: "index_users_on_cohort_gender_privacy"
     t.index ["discarded_at"], name: "index_users_on_discarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true

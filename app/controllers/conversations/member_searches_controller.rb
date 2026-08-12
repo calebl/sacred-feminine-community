@@ -7,7 +7,7 @@ module Conversations
       skip_authorization
 
       @users = if params[:q].present?
-        User.search_by_name(params[:q], exclude: current_user)
+        policy_scope(User).search_by_name(params[:q], exclude: current_user)
       else
         User.none
       end

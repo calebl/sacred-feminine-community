@@ -13,3 +13,7 @@ group_posts.create :yoga_post,
 group_posts.create :reading_group_post,
   body: "What should we read next?",
   group: groups.reading_group, user: users.attendee_two, pinned: false, created_at: 1.hour.ago
+
+group_posts.create :male_member_group_post,
+  body: "A group post from a male cohort member.",
+  group: groups.book_club, user: users.male_member, pinned: false, created_at: 2.hours.ago

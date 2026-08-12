@@ -14,6 +14,13 @@ class FeedPost < ApplicationRecord
 
   validates :body, presence: true
 
+  # Comments on this post that `viewer` is allowed to see. Feeds render through
+  # here rather than the raw association so hidden authors drop out of the list
+  # and its count alike.
+  def visible_comments(viewer)
+    FeedPostComment.reject_hidden_from(feed_post_comments, viewer)
+  end
+
   def mark_as_read_by(user)
     feed_post_reads
       .find_or_initialize_by(user: user)

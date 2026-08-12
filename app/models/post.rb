@@ -15,6 +15,13 @@ class Post < ApplicationRecord
 
   validates :body, presence: true
 
+  # Comments on this post that `viewer` is allowed to see. Feeds render through
+  # here rather than the raw association so hidden authors drop out of the list
+  # and its count alike.
+  def visible_comments(viewer)
+    PostComment.reject_hidden_from(post_comments, viewer)
+  end
+
   def mark_as_read_by(user)
     Notification.unread.where(user: user, event_type: "mention")
                .where("(notifiable_type = 'Post' AND notifiable_id = ?) OR (notifiable_type = 'PostComment' AND notifiable_id IN (?))",

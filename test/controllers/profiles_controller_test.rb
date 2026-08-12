@@ -50,6 +50,64 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_predicate users.attendee.reload, :theme_dark?
   end
 
+  test "user can update their cohort gender content preference" do
+    sign_in users.attendee
+    patch profile_path(users.attendee), params: { user: { cohort_gender_privacy: "women_only" } }
+    assert_redirected_to profile_path(users.attendee)
+    assert_predicate users.attendee.reload, :cohort_gender_privacy_women_only?
+  end
+
+  test "edit profile page offers a female member everyone or women only" do
+    sign_in users.attendee
+    get edit_profile_path(users.attendee)
+    assert_response :success
+    assert_select "input[type=radio][name='user[cohort_gender_privacy]']", 2
+    assert_select "input[type=radio][value=all_members]"
+    assert_select "input[type=radio][value=women_only]"
+    assert_select "input[type=radio][value=men_only]", 0
+  end
+
+  test "edit profile page offers a male member everyone or men only" do
+    sign_in users.male_member
+    get edit_profile_path(users.male_member)
+    assert_response :success
+    assert_select "input[type=radio][name='user[cohort_gender_privacy]']", 2
+    assert_select "input[type=radio][value=men_only]"
+    assert_select "input[type=radio][value=women_only]", 0
+  end
+
+  test "edit profile page disables the cohort gender options for an admin" do
+    sign_in users.admin
+    get edit_profile_path(users.admin)
+    assert_response :success
+    assert_select "input[type=radio][name='user[cohort_gender_privacy]'][disabled]", 2
+    assert_match "Admin accounts see all content", response.body
+  end
+
+  test "admin cannot set a cohort gender preference" do
+    sign_in users.admin
+    patch profile_path(users.admin), params: { user: { cohort_gender_privacy: "women_only" } }
+    assert_response :unprocessable_entity
+    assert_predicate users.admin.reload, :cohort_gender_privacy_all_members?
+  end
+
+  test "user cannot exclude their own side of the community" do
+    sign_in users.attendee
+    patch profile_path(users.attendee), params: { user: { cohort_gender_privacy: "men_only" } }
+    assert_response :unprocessable_entity
+    assert_predicate users.attendee.reload, :cohort_gender_privacy_all_members?
+  end
+
+  test "cohort gender content note about admins shows before any option is chosen" do
+    sign_in users.attendee
+    assert_predicate users.attendee, :cohort_gender_privacy_all_members?
+
+    get edit_profile_path(users.attendee)
+    assert_response :success
+    assert_match "community admins are never filtered", response.body
+    assert_match "You can only filter out the other side of the community, never your own", response.body
+  end
+
   test "user cannot update another user profile" do
     sign_in users.attendee
     patch profile_path(users.admin), params: {

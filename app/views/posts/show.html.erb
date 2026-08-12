@@ -11,7 +11,7 @@
   form_url: cohort_post_path(@cohort, @post),
   form_extras: { cohort_id: @cohort.id },
   comment_form_model: [@cohort, @post, @new_comment],
-  comments_count: @post.post_comments.count,
+  comments_count: @post.visible_comments(current_user).size,
   mention_data: { "mention-cohort-id-value": @cohort.id }
 } do %>
   <% @comments.each do |comment| %>

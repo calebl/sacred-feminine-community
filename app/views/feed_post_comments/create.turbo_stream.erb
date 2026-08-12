@@ -2,7 +2,7 @@
   <%# Replace replies container with updated list (visible after posting) %>
   <%= turbo_stream.replace "replies_for_#{@comment.parent_id}" do %>
     <div id="replies_for_<%= @comment.parent_id %>" data-replies-toggle-target="replies" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2">
-      <% @comment.parent.replies.includes(:user).order(created_at: :asc).each do |reply| %>
+      <% @comment.parent.visible_replies(current_user).each do |reply| %>
         <%= render "feed_post_comments/feed_post_comment", comment: reply, feed_post: @post %>
       <% end %>
     </div>
@@ -14,7 +14,7 @@
       <button type="button"
               data-action="replies-toggle#toggle"
               class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 mt-1 cursor-pointer transition">
-        <%= pluralize(@comment.parent.replies.size, "reply") %>
+        <%= pluralize(@comment.parent.visible_replies(current_user).size, "reply") %>
       </button>
     </span>
   <% end %>

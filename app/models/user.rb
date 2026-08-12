@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   include Discard::Model
   include UnreadIndicators
+  include CohortGenderFiltering
 
   devise :invitable, :database_authenticatable,
          :recoverable, :rememberable, :validatable
@@ -18,6 +19,7 @@ class User < ApplicationRecord
   enum :dm_privacy, { nobody: 0, cohort_members: 1, everyone: 2 }, prefix: true
   enum :mention_privacy, { nobody: 0, groups_and_cohorts: 1, everywhere: 2 }, prefix: :mention_privacy
   enum :theme, { light: 0, dark: 1, system: 2 }, prefix: true
+  enum :cohort_gender_privacy, { all_members: 0, women_only: 1, men_only: 2 }, prefix: true
 
   # Includes users who accepted an invitation OR were created manually (no invitation token or accepted_at)
   scope :active_users, -> { kept.where.not(invitation_accepted_at: nil).or(kept.where(invitation_token: nil, invitation_accepted_at: nil)) }
@@ -171,16 +173,27 @@ class User < ApplicationRecord
     @blocked_by_user_ids ||= blocked_by_blocks.pluck(:blocker_id)
   end
 
-  # Ids of users whose content is hidden from this user. Blocking is mutual for
-  # visibility, so this covers both directions: people this user blocked and
-  # people who blocked this user.
+  # Ids of users whose content is hidden from this user, for any reason: a block
+  # in either direction, or a cohort gender preference on either side. Every
+  # content surface funnels through here (Blockable#visible_to and
+  # .reject_hidden_from, UserPolicy::Scope, CreateNotificationJob, direct message
+  # delivery, mention autocomplete and rendering), so a new hiding rule only has
+  # to be added in one place.
   def hidden_content_user_ids
-    (blocked_user_ids + blocked_by_user_ids).uniq
+    @hidden_content_user_ids ||=
+      (blocked_user_ids + blocked_by_user_ids + cohort_gender_hidden_user_ids).uniq
+  end
+
+  # True when none of the other user's content should reach this one.
+  def hides_content_from?(other)
+    hidden_content_user_ids.include?(other.id)
   end
 
   def accepts_direct_messages_from?(sender)
     return false if blocks?(sender) || sender.blocks?(self)
     return true if sender.admin?
+    # Blocking overrides admins (above); the cohort gender filter never does.
+    return false if hides_content_from?(sender)
 
     case dm_privacy
     when "everyone"

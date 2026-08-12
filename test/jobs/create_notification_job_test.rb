@@ -122,6 +122,58 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     end
   end
 
+  test "does nothing when the actor is hidden by a cohort gender preference" do
+    # women_only_member excludes male cohort members; the filter is mutual, so it
+    # suppresses notifications in both directions.
+    assert_no_difference "Notification.count" do
+      CreateNotificationJob.perform_now(
+        user_id: users.women_only_member.id,
+        actor_id: users.male_member.id,
+        event_type: "new_post",
+        title: "Michael Member",
+        body: "Posted in a cohort",
+        path: "/test"
+      )
+    end
+
+    assert_no_difference "Notification.count" do
+      CreateNotificationJob.perform_now(
+        user_id: users.male_member.id,
+        actor_id: users.women_only_member.id,
+        event_type: "new_post",
+        title: "Willa Member",
+        body: "Posted in a cohort",
+        path: "/test"
+      )
+    end
+  end
+
+  test "help_request_reply notifications are delivered despite a cohort gender preference" do
+    assert_difference "Notification.count", 1 do
+      CreateNotificationJob.perform_now(
+        user_id: users.women_only_member.id,
+        actor_id: users.male_member.id,
+        event_type: "help_request_reply",
+        title: "Help Request Reply",
+        body: "Michael Member replied",
+        path: "/help_requests/1"
+      )
+    end
+  end
+
+  test "admin notifications reach a user who only allows male cohort members" do
+    assert_difference "Notification.count", 1 do
+      CreateNotificationJob.perform_now(
+        user_id: users.men_only_member.id,
+        actor_id: @admin.id,
+        event_type: "new_post",
+        title: "Admin User",
+        body: "Posted on the community feed",
+        path: "/feed"
+      )
+    end
+  end
+
   test "still notifies when there is no block relationship" do
     assert_difference "Notification.count", 1 do
       CreateNotificationJob.perform_now(

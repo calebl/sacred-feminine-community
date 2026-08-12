@@ -51,3 +51,24 @@ attendees_data.each_with_index do |data, i|
 end
 
 puts "Seeded #{attendees_data.size} attendee accounts"
+
+# Members of the men's cohort (see cohorts.rb), so the cohort gender content
+# filtering has both sides to work with in development. Their `men_only`
+# preference is only valid once they belong to a men's cohort, so it is set in
+# cohorts.rb after the membership exists.
+mens_data = [
+  { label: :atlas,  name: "Atlas Rivera",     email: "atlas@example.com",  city: "Sedona",     state: "Arizona",  country: "United States", bio: "Drum keeper and wilderness guide.",        latitude: 34.8697, longitude: -111.7610, show_on_map: true },
+  { label: :cassian, name: "Cassian Boone",   email: "cassian@example.com", city: "Livingston", state: "Montana", country: "United States", bio: "Bodyworker and breathwork facilitator.",   latitude: 45.6627, longitude: -110.5612, show_on_map: true },
+  { label: :odin,   name: "Odin Ferreira",    email: "odin@example.com",   city: "Boise",      state: "Idaho",    country: "United States", bio: "Woodworker and men's circle facilitator.", latitude: 43.6150, longitude: -116.2023, show_on_map: true },
+  { label: :sol,    name: "Sol Nakagawa",     email: "sol@example.com",    city: "Denver",     state: "Colorado", country: "United States", bio: "Musician and grief tender.",               latitude: 39.7392, longitude: -104.9903, show_on_map: false }
+]
+
+mens_data.each_with_index do |data, i|
+  label = data.delete(:label)
+  users.create label,
+    role: :attendee,
+    dm_privacy: dm_privacy_options[i % dm_privacy_options.size],
+    **data
+end
+
+puts "Seeded #{mens_data.size} men's cohort accounts"

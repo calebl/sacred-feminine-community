@@ -105,4 +105,55 @@ class DirectMessagesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :redirect
   end
+
+  # Starting a conversation is gated in ConversationsController, but a block or
+  # a cohort gender preference can also be set after the thread already exists.
+  test "sender cannot message into an existing thread across a block" do
+    convo = Conversation.between(@attendee, @attendee_two)
+    @attendee_two.user_blocks.create!(blocked: @attendee)
+
+    sign_in @attendee
+    assert_no_difference "DirectMessage.count" do
+      post conversation_direct_messages_path(convo),
+        params: { direct_message: { body: "Should not send" } }
+    end
+    assert_redirected_to convo
+    assert_equal "#{@attendee_two.name} is no longer receiving your messages.", flash[:alert]
+  end
+
+  test "sender cannot message into an existing thread across the cohort gender filter" do
+    convo = Conversation.between(users.male_member, users.women_only_member)
+
+    sign_in users.male_member
+    assert_no_difference "DirectMessage.count" do
+      post conversation_direct_messages_path(convo),
+        params: { direct_message: { body: "Should not send" } }
+    end
+    assert_redirected_to convo
+    assert_equal "#{users.women_only_member.name} is no longer receiving your messages.", flash[:alert]
+  end
+
+  test "an admin can still message into a thread with a filtering member" do
+    convo = Conversation.between(@admin, users.women_only_member)
+
+    sign_in @admin
+    assert_difference "DirectMessage.count" do
+      post conversation_direct_messages_path(convo),
+        params: { direct_message: { body: "Admins are exempt" } }
+    end
+    assert_response :redirect
+  end
+
+  test "a recipient who stops accepting new conversations can still be replied to" do
+    # dm_privacy governs who may start a thread, not whether an existing one
+    # stays open, so it must not gate sending the way hidden content does.
+    @attendee.update!(dm_privacy: :nobody)
+
+    sign_in @admin
+    assert_difference "DirectMessage.count" do
+      post conversation_direct_messages_path(@conversation),
+        params: { direct_message: { body: "Still reaches them" } }
+    end
+    assert_response :redirect
+  end
 end

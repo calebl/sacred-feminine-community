@@ -27,7 +27,7 @@ class GroupsController < ApplicationController
         membership.update(updates)
       end
     end
-    @members = @group.members.kept.includes(:group_memberships).load
+    @members = policy_scope(@group.members).includes(:group_memberships).load
     @posts = policy_scope(@group.group_posts).pinned_first
                                              .includes(:user, group_post_comments: :user)
   end

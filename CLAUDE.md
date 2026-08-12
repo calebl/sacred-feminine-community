@@ -51,7 +51,7 @@ rake users:list
 
 ### Models
 
-- **User** - Devise auth, roles (`attendee`/`admin`), geocoded by city/country, avatar (Active Storage)
+- **User** - Devise auth, roles (`attendee`/`admin`), privacy enums (`dm_privacy`, `mention_privacy`, `cohort_gender_privacy`), geocoded by city/country, avatar (Active Storage). `hidden_content_user_ids` is the single choke point for hiding another user's content (blocks + cohort gender filtering)
 - **Cohort** - Groups with memberships, created by an admin user
 - **DirectMessage** - Encrypted body, scoped to conversations
 - **Conversation** / **ConversationParticipant** - DM threading between users

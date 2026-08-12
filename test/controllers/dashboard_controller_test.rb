@@ -27,7 +27,9 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "members panel hides location when show_on_map is false" do
-    sign_in users.attendee
+    # admin_two, not attendee: attendee blocks attendee_two, whose card would
+    # then be filtered out of the panel entirely.
+    sign_in users.admin_two
     get authenticated_root_path(tab: "members")
     assert_response :success
     # attendee_two has show_on_map: false, city: Tokyo, country: Japan
@@ -35,6 +37,14 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert card, "Expected to find member card for Sarah Member"
     assert_no_match "Tokyo", card.to_s
     assert_no_match "Japan", card.to_s
+  end
+
+  test "members panel omits users hidden from the viewer" do
+    # attendee blocks attendee_two (see the user_blocks seeds).
+    sign_in users.attendee
+    get authenticated_root_path(tab: "members")
+    assert_response :success
+    assert_empty css_select("a[data-name='Sarah Member']")
   end
 
   test "members panel shows location when show_on_map is true" do
