@@ -111,6 +111,72 @@ class DirectMessageTest < ActiveSupport::TestCase
     end
   end
 
+  # The live toast is the one surface that pushes a message body at someone
+  # unprompted, so broadcast_all filters it through hides_content_from? — the
+  # same choke point that covers blocks and cohort gender privacy. Each of these
+  # asserts dm_notifications is still enabled first, otherwise the preference
+  # rather than the filter could be what silences the broadcast.
+
+  test "notification does not broadcast to a recipient who blocks the sender" do
+    recipient = users.attendee
+    sender = users.attendee_two
+    conversation = Conversation.between(recipient, sender)
+
+    assert recipient.dm_notifications, "recipient would opt out of toasts regardless"
+
+    assert_no_turbo_stream_broadcasts [ recipient, :dm_notifications ] do
+      DirectMessage.create!(body: "Blocked sender", conversation: conversation, sender: sender)
+    end
+  end
+
+  test "notification does not broadcast to a recipient the sender has blocked" do
+    sender = users.attendee
+    recipient = users.attendee_two
+    conversation = Conversation.between(sender, recipient)
+
+    assert recipient.dm_notifications, "recipient would opt out of toasts regardless"
+
+    assert_no_turbo_stream_broadcasts [ recipient, :dm_notifications ] do
+      DirectMessage.create!(body: "Blocked recipient", conversation: conversation, sender: sender)
+    end
+  end
+
+  test "notification does not broadcast to a recipient whose cohort gender privacy hides the sender" do
+    recipient = users.women_only_member
+    sender = users.male_member
+    conversation = Conversation.between(recipient, sender)
+
+    assert recipient.dm_notifications, "recipient would opt out of toasts regardless"
+
+    assert_no_turbo_stream_broadcasts [ recipient, :dm_notifications ] do
+      DirectMessage.create!(body: "Filtered sender", conversation: conversation, sender: sender)
+    end
+  end
+
+  test "notification does not broadcast to a recipient the sender's cohort gender privacy hides" do
+    recipient = users.male_member
+    sender = users.women_only_member
+    conversation = Conversation.between(recipient, sender)
+
+    assert recipient.dm_notifications, "recipient would opt out of toasts regardless"
+
+    assert_no_turbo_stream_broadcasts [ recipient, :dm_notifications ] do
+      DirectMessage.create!(body: "Filtered recipient", conversation: conversation, sender: sender)
+    end
+  end
+
+  test "conversation stream still receives a message whose toast was filtered" do
+    recipient = users.attendee
+    sender = users.attendee_two
+    conversation = Conversation.between(recipient, sender)
+
+    # Filtering suppresses the unprompted toast only. The thread itself still
+    # updates live, so an open conversation window is not silently stale.
+    assert_turbo_stream_broadcasts conversation do
+      DirectMessage.create!(body: "Still streamed", conversation: conversation, sender: sender)
+    end
+  end
+
   test "body is encrypted in the database" do
     msg = DirectMessage.create!(
       conversation: conversations.admin_attendee_convo,
