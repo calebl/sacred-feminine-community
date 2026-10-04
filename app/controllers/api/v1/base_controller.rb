@@ -42,8 +42,8 @@ module Api
         render_error(:unauthorized, message || "Authentication required.")
       end
 
-      def render_error(status, message, details = {})
-        render json: { error: message }.merge(details), status: status
+      def render_error(status, message)
+        render json: { error: message }, status: status
       end
 
       def render_forbidden
