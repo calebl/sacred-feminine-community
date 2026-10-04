@@ -56,7 +56,8 @@ class Api::V1::SessionsControllerTest < ActionDispatch::IntegrationTest
   test "requires a device name" do
     post api_v1_session_path, params: { email: "jane@example.com", password: "password123" }, as: :json
 
-    assert_response :bad_request
+    assert_response :unprocessable_entity
+    assert_equal "Email, password, and device name are required.", response.parsed_body["error"]
   end
 
   test "rejects a whitespace-only device name" do
@@ -65,8 +66,28 @@ class Api::V1::SessionsControllerTest < ActionDispatch::IntegrationTest
         params: { email: "jane@example.com", password: "password123", device_name: "   " }, as: :json
     end
 
-    assert_response :bad_request
-    assert_equal "Device name can't be blank.", response.parsed_body["error"]
+    assert_response :unprocessable_entity
+    assert_equal "Email, password, and device name are required.", response.parsed_body["error"]
+  end
+
+  test "missing credentials do not reveal whether an account exists" do
+    post api_v1_session_path,
+      params: { email: "jane@example.com", device_name: "iPhone" }, as: :json
+    known_account_response = [ response.status, response.parsed_body ]
+
+    post api_v1_session_path,
+      params: { email: "nobody@example.com", device_name: "iPhone" }, as: :json
+
+    assert_equal [ 422, { "error" => "Email, password, and device name are required." } ], known_account_response
+    assert_equal known_account_response, [ response.status, response.parsed_body ]
+  end
+
+  test "requires an email" do
+    post api_v1_session_path,
+      params: { password: "password123", device_name: "iPhone" }, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal "Email, password, and device name are required.", response.parsed_body["error"]
   end
 
   test "normalizes a device name" do

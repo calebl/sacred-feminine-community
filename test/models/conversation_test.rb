@@ -100,7 +100,7 @@ class ConversationTest < ActiveSupport::TestCase
     end
   end
 
-  test "send_message rechecks blocks at persistence time" do
+  test "send_message rechecks after its caller checks permissions" do
     convo = conversations.admin_attendee_convo
     assert_empty convo.unreachable_recipients(users.attendee)
     UserBlock.create!(blocker: users.admin, blocked: users.attendee)

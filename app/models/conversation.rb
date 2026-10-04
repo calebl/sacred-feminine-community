@@ -43,34 +43,36 @@ class Conversation < ApplicationRecord
   end
 
   def self.send_message(from:, body:, conversation: nil, recipients: nil)
-    starting_conversation = conversation.nil?
+    transaction do
+      starting_conversation = conversation.nil?
 
-    if starting_conversation
-      recipients = Array(recipients)
-      refused = refused_recipients(from, recipients)
-      if refused.any?
-        message = new.direct_messages.build(sender: from, body: body)
-        names = refused.map(&:name).join(", ")
-        message.errors.add(:base, :recipients_refused,
-          message: "#{names} #{refused.one? ? 'is' : 'are'} not accepting direct messages.")
-        return message
+      if starting_conversation
+        recipients = Array(recipients)
+        refused = refused_recipients(from, recipients)
+        if refused.any?
+          message = new.direct_messages.build(sender: from, body: body)
+          names = refused.map(&:name).join(", ")
+          message.errors.add(:base, :recipients_refused,
+            message: "#{names} #{refused.one? ? 'is' : 'are'} not accepting direct messages.")
+          next message
+        end
+
+        conversation = between(from, recipients)
       end
 
-      conversation = between(from, recipients)
-    end
+      message = conversation.direct_messages.build(sender: from, body: body)
+      if !starting_conversation && conversation.closed_for?(from)
+        message.errors.add(:base, :conversation_closed, message: "This conversation is no longer available.")
+      elsif !starting_conversation && (unreachable = conversation.unreachable_recipients(from)).any?
+        names = unreachable.map(&:name).join(", ")
+        message.errors.add(:base, :recipients_unreachable,
+          message: "#{names} #{unreachable.one? ? 'is' : 'are'} no longer receiving your messages.")
+      elsif message.save
+        conversation.touch
+      end
 
-    message = conversation.direct_messages.build(sender: from, body: body)
-    if !starting_conversation && conversation.closed_for?(from)
-      message.errors.add(:base, :conversation_closed, message: "This conversation is no longer available.")
-    elsif !starting_conversation && (unreachable = conversation.unreachable_recipients(from)).any?
-      names = unreachable.map(&:name).join(", ")
-      message.errors.add(:base, :recipients_unreachable,
-        message: "#{names} #{unreachable.one? ? 'is' : 'are'} no longer receiving your messages.")
-    elsif message.save
-      conversation.touch
+      message
     end
-
-    message
   end
 
   # Other participants who no longer receive `sender`'s messages because they

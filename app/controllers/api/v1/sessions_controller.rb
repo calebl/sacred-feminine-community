@@ -10,18 +10,22 @@ module Api
 
       def create
         skip_authorization
-        user = User.find_for_authentication(email: params.require(:email).to_s.strip.downcase)
+        email = params[:email].to_s.strip.downcase
+        password = params[:password].to_s
+        device_name = params[:device_name].to_s.strip.first(100)
 
-        unless user&.valid_password?(params.require(:password).to_s)
+        if email.blank? || password.blank? || device_name.blank?
+          return render_error(:unprocessable_entity, "Email, password, and device name are required.")
+        end
+
+        user = User.find_for_authentication(email: email)
+        unless user&.valid_password?(password)
           return render_error(:unauthorized, "Invalid email or password.")
         end
 
         unless user.active_for_authentication?
           return render_error(:unauthorized, "This account cannot sign in.")
         end
-
-        device_name = params[:device_name].to_s.strip.first(100)
-        return render_error(:bad_request, "Device name can't be blank.") if device_name.blank?
 
         api_token = ApiToken.issue!(user: user, device_name: device_name)
         render json: {
