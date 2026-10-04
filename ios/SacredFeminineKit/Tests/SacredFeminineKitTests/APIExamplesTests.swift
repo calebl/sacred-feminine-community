@@ -36,6 +36,16 @@ import Testing
         try decode(type, Data(contentsOf: examplesDirectory.appendingPathComponent(name)))
     }
 
+    static func unknownEnums(in value: Any) -> [String] {
+        if case .unknown(let raw)? = value as? Role {
+            return ["Role.unknown(\(raw))"]
+        }
+        if case .unknown(let raw)? = value as? PostKind {
+            return ["PostKind.unknown(\(raw))"]
+        }
+        return Mirror(reflecting: value).children.flatMap { unknownEnums(in: $0.value) }
+    }
+
     static let fixedDate = Date(timeIntervalSince1970: 1_767_268_800) // 2026-01-01T12:00:00Z
 
     @Test func everyExampleFileDecodes() throws {
@@ -46,9 +56,18 @@ import Testing
         for file in files {
             let decoder = try #require(Self.decoders[file], "No decoder for \(file); add it to APIExamplesTests.decoders")
             let data = try Data(contentsOf: Self.examplesDirectory.appendingPathComponent(file))
-            #expect(throws: Never.self, "\(file)") { _ = try decoder(data) }
+            let decoded = try decoder(data)
+            #expect(Self.unknownEnums(in: decoded).isEmpty, "\(file) contains an unknown enum value")
         }
         #expect(Set(files) == Set(Self.decoders.keys), "Decoders listed for missing files")
+    }
+
+    @Test func datesRequireFractionalSeconds() throws {
+        let fractional = Data(#""2026-01-01T12:00:00.000Z""#.utf8)
+        let wholeSeconds = Data(#""2026-01-01T12:00:00Z""#.utf8)
+
+        #expect(throws: Never.self) { _ = try Self.decode(Date.self, fractional) }
+        #expect(throws: (any Error).self) { _ = try Self.decode(Date.self, wholeSeconds) }
     }
 
     @Test func session() throws {

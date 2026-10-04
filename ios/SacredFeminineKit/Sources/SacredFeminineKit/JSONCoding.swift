@@ -12,9 +12,6 @@ public enum APIJSON {
             if let date = try? Date(string, strategy: Date.ISO8601FormatStyle(includingFractionalSeconds: true)) {
                 return date
             }
-            if let date = try? Date(string, strategy: Date.ISO8601FormatStyle()) {
-                return date
-            }
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid ISO 8601 date: \(string)")
         }
         return decoder

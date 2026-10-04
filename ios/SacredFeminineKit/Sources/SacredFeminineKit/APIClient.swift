@@ -30,13 +30,7 @@ public struct APIClient: Sendable {
     /// Signs this device out on the server and forgets the token, even if the
     /// server call fails.
     public func signOut() async throws {
-        do {
-            try await sendWithoutResponse("DELETE", "session")
-        } catch {
-            await tokenStore.setToken(nil)
-            throw error
-        }
-        await tokenStore.setToken(nil)
+        try await sendWithoutResponse("DELETE", "session", clearAuthenticationAfterRequest: true)
     }
 
     // MARK: Devices
@@ -79,7 +73,10 @@ public struct APIClient: Sendable {
 
     /// Resolves a server-relative path, such as `User.avatarPath` or `Photo.path`.
     public func url(forPath path: String) -> URL? {
-        URL(string: path, relativeTo: baseURL)?.absoluteURL
+        guard let components = URLComponents(string: path), components.scheme == nil, components.host == nil else {
+            return nil
+        }
+        return URL(string: path, relativeTo: baseURL)?.absoluteURL
     }
 
     // MARK: Requests
@@ -109,27 +106,55 @@ public struct APIClient: Sendable {
         }
     }
 
-    private func sendWithoutResponse(_ method: String, _ path: String) async throws {
-        _ = try await perform(method, path, query: [], body: Empty?.none, authenticated: true)
+    private func sendWithoutResponse(
+        _ method: String, _ path: String, clearAuthenticationAfterRequest: Bool = false
+    ) async throws {
+        _ = try await perform(
+            method,
+            path,
+            query: [],
+            body: Empty?.none,
+            authenticated: true,
+            clearAuthenticationAfterRequest: clearAuthenticationAfterRequest
+        )
     }
 
     private func perform<Body: Encodable>(
-        _ method: String, _ path: String, query: [URLQueryItem], body: Body?, authenticated: Bool
+        _ method: String,
+        _ path: String,
+        query: [URLQueryItem],
+        body: Body?,
+        authenticated: Bool,
+        clearAuthenticationAfterRequest: Bool = false
     ) async throws -> Data {
         var request = try makeRequest(method, path, query: query)
         if let body {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try APIJSON.makeEncoder().encode(body)
         }
-        if authenticated, let token = await tokenStore.token() {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        let requestToken = authenticated ? await tokenStore.token() : nil
+        if let requestToken {
+            request.setValue("Bearer \(requestToken)", forHTTPHeaderField: "Authorization")
         }
 
-        let (data, response) = try await transport.send(request)
+        let result: (Data, HTTPURLResponse)
+        do {
+            result = try await transport.send(request)
+        } catch {
+            if clearAuthenticationAfterRequest, let requestToken {
+                await tokenStore.clearToken(ifMatches: requestToken)
+            }
+            throw error
+        }
+
+        let (data, response) = result
+        if clearAuthenticationAfterRequest, let requestToken {
+            await tokenStore.clearToken(ifMatches: requestToken)
+        }
         guard (200..<300).contains(response.statusCode) else {
             let error = Self.error(status: response.statusCode, data: data)
-            if authenticated, case .unauthorized = error {
-                await tokenStore.setToken(nil)
+            if authenticated, case .unauthorized = error, let requestToken {
+                await tokenStore.clearToken(ifMatches: requestToken)
             }
             throw error
         }

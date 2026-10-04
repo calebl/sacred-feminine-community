@@ -3,6 +3,7 @@
 public protocol TokenStore: Sendable {
     func token() async -> String?
     func setToken(_ token: String?) async
+    func clearToken(ifMatches token: String) async
 }
 
 public actor InMemoryTokenStore: TokenStore {
@@ -18,5 +19,11 @@ public actor InMemoryTokenStore: TokenStore {
 
     public func setToken(_ token: String?) {
         value = token
+    }
+
+    public func clearToken(ifMatches token: String) {
+        if value == token {
+            value = nil
+        }
     }
 }

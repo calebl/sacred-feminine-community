@@ -27,6 +27,38 @@ final class StubTransport: HTTPTransport, @unchecked Sendable {
     }
 }
 
+actor SuspendedTransport: HTTPTransport {
+    private let status: Int
+    private let data: Data
+    private var request: URLRequest?
+    private var requestWaiter: CheckedContinuation<Void, Never>?
+    private var responseContinuation: CheckedContinuation<Void, Never>?
+
+    init(status: Int, body: String = "") {
+        self.status = status
+        data = Data(body.utf8)
+    }
+
+    func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+        self.request = request
+        requestWaiter?.resume()
+        requestWaiter = nil
+        await withCheckedContinuation { responseContinuation = $0 }
+        let response = HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: nil)!
+        return (data, response)
+    }
+
+    func waitUntilRequested() async {
+        if request != nil { return }
+        await withCheckedContinuation { requestWaiter = $0 }
+    }
+
+    func respond() {
+        responseContinuation?.resume()
+        responseContinuation = nil
+    }
+}
+
 @Suite struct APIClientTests {
     let baseURL = URL(string: "https://community.example.com")!
 
@@ -158,6 +190,43 @@ final class StubTransport: HTTPTransport, @unchecked Sendable {
         #expect(await store.token() == nil)
     }
 
+    @Test func staleUnauthorizedDoesNotClearReplacementToken() async throws {
+        let transport = SuspendedTransport(status: 401, body: #"{"error": "Invalid or expired token."}"#)
+        let store = InMemoryTokenStore(token: "old")
+        let client = APIClient(baseURL: baseURL, tokenStore: store, transport: transport)
+
+        let request = Task { try await client.me() }
+        await transport.waitUntilRequested()
+        await store.setToken("replacement")
+        await transport.respond()
+
+        await #expect(throws: APIError.unauthorized(message: "Invalid or expired token.")) {
+            try await request.value
+        }
+        #expect(await store.token() == "replacement")
+    }
+
+    @Test(arguments: [204, 500])
+    func staleSignOutDoesNotClearReplacementToken(status: Int) async throws {
+        let transport = SuspendedTransport(status: status)
+        let store = InMemoryTokenStore(token: "old")
+        let client = APIClient(baseURL: baseURL, tokenStore: store, transport: transport)
+
+        let request = Task { try await client.signOut() }
+        await transport.waitUntilRequested()
+        await store.setToken("replacement")
+        await transport.respond()
+
+        if status == 204 {
+            try await request.value
+        } else {
+            await #expect(throws: APIError.unexpectedStatus(500, message: nil)) {
+                try await request.value
+            }
+        }
+        #expect(await store.token() == "replacement")
+    }
+
     @Test(arguments: [
         (400, APIError.badRequest(message: "m")),
         (403, APIError.forbidden(message: "m")),
@@ -185,8 +254,10 @@ final class StubTransport: HTTPTransport, @unchecked Sendable {
         }
     }
 
-    @Test func resolvesServerRelativePaths() {
+    @Test func resolvesOnlyServerRelativePaths() {
         let client = APIClient(baseURL: baseURL, tokenStore: InMemoryTokenStore())
         #expect(client.url(forPath: "/rails/active_storage/x.png")?.absoluteString == "https://community.example.com/rails/active_storage/x.png")
+        #expect(client.url(forPath: "https://elsewhere.example/x.png") == nil)
+        #expect(client.url(forPath: "//elsewhere.example/x.png") == nil)
     }
 }
