@@ -1,0 +1,29 @@
+/// Where the client keeps the bearer token between requests. Apps should use
+/// a Keychain-backed implementation; tests can use `InMemoryTokenStore`.
+public protocol TokenStore: Sendable {
+  func token() async -> String?
+  func setToken(_ token: String?) async
+  func clearToken(ifMatches token: String) async
+}
+
+public actor InMemoryTokenStore: TokenStore {
+  private var value: String?
+
+  public init(token: String? = nil) {
+    value = token
+  }
+
+  public func token() -> String? {
+    value
+  }
+
+  public func setToken(_ token: String?) {
+    value = token
+  }
+
+  public func clearToken(ifMatches token: String) {
+    if value == token {
+      value = nil
+    }
+  }
+}

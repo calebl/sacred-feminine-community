@@ -1,0 +1,30 @@
+name: iOS package
+
+on:
+  pull_request:
+    paths:
+      - "ios/**"
+      - "test/api_examples/**"
+      - ".github/workflows/ios-package.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - "test/api_examples/**"
+      - ".github/workflows/ios-package.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: swift build and test (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.4
+    defaults:
+      run:
+        working-directory: ios/SacredFeminineKit
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift build
+      - run: swift test
