@@ -26,7 +26,14 @@ Rails.application.routes.draw do
   namespace :account do
     resource :email, only: [ :edit, :update ]
     resource :password, only: [ :edit, :update ]
+    resource :deletion, only: [ :new, :create ]
   end
+
+  # Public pages
+  resource :privacy_policy, only: [ :show ], path: "privacy"
+
+  # Content reports (filed into the help desk)
+  resources :reports, only: [ :new, :create ]
 
   namespace :api do
     resources :map_pins, only: [ :index ]

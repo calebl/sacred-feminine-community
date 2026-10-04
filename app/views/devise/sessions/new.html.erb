@@ -55,6 +55,7 @@
           <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
             <%= link_to "Forgot your password?", new_password_path(resource_name), class: "text-sm text-sf-gold hover:text-sf-gold/80 transition" %>
           <% end %>
+          <p class="text-xs text-gray-400"><%= link_to "Privacy Policy", privacy_policy_path, class: "hover:text-sf-gold transition" %></p>
         </div>
       </div>
     </div>

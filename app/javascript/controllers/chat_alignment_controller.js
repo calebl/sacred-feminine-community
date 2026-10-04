@@ -28,6 +28,9 @@ export default class extends Controller {
     if (!senderId) return
     if (Number(senderId) === this.userIdValue) {
       element.classList.add("flex-row-reverse")
+      // Messages are broadcast to every participant with the same markup, so
+      // the sender's own copy drops the Report link here.
+      element.querySelector("[data-report-link]")?.remove()
     }
   }
 }

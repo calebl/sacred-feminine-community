@@ -1,5 +1,7 @@
 class HelpRequest < ApplicationRecord
   belongs_to :user
+  # Set when the request is a member's report of content (see ContentReport).
+  belongs_to :reportable, polymorphic: true, optional: true
   has_many :help_request_replies, dependent: :destroy
 
   enum :status, { open: 0, closed: 1 }

@@ -51,6 +51,7 @@ class User < ApplicationRecord
   has_many :post_reads, dependent: :destroy
   has_many :created_cohorts, class_name: "Cohort", foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
   has_many :faqs, foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
+  has_many :sent_bulk_invitations, class_name: "BulkInvitation", foreign_key: :invited_by_id, dependent: :destroy, inverse_of: :invited_by
 
   has_many :group_memberships, dependent: :destroy
   has_many :groups, -> { kept }, through: :group_memberships
@@ -70,6 +71,7 @@ class User < ApplicationRecord
   has_many :sent_direct_messages, class_name: "DirectMessage", foreign_key: :sender_id, dependent: :destroy, inverse_of: :sender
 
   has_many :notifications, dependent: :destroy
+  has_many :acted_notifications, class_name: "Notification", foreign_key: :actor_id, dependent: :destroy, inverse_of: :actor
   has_many :mentions, dependent: :destroy
   has_many :created_mentions, class_name: "Mention", foreign_key: :mentioner_id, dependent: :destroy, inverse_of: :mentioner
   has_many :reactions, dependent: :destroy
@@ -208,6 +210,36 @@ class User < ApplicationRecord
       (cohort_ids & sender.cohort_ids).any?
     when "nobody"
       false
+    end
+  end
+
+  # Self-service account deletion. Unlike an admin removal (a soft `discard`),
+  # this erases the member: their posts, comments, photos, messages, reactions,
+  # help requests and every audit row about or by them. Cohorts, groups and FAQs
+  # they created belong to the community, so they pass to another admin.
+  def destroy_account!
+    transaction do
+      successor = User.admin.kept.where.not(id: id).order(:id).first
+      community_records = [ created_cohorts, created_groups, faqs ]
+      if community_records.any?(&:exists?)
+        raise ActiveRecord::RecordNotDestroyed.new("No other admin can take over this account's cohorts and groups", self) unless successor
+
+        community_records.each { |records| records.update_all(created_by_id: successor.id) }
+      end
+
+      membership_audits = {
+        "CohortMembership" => cohort_memberships.ids,
+        "GroupMembership" => group_memberships.ids
+      }
+
+      destroy!
+
+      audits = Audited.audit_class
+      audits.where(auditable_type: "User", auditable_id: id).delete_all
+      audits.where(user_type: "User", user_id: id).delete_all
+      membership_audits.each do |type, ids|
+        audits.where(auditable_type: type, auditable_id: ids).delete_all
+      end
     end
   end
 

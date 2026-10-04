@@ -161,6 +161,14 @@
 
     <main class="flex-1 pb-20 md:pb-0">
       <%= content_for?(:content) ? yield(:content) : yield %>
+      <footer class="py-6 text-center text-xs text-gray-400 dark:text-gray-500 space-x-4">
+        <%= link_to "Privacy Policy", privacy_policy_path, class: "hover:text-sf-gold transition" %>
+        <% if user_signed_in? %>
+          <%= link_to "Contact Us", new_help_request_path, class: "hover:text-sf-gold transition" %>
+        <% else %>
+          <%= mail_to contact_email, "Contact Us", class: "hover:text-sf-gold transition" %>
+        <% end %>
+      </footer>
     </main>
 
     <%# Custom confirm dialog - replaces browser native confirm() %>

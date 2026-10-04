@@ -29,6 +29,19 @@ module ApplicationHelper
     result.html_safe
   end
 
+  # Where members and visitors can reach the people who run the community.
+  def contact_email
+    ENV.fetch("CONTACT_EMAIL", "community@sacredfeminine.com")
+  end
+
+  # "Report" link for content someone else wrote; nothing for the viewer's own.
+  def report_link(reportable, author:, **options)
+    return if author == current_user
+
+    link_to "Report", new_report_path(reportable_type: reportable.class.name, reportable_id: reportable.id),
+            data: { turbo_frame: "_top" }, **options
+  end
+
   def markdown(text)
     renderer = Redcarpet::Render::HTML.new(hard_wrap: true)
     Redcarpet::Markdown.new(renderer).render(text).html_safe

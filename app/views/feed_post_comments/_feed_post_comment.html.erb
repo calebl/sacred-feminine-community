@@ -8,14 +8,17 @@
           <%= link_to comment.user.name, profile_path(comment.user), class: "text-sm font-semibold text-sf-black dark:text-white hover:text-sf-gold transition" %>
           <span class="text-xs text-gray-400 dark:text-gray-500"><%= time_ago_in_words(comment.created_at) %> ago</span>
         </div>
-        <% if policy(comment).destroy? %>
-          <%= button_to feed_post_feed_post_comment_path(feed_post, comment),
-              method: :delete,
-              class: "text-xs text-red-400 hover:text-red-600 transition cursor-pointer",
-              data: { turbo_confirm: "Delete this reply?" } do %>
-            Delete
+        <div class="flex items-center gap-3">
+          <%= report_link comment, author: comment.user, class: "text-xs text-gray-400 hover:text-sf-red transition" %>
+          <% if policy(comment).destroy? %>
+            <%= button_to feed_post_feed_post_comment_path(feed_post, comment),
+                method: :delete,
+                class: "text-xs text-red-400 hover:text-red-600 transition cursor-pointer",
+                data: { turbo_confirm: "Delete this reply?" } do %>
+              Delete
+            <% end %>
           <% end %>
-        <% end %>
+        </div>
       </div>
       <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"><%= format_user_content(comment.body) %></p>
       <div data-controller="reply-form" class="mt-1">

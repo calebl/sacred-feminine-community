@@ -68,6 +68,7 @@
               class: "btn-danger px-5 py-2.5",
               data: { turbo_confirm: "Block #{@user.name}? You will no longer see each other's content or map pins, and they won't be able to message you." } %>
         <% end %>
+        <%= report_link @user, author: @user, class: "btn-secondary px-5 py-2.5" %>
       <% end %>
     </div>
 
