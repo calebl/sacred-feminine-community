@@ -54,10 +54,10 @@ module ApiExamples
   EXAMPLE_TIME = "2026-01-01T12:00:00.000Z"
   EXAMPLE_TOKEN = "example-api-token"
 
-  def write_api_example(name, json = response.parsed_body)
+  def write_api_example(name)
     DIR.mkpath
     @api_example_ids = {}
-    DIR.join("#{name}.json").write(JSON.pretty_generate(normalize_api_example(json)) + "\n")
+    DIR.join("#{name}.json").write(JSON.pretty_generate(normalize_api_example(response.parsed_body)) + "\n")
   end
 
   def api_headers(token)
