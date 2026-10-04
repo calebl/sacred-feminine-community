@@ -66,14 +66,16 @@ module ApiExamples
 
   private
 
-  def normalize_api_example(value, key = nil)
+  def normalize_api_example(value, key = nil, id_domain: nil)
     case value
-    when Hash then value.to_h { |k, v| [ k, normalize_api_example(v, k) ] }
+    when Hash
+      domain = api_example_domain(value)
+      value.to_h { |k, v| [ k, normalize_api_example(v, k, id_domain: (domain if k.to_s == "id")) ] }
     when Array then value.map { |v| normalize_api_example(v) }
     else
       if key.to_s.end_with?("_at") && value.present? then EXAMPLE_TIME
-      elsif value.is_a?(Integer) && api_example_id_key?(key.to_s)
-        @api_example_ids[value] ||= @api_example_ids.size + 1
+      elsif value.is_a?(Integer) && (domain = id_domain || api_example_reference_domain(key.to_s))
+        @api_example_ids[[ domain, value ]] ||= @api_example_ids.count { |(stored_domain, _), _| stored_domain == domain } + 1
       elsif key.to_s == "token" then EXAMPLE_TOKEN
       # Active Storage paths carry signed ids that change with every upload.
       elsif key.to_s.end_with?("path") && value.to_s.start_with?("/rails/active_storage/")
@@ -83,7 +85,21 @@ module ApiExamples
     end
   end
 
-  def api_example_id_key?(key)
-    key == "id" || key.end_with?("_id") || key == "next_cursor"
+  def api_example_domain(value)
+    if value.key?("post_id") then :comment
+    elsif value.key?("kind") then :post
+    elsif value.key?("email") || value.key?("role") || value.key?("bio") || value.key?("removed") then :user
+    elsif value.key?("content_type") && value.key?("path") then :attachment
+    elsif value.key?("name") && value.key?("created_at") then :device
+    else :record
+    end
+  end
+
+  def api_example_reference_domain(key)
+    case key
+    when "post_id", "next_cursor" then :post
+    when "parent_id" then :comment
+    when "user_id" then :user
+    end
   end
 end

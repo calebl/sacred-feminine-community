@@ -5,7 +5,7 @@
     "body": "Historical post",
     "mentions": [],
     "author": {
-      "id": 2,
+      "id": 1,
       "name": "Sarah Member",
       "role": null,
       "bio": null,
@@ -23,13 +23,13 @@
     "updated_at": "2026-01-01T12:00:00.000Z",
     "comments": [
       {
-        "id": 3,
+        "id": 1,
         "post_id": 1,
         "parent_id": null,
         "body": "Historical comment",
         "mentions": [],
         "author": {
-          "id": 4,
+          "id": 2,
           "name": "Jane Attendee",
           "role": null,
           "bio": null,

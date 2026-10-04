@@ -5,7 +5,7 @@
     "body": "A post visible to all community members.",
     "mentions": [],
     "author": {
-      "id": 2,
+      "id": 1,
       "name": "Admin User",
       "role": "admin",
       "bio": null,
@@ -29,13 +29,13 @@
     "updated_at": "2026-01-01T12:00:00.000Z",
     "comments": [
       {
-        "id": 3,
+        "id": 1,
         "post_id": 1,
         "parent_id": null,
         "body": "Great to have everyone here!",
         "mentions": [],
         "author": {
-          "id": 2,
+          "id": 1,
           "name": "Admin User",
           "role": "admin",
           "bio": null,
@@ -49,13 +49,13 @@
         "updated_at": "2026-01-01T12:00:00.000Z",
         "replies": [
           {
-            "id": 4,
+            "id": 2,
             "post_id": 1,
-            "parent_id": 3,
+            "parent_id": 1,
             "body": "Thanks for the feedback!",
             "mentions": [],
             "author": {
-              "id": 5,
+              "id": 2,
               "name": "Jane Attendee",
               "role": "attendee",
               "bio": null,
@@ -69,13 +69,13 @@
             "updated_at": "2026-01-01T12:00:00.000Z",
             "replies": [
               {
-                "id": 6,
+                "id": 3,
                 "post_id": 1,
-                "parent_id": 4,
+                "parent_id": 2,
                 "body": "You're welcome!",
                 "mentions": [],
                 "author": {
-                  "id": 2,
+                  "id": 1,
                   "name": "Admin User",
                   "role": "admin",
                   "bio": null,

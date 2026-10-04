@@ -6,7 +6,7 @@
       "body": "A feed post from a male cohort member.",
       "mentions": [],
       "author": {
-        "id": 2,
+        "id": 1,
         "name": "Michael Member",
         "role": "attendee",
         "bio": null,
@@ -24,12 +24,12 @@
       "updated_at": "2026-01-01T12:00:00.000Z"
     },
     {
-      "id": 3,
+      "id": 2,
       "kind": "feed",
       "body": "Hello everyone, excited to be here!",
       "mentions": [],
       "author": {
-        "id": 4,
+        "id": 2,
         "name": "Jane Attendee",
         "role": "attendee",
         "bio": null,
@@ -47,12 +47,12 @@
       "updated_at": "2026-01-01T12:00:00.000Z"
     },
     {
-      "id": 5,
+      "id": 3,
       "kind": "feed",
       "body": "Welcome to the community feed! Please introduce yourself.",
       "mentions": [],
       "author": {
-        "id": 6,
+        "id": 3,
         "name": "Admin User",
         "role": "admin",
         "bio": null,
@@ -70,12 +70,12 @@
       "updated_at": "2026-01-01T12:00:00.000Z"
     },
     {
-      "id": 7,
+      "id": 4,
       "kind": "feed",
       "body": "A post visible to all community members.",
       "mentions": [],
       "author": {
-        "id": 6,
+        "id": 3,
         "name": "Admin User",
         "role": "admin",
         "bio": null,

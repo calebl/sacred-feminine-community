@@ -5,7 +5,7 @@
     "body": "Hello everyone, excited to be here!",
     "mentions": [],
     "author": {
-      "id": 2,
+      "id": 1,
       "name": "Jane Attendee",
       "role": "attendee",
       "bio": null,
@@ -17,7 +17,7 @@
     "comment_count": 0,
     "photos": [
       {
-        "id": 3,
+        "id": 1,
         "content_type": "image/png",
         "path": "/rails/active_storage/blobs/redirect/example-signed-id/photo.png"
       }

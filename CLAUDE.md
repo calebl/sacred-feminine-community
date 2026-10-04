@@ -44,8 +44,8 @@ rake users:list
 ### Key Directories
 
 - `app/controllers/admin/` - Admin dashboard, invitation management
-- `app/controllers/api/` - JSON API endpoints (map pins)
-- `app/models/` - User, Cohort, CohortMembership, Conversation, ConversationParticipant, DirectMessage
+- `app/controllers/api/` - JSON endpoints for map pins and the versioned native app API
+- `app/models/` - User, Cohort, CohortMembership, Conversation, ConversationParticipant, DirectMessage, ApiToken
 - `app/policies/` - Pundit policies for all models
 - `app/jobs/` - GeocodeUserJob (async geocoding)
 
@@ -55,6 +55,7 @@ rake users:list
 - **Cohort** - Groups with memberships, created by an admin user
 - **DirectMessage** - Encrypted body, scoped to conversations
 - **Conversation** / **ConversationParticipant** - DM threading between users
+- **ApiToken** - Digested bearer tokens for native app device sessions
 
 ### Routes
 
@@ -63,6 +64,7 @@ rake users:list
 - `/conversations` - Direct message conversations with nested messages
 - `/profiles/:id` - User profiles (view/edit own)
 - `/map` - Interactive member map; `/api/map_pins` for pin data
+- `/api/v1` - Bearer-token native app API; endpoint details and contracts are documented in [FEATURES.md](FEATURES.md) and `test/api_examples/`
 - `/admin/dashboard` - Admin panel (admin role required)
 
 ### Auth & Authorization
