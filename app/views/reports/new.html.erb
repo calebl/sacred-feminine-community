@@ -19,8 +19,7 @@
     <% else %>
       <p class="text-sm text-gray-700 dark:text-gray-300 mb-6">
         Report this <%= @report.kind %> by <strong><%= @report.author.name %></strong> to the community admins.
-        Your report goes to the admin help desk with a link to the <%= @report.kind %>; <%= @report.author.name %> won't be told who reported it.
-        You can follow up on it under Help.
+        Your report goes to the admin help desk with a link to the <%= @report.kind %>. You can follow up on it under Help.
       </p>
 
       <%= form_with(scope: :report, url: reports_path, class: "space-y-6") do |f| %>
@@ -33,14 +32,7 @@
               placeholder: "For example: harassment, hateful content, spam" %>
         </div>
 
-        <div class="flex items-center gap-3 flex-wrap">
-          <%= f.submit "Send Report", class: "btn-danger" %>
-          <% unless @report.reportable.is_a?(User) %>
-            <span class="text-xs text-gray-500 dark:text-gray-400">
-              To stop seeing <%= @report.author.name %>'s content, you can also block them from <%= link_to "their profile", profile_path(@report.author), class: "text-sf-gold hover:underline" %>.
-            </span>
-          <% end %>
-        </div>
+        <%= f.submit "Send Report", class: "btn-danger" %>
       <% end %>
     <% end %>
   </div>

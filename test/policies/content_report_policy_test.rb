@@ -45,16 +45,22 @@ class ContentReportPolicyTest < ActiveSupport::TestCase
     assert_not allowed?(users.attendee, group_post_comments.admin_group_comment)
   end
 
-  test "hidden comments cannot be reported through any comment type" do
+  test "hidden comments and their visible-author replies cannot be reported" do
     reporter = users.attendee
-    author = users.attendee_two
-    comments = [
-      PostComment.create!(post: posts.attendee_post, user: author, body: "Hidden cohort comment"),
-      GroupPostComment.create!(group_post: group_posts.book_club_pinned, user: author, body: "Hidden group comment"),
-      FeedPostComment.create!(feed_post: feed_posts.public_post, user: author, body: "Hidden feed comment")
+    hidden_author = users.attendee_two
+    visible_author = users.admin
+    hidden_comments = [
+      PostComment.create!(post: posts.attendee_post, user: hidden_author, body: "Hidden cohort comment"),
+      GroupPostComment.create!(group_post: group_posts.book_club_pinned, user: hidden_author, body: "Hidden group comment"),
+      FeedPostComment.create!(feed_post: feed_posts.public_post, user: hidden_author, body: "Hidden feed comment")
     ]
-    reporter.user_blocks.create!(blocked: author)
+    replies = [
+      PostComment.create!(post: posts.attendee_post, user: visible_author, parent: hidden_comments[0], body: "Nested cohort reply"),
+      GroupPostComment.create!(group_post: group_posts.book_club_pinned, user: visible_author, parent: hidden_comments[1], body: "Nested group reply"),
+      FeedPostComment.create!(feed_post: feed_posts.public_post, user: visible_author, parent: hidden_comments[2], body: "Nested feed reply")
+    ]
+    reporter.user_blocks.create!(blocked: hidden_author)
 
-    comments.each { |comment| assert_not allowed?(reporter, comment) }
+    (hidden_comments + replies).each { |comment| assert_not allowed?(reporter, comment) }
   end
 end

@@ -23,13 +23,14 @@ class HelpRequest < ApplicationRecord
   private
 
   def notify_admins
+    notification_body = reportable_type.present? ? "#{user.name}: New content report" : "#{user.name}: #{subject}"
     User.admin.where.not(id: user_id).pluck(:id).each do |admin_id|
       CreateNotificationJob.perform_later(
         user_id: admin_id,
         actor_id: user_id,
         event_type: "help_request",
         title: "New Help Request",
-        body: "#{user.name}: #{subject}",
+        body: notification_body,
         path: "/help_requests/#{id}",
         notifiable_type: "HelpRequest",
         notifiable_id: id

@@ -79,21 +79,49 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
       message
     ]
     reports = reportables.map do |reportable|
+      report = ContentReport.new(reporter: users.attendee_two, reportable: reportable)
       HelpRequest.create!(
         user: users.attendee_two,
         reportable: reportable,
-        subject: "Report",
-        body: "Copied private words",
-        reported_snapshot: reportable.is_a?(DirectMessage) ? "Encrypted private words" : nil
+        subject: report.subject,
+        body: "Reason:\nKeep this reason",
+        reported_snapshot: "Copied private words"
       )
     end
+    notifications = [
+      Notification.create!(
+        user: users.admin,
+        actor: users.attendee_two,
+        event_type: "help_request",
+        title: "New Help Request",
+        body: "Sarah Member: #{reports.first.subject}",
+        path: "/help_requests/#{reports.first.id}",
+        notifiable: reports.first
+      ),
+      Notification.create!(
+        user: users.admin,
+        actor: users.attendee_two,
+        event_type: "help_request_reply",
+        title: "Help Request Reply",
+        body: "Sarah Member replied to: #{reports.first.subject}",
+        path: "/help_requests/#{reports.first.id}",
+        notifiable: reports.first
+      )
+    ]
 
     @user.destroy_account!
 
     reports.each do |report|
       report.reload
-      assert_equal ContentReport::DELETED_CONTENT_MARKER, report.body
+      assert_equal "Reason:\nKeep this reason", report.body
+      assert_match(/by deleted member\z/, report.subject)
+      assert_not_includes report.subject, @user.name
       assert_nil report.reported_snapshot
+    end
+    notifications.each do |notification|
+      notification.reload
+      assert_not_includes notification.body, @user.name
+      assert_includes notification.body, "by deleted member"
     end
   end
 

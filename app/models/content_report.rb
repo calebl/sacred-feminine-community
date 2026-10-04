@@ -11,7 +11,7 @@ class ContentReport
 
   EXCERPT_LENGTH = 500
   REASON_LENGTH = 2000
-  DELETED_CONTENT_MARKER = "Content deleted by its author."
+  NO_REASON = "No reason provided."
 
   attr_accessor :reporter, :reportable, :reason
 
@@ -37,8 +37,14 @@ class ContentReport
 
   def self.redact_authored_by!(author)
     reportable_ids_by_type(author).each do |type, ids|
-      HelpRequest.where(reportable_type: type, reportable_id: ids)
-        .update_all(body: DELETED_CONTENT_MARKER, reported_snapshot: nil)
+      HelpRequest.where(reportable_type: type, reportable_id: ids).find_each do |report|
+        old_subject = report.subject
+        new_subject = "Report: #{kind_for_type(type)} by deleted member"
+        report.update_columns(subject: new_subject, reported_snapshot: nil)
+        Notification.where(notifiable_type: "HelpRequest", notifiable_id: report.id).find_each do |notification|
+          notification.update_columns(body: notification.body.sub(old_subject, new_subject))
+        end
+      end
     end
   end
 
@@ -51,10 +57,14 @@ class ContentReport
   end
 
   def kind
-    case reportable
-    when User then "profile"
-    when DirectMessage then "message"
-    when PostComment, GroupPostComment, FeedPostComment then "comment"
+    self.class.kind_for_type(reportable.class.name)
+  end
+
+  def self.kind_for_type(type)
+    case type
+    when "User" then "profile"
+    when "DirectMessage" then "message"
+    when "PostComment", "GroupPostComment", "FeedPostComment" then "comment"
     else "post"
     end
   end
@@ -116,18 +126,16 @@ class ContentReport
   end
 
   def reported_snapshot
-    return unless reportable.is_a?(DirectMessage)
+    text = reportable.is_a?(User) ? reportable.bio : reportable.try(:body)
+    return if text.blank?
 
-    reportable.body.gsub(Mentionable::MENTION_PATTERN) { "@#{$1}" }.truncate(EXCERPT_LENGTH)
+    text.gsub(Mentionable::MENTION_PATTERN) { "@#{$1}" }.truncate(EXCERPT_LENGTH)
   end
 
   def body
-    lines = [ "#{reporter.name} reported a #{kind} by #{author.name} (profile: #{self.class.path_for(author)})." ]
+    lines = []
     lines << "Link: #{path}" if path
-    if !reportable.is_a?(DirectMessage) && (text = reportable.try(:body)).present?
-      lines << "Reported text:\n#{text.gsub(Mentionable::MENTION_PATTERN) { "@#{$1}" }.truncate(EXCERPT_LENGTH)}"
-    end
-    lines << "Reason:\n#{reason.strip.truncate(REASON_LENGTH)}" if reason.present?
+    lines << (reason.present? ? "Reason:\n#{reason.strip.truncate(REASON_LENGTH)}" : NO_REASON)
     lines.join("\n\n")
   end
 end

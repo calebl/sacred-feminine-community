@@ -25,13 +25,23 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Report: post by #{feed_post.user.name}", request.subject
     assert_match feed_post_path(feed_post), request.body
     assert_match "Spam", request.body
+    assert_not_includes request.body, feed_post.body
+    assert_equal feed_post.body, request.reported_snapshot
+    assert_not_includes request.read_attribute_before_type_cast(:reported_snapshot), feed_post.body
+    notification_bodies = enqueued_jobs
+      .select { |job| job["job_class"] == "CreateNotificationJob" }
+      .map { |job| job["arguments"].first["body"] }
+    assert notification_bodies.all? { |body| body == "#{@reporter.name}: New content report" }
     assert_redirected_to help_request_path(request)
   end
 
   test "a second report of the same item appends its reason to the open one" do
     reportable = users.attendee_two
+    reportable.update!(bio: "Profile details")
     post reports_path, params: { report: { reportable_type: "User", reportable_id: reportable.id, reason: "First reason" } }
     request = HelpRequest.order(:id).last
+    assert_equal "Profile details", request.reported_snapshot
+    assert_not_includes request.body, "Profile details"
 
     assert_no_difference -> { HelpRequest.count } do
       post reports_path, params: { report: { reportable_type: "User", reportable_id: reportable.id, reason: "New reason" } }
@@ -41,7 +51,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Additional reason:\nNew reason", request.body
   end
 
-  test "stores a direct message snapshot encrypted and shows it only to admins" do
+  test "shows an encrypted direct message snapshot only to admins" do
     message = conversations.admin_attendee_convo.direct_messages.create!(sender: users.admin, body: "Something unkind")
 
     post reports_path, params: { report: { reportable_type: "DirectMessage", reportable_id: message.id } }
@@ -73,12 +83,17 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_includes HelpRequest.order(:id).last.body, "Later reason"
   end
 
-  test "reports a comment" do
+  test "stores a comment copy only in the encrypted snapshot" do
     comment = post_comments.admin_comment
 
     assert_difference -> { HelpRequest.count }, 1 do
       post reports_path, params: { report: { reportable_type: "PostComment", reportable_id: comment.id } }
     end
+
+    request = HelpRequest.order(:id).last
+    assert_equal comment.body, request.reported_snapshot
+    assert_not_includes request.body, comment.body
+    assert_not_includes request.read_attribute_before_type_cast(:reported_snapshot), comment.body
   end
 
   test "cannot report your own content" do

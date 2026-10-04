@@ -58,6 +58,26 @@ class HelpRequestRepliesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @help_request.user_id, args["user_id"]
   end
 
+  test "report reply notifications do not copy the reported author's identity" do
+    report = HelpRequest.create!(
+      user: @attendee,
+      reportable: users.admin_two,
+      subject: "Report: profile by #{users.admin_two.name}",
+      body: "Reason: spam"
+    )
+    sign_in @admin
+
+    post help_request_help_request_replies_path(report), params: { help_request_reply: { body: "We will review this" } }
+
+    job = enqueued_jobs.find do |queued|
+      queued["job_class"] == "CreateNotificationJob" &&
+        queued["arguments"].first["event_type"] == "help_request_reply"
+    end
+    body = job["arguments"].first["body"]
+    assert_equal "#{@admin.name} replied to: content report", body
+    assert_not_includes body, users.admin_two.name
+  end
+
   test "attendee reply notifies admins who have replied" do
     sign_in @attendee
     # open_request has one admin reply (from :admin), so only that admin is notified

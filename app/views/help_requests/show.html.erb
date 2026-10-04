@@ -32,7 +32,7 @@
 
   <% if current_user.admin? && @help_request.reported_snapshot.present? %>
     <div class="mt-4 prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
-      <strong>Reported message:</strong>
+      <strong>Reported content:</strong>
       <%= simple_format(@help_request.reported_snapshot) %>
     </div>
   <% end %>
