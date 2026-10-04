@@ -31,7 +31,8 @@ class ConversationsController < ApplicationController
     return unless recipients
 
     message = Conversation.send_message(from: current_user, recipients: recipients.to_a, body: params[:body])
-    if message.errors.added?(:base, :recipients_refused)
+    if message.errors.added?(:base, :recipients_refused) ||
+        message.errors.added?(:base, :sender_unavailable)
       skip_authorization
       redirect_back fallback_location: new_conversation_path, alert: message.errors.full_messages.first
       return

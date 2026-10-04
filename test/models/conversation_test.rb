@@ -162,6 +162,27 @@ class ConversationTest < ActiveSupport::TestCase
     end
   end
 
+  test "send_message rejects a removed sender in an existing conversation" do
+    sender = users.admin
+    conversation = conversations.admin_attendee_convo
+    User.find(sender.id).discard!
+
+    assert_no_difference "DirectMessage.count" do
+      message = Conversation.send_message(from: sender, conversation: conversation, body: "Hello")
+      assert message.errors.added?(:base, :sender_unavailable)
+    end
+  end
+
+  test "send_message rejects a removed sender before creating a conversation" do
+    sender = users.attendee
+    User.find(sender.id).discard!
+
+    assert_no_difference [ "Conversation.count", "DirectMessage.count" ] do
+      message = Conversation.send_message(from: sender, recipients: [ users.attendee_two ], body: "Hello")
+      assert message.errors.added?(:base, :sender_unavailable)
+    end
+  end
+
   test "send_message rejects a removed participant" do
     convo = Conversation.between(users.admin, users.attendee, users.attendee_two)
     users.attendee.discard!

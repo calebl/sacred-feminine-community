@@ -47,6 +47,12 @@ class Conversation < ApplicationRecord
       starting_conversation = conversation.nil?
       from = User.find(from.id)
 
+      if from.discarded?
+        message = (conversation || new).direct_messages.build(sender: from, body: body)
+        message.errors.add(:base, :sender_unavailable, message: "Message could not be sent.")
+        next message
+      end
+
       if starting_conversation
         recipient_ids = Array(recipients).map(&:id)
         recipients_by_id = User.where(id: recipient_ids).index_by(&:id)
