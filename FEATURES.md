@@ -149,6 +149,7 @@
 - **Feed** - `GET /api/v1/feed` lists feed posts newest first with cursor paging (`before`, `limit`, `next_cursor`); `GET /api/v1/feed/:id` returns one post with its nested comments. Uses the same Pundit scopes as the website, so blocks and the cohort gender filter apply; historical content from removed authors keeps their name and avatar but redacts profile details
 - **Token isolation** - API tokens are accepted only under `/api/v1`, and the API ignores the website's cookie session
 - **Contract examples** - Request tests write example responses to `test/api_examples/v1/` for the app's decoding tests
+- **Swift package** - `ios/SacredFeminineKit` holds the iPhone app's models, API client and typed errors; its tests (run on Linux and macOS, and in CI when `ios/` or the examples change) decode every example file
 
 ## Real-time Features
 - **Turbo Streams** - DMs broadcast in real-time without page reload
