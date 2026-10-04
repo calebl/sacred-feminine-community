@@ -123,6 +123,7 @@ class ConversationTest < ActiveSupport::TestCase
   test "send_message reloads a blocked new-conversation recipient" do
     sender = users.attendee
     recipient = users.attendee_two
+    UserBlock.where(blocker: sender, blocked: recipient).delete_all
     recipient.update!(dm_privacy: :everyone)
     assert recipient.accepts_direct_messages_from?(sender)
     UserBlock.create!(blocker: recipient, blocked: sender)
@@ -136,6 +137,7 @@ class ConversationTest < ActiveSupport::TestCase
   test "send_message reloads new-conversation recipient privacy" do
     sender = users.attendee
     recipient = users.attendee_two
+    UserBlock.where(blocker: sender, blocked: recipient).delete_all
     recipient.update!(dm_privacy: :everyone)
     assert recipient.accepts_direct_messages_from?(sender)
     User.find(recipient.id).update!(dm_privacy: :nobody)
@@ -149,6 +151,7 @@ class ConversationTest < ActiveSupport::TestCase
   test "send_message reloads a removed new-conversation recipient" do
     sender = users.attendee
     recipient = users.attendee_two
+    UserBlock.where(blocker: sender, blocked: recipient).delete_all
     recipient.update!(dm_privacy: :everyone)
     assert recipient.accepts_direct_messages_from?(sender)
     User.find(recipient.id).discard!
