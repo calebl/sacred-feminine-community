@@ -66,63 +66,21 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
     assert Faq.where(created_by_id: users.admin_two.id).exists?
   end
 
-  test "redacts retained reports about every kind of authored content" do
-    message = conversations.admin_attendee_convo.direct_messages.create!(sender: @user, body: "Private words")
-    reportables = [
-      @user,
-      posts.attendee_post,
-      @user.post_comments.first,
-      group_posts.book_club_pinned,
-      @user.group_post_comments.first,
-      feed_posts.attendee_feed_post,
-      @user.feed_post_comments.first,
-      message
-    ]
-    reports = reportables.map do |reportable|
-      report = ContentReport.new(reporter: users.attendee_two, reportable: reportable)
-      HelpRequest.create!(
-        user: users.attendee_two,
-        reportable: reportable,
-        subject: report.subject,
-        body: "Reason:\nKeep this reason",
-        reported_snapshot: "Copied private words"
-      )
-    end
-    notifications = [
-      Notification.create!(
-        user: users.admin,
-        actor: users.attendee_two,
-        event_type: "help_request",
-        title: "New Help Request",
-        body: "Sarah Member: #{reports.first.subject}",
-        path: "/help_requests/#{reports.first.id}",
-        notifiable: reports.first
-      ),
-      Notification.create!(
-        user: users.admin,
-        actor: users.attendee_two,
-        event_type: "help_request_reply",
-        title: "Help Request Reply",
-        body: "Sarah Member replied to: #{reports.first.subject}",
-        path: "/help_requests/#{reports.first.id}",
-        notifiable: reports.first
-      )
-    ]
+  test "retained reports keep reasons but no copy of deleted content" do
+    post = posts.attendee_post
+    report = ContentReport.new(
+      reporter: users.attendee_two,
+      reportable: post,
+      reason: "Keep this reason"
+    ).submit
 
     @user.destroy_account!
 
-    reports.each do |report|
-      report.reload
-      assert_equal "Reason:\nKeep this reason", report.body
-      assert_match(/by deleted member\z/, report.subject)
-      assert_not_includes report.subject, @user.name
-      assert_nil report.reported_snapshot
-    end
-    notifications.each do |notification|
-      notification.reload
-      assert_not_includes notification.body, @user.name
-      assert_includes notification.body, "by deleted member"
-    end
+    report.reload
+    assert_equal "Report: post", report.subject
+    assert_includes report.body, "Keep this reason"
+    assert_not_includes report.body, post.body
+    assert_nil report.reportable
   end
 
   test "refuses to delete the only remaining admin" do

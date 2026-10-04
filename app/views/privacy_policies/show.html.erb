@@ -20,7 +20,7 @@
         <li><strong>Your settings:</strong> who may message or mention you, your cohort gender preference, your notification and email preferences, and your colour theme.</li>
         <li><strong>What you share:</strong> posts, comments and replies in cohorts, groups and the community feed, the photos you attach, your reactions and @mentions, the groups and cohorts you belong to, and what you have read.</li>
         <li><strong>Private messages:</strong> the messages you send and receive. Message text is encrypted when it is stored on our servers. Community admins cannot read your conversations in the site.</li>
-        <li><strong>Help requests and reports:</strong> help requests you send to the admins, their replies, and reports you file about content. Report reasons and links are stored in the help request; a separate encrypted copy of the reported text or profile bio is shown only to admins.</li>
+        <li><strong>Help requests and reports:</strong> help requests you send to the admins, their replies, and reports you file about content. Reports store the reporter, their reasons and a link to the reported item, but no copy of its content.</li>
         <li><strong>Blocks:</strong> the members you have blocked.</li>
         <li><strong>Notifications:</strong> the notifications we show you and, if you turn on push notifications, the address your browser gives us for delivering them.</li>
         <li><strong>Account history:</strong> a log of changes to your account (such as name, email, role and profile changes) and to cohort and group memberships, with the time and the network (IP) address the change came from.</li>
@@ -52,21 +52,23 @@
     <section class="space-y-2">
       <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white">Deleting your account</h2>
       <p>
-        You can delete your account at any time from your profile, under <strong>Account Settings &rarr; Delete my account</strong>.
+        You can delete your account from your profile, under <strong>Account Settings &rarr; Delete my account</strong>.
         Deleting it permanently erases your account and everything you shared: your profile and photo, your posts, comments and their photos, the messages you sent, your reactions, notifications, help requests, blocks and your account history.
-        Cohorts, groups and FAQs that an admin created stay in the community. Reports that other members filed about your content stay with the admins, but your copied content and identity are removed while the reporters' reasons remain.
-        Copies in our backups and logs are overwritten over time.
+        Cohorts, groups and FAQs that an admin created stay in the community. Reports that other members filed stay with the admins because they contain only the reporter's reasons and a link to content that is deleted with your account.
+        The only remaining admin must make someone else an admin before deleting their account. Copies in our backups and logs are overwritten over time.
       </p>
       <p>
-        If an admin removes you from the community instead, your account is switched off but your information is kept. You can ask us to delete it at the address below.
+        If an admin removes you from the community instead, your account is switched off but your information is kept. You can ask the community admins to delete it.
       </p>
     </section>
 
     <section class="space-y-2">
       <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white">Contact us</h2>
       <p>
-        Members can reach the admins through <strong>Help</strong> in the site. Anyone can email us at
-        <%= mail_to contact_email, contact_email, class: "text-sf-gold hover:underline" %> with questions about this policy or their information.
+        Members can reach the admins through <strong>Help</strong> in the site.
+        <% if contact_email.present? %>
+          Anyone can email us at <%= mail_to contact_email, contact_email, class: "text-sf-gold hover:underline" %> with questions about this policy or their information.
+        <% end %>
       </p>
     </section>
   </div>

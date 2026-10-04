@@ -31,7 +31,7 @@ module ApplicationHelper
 
   # Where members and visitors can reach the people who run the community.
   def contact_email
-    ENV.fetch("CONTACT_EMAIL", "community@sacredfeminine.com")
+    ENV["CONTACT_EMAIL"].presence
   end
 
   # "Report" link for content someone else wrote; nothing for the viewer's own.

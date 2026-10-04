@@ -165,7 +165,7 @@
         <%= link_to "Privacy Policy", privacy_policy_path, class: "hover:text-sf-gold transition" %>
         <% if user_signed_in? %>
           <%= link_to "Contact Us", new_help_request_path, class: "hover:text-sf-gold transition" %>
-        <% else %>
+        <% elsif contact_email.present? %>
           <%= mail_to contact_email, "Contact Us", class: "hover:text-sf-gold transition" %>
         <% end %>
       </footer>

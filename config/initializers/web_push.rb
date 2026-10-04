@@ -20,8 +20,9 @@ rescue ActiveSupport::MessageEncryptor::InvalidMessage
   { subject: nil, public_key: nil, private_key: nil }
 end
 
+vapid_email = vapid_from_credentials[:subject].presence || ENV["CONTACT_EMAIL"].presence
 Rails.application.config.vapid = {
-  subject: "mailto:#{vapid_from_credentials[:subject] || "admin@sacredfeminine.community"}",
+  subject: vapid_email ? "mailto:#{vapid_email}" : "https://#{ENV.fetch("APP_HOST", "localhost")}",
   public_key: vapid_from_credentials[:public_key],
   private_key: vapid_from_credentials[:private_key]
 }

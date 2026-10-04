@@ -62,7 +62,7 @@ class HelpRequestRepliesControllerTest < ActionDispatch::IntegrationTest
     report = HelpRequest.create!(
       user: @attendee,
       reportable: users.admin_two,
-      subject: "Report: profile by #{users.admin_two.name}",
+      subject: "Report: profile",
       body: "Reason: spam"
     )
     sign_in @admin
@@ -74,7 +74,7 @@ class HelpRequestRepliesControllerTest < ActionDispatch::IntegrationTest
         queued["arguments"].first["event_type"] == "help_request_reply"
     end
     body = job["arguments"].first["body"]
-    assert_equal "#{@admin.name} replied to: content report", body
+    assert_equal "#{@admin.name} replied to: Report: profile", body
     assert_not_includes body, users.admin_two.name
   end
 

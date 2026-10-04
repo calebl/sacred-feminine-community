@@ -270,7 +270,6 @@ ActiveRecord::Schema[8.2].define(version: 2026_10_03_000001) do
     t.integer "help_request_replies_count", default: 0, null: false
     t.integer "reportable_id"
     t.string "reportable_type"
-    t.text "reported_snapshot"
     t.integer "status", default: 0, null: false
     t.string "subject", null: false
     t.datetime "updated_at", null: false

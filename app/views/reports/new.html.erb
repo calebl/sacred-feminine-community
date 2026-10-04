@@ -1,5 +1,5 @@
 <div class="max-w-2xl mx-auto px-4 py-8">
-  <%= render "shared/back_header", path: @report.path || conversation_path(@report.reportable.conversation_id), title: "Report #{@report.kind.capitalize}" %>
+  <%= render "shared/back_header", path: @report.path, title: "Report #{@report.kind.capitalize}" %>
 
   <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8">
     <% if (existing = @report.open_report) %>

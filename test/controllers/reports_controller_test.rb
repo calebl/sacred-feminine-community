@@ -22,16 +22,15 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     request = HelpRequest.order(:id).last
     assert_equal @reporter, request.user
     assert_equal feed_post, request.reportable
-    assert_match "Report: post by #{feed_post.user.name}", request.subject
+    assert_equal "Report: post", request.subject
     assert_match feed_post_path(feed_post), request.body
     assert_match "Spam", request.body
     assert_not_includes request.body, feed_post.body
-    assert_equal feed_post.body, request.reported_snapshot
-    assert_not_includes request.read_attribute_before_type_cast(:reported_snapshot), feed_post.body
     notification_bodies = enqueued_jobs
       .select { |job| job["job_class"] == "CreateNotificationJob" }
       .map { |job| job["arguments"].first["body"] }
-    assert notification_bodies.all? { |body| body == "#{@reporter.name}: New content report" }
+    assert_not_empty notification_bodies
+    assert notification_bodies.all? { |body| body == "#{@reporter.name}: Report: post" }
     assert_redirected_to help_request_path(request)
   end
 
@@ -40,7 +39,6 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     reportable.update!(bio: "Profile details")
     post reports_path, params: { report: { reportable_type: "User", reportable_id: reportable.id, reason: "First reason" } }
     request = HelpRequest.order(:id).last
-    assert_equal "Profile details", request.reported_snapshot
     assert_not_includes request.body, "Profile details"
 
     assert_no_difference -> { HelpRequest.count } do
@@ -51,22 +49,14 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Additional reason:\nNew reason", request.body
   end
 
-  test "shows an encrypted direct message snapshot only to admins" do
+  test "reports a direct message without copying its text" do
     message = conversations.admin_attendee_convo.direct_messages.create!(sender: users.admin, body: "Something unkind")
 
     post reports_path, params: { report: { reportable_type: "DirectMessage", reportable_id: message.id } }
 
     request = HelpRequest.order(:id).last
     assert_not_includes request.body, "Something unkind"
-    assert_equal "Something unkind", request.reported_snapshot
-    assert_not_includes request.read_attribute_before_type_cast(:reported_snapshot), "Something unkind"
-
-    get help_request_path(request)
-    assert_select "body", text: /Something unkind/, count: 0
-
-    sign_in users.admin
-    get help_request_path(request)
-    assert_select "body", text: /Something unkind/
+    assert_includes request.body, conversation_path(message.conversation)
   end
 
   test "a new report is created when the earlier report is closed" do
@@ -83,7 +73,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_includes HelpRequest.order(:id).last.body, "Later reason"
   end
 
-  test "stores a comment copy only in the encrypted snapshot" do
+  test "reports a comment without copying its text" do
     comment = post_comments.admin_comment
 
     assert_difference -> { HelpRequest.count }, 1 do
@@ -91,9 +81,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     end
 
     request = HelpRequest.order(:id).last
-    assert_equal comment.body, request.reported_snapshot
     assert_not_includes request.body, comment.body
-    assert_not_includes request.read_attribute_before_type_cast(:reported_snapshot), comment.body
   end
 
   test "cannot report your own content" do

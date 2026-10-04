@@ -23,14 +23,13 @@ class HelpRequestReply < ApplicationRecord
         .distinct.pluck(:user_id)
     end
 
-    request_label = help_request.reportable_type.present? ? "content report" : help_request.subject
     recipient_ids.each do |rid|
       CreateNotificationJob.perform_later(
         user_id: rid,
         actor_id: user_id,
         event_type: "help_request_reply",
         title: "Help Request Reply",
-        body: "#{user.name} replied to: #{request_label}",
+        body: "#{user.name} replied to: #{help_request.subject}",
         path: "/help_requests/#{help_request_id}",
         notifiable_type: "HelpRequest",
         notifiable_id: help_request_id

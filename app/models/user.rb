@@ -231,8 +231,6 @@ class User < ApplicationRecord
         community_records.each { |records| records.update_all(created_by_id: successor.id) }
       end
 
-      ContentReport.redact_authored_by!(self)
-
       membership_audits = {
         "CohortMembership" => cohort_memberships.ids,
         "GroupMembership" => group_memberships.ids

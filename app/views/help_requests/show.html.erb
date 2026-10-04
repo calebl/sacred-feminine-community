@@ -30,13 +30,6 @@
     <%= simple_format(@help_request.body) %>
   </div>
 
-  <% if current_user.admin? && @help_request.reported_snapshot.present? %>
-    <div class="mt-4 prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
-      <strong>Reported content:</strong>
-      <%= simple_format(@help_request.reported_snapshot) %>
-    </div>
-  <% end %>
-
   <% if @help_request.reportable_type.present? %>
     <% reported_path = @help_request.reportable && ContentReport.path_for(@help_request.reportable) %>
     <p class="mt-4 text-sm">

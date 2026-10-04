@@ -1,6 +1,5 @@
-class AddEncryptedReportSnapshotToHelpRequests < ActiveRecord::Migration[8.2]
+class AddOpenReportIndexToHelpRequests < ActiveRecord::Migration[8.2]
   def change
-    add_column :help_requests, :reported_snapshot, :text
     add_index :help_requests,
       [ :user_id, :reportable_type, :reportable_id ],
       unique: true,
