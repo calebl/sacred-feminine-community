@@ -9,10 +9,19 @@ public enum APIJSON {
         decoder.dateDecodingStrategy = .custom { decoder in
             let container = try decoder.singleValueContainer()
             let string = try container.decode(String.self)
-            if let date = try? Date(string, strategy: Date.ISO8601FormatStyle(includingFractionalSeconds: true)) {
-                return date
+            let timeStart = string.firstIndex(of: "T") ?? string.endIndex
+            let fractionStart = string[timeStart...].firstIndex(of: ".")
+                .map { string.index(after: $0) } ?? string.endIndex
+            let fractionEnd = string[fractionStart...].firstIndex { $0 == "Z" || $0 == "+" || $0 == "-" }
+                ?? string.endIndex
+            let fraction = string[fractionStart..<fractionEnd]
+
+            guard !fraction.isEmpty,
+                  fraction.allSatisfy(\.isNumber),
+                  let date = try? Date(string, strategy: Date.ISO8601FormatStyle(includingFractionalSeconds: true)) else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid ISO 8601 date: \(string)")
             }
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid ISO 8601 date: \(string)")
+            return date
         }
         return decoder
     }
