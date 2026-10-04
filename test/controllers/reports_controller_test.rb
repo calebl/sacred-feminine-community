@@ -41,12 +41,36 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Additional reason:\nNew reason", request.body
   end
 
-  test "reports a direct message with its text" do
+  test "stores a direct message snapshot encrypted and shows it only to admins" do
     message = conversations.admin_attendee_convo.direct_messages.create!(sender: users.admin, body: "Something unkind")
 
     post reports_path, params: { report: { reportable_type: "DirectMessage", reportable_id: message.id } }
 
-    assert_match "Something unkind", HelpRequest.order(:id).last.body
+    request = HelpRequest.order(:id).last
+    assert_not_includes request.body, "Something unkind"
+    assert_equal "Something unkind", request.reported_snapshot
+    assert_not_includes request.read_attribute_before_type_cast(:reported_snapshot), "Something unkind"
+
+    get help_request_path(request)
+    assert_select "body", text: /Something unkind/, count: 0
+
+    sign_in users.admin
+    get help_request_path(request)
+    assert_select "body", text: /Something unkind/
+  end
+
+  test "a new report is created when the earlier report is closed" do
+    reportable = users.attendee_two
+    post reports_path, params: { report: { reportable_type: "User", reportable_id: reportable.id, reason: "First reason" } }
+    first_request = HelpRequest.order(:id).last
+    first_request.closed!
+
+    assert_difference -> { HelpRequest.count }, 1 do
+      post reports_path, params: { report: { reportable_type: "User", reportable_id: reportable.id, reason: "Later reason" } }
+    end
+
+    assert_not_includes first_request.reload.body, "Later reason"
+    assert_includes HelpRequest.order(:id).last.body, "Later reason"
   end
 
   test "reports a comment" do

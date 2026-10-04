@@ -9,6 +9,14 @@ class ContentReportPolicyTest < ActiveSupport::TestCase
     assert allowed?(users.attendee, users.attendee_two)
   end
 
+  test "members can report a profile they blocked" do
+    reporter = users.attendee
+    profile = users.attendee_two
+    reporter.user_blocks.create!(blocked: profile)
+
+    assert allowed?(reporter, profile)
+  end
+
   test "nobody can report themselves" do
     assert_not allowed?(users.attendee, users.attendee)
   end
@@ -23,6 +31,18 @@ class ContentReportPolicyTest < ActiveSupport::TestCase
 
     assert allowed?(users.attendee, comment)
     assert_not allowed?(users.attendee_two, comment)
+  end
+
+  test "posts and comments in discarded containers cannot be reported" do
+    cohort = cohorts.kabul_retreat
+    group = groups.book_club
+    cohort.discard!
+    group.discard!
+
+    assert_not allowed?(users.attendee, posts.pinned_announcement)
+    assert_not allowed?(users.attendee, post_comments.admin_comment)
+    assert_not allowed?(users.attendee, group_posts.book_club_post)
+    assert_not allowed?(users.attendee, group_post_comments.admin_group_comment)
   end
 
   test "hidden comments cannot be reported through any comment type" do

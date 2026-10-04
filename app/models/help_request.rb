@@ -4,6 +4,8 @@ class HelpRequest < ApplicationRecord
   belongs_to :reportable, polymorphic: true, optional: true
   has_many :help_request_replies, dependent: :destroy
 
+  encrypts :reported_snapshot
+
   enum :status, { open: 0, closed: 1 }
 
   validates :subject, presence: true

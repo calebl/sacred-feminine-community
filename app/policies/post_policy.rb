@@ -1,6 +1,6 @@
 class PostPolicy < ApplicationPolicy
   def show?
-    user.admin? || record.cohort.member?(user)
+    record.cohort.kept? && (user.admin? || record.cohort.member?(user))
   end
 
   def create?

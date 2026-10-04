@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_10_03_000000) do
+ActiveRecord::Schema[8.2].define(version: 2026_10_03_000001) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -270,11 +270,13 @@ ActiveRecord::Schema[8.2].define(version: 2026_10_03_000000) do
     t.integer "help_request_replies_count", default: 0, null: false
     t.integer "reportable_id"
     t.string "reportable_type"
+    t.text "reported_snapshot"
     t.integer "status", default: 0, null: false
     t.string "subject", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["reportable_type", "reportable_id"], name: "index_help_requests_on_reportable"
+    t.index ["user_id", "reportable_type", "reportable_id"], name: "index_help_requests_on_open_report", unique: true, where: "reportable_type IS NOT NULL AND status = 0"
     t.index ["status", "created_at"], name: "index_help_requests_on_status_and_created_at"
     t.index ["user_id"], name: "index_help_requests_on_user_id"
   end

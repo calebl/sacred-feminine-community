@@ -24,17 +24,21 @@ class ContentReport
   # The help request this report creates, or the reporter's existing open
   # report on the same item, so repeat clicks don't flood the inbox.
   def submit
-    if (report = open_report)
-      append_reason_to(report)
-      report
-    else
-      reporter.help_requests.create!(reportable: reportable, subject: subject, body: body)
+    reporter.with_lock do
+      if (report = open_report)
+        report.with_lock do
+          report.open? ? append_reason_to(report) : create_report
+        end
+      else
+        create_report
+      end
     end
   end
 
   def self.redact_authored_by!(author)
     reportable_ids_by_type(author).each do |type, ids|
-      HelpRequest.where(reportable_type: type, reportable_id: ids).update_all(body: DELETED_CONTENT_MARKER)
+      HelpRequest.where(reportable_type: type, reportable_id: ids)
+        .update_all(body: DELETED_CONTENT_MARKER, reported_snapshot: nil)
     end
   end
 
@@ -96,17 +100,31 @@ class ContentReport
   private_class_method :reportable_ids_by_type
 
   def append_reason_to(report)
-    return if reason.blank?
+    return report if reason.blank?
 
-    report.with_lock do
-      report.update!(body: "#{report.body}\n\nAdditional reason:\n#{reason.strip.truncate(REASON_LENGTH)}")
-    end
+    report.update!(body: "#{report.body}\n\nAdditional reason:\n#{reason.strip.truncate(REASON_LENGTH)}")
+    report
+  end
+
+  def create_report
+    reporter.help_requests.create!(
+      reportable: reportable,
+      subject: subject,
+      body: body,
+      reported_snapshot: reported_snapshot
+    )
+  end
+
+  def reported_snapshot
+    return unless reportable.is_a?(DirectMessage)
+
+    reportable.body.gsub(Mentionable::MENTION_PATTERN) { "@#{$1}" }.truncate(EXCERPT_LENGTH)
   end
 
   def body
     lines = [ "#{reporter.name} reported a #{kind} by #{author.name} (profile: #{self.class.path_for(author)})." ]
     lines << "Link: #{path}" if path
-    if (text = reportable.try(:body)).present?
+    if !reportable.is_a?(DirectMessage) && (text = reportable.try(:body)).present?
       lines << "Reported text:\n#{text.gsub(Mentionable::MENTION_PATTERN) { "@#{$1}" }.truncate(EXCERPT_LENGTH)}"
     end
     lines << "Reason:\n#{reason.strip.truncate(REASON_LENGTH)}" if reason.present?

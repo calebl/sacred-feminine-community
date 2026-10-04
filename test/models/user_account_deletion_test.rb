@@ -79,13 +79,21 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
       message
     ]
     reports = reportables.map do |reportable|
-      HelpRequest.create!(user: users.attendee_two, reportable: reportable, subject: "Report", body: "Copied private words")
+      HelpRequest.create!(
+        user: users.attendee_two,
+        reportable: reportable,
+        subject: "Report",
+        body: "Copied private words",
+        reported_snapshot: reportable.is_a?(DirectMessage) ? "Encrypted private words" : nil
+      )
     end
 
     @user.destroy_account!
 
     reports.each do |report|
-      assert_equal ContentReport::DELETED_CONTENT_MARKER, report.reload.body
+      report.reload
+      assert_equal ContentReport::DELETED_CONTENT_MARKER, report.body
+      assert_nil report.reported_snapshot
     end
   end
 
