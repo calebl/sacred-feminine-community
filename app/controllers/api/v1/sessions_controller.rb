@@ -3,6 +3,8 @@ module Api
     # Sign in and out of the native app. Signing in checks the password through
     # Devise and returns a new token for the named device, once.
     class SessionsController < BaseController
+      DUMMY_PASSWORD_DIGEST = Devise::Encryptor.digest(User, SecureRandom.hex(32))
+
       skip_before_action :authenticate_api_token!, only: :create
 
       rate_limit to: 10, within: 3.minutes, only: :create, store: Rails.cache,
@@ -19,7 +21,13 @@ module Api
         end
 
         user = User.find_for_authentication(email: email)
-        unless user&.valid_password?(password)
+        password_valid = if user
+          user.valid_password?(password)
+        else
+          Devise::Encryptor.compare(User, DUMMY_PASSWORD_DIGEST, password)
+        end
+
+        unless user && password_valid
           return render_error(:unauthorized, "Invalid email or password.")
         end
 

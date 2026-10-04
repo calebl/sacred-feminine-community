@@ -37,9 +37,18 @@ class Api::V1::SessionsControllerTest < ActionDispatch::IntegrationTest
     write_api_example("error_unauthorized")
   end
 
-  test "rejects an unknown email with the same message" do
-    post api_v1_session_path, params: { email: "nobody@example.com", password: "password123", device_name: "iPhone" }, as: :json
+  test "rejects an unknown email with the same message after checking the password" do
+    comparisons = 0
+    compare_password = lambda do |*_arguments|
+      comparisons += 1
+      false
+    end
 
+    Devise::Encryptor.stub(:compare, compare_password) do
+      post api_v1_session_path, params: { email: "nobody@example.com", password: "password123", device_name: "iPhone" }, as: :json
+    end
+
+    assert_equal 1, comparisons
     assert_response :unauthorized
     assert_equal "Invalid email or password.", response.parsed_body["error"]
   end
