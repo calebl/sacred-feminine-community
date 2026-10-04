@@ -84,7 +84,7 @@ class ConversationTest < ActiveSupport::TestCase
     original_updated_at = convo.updated_at
 
     travel_to 1.minute.from_now do
-      convo.send_message(from: users.admin, body: "Hello!")
+      Conversation.send_message(from: users.admin, conversation: convo, body: "Hello!")
     end
 
     assert_equal "Hello!", convo.direct_messages.last.body
@@ -95,8 +95,38 @@ class ConversationTest < ActiveSupport::TestCase
   test "send_message does nothing when body is blank" do
     convo = conversations.admin_attendee_convo
     assert_no_difference "DirectMessage.count" do
-      convo.send_message(from: users.admin, body: "")
-      convo.send_message(from: users.admin, body: nil)
+      Conversation.send_message(from: users.admin, conversation: convo, body: "")
+      Conversation.send_message(from: users.admin, conversation: convo, body: nil)
+    end
+  end
+
+  test "send_message rechecks blocks at persistence time" do
+    convo = conversations.admin_attendee_convo
+    assert_empty convo.unreachable_recipients(users.attendee)
+    UserBlock.create!(blocker: users.admin, blocked: users.attendee)
+
+    assert_no_difference "DirectMessage.count" do
+      message = Conversation.send_message(from: users.attendee, conversation: convo, body: "Blocked")
+      assert message.errors.added?(:base, :recipients_unreachable)
+    end
+  end
+
+  test "send_message rejects an unavailable new-conversation recipient before creating a conversation" do
+    users.attendee_two.update!(dm_privacy: :nobody)
+
+    assert_no_difference [ "Conversation.count", "DirectMessage.count" ] do
+      message = Conversation.send_message(from: users.attendee, recipients: [ users.attendee_two ], body: "Hello")
+      assert message.errors.added?(:base, :recipients_refused)
+    end
+  end
+
+  test "send_message rejects a removed participant" do
+    convo = Conversation.between(users.admin, users.attendee, users.attendee_two)
+    users.attendee.discard!
+
+    assert_no_difference "DirectMessage.count" do
+      message = Conversation.send_message(from: users.admin, conversation: convo, body: "Hello")
+      assert message.errors.added?(:base, :recipients_unreachable)
     end
   end
 

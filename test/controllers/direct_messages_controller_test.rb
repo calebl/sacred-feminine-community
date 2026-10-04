@@ -94,20 +94,19 @@ class DirectMessagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "This conversation is no longer available.", flash[:alert]
   end
 
-  test "allows messaging when some participants are discarded in group conversation" do
+  test "rejects messaging when a group participant is discarded" do
     group_convo = Conversation.between(@admin, @attendee, @attendee_two)
     @attendee.discard
 
     sign_in @admin
-    assert_difference "DirectMessage.count" do
+    assert_no_difference "DirectMessage.count" do
       post conversation_direct_messages_path(group_convo),
-        params: { direct_message: { body: "Still works" } }
+        params: { direct_message: { body: "Should not send" } }
     end
-    assert_response :redirect
+    assert_redirected_to group_convo
+    assert_equal "#{@attendee.name} is no longer receiving your messages.", flash[:alert]
   end
 
-  # Starting a conversation is gated in ConversationsController, but a block or
-  # a cohort gender preference can also be set after the thread already exists.
   test "sender cannot message into an existing thread across a block" do
     convo = Conversation.between(@attendee, @attendee_two)
     @attendee_two.user_blocks.create!(blocked: @attendee)

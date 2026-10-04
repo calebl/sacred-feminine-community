@@ -59,6 +59,24 @@ class Api::V1::SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :bad_request
   end
 
+  test "rejects a whitespace-only device name" do
+    assert_no_difference "ApiToken.count" do
+      post api_v1_session_path,
+        params: { email: "jane@example.com", password: "password123", device_name: "   " }, as: :json
+    end
+
+    assert_response :bad_request
+    assert_equal "Device name can't be blank.", response.parsed_body["error"]
+  end
+
+  test "normalizes a device name" do
+    post api_v1_session_path,
+      params: { email: "jane@example.com", password: "password123", device_name: "  Jane's iPhone  " }, as: :json
+
+    assert_response :created
+    assert_equal "Jane's iPhone", response.parsed_body.dig("device", "name")
+  end
+
   test "rate limits sign-in attempts" do
     # The test cache is a null store, so simulate a client already over the limit.
     Rails.cache.define_singleton_method(:increment) { |*| 11 }

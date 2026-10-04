@@ -30,7 +30,12 @@ module Api
         post = policy_scope(FeedPost).find(params[:id])
         authorize post
         post = FeedPost.includes(:reactions, { photos_attachments: :blob },
-                                 feed_post_comments: [ :user, :reactions, { replies: [ :user, :reactions ] } ])
+                                 user: { avatar_attachment: :blob },
+                                 feed_post_comments: [
+                                   :reactions,
+                                   { user: { avatar_attachment: :blob } },
+                                   { replies: [ :reactions, { user: { avatar_attachment: :blob } } ] }
+                                 ])
                        .find(post.id)
         render json: { post: PostSerializer.new(post, viewer: current_user, include_comments: true).as_json }
       end

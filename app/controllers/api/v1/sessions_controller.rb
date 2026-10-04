@@ -20,7 +20,10 @@ module Api
           return render_error(:unauthorized, "This account cannot sign in.")
         end
 
-        api_token = ApiToken.issue!(user: user, device_name: params.require(:device_name).to_s.first(100))
+        device_name = params[:device_name].to_s.strip.first(100)
+        return render_error(:bad_request, "Device name can't be blank.") if device_name.blank?
+
+        api_token = ApiToken.issue!(user: user, device_name: device_name)
         render json: {
           token: api_token.token,
           device: DeviceSerializer.new(api_token, current: true).as_json,

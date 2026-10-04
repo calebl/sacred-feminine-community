@@ -5,31 +5,21 @@ class DirectMessagesController < ApplicationController
     @conversation = Conversation.find(params[:conversation_id])
     authorize @conversation, :show?
 
-    if @conversation.closed_for?(current_user)
-      redirect_to conversations_path, alert: "This conversation is no longer available."
-      return
-    end
+    @message = Conversation.send_message(
+      from: current_user,
+      conversation: @conversation,
+      body: message_params[:body]
+    )
 
-    # Starting a conversation is gated in ConversationsController; an existing
-    # thread is gated here, or a block or cohort gender preference set after
-    # the thread began would let new messages keep arriving.
-    unreachable = @conversation.unreachable_recipients(current_user)
-    if unreachable.any?
-      names = unreachable.map(&:name).join(", ")
-      redirect_to @conversation,
-        alert: "#{names} #{unreachable.size == 1 ? 'is' : 'are'} no longer receiving your messages."
-      return
-    end
-
-    @message = @conversation.direct_messages.build(message_params)
-    @message.sender = current_user
-
-    if @message.save
-      @conversation.touch
+    if @message.persisted?
       respond_to do |format|
         format.turbo_stream
         format.html { redirect_to @conversation }
       end
+    elsif @message.errors.added?(:base, :conversation_closed)
+      redirect_to conversations_path, alert: @message.errors.full_messages.first
+    elsif @message.errors.added?(:base, :recipients_unreachable)
+      redirect_to @conversation, alert: @message.errors.full_messages.first
     else
       redirect_to @conversation, alert: "Message could not be sent."
     end
