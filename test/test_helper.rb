@@ -41,3 +41,49 @@ end
 class ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 end
+
+# Request tests for the native app's JSON API save their responses here as
+# example files. The app's Swift tests decode the same files, so a change to an
+# API shape fails a test on one side or the other. Timestamps and tokens are
+# replaced with fixed values, and record ids renumbered in order of first
+# appearance (each parallel test database numbers its records differently), so
+# the files only change when a shape does. References survive renumbering: the
+# same id always becomes the same number within a file.
+module ApiExamples
+  DIR = Rails.root.join("test/api_examples/v1")
+  EXAMPLE_TIME = "2026-01-01T12:00:00.000Z"
+  EXAMPLE_TOKEN = "example-api-token"
+
+  def write_api_example(name, json = response.parsed_body)
+    DIR.mkpath
+    @api_example_ids = {}
+    DIR.join("#{name}.json").write(JSON.pretty_generate(normalize_api_example(json)) + "\n")
+  end
+
+  def api_headers(token)
+    { "Authorization" => "Bearer #{token}" }
+  end
+
+  private
+
+  def normalize_api_example(value, key = nil)
+    case value
+    when Hash then value.to_h { |k, v| [ k, normalize_api_example(v, k) ] }
+    when Array then value.map { |v| normalize_api_example(v) }
+    else
+      if key.to_s.end_with?("_at") && value.present? then EXAMPLE_TIME
+      elsif value.is_a?(Integer) && api_example_id_key?(key.to_s)
+        @api_example_ids[value] ||= @api_example_ids.size + 1
+      elsif key.to_s == "token" then EXAMPLE_TOKEN
+      # Active Storage paths carry signed ids that change with every upload.
+      elsif key.to_s.end_with?("path") && value.to_s.start_with?("/rails/active_storage/")
+        value.sub(%r{\A(/rails/active_storage/[a-z]+/[a-z]+/)[^/]+/}, "\\1example-signed-id/")
+      else value
+      end
+    end
+  end
+
+  def api_example_id_key?(key)
+    key == "id" || key.end_with?("_id") || key == "next_cursor"
+  end
+end

@@ -196,4 +196,37 @@ class ConversationTest < ActiveSupport::TestCase
     convo = conversations.admin_attendee_convo
     assert_equal 0, convo.unread_count(users.attendee_two)
   end
+
+  test ".refused_recipients lists recipients who decline a new conversation" do
+    users.attendee_two.update!(dm_privacy: :everyone)
+    users.admin_two.update!(dm_privacy: :nobody)
+
+    refused = Conversation.refused_recipients(users.attendee, [ users.attendee_two, users.admin_two, users.admin ])
+
+    assert_equal [ users.attendee_two, users.admin_two ].sort_by(&:id), refused.sort_by(&:id)
+  end
+
+  test "#unreachable_recipients lists participants who hide the sender" do
+    conversation = conversations.admin_attendee_convo
+    assert_empty conversation.unreachable_recipients(users.attendee)
+
+    UserBlock.create!(blocker: users.admin, blocked: users.attendee)
+
+    assert_equal [ users.admin ], conversation.unreachable_recipients(users.attendee)
+  end
+
+  test "#unreachable_recipients ignores a dm_privacy change after the thread began" do
+    users.attendee.update!(dm_privacy: :nobody)
+
+    assert_empty conversations.admin_attendee_convo.unreachable_recipients(users.admin)
+  end
+
+  test "#closed_for? is true once every other participant is removed" do
+    conversation = conversations.admin_attendee_convo
+    assert_not conversation.closed_for?(users.admin)
+
+    users.attendee.discard!
+
+    assert conversation.closed_for?(users.admin)
+  end
 end

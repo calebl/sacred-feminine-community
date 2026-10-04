@@ -36,6 +36,27 @@ class Conversation < ApplicationRecord
     raise
   end
 
+  # Recipients who will not accept a new conversation from `sender`: a block,
+  # the cohort gender filter or their dm_privacy setting. Starting a thread is
+  # gated here; replying in an existing one is gated by #unreachable_recipients.
+  def self.refused_recipients(sender, recipients)
+    recipients.reject { |recipient| recipient.accepts_direct_messages_from?(sender) }
+  end
+
+  # Other participants who no longer receive `sender`'s messages because they
+  # hide the sender's content. Deliberately narrower than
+  # refused_recipients: a recipient who later sets dm_privacy to "nobody" is
+  # closing their door to new conversations, not walking out of the ones they
+  # are already in.
+  def unreachable_recipients(sender)
+    other_participants(sender).select { |recipient| recipient.hides_content_from?(sender) }
+  end
+
+  # True once every other participant has been removed from the community.
+  def closed_for?(user)
+    other_participants(user).all?(&:discarded?)
+  end
+
   def send_message(from:, body:)
     return if body.blank?
 

@@ -30,7 +30,7 @@ class ConversationsController < ApplicationController
     recipients = resolve_recipients
     return unless recipients
 
-    blocked = recipients.reject { |r| r.accepts_direct_messages_from?(current_user) }
+    blocked = Conversation.refused_recipients(current_user, recipients)
     if blocked.any?
       skip_authorization
       names = blocked.map(&:name).join(", ")

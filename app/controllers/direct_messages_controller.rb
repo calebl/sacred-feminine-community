@@ -5,19 +5,15 @@ class DirectMessagesController < ApplicationController
     @conversation = Conversation.find(params[:conversation_id])
     authorize @conversation, :show?
 
-    other_users = @conversation.other_participants(current_user)
-    if other_users.all?(&:discarded?)
+    if @conversation.closed_for?(current_user)
       redirect_to conversations_path, alert: "This conversation is no longer available."
       return
     end
 
     # Starting a conversation is gated in ConversationsController; an existing
-    # thread has to be gated too, or a block or cohort gender preference set
-    # after the thread began would let new messages keep arriving. Deliberately
-    # narrower than accepts_direct_messages_from?: a recipient who later sets
-    # dm_privacy to "nobody" is closing their door to new conversations, not
-    # walking out of the ones they are already in.
-    unreachable = other_users.select { |recipient| recipient.hides_content_from?(current_user) }
+    # thread is gated here, or a block or cohort gender preference set after
+    # the thread began would let new messages keep arriving.
+    unreachable = @conversation.unreachable_recipients(current_user)
     if unreachable.any?
       names = unreachable.map(&:name).join(", ")
       redirect_to @conversation,

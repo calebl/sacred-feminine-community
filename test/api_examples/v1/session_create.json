@@ -1,0 +1,28 @@
+{
+  "token": "example-api-token",
+  "device": {
+    "id": 1,
+    "name": "Jane's iPhone",
+    "current": true,
+    "last_used_at": null,
+    "created_at": "2026-01-01T12:00:00.000Z"
+  },
+  "user": {
+    "id": 2,
+    "name": "Jane Attendee",
+    "role": "attendee",
+    "bio": null,
+    "location": "Paris, France",
+    "avatar_path": null,
+    "removed": false,
+    "email": "jane@example.com",
+    "city": "Paris",
+    "state": null,
+    "country": "France",
+    "show_on_map": true,
+    "dm_privacy": "cohort_members",
+    "mention_privacy": "everywhere",
+    "cohort_gender_privacy": "all_members",
+    "unread_notification_count": 0
+  }
+}

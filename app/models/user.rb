@@ -64,6 +64,7 @@ class User < ApplicationRecord
   has_many :feed_post_reads, dependent: :destroy
 
   has_many :push_subscriptions, dependent: :destroy
+  has_many :api_tokens, dependent: :destroy
   has_many :conversation_participants, dependent: :destroy
   has_many :conversations, through: :conversation_participants
   has_many :sent_direct_messages, class_name: "DirectMessage", foreign_key: :sender_id, dependent: :destroy, inverse_of: :sender
@@ -83,6 +84,11 @@ class User < ApplicationRecord
   has_one_attached :avatar do |attachable|
     attachable.variant :display, resize_to_fill: [ 200, 200 ]
   end
+
+  # A new password or a removal signs every app device out, the way Devise
+  # ends browser sessions.
+  after_update :revoke_api_tokens, if: :saved_change_to_encrypted_password?
+  after_discard :revoke_api_tokens
 
   after_invitation_accepted :create_invited_cohort_memberships
   after_invitation_accepted :notify_admins_of_acceptance
@@ -206,6 +212,10 @@ class User < ApplicationRecord
   end
 
   private
+
+  def revoke_api_tokens
+    api_tokens.delete_all
+  end
 
   def create_invited_cohort_memberships
     return if invited_cohort_ids.blank?
