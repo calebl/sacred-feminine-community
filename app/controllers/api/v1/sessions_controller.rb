@@ -20,22 +20,28 @@ module Api
           return render_error(:unprocessable_entity, "Email, password, and device name are required.")
         end
 
-        user = User.find_for_authentication(email: email)
-        password_valid = if user
-          user.valid_password?(password)
-        else
-          Devise::Encryptor.compare(User, DUMMY_PASSWORD_DIGEST, password)
+        user = nil
+        api_token = nil
+        authentication_error = nil
+
+        User.transaction do
+          user = User.find_for_authentication(email: email)
+          password_valid = if user
+            user.valid_password?(password)
+          else
+            Devise::Encryptor.compare(User, DUMMY_PASSWORD_DIGEST, password)
+          end
+
+          if !user || !password_valid
+            authentication_error = [ :unauthorized, "Invalid email or password." ]
+          elsif !user.active_for_authentication?
+            authentication_error = [ :unauthorized, "This account cannot sign in." ]
+          else
+            api_token = ApiToken.issue!(user: user, device_name: device_name)
+          end
         end
 
-        unless user && password_valid
-          return render_error(:unauthorized, "Invalid email or password.")
-        end
-
-        unless user.active_for_authentication?
-          return render_error(:unauthorized, "This account cannot sign in.")
-        end
-
-        api_token = ApiToken.issue!(user: user, device_name: device_name)
+        return render_error(*authentication_error) if authentication_error
         render json: {
           token: api_token.token,
           device: DeviceSerializer.new(api_token, current: true).as_json,
