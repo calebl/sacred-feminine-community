@@ -2,10 +2,10 @@
 
 `SacredFeminineKit/` is a Swift package with the shared code for the native
 iPhone app: Codable models for the `/api/v1` responses, an async `APIClient`
-over `URLSession`, typed `APIError`s and a `TokenStore` protocol (with an
-in-memory implementation; the Keychain one lives in the app). It has no
-iPhone-only code, so it builds and tests on Linux as well as macOS. The app
-target and its screens will sit on top of it.
+over `URLSession`, typed `APIError`s and a `TokenStore` protocol with an
+in-memory implementation. The future app will provide a Keychain-backed store.
+The package has no iPhone-only code, so it builds and tests on Linux as well as
+macOS. The app target and its screens will sit on top of it.
 
 The tests decode every example response in `test/api_examples/v1/`, which the
 Rails request tests write. They read the files from the repository, so an API
