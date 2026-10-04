@@ -24,4 +24,17 @@ class ContentReportPolicyTest < ActiveSupport::TestCase
     assert allowed?(users.attendee, comment)
     assert_not allowed?(users.attendee_two, comment)
   end
+
+  test "hidden comments cannot be reported through any comment type" do
+    reporter = users.attendee
+    author = users.attendee_two
+    comments = [
+      PostComment.create!(post: posts.attendee_post, user: author, body: "Hidden cohort comment"),
+      GroupPostComment.create!(group_post: group_posts.book_club_pinned, user: author, body: "Hidden group comment"),
+      FeedPostComment.create!(feed_post: feed_posts.public_post, user: author, body: "Hidden feed comment")
+    ]
+    reporter.user_blocks.create!(blocked: author)
+
+    comments.each { |comment| assert_not allowed?(reporter, comment) }
+  end
 end

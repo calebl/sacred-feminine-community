@@ -65,4 +65,36 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
     assert_equal users.admin_two, cohort.reload.creator
     assert Faq.where(created_by_id: users.admin_two.id).exists?
   end
+
+  test "redacts retained reports about every kind of authored content" do
+    message = conversations.admin_attendee_convo.direct_messages.create!(sender: @user, body: "Private words")
+    reportables = [
+      @user,
+      posts.attendee_post,
+      @user.post_comments.first,
+      group_posts.book_club_pinned,
+      @user.group_post_comments.first,
+      feed_posts.attendee_feed_post,
+      @user.feed_post_comments.first,
+      message
+    ]
+    reports = reportables.map do |reportable|
+      HelpRequest.create!(user: users.attendee_two, reportable: reportable, subject: "Report", body: "Copied private words")
+    end
+
+    @user.destroy_account!
+
+    reports.each do |report|
+      assert_equal ContentReport::DELETED_CONTENT_MARKER, report.reload.body
+    end
+  end
+
+  test "refuses to delete the only remaining admin" do
+    users.admin_two.update!(role: :attendee)
+
+    error = assert_raises(ActiveRecord::RecordNotDestroyed) { users.admin.destroy_account! }
+
+    assert_match "Another admin is required", error.message
+    assert User.exists?(users.admin.id)
+  end
 end

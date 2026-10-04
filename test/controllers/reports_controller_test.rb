@@ -28,13 +28,17 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to help_request_path(request)
   end
 
-  test "a second report of the same item reuses the open one" do
-    params = { report: { reportable_type: "User", reportable_id: users.attendee_two.id } }
-    post reports_path, params: params
+  test "a second report of the same item appends its reason to the open one" do
+    reportable = users.attendee_two
+    post reports_path, params: { report: { reportable_type: "User", reportable_id: reportable.id, reason: "First reason" } }
+    request = HelpRequest.order(:id).last
 
     assert_no_difference -> { HelpRequest.count } do
-      post reports_path, params: params
+      post reports_path, params: { report: { reportable_type: "User", reportable_id: reportable.id, reason: "New reason" } }
     end
+
+    assert_match "First reason", request.reload.body
+    assert_match "Additional reason:\nNew reason", request.body
   end
 
   test "reports a direct message with its text" do

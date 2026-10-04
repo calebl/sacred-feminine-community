@@ -3,6 +3,7 @@ class ContentReportPolicy < ApplicationPolicy
   def create?
     reportable = record.reportable
     return false if reportable.nil? || record.author.nil? || record.author == user
+    return false if !reportable.is_a?(DirectMessage) && user.hides_content_from?(record.author)
 
     case reportable
     when User then reportable.kept?

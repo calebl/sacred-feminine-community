@@ -11,6 +11,7 @@ class ContentReport
 
   EXCERPT_LENGTH = 500
   REASON_LENGTH = 2000
+  DELETED_CONTENT_MARKER = "Content deleted by its author."
 
   attr_accessor :reporter, :reportable, :reason
 
@@ -23,7 +24,18 @@ class ContentReport
   # The help request this report creates, or the reporter's existing open
   # report on the same item, so repeat clicks don't flood the inbox.
   def submit
-    open_report || reporter.help_requests.create!(reportable: reportable, subject: subject, body: body)
+    if (report = open_report)
+      append_reason_to(report)
+      report
+    else
+      reporter.help_requests.create!(reportable: reportable, subject: subject, body: body)
+    end
+  end
+
+  def self.redact_authored_by!(author)
+    reportable_ids_by_type(author).each do |type, ids|
+      HelpRequest.where(reportable_type: type, reportable_id: ids).update_all(body: DELETED_CONTENT_MARKER)
+    end
   end
 
   def open_report
@@ -67,6 +79,29 @@ class ContentReport
   end
 
   private
+
+  def self.reportable_ids_by_type(author)
+    REPORTABLE_TYPES.to_h do |type|
+      records = type.constantize
+      ids = if records == User
+        [ author.id ]
+      elsif records == DirectMessage
+        records.where(sender_id: author.id).ids
+      else
+        records.where(user_id: author.id).ids
+      end
+      [ type, ids ]
+    end
+  end
+  private_class_method :reportable_ids_by_type
+
+  def append_reason_to(report)
+    return if reason.blank?
+
+    report.with_lock do
+      report.update!(body: "#{report.body}\n\nAdditional reason:\n#{reason.strip.truncate(REASON_LENGTH)}")
+    end
+  end
 
   def body
     lines = [ "#{reporter.name} reported a #{kind} by #{author.name} (profile: #{self.class.path_for(author)})." ]

@@ -220,12 +220,18 @@ class User < ApplicationRecord
   def destroy_account!
     transaction do
       successor = User.admin.kept.where.not(id: id).order(:id).first
+      if admin? && !successor
+        raise ActiveRecord::RecordNotDestroyed.new("Another admin is required before this account can be deleted", self)
+      end
+
       community_records = [ created_cohorts, created_groups, faqs ]
       if community_records.any?(&:exists?)
         raise ActiveRecord::RecordNotDestroyed.new("No other admin can take over this account's cohorts and groups", self) unless successor
 
         community_records.each { |records| records.update_all(created_by_id: successor.id) }
       end
+
+      ContentReport.redact_authored_by!(self)
 
       membership_audits = {
         "CohortMembership" => cohort_memberships.ids,
