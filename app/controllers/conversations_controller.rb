@@ -30,19 +30,16 @@ class ConversationsController < ApplicationController
     recipients = resolve_recipients
     return unless recipients
 
-    blocked = recipients.reject { |r| r.accepts_direct_messages_from?(current_user) }
-    if blocked.any?
+    message = Conversation.send_message(from: current_user, recipients: recipients.to_a, body: params[:body])
+    if message.errors.added?(:base, :recipients_refused) ||
+        message.errors.added?(:base, :sender_unavailable)
       skip_authorization
-      names = blocked.map(&:name).join(", ")
-      redirect_back fallback_location: new_conversation_path,
-        alert: "#{names} #{blocked.size == 1 ? 'is' : 'are'} not accepting direct messages."
+      redirect_back fallback_location: new_conversation_path, alert: message.errors.full_messages.first
       return
     end
 
-    @conversation = Conversation.between([ current_user ] + recipients.to_a)
+    @conversation = message.conversation
     authorize @conversation, :show?
-    @conversation.send_message(from: current_user, body: params[:body])
-
     redirect_to @conversation
   end
 

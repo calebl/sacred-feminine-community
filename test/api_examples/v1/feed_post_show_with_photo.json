@@ -1,0 +1,32 @@
+{
+  "post": {
+    "id": 1,
+    "kind": "feed",
+    "body": "Hello everyone, excited to be here!",
+    "mentions": [],
+    "author": {
+      "id": 1,
+      "name": "Jane Attendee",
+      "role": "attendee",
+      "bio": null,
+      "location": "Paris, France",
+      "avatar_path": null,
+      "removed": false
+    },
+    "pinned": false,
+    "comment_count": 0,
+    "photos": [
+      {
+        "id": 1,
+        "content_type": "image/png",
+        "path": "/rails/active_storage/blobs/redirect/example-signed-id/photo.png"
+      }
+    ],
+    "reactions": [],
+    "can_edit": true,
+    "can_delete": true,
+    "created_at": "2026-01-01T12:00:00.000Z",
+    "updated_at": "2026-01-01T12:00:00.000Z",
+    "comments": []
+  }
+}

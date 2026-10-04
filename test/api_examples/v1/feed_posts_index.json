@@ -1,0 +1,103 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "kind": "feed",
+      "body": "A feed post from a male cohort member.",
+      "mentions": [],
+      "author": {
+        "id": 1,
+        "name": "Michael Member",
+        "role": "attendee",
+        "bio": null,
+        "location": null,
+        "avatar_path": null,
+        "removed": false
+      },
+      "pinned": false,
+      "comment_count": 0,
+      "photos": [],
+      "reactions": [],
+      "can_edit": false,
+      "can_delete": false,
+      "created_at": "2026-01-01T12:00:00.000Z",
+      "updated_at": "2026-01-01T12:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "kind": "feed",
+      "body": "Hello everyone, excited to be here!",
+      "mentions": [],
+      "author": {
+        "id": 2,
+        "name": "Jane Attendee",
+        "role": "attendee",
+        "bio": null,
+        "location": "Paris, France",
+        "avatar_path": null,
+        "removed": false
+      },
+      "pinned": false,
+      "comment_count": 0,
+      "photos": [],
+      "reactions": [],
+      "can_edit": true,
+      "can_delete": true,
+      "created_at": "2026-01-01T12:00:00.000Z",
+      "updated_at": "2026-01-01T12:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "kind": "feed",
+      "body": "Welcome to the community feed! Please introduce yourself.",
+      "mentions": [],
+      "author": {
+        "id": 3,
+        "name": "Admin User",
+        "role": "admin",
+        "bio": null,
+        "location": "Los Angeles, California, United States",
+        "avatar_path": null,
+        "removed": false
+      },
+      "pinned": true,
+      "comment_count": 3,
+      "photos": [],
+      "reactions": [],
+      "can_edit": false,
+      "can_delete": false,
+      "created_at": "2026-01-01T12:00:00.000Z",
+      "updated_at": "2026-01-01T12:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "kind": "feed",
+      "body": "A post visible to all community members.",
+      "mentions": [],
+      "author": {
+        "id": 3,
+        "name": "Admin User",
+        "role": "admin",
+        "bio": null,
+        "location": "Los Angeles, California, United States",
+        "avatar_path": null,
+        "removed": false
+      },
+      "pinned": false,
+      "comment_count": 3,
+      "photos": [],
+      "reactions": [
+        {
+          "emoji": "🔥",
+          "count": 1,
+          "reacted_by_me": false
+        }
+      ],
+      "can_edit": false,
+      "can_delete": false,
+      "created_at": "2026-01-01T12:00:00.000Z",
+      "updated_at": "2026-01-01T12:00:00.000Z"
+    }
+  ],
+  "next_cursor": null
+}

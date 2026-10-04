@@ -31,6 +31,14 @@ Rails.application.routes.draw do
   namespace :api do
     resources :map_pins, only: [ :index ]
     resource :vapid_key, only: [ :show ]
+
+    # JSON API for the native app; bearer-token sign-in only.
+    namespace :v1, defaults: { format: :json } do
+      resource :session, only: [ :create, :destroy ]
+      resources :devices, only: [ :index, :destroy ]
+      resource :me, only: [ :show ], controller: "me"
+      resources :feed_posts, path: "feed", only: [ :index, :show ]
+    end
   end
 
   # Push notification subscriptions

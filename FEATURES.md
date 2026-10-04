@@ -129,7 +129,7 @@
 - **Filtering is mutual** - Like blocking, excluding a side of the community also hides your own content from them, even if they never changed their own setting. It applies to cohort, group, and community feeds, comments (including nested replies and reply counts), member lists, the member map, @mention autocomplete and rendering, and notifications.
 - **Assign men to a men's cohort when inviting them** - Classification is driven entirely by cohort membership, so a man who belongs to no men's cohort counts as a female cohort member: his content reaches members who chose "female cohort members only", and he cannot select "male cohort members only" himself. Selecting the men's cohort on the invitation closes this — memberships are created the moment the invitation is accepted, before he can post anything.
 - **Admins are exempt** - Admin-authored content and admin notifications always reach everyone regardless of the setting, and no one's setting can hide their content from an admin. Admins always see all content: the setting is shown disabled on their profile with an explanation, the model rejects it if submitted anyway, and a preference kept from before a promotion stops taking effect.
-- **Direct messages** - The filter blocks new conversations and hides excluded members from recipient search, in both directions. Admins can still message anyone. Existing conversations remain readable, but no new message can be sent into one across the filter (or across a block) — the send is rejected with an explanation rather than delivered silently.
+- **Direct messages** - The filter blocks new conversations and hides excluded members from recipient search, in both directions. Admins can still message anyone. Existing conversations remain readable, but no new message can be sent into one across the filter, across a block, or after a participant is removed — the send is rejected with an explanation rather than delivered silently.
 - **Block users** - Users can block other members from their profile page. Blocking is mutual for visibility: once a block exists, neither party sees the other's posts and comments (nested replies included) across cohort, group, and community feeds or on individual post pages (a blocked user can no longer see the blocker's content either).
 - **Admins cannot be blocked** - Admins are exempt from being blocked: the Block button is hidden on an admin's profile and the block is rejected at the model level if attempted directly. The admin's profile explains why, so the missing button isn't a mystery.
 - **Mention rendering** - @mentions are rendered as plain text (no profile link) for both parties whenever a block exists between them
@@ -141,6 +141,14 @@
 ## Account Settings
 - **Email change** - Users can update their email address
 - **Password change** - Users can update their password (requires current password)
+
+## Native App API (`/api/v1`)
+- **Token sign-in** - `POST /api/v1/session` takes email, password and a device name and returns a bearer token once; only a SHA-256 digest is stored. Sign-in is rate limited (10 attempts per 3 minutes per IP). `DELETE /api/v1/session` signs the current device out
+- **Devices** - `GET /api/v1/devices` lists the member's signed-in devices; `DELETE /api/v1/devices/:id` revokes one. Changing the password or being removed revokes every device
+- **Me** - `GET /api/v1/me` returns the signed-in member with private settings and unread notification count
+- **Feed** - `GET /api/v1/feed` lists feed posts newest first with cursor paging (`before`, `limit`, `next_cursor`); `GET /api/v1/feed/:id` returns one post with its nested comments. Uses the same Pundit scopes as the website, so blocks and the cohort gender filter apply; historical content from removed authors keeps their name and avatar but redacts profile details
+- **Token isolation** - API tokens are accepted only under `/api/v1`, and the API ignores the website's cookie session
+- **Contract examples** - Request tests write example responses to `test/api_examples/v1/` for the app's decoding tests
 
 ## Real-time Features
 - **Turbo Streams** - DMs broadcast in real-time without page reload

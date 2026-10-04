@@ -1,0 +1,48 @@
+{
+  "post": {
+    "id": 1,
+    "kind": "feed",
+    "body": "Historical post",
+    "mentions": [],
+    "author": {
+      "id": 1,
+      "name": "Sarah Member",
+      "role": null,
+      "bio": null,
+      "location": null,
+      "avatar_path": null,
+      "removed": true
+    },
+    "pinned": false,
+    "comment_count": 1,
+    "photos": [],
+    "reactions": [],
+    "can_edit": false,
+    "can_delete": true,
+    "created_at": "2026-01-01T12:00:00.000Z",
+    "updated_at": "2026-01-01T12:00:00.000Z",
+    "comments": [
+      {
+        "id": 1,
+        "post_id": 1,
+        "parent_id": null,
+        "body": "Historical comment",
+        "mentions": [],
+        "author": {
+          "id": 2,
+          "name": "Jane Attendee",
+          "role": null,
+          "bio": null,
+          "location": null,
+          "avatar_path": null,
+          "removed": true
+        },
+        "reactions": [],
+        "can_delete": true,
+        "created_at": "2026-01-01T12:00:00.000Z",
+        "updated_at": "2026-01-01T12:00:00.000Z",
+        "replies": []
+      }
+    ]
+  }
+}

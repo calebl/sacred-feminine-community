@@ -36,11 +36,68 @@ class Conversation < ApplicationRecord
     raise
   end
 
-  def send_message(from:, body:)
-    return if body.blank?
+  # Recipients who will not accept a new conversation from `sender`: a block,
+  # the cohort gender filter or their dm_privacy setting.
+  def self.refused_recipients(sender, recipients)
+    recipients.reject { |recipient| recipient.kept? && recipient.accepts_direct_messages_from?(sender) }
+  end
 
-    direct_messages.create!(sender: from, body: body)
-    touch
+  def self.send_message(from:, body:, conversation: nil, recipients: nil)
+    transaction do
+      starting_conversation = conversation.nil?
+      from = User.find(from.id)
+
+      if from.discarded?
+        message = (conversation || new).direct_messages.build(sender: from, body: body)
+        message.errors.add(:base, :sender_unavailable, message: "Message could not be sent.")
+        next message
+      end
+
+      if starting_conversation
+        recipient_ids = Array(recipients).map(&:id)
+        recipients_by_id = User.where(id: recipient_ids).index_by(&:id)
+        recipients = recipient_ids.filter_map { |id| recipients_by_id[id] }
+        refused = refused_recipients(from, recipients)
+        if refused.any?
+          message = new.direct_messages.build(sender: from, body: body)
+          names = refused.map(&:name).join(", ")
+          message.errors.add(:base, :recipients_refused,
+            message: "#{names} #{refused.one? ? 'is' : 'are'} not accepting direct messages.")
+          next message
+        end
+
+        conversation = between(from, recipients)
+      else
+        conversation = find(conversation.id)
+      end
+
+      message = conversation.direct_messages.build(sender: from, body: body)
+      if !starting_conversation && conversation.closed_for?(from)
+        message.errors.add(:base, :conversation_closed, message: "This conversation is no longer available.")
+      elsif !starting_conversation && (unreachable = conversation.unreachable_recipients(from)).any?
+        names = unreachable.map(&:name).join(", ")
+        message.errors.add(:base, :recipients_unreachable,
+          message: "#{names} #{unreachable.one? ? 'is' : 'are'} no longer receiving your messages.")
+      elsif message.save
+        conversation.touch
+      end
+
+      message
+    end
+  end
+
+  # Other participants who no longer receive `sender`'s messages because they
+  # hide the sender's content. Deliberately narrower than
+  # refused_recipients: a recipient who later sets dm_privacy to "nobody" is
+  # closing their door to new conversations, not walking out of the ones they
+  # are already in.
+  def unreachable_recipients(sender)
+    other_participants(sender).select { |recipient| recipient.discarded? || recipient.hides_content_from?(sender) }
+  end
+
+  # True once every other participant has been removed from the community.
+  def closed_for?(user)
+    other_participants(user).all?(&:discarded?)
   end
 
   def other_participants(user)

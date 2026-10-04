@@ -25,10 +25,7 @@ class DirectMessage < ApplicationRecord
     )
 
     # A participant who hides the sender's content (a block, or a cohort gender
-    # preference on either side) gets no live toast. Sending is already gated in
-    # DirectMessagesController, so this only catches messages created by other
-    # means, but the toast is the one surface that would push the body at them
-    # unprompted.
+    # preference on either side) gets no live toast.
     message.conversation.participants
       .where.not(id: message.sender_id)
       .where(dm_notifications: true)
