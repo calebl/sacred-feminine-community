@@ -45,9 +45,12 @@ class Conversation < ApplicationRecord
   def self.send_message(from:, body:, conversation: nil, recipients: nil)
     transaction do
       starting_conversation = conversation.nil?
+      from = User.find(from.id)
 
       if starting_conversation
-        recipients = Array(recipients)
+        recipient_ids = Array(recipients).map(&:id)
+        recipients_by_id = User.where(id: recipient_ids).index_by(&:id)
+        recipients = recipient_ids.filter_map { |id| recipients_by_id[id] }
         refused = refused_recipients(from, recipients)
         if refused.any?
           message = new.direct_messages.build(sender: from, body: body)
@@ -58,6 +61,8 @@ class Conversation < ApplicationRecord
         end
 
         conversation = between(from, recipients)
+      else
+        conversation = find(conversation.id)
       end
 
       message = conversation.direct_messages.build(sender: from, body: body)

@@ -146,7 +146,7 @@
 - **Token sign-in** - `POST /api/v1/session` takes email, password and a device name and returns a bearer token once; only a SHA-256 digest is stored. Sign-in is rate limited (10 attempts per 3 minutes per IP). `DELETE /api/v1/session` signs the current device out
 - **Devices** - `GET /api/v1/devices` lists the member's signed-in devices; `DELETE /api/v1/devices/:id` revokes one. Changing the password or being removed revokes every device
 - **Me** - `GET /api/v1/me` returns the signed-in member with private settings and unread notification count
-- **Feed** - `GET /api/v1/feed` lists feed posts newest first with cursor paging (`before`, `limit`, `next_cursor`); `GET /api/v1/feed/:id` returns one post with its nested comments. Uses the same Pundit scopes as the website, so blocks and the cohort gender filter apply
+- **Feed** - `GET /api/v1/feed` lists feed posts newest first with cursor paging (`before`, `limit`, `next_cursor`); `GET /api/v1/feed/:id` returns one post with its nested comments. Uses the same Pundit scopes as the website, so blocks and the cohort gender filter apply; historical content from removed authors keeps their name and avatar but omits profile details
 - **Token isolation** - API tokens are accepted only under `/api/v1`, and the API ignores the website's cookie session
 - **Contract examples** - Request tests write example responses to `test/api_examples/v1/` for the app's decoding tests
 

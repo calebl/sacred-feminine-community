@@ -9,14 +9,15 @@ module Api
       end
 
       def as_json(*)
+        removed = @user.discarded?
         {
           id: @user.id,
           name: @user.name,
-          role: @user.role,
-          bio: @user.bio,
-          location: @user.visible_location,
+          role: removed ? nil : @user.role,
+          bio: removed ? nil : @user.bio,
+          location: removed ? nil : @user.visible_location,
           avatar_path: avatar_path,
-          removed: @user.discarded?
+          removed: removed
         }
       end
 

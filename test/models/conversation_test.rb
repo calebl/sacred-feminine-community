@@ -120,6 +120,45 @@ class ConversationTest < ActiveSupport::TestCase
     end
   end
 
+  test "send_message reloads a blocked new-conversation recipient" do
+    sender = users.attendee
+    recipient = users.attendee_two
+    recipient.update!(dm_privacy: :everyone)
+    assert recipient.accepts_direct_messages_from?(sender)
+    UserBlock.create!(blocker: recipient, blocked: sender)
+
+    assert_no_difference [ "Conversation.count", "DirectMessage.count" ] do
+      message = Conversation.send_message(from: sender, recipients: [ recipient ], body: "Hello")
+      assert message.errors.added?(:base, :recipients_refused)
+    end
+  end
+
+  test "send_message reloads new-conversation recipient privacy" do
+    sender = users.attendee
+    recipient = users.attendee_two
+    recipient.update!(dm_privacy: :everyone)
+    assert recipient.accepts_direct_messages_from?(sender)
+    User.find(recipient.id).update!(dm_privacy: :nobody)
+
+    assert_no_difference [ "Conversation.count", "DirectMessage.count" ] do
+      message = Conversation.send_message(from: sender, recipients: [ recipient ], body: "Hello")
+      assert message.errors.added?(:base, :recipients_refused)
+    end
+  end
+
+  test "send_message reloads a removed new-conversation recipient" do
+    sender = users.attendee
+    recipient = users.attendee_two
+    recipient.update!(dm_privacy: :everyone)
+    assert recipient.accepts_direct_messages_from?(sender)
+    User.find(recipient.id).discard!
+
+    assert_no_difference [ "Conversation.count", "DirectMessage.count" ] do
+      message = Conversation.send_message(from: sender, recipients: [ recipient ], body: "Hello")
+      assert message.errors.added?(:base, :recipients_refused)
+    end
+  end
+
   test "send_message rejects a removed participant" do
     convo = Conversation.between(users.admin, users.attendee, users.attendee_two)
     users.attendee.discard!

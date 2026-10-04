@@ -116,6 +116,38 @@ class Api::V1::FeedPostsControllerTest < ActionDispatch::IntegrationTest
     write_api_example("feed_post_show_with_photo")
   end
 
+  test "restricts removed author profiles while retaining content and avatars" do
+    author = users.attendee_two
+    commenter = users.attendee
+    author.update!(bio: "Private biography", city: "Private City", country: "Private Country", show_on_map: true)
+    commenter.update!(bio: "Private comment biography", city: "Comment City", country: "Comment Country", show_on_map: true)
+    post = FeedPost.create!(user: author, body: "Historical post")
+    post.feed_post_comments.create!(user: commenter, body: "Historical comment")
+    author.discard!
+    commenter.discard!
+
+    get api_v1_feed_post_path(post), headers: api_headers(token_for(users.admin))
+
+    assert_response :success
+    body = response.parsed_body["post"]
+    assert_equal "Historical post", body["body"]
+    assert_equal({
+      "id" => author.id, "name" => author.name, "role" => nil, "bio" => nil,
+      "location" => nil, "avatar_path" => nil, "removed" => true
+    }, body["author"])
+    assert_equal "Historical comment", body["comments"].sole["body"]
+    assert_equal({
+      "id" => commenter.id, "name" => commenter.name, "role" => nil, "bio" => nil,
+      "location" => nil, "avatar_path" => nil, "removed" => true
+    }, body["comments"].sole["author"])
+    write_api_example("feed_post_show_removed_authors")
+
+    author.avatar.attach(io: file_fixture("avatar.png").open, filename: "avatar.png", content_type: "image/png")
+    get api_v1_feed_post_path(post), headers: api_headers(token_for(users.admin))
+
+    assert_match %r{\A/rails/active_storage/representations/}, response.parsed_body.dig("post", "author", "avatar_path")
+  end
+
   test "returns not found for a post hidden from the member" do
     get api_v1_feed_post_path(feed_posts.male_member_feed_post), headers: api_headers(token_for(users.women_only_member))
 
