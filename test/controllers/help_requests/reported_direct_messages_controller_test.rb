@@ -41,7 +41,7 @@ class HelpRequests::ReportedDirectMessagesControllerTest < ActionDispatch::Integ
     assert_redirected_to root_path
   end
 
-  test "deleted reported message is shown as unavailable" do
+  test "deleted reported message is shown as unavailable without exposing a link" do
     @message.destroy!
     sign_in users.admin_two
 
@@ -51,6 +51,14 @@ class HelpRequests::ReportedDirectMessagesControllerTest < ActionDispatch::Integ
     assert_select "p", text: "This reported message is no longer available."
 
     get help_request_path(@report)
+    assert_select "a[href='#{help_request_reported_direct_message_path(@report)}']", count: 0
+    assert_select "span", text: "This item is no longer available to you."
+
+    @report.update!(user: users.attendee_two)
+    sign_in users.attendee_two
+    get help_request_path(@report)
+
+    assert_response :success
     assert_select "a[href='#{help_request_reported_direct_message_path(@report)}']", count: 0
     assert_select "span", text: "This item is no longer available to you."
   end

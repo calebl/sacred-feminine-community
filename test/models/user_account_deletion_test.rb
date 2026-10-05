@@ -10,7 +10,13 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
     message = conversation.direct_messages.create!(sender: @user, body: "Hello there")
     post = posts.attendee_post
     feed_post = feed_posts.attendee_feed_post
+    cohort_membership = cohort_memberships.attendee_in_kabul
+    group_membership = group_memberships.attendee_in_yoga
+    group_post_comment = group_post_comments.attendee_group_comment
+    feed_post_comment = feed_post_comments.attendee_feed_comment
     feed_post.photos.attach(io: file_fixture("avatar.png").open, filename: "photo.png", content_type: "image/png")
+    @user.avatar.attach(io: file_fixture("avatar.png").open, filename: "avatar.png", content_type: "image/png")
+    avatar_attachment = @user.avatar.attachment
 
     @user.destroy_account!
 
@@ -19,8 +25,13 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
     assert_not FeedPost.exists?(feed_post.id)
     assert_not DirectMessage.exists?(message.id)
     assert_not PostComment.exists?(user_id: @user.id)
+    assert_not GroupPostComment.exists?(group_post_comment.id)
+    assert_not FeedPostComment.exists?(feed_post_comment.id)
+    assert_not CohortMembership.exists?(cohort_membership.id)
+    assert_not GroupMembership.exists?(group_membership.id)
     assert_not HelpRequest.exists?(user_id: @user.id)
     assert_not Reaction.exists?(user_id: @user.id)
+    assert_not ActiveStorage::Attachment.exists?(avatar_attachment.id)
     assert_not ActiveStorage::Attachment.exists?(record_type: "FeedPost", record_id: feed_post.id)
     assert Conversation.exists?(conversation.id), "the other participant keeps the conversation"
   end
