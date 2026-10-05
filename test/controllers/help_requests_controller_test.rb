@@ -109,6 +109,28 @@ class HelpRequestsControllerTest < ActionDispatch::IntegrationTest
     assert_select "span", text: "This item is no longer available to you."
   end
 
+  test "reported posts and their comments are unavailable after the post author becomes hidden" do
+    viewer = users.women_only_member
+    viewer.update!(cohort_gender_privacy: :all_members)
+    comment = feed_posts.male_member_feed_post.feed_post_comments.create!(user: @admin, body: "Visible author reply")
+    reportables = [ posts.male_member_post, group_posts.male_member_group_post, feed_posts.male_member_feed_post, comment ]
+    reports = reportables.map do |reportable|
+      HelpRequest.create!(user: viewer, reportable: reportable, subject: "Report: content", body: "Reason")
+    end
+    viewer.update!(cohort_gender_privacy: :women_only)
+    sign_in viewer
+
+    reports.zip(reportables).each do |report, reportable|
+      path = ContentReport.path_for(reportable)
+      get help_request_path(report)
+      assert_select "a[href='#{path}']", count: 0
+      assert_select "span", text: "This item is no longer available to you."
+
+      get path.split("#").first
+      assert_redirected_to root_path
+    end
+  end
+
   test "reported comment is unavailable after its author becomes hidden" do
     viewer = users.women_only_member
     viewer.update!(cohort_gender_privacy: :all_members)

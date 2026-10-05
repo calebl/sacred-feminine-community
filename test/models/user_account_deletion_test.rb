@@ -137,12 +137,26 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
     assert remaining_admin.reload.kept?
   end
 
+  test "an admin deleted after authorization cannot change roles" do
+    actor = users.admin
+    target = users.attendee
+    actor.destroy_account!
+
+    error = assert_raises(ActiveRecord::RecordInvalid) do
+      target.change_role!(:admin, by: actor)
+    end
+
+    assert_includes error.record.errors[:role], "can only be changed by an active admin"
+    assert target.reload.attendee?
+  end
+
   test "refuses to demote the only remaining active admin" do
     users.admin_two.update!(role: :attendee)
+    admin = users.admin
 
-    error = assert_raises(ActiveRecord::RecordInvalid) { users.admin.change_role!(:attendee) }
+    error = assert_raises(ActiveRecord::RecordInvalid) { admin.change_role!(:attendee, by: admin) }
 
     assert_includes error.record.errors[:role], "cannot remove the only active admin"
-    assert users.admin.reload.admin?
+    assert admin.reload.admin?
   end
 end

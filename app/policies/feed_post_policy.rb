@@ -4,7 +4,7 @@ class FeedPostPolicy < ApplicationPolicy
   end
 
   def show?
-    true
+    !user.hides_content_from?(record.user)
   end
 
   def create?

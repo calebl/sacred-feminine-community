@@ -278,10 +278,14 @@ class User < ApplicationRecord
     end
   end
 
-  def change_role!(new_role)
+  def change_role!(new_role, by:)
     transaction do
       User.admin.order(:id).lock.load
       reload
+      unless User.active_users.admin.where(id: by.id).exists?
+        errors.add(:role, "can only be changed by an active admin")
+        raise ActiveRecord::RecordInvalid, self
+      end
       if admin? && User.active_users.where(id: id).exists? && new_role.to_sym != :admin && !User.active_users.admin.where.not(id: id).exists?
         errors.add(:role, "cannot remove the only active admin")
         raise ActiveRecord::RecordInvalid, self
