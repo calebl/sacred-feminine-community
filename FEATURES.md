@@ -146,8 +146,7 @@
 
 ## Privacy Policy & Contact
 - **Public privacy policy** - `/privacy` is readable without signing in and describes what the site stores, who can see it, the outside services involved (Resend, OpenStreetMap, Sentry, browser push services, Google Fonts/unpkg), and how account deletion works
-- **Links** - Every page has a footer with "Privacy Policy" and, for members, "Contact Us" linking to the help desk. Signed-out visitors see an email contact link only when `CONTACT_EMAIL` is configured.
-- **Contact address** - The optional public contact email comes only from the `CONTACT_EMAIL` environment variable
+- **Links** - Every page has a footer with "Privacy Policy" and, for members, "Contact Us" linking to the help desk. Signed-out visitors see an email contact link when a public contact address is configured.
 
 ## Native App API (`/api/v1`)
 - **Token sign-in** - `POST /api/v1/session` takes email, password and a device name and returns a bearer token once; only a SHA-256 digest is stored. Sign-in is rate limited (10 attempts per 3 minutes per IP). `DELETE /api/v1/session` signs the current device out

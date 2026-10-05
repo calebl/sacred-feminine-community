@@ -76,4 +76,4 @@ Alternatively, set the `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` environment va
 
 ### Deployment
 
-The app deploys with Kamal (Docker-based) using Thruster for HTTP acceleration. See `config/deploy.yml` for configuration.
+The app deploys with Kamal (Docker-based) using Thruster for HTTP acceleration. Set `CONTACT_EMAIL` in the deployment environment to the public address shown to signed-out visitors; Kamal deployment stops if it is missing or blank. See `config/deploy.yml` for configuration.
