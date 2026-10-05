@@ -119,6 +119,42 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "hidden and absent reported comments leave the same collapsed thread" do
+    sign_in users.women_only_member
+    hidden_comments = [
+      [ cohort_post_path(cohorts.kabul_retreat, posts.pinned_announcement), post_comments.male_member_announcement_reply ],
+      [ group_group_post_path(groups.book_club, group_posts.book_club_pinned), group_post_comments.male_member_group_reply ],
+      [ feed_post_path(feed_posts.pinned_feed_post), feed_post_comments.male_member_feed_reply ]
+    ]
+
+    hidden_comments.each do |path, hidden_comment|
+      get path, params: { reported_comment_id: hidden_comment.id }
+      assert_response :success
+      assert_select "##{ActionView::RecordIdentifier.dom_id(hidden_comment)}", count: 0
+      assert_select "#replies_for_#{hidden_comment.parent_id}.hidden"
+
+      get path, params: { reported_comment_id: 0 }
+      assert_response :success
+      assert_select "##{ActionView::RecordIdentifier.dom_id(hidden_comment)}", count: 0
+      assert_select "#replies_for_#{hidden_comment.parent_id}.hidden"
+    end
+
+    visible_comments_below_hidden_ancestors = [
+      [ hidden_comments[0][0], PostComment.create!(body: "Visible reply", user: users.admin, post: posts.pinned_announcement,
+                                                   parent: post_comments.male_member_announcement_reply), post_comments.announcement_comment.id ],
+      [ hidden_comments[1][0], GroupPostComment.create!(body: "Visible reply", user: users.admin, group_post: group_posts.book_club_pinned,
+                                                        parent: group_post_comments.male_member_group_reply), group_post_comments.group_thread_parent.id ],
+      [ hidden_comments[2][0], FeedPostComment.create!(body: "Visible reply", user: users.admin, feed_post: feed_posts.pinned_feed_post,
+                                                       parent: feed_post_comments.male_member_feed_reply), feed_post_comments.feed_thread_parent.id ]
+    ]
+
+    visible_comments_below_hidden_ancestors.each do |path, comment, visible_ancestor_id|
+      get path, params: { reported_comment_id: comment.id }
+      assert_response :success
+      assert_select "#replies_for_#{visible_ancestor_id}.hidden"
+    end
+  end
+
   test "cannot report your own content" do
     assert_no_difference -> { HelpRequest.count } do
       post reports_path, params: { report: { reportable_type: "FeedPost", reportable_id: feed_posts.attendee_feed_post.id } }
