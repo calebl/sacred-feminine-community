@@ -200,6 +200,23 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     end
   end
 
+  test "does nothing if actor was deleted" do
+    actor = User.create!(name: "Deleted Actor", email: "deleted-actor@example.test", password: "password123")
+    actor_id = actor.id
+    actor.destroy!
+
+    assert_no_difference "Notification.count" do
+      CreateNotificationJob.perform_now(
+        user_id: @admin.id,
+        actor_id: actor_id,
+        event_type: "new_member",
+        title: "Test",
+        body: "Test",
+        path: "/test"
+      )
+    end
+  end
+
   test "sets notifiable when provided" do
     post = posts.pinned_announcement
 
