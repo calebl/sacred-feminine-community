@@ -10,7 +10,7 @@ class HelpRequestReply < ApplicationRecord
   private
 
   def touch_help_request
-    help_request.update_column(:updated_at, created_at)
+    HelpRequest.where(id: help_request_id).where("updated_at < ?", created_at).update_all(updated_at: created_at)
   end
 
   def notify_participants

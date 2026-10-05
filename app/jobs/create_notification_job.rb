@@ -9,23 +9,26 @@ class CreateNotificationJob < ApplicationJob
   def perform(user_id:, actor_id:, event_type:, title:, body:, path:, notifiable_type: nil, notifiable_id: nil, group_key: nil)
     user = User.find_by(id: user_id)
     return unless user
-    return if actor_id.present? && !User.exists?(actor_id)
     return if suppressed_for_hidden_author?(user, actor_id, event_type)
 
-    notification = if group_key.present?
-      upsert_grouped(user, actor_id: actor_id, event_type: event_type, title: title, body: body, path: path,
-                     notifiable_type: notifiable_type, notifiable_id: notifiable_id, group_key: group_key)
-    else
-      user.notifications.create!(
-        actor_id: actor_id,
-        event_type: event_type,
-        title: title,
-        body: body,
-        path: path,
-        notifiable_type: notifiable_type,
-        notifiable_id: notifiable_id,
-        group_key: group_key
-      )
+    notification = begin
+      if group_key.present?
+        upsert_grouped(user, actor_id: actor_id, event_type: event_type, title: title, body: body, path: path,
+                       notifiable_type: notifiable_type, notifiable_id: notifiable_id, group_key: group_key)
+      else
+        user.notifications.create!(
+          actor_id: actor_id,
+          event_type: event_type,
+          title: title,
+          body: body,
+          path: path,
+          notifiable_type: notifiable_type,
+          notifiable_id: notifiable_id,
+          group_key: group_key
+        )
+      end
+    rescue ActiveRecord::InvalidForeignKey, ActiveRecord::RecordNotFound
+      return
     end
 
     SendPushNotificationJob.perform_later(user_id, title, body, path)
