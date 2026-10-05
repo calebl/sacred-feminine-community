@@ -219,7 +219,9 @@ class User < ApplicationRecord
   # they created belong to the community, so they pass to another admin.
   def destroy_account!
     transaction do
-      successor = User.admin.kept.where.not(id: id).order(:id).first
+      User.admin.order(:id).lock.load
+      reload
+      successor = User.active_users.admin.where.not(id: id).order(:id).first
       if admin? && !successor
         raise ActiveRecord::RecordNotDestroyed.new("Another admin is required before this account can be deleted", self)
       end
@@ -244,6 +246,19 @@ class User < ApplicationRecord
       membership_audits.each do |type, ids|
         audits.where(auditable_type: type, auditable_id: ids).delete_all
       end
+    end
+  end
+
+  def change_role!(new_role)
+    transaction do
+      User.admin.order(:id).lock.load
+      reload
+      if admin? && User.active_users.where(id: id).exists? && new_role.to_sym != :admin && !User.active_users.admin.where.not(id: id).exists?
+        errors.add(:role, "cannot remove the only active admin")
+        raise ActiveRecord::RecordInvalid, self
+      end
+
+      update!(role: new_role)
     end
   end
 

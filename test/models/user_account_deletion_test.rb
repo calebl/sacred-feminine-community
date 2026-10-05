@@ -83,12 +83,22 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
     assert_nil report.reportable
   end
 
-  test "refuses to delete the only remaining admin" do
+  test "refuses to delete the only remaining active admin" do
     users.admin_two.update!(role: :attendee)
+    users.pending_invite.update!(role: :admin)
 
     error = assert_raises(ActiveRecord::RecordNotDestroyed) { users.admin.destroy_account! }
 
     assert_match "Another admin is required", error.message
     assert User.exists?(users.admin.id)
+  end
+
+  test "refuses to demote the only remaining active admin" do
+    users.admin_two.update!(role: :attendee)
+
+    error = assert_raises(ActiveRecord::RecordInvalid) { users.admin.change_role!(:attendee) }
+
+    assert_includes error.record.errors[:role], "cannot remove the only active admin"
+    assert users.admin.reload.admin?
   end
 end

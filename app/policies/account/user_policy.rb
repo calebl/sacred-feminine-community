@@ -10,7 +10,7 @@ module Account
 
     # The community always keeps at least one admin.
     def destroy_account?
-      user == record && (!record.admin? || User.admin.kept.where.not(id: record.id).exists?)
+      user == record && (!record.admin? || User.active_users.admin.where.not(id: record.id).exists?)
     end
   end
 end
