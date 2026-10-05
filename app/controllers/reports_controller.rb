@@ -2,6 +2,8 @@ class ReportsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_report
 
+  rescue_from Pundit::NotAuthorizedError, with: :reportable_not_found
+
   def new
     authorize @report, :create?
   end
@@ -17,12 +19,17 @@ class ReportsController < ApplicationController
 
   def set_report
     reportable = ContentReport.find_reportable(report_params[:reportable_type], report_params[:reportable_id])
-    raise ActiveRecord::RecordNotFound unless reportable
+    return reportable_not_found unless reportable
 
     @report = ContentReport.new(reporter: current_user, reportable: reportable, reason: report_params[:reason])
   end
 
   def report_params
     params.fetch(:report, params).permit(:reportable_type, :reportable_id, :reason)
+  end
+
+  def reportable_not_found
+    skip_authorization
+    head :not_found
   end
 end

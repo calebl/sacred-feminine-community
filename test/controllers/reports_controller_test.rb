@@ -123,15 +123,35 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { HelpRequest.count } do
       post reports_path, params: { report: { reportable_type: "FeedPost", reportable_id: feed_posts.attendee_feed_post.id } }
     end
+    assert_response :not_found
   end
 
-  test "cannot report a message in someone else's conversation" do
+  test "unauthorized and absent messages have the same report form response" do
+    message = conversations.admin_attendee_convo.direct_messages.create!(sender: users.admin, body: "Private")
+    sign_in users.attendee_two
+
+    get new_report_path(reportable_type: "DirectMessage", reportable_id: message.id)
+    unauthorized_response = [ response.status, response.media_type, response.body ]
+
+    get new_report_path(reportable_type: "DirectMessage", reportable_id: DirectMessage.maximum(:id) + 1)
+    assert_equal unauthorized_response, [ response.status, response.media_type, response.body ]
+    assert_response :not_found
+  end
+
+  test "unauthorized and absent messages have the same report submission response" do
     message = conversations.admin_attendee_convo.direct_messages.create!(sender: users.admin, body: "Private")
     sign_in users.attendee_two
 
     assert_no_difference -> { HelpRequest.count } do
       post reports_path, params: { report: { reportable_type: "DirectMessage", reportable_id: message.id } }
     end
+    unauthorized_response = [ response.status, response.media_type, response.body ]
+
+    assert_no_difference -> { HelpRequest.count } do
+      post reports_path, params: { report: { reportable_type: "DirectMessage", reportable_id: DirectMessage.maximum(:id) + 1 } }
+    end
+    assert_equal unauthorized_response, [ response.status, response.media_type, response.body ]
+    assert_response :not_found
   end
 
   test "rejects unknown types" do
