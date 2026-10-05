@@ -124,6 +124,19 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
     assert User.exists?(users.admin.id)
   end
 
+  test "an admin deleted after authorization cannot remove the remaining admin" do
+    actor = users.admin
+    remaining_admin = users.admin_two
+    actor.destroy_account!
+
+    error = assert_raises(ActiveRecord::RecordNotDestroyed) do
+      remaining_admin.remove_from_community!(by: actor)
+    end
+
+    assert_match "active admin is required", error.message
+    assert remaining_admin.reload.kept?
+  end
+
   test "refuses to demote the only remaining active admin" do
     users.admin_two.update!(role: :attendee)
 

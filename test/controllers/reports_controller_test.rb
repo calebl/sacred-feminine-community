@@ -65,9 +65,22 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes request.body, "Something unkind"
     assert_includes request.body, help_request_reported_direct_message_path(request)
 
+    get help_request_path(request)
+    assert_select "a[href='#{conversation_path(message.conversation)}']", text: "View reported content"
+    assert_select "a[href='#{help_request_reported_direct_message_path(request)}']", count: 0
+
     sign_in users.admin_two
     get help_request_path(request)
     assert_select "a[href='#{help_request_reported_direct_message_path(request)}']", text: "View reported content"
+
+    request.closed!
+    get help_request_path(request)
+    assert_select "a[href='#{help_request_reported_direct_message_path(request)}']", count: 0
+    assert_select "a[href='#{conversation_path(message.conversation)}']", count: 0
+
+    sign_in users.admin
+    get help_request_path(request)
+    assert_select "a[href='#{conversation_path(message.conversation)}']", text: "View reported content"
   end
 
   test "a new report is created when the earlier report is closed" do

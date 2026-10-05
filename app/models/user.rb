@@ -263,6 +263,21 @@ class User < ApplicationRecord
     end
   end
 
+  def remove_from_community!(by:)
+    transaction do
+      User.admin.order(:id).lock.load
+      reload
+      unless User.active_users.admin.where(id: by.id).exists?
+        raise ActiveRecord::RecordNotDestroyed.new("An active admin is required to remove this account", self)
+      end
+      if admin? && User.active_users.where(id: id).exists? && !User.active_users.admin.where.not(id: id).exists?
+        raise ActiveRecord::RecordNotDestroyed.new("The only active admin cannot be removed", self)
+      end
+
+      invitation_accepted_at.nil? ? destroy! : discard!
+    end
+  end
+
   def change_role!(new_role)
     transaction do
       User.admin.order(:id).lock.load

@@ -80,11 +80,16 @@ class ContentReport
     end
   end
 
-  def self.path_for_help_request(help_request)
-    if help_request.reportable_type == "DirectMessage" && help_request.open?
-      Rails.application.routes.url_helpers.help_request_reported_direct_message_path(help_request)
-    elsif help_request.reportable
-      path_for(help_request.reportable)
+  def self.path_for_help_request(help_request, viewer:)
+    reportable = help_request.reportable
+    if help_request.reportable_type == "DirectMessage"
+      if viewer.admin? && help_request.open?
+        Rails.application.routes.url_helpers.help_request_reported_direct_message_path(help_request)
+      elsif reportable&.conversation&.participants&.exists?(id: viewer.id)
+        path_for(reportable)
+      end
+    elsif reportable
+      path_for(reportable)
     end
   end
 
@@ -100,7 +105,10 @@ class ContentReport
 
   def create_report
     report = reporter.help_requests.create!(reportable: reportable, subject: subject, body: body)
-    report.update!(body: body(self.class.path_for_help_request(report))) if reportable.is_a?(DirectMessage)
+    if reportable.is_a?(DirectMessage)
+      path = Rails.application.routes.url_helpers.help_request_reported_direct_message_path(report)
+      report.update!(body: body(path))
+    end
     report
   end
 
