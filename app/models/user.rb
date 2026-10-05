@@ -233,14 +233,24 @@ class User < ApplicationRecord
         community_records.each { |records| records.update_all(created_by_id: successor.id) }
       end
 
+      audits = Audited.audit_class
       membership_audits = {
         "CohortMembership" => cohort_memberships.ids,
         "GroupMembership" => group_memberships.ids
       }
+      membership_audits.each do |type, ids|
+        historical_ids = audits.where(auditable_type: type)
+          .where(
+            "CAST(json_extract(audited_changes, '$.user_id[0]') AS INTEGER) = :id OR " \
+              "CAST(json_extract(audited_changes, '$.user_id[1]') AS INTEGER) = :id",
+            id: id
+          )
+          .distinct.pluck(:auditable_id)
+        membership_audits[type] = ids | historical_ids
+      end
 
       destroy!
 
-      audits = Audited.audit_class
       audits.where(auditable_type: "User", auditable_id: id).delete_all
       audits.where(user_type: "User", user_id: id).delete_all
       membership_audits.each do |type, ids|

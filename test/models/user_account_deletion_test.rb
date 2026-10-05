@@ -33,18 +33,39 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
     assert_not Notification.exists?(actor_id: @user.id)
   end
 
-  test "clears audit rows about and by the user, including membership audits" do
+  test "clears audit rows about and by the user, including historical membership audits" do
     @user.update!(bio: "A new bio")
-    membership = cohort_memberships.attendee_in_kabul
-    Audited.audit_class.create!(auditable: membership, action: "update", audited_changes: {})
+    current_membership = cohort_memberships.attendee_in_kabul
+    Audited.audit_class.create!(auditable: current_membership, action: "update", audited_changes: {})
     Audited.audit_class.create!(auditable: cohorts.kabul_retreat, user: @user, action: "update", audited_changes: {})
+
+    historical_memberships = [
+      CohortMembership.create!(user: @user, cohort: cohorts.mens_gathering),
+      GroupMembership.create!(user: @user, group: groups.reading_group)
+    ]
+    historical_memberships.each do |membership|
+      Audited.audit_class.create!(
+        auditable: membership,
+        action: "create",
+        audited_changes: { "user_id" => [ nil, @user.id ] }
+      )
+      Audited.audit_class.create!(
+        auditable: membership,
+        action: "update",
+        audited_changes: { "last_read_at" => [ nil, Time.current ] }
+      )
+      membership.destroy!
+    end
 
     @user.destroy_account!
 
     audits = Audited.audit_class
     assert_not audits.exists?(auditable_type: "User", auditable_id: @user.id)
     assert_not audits.exists?(user_type: "User", user_id: @user.id)
-    assert_not audits.exists?(auditable_type: "CohortMembership", auditable_id: membership.id)
+    assert_not audits.exists?(auditable_type: "CohortMembership", auditable_id: current_membership.id)
+    historical_memberships.each do |membership|
+      assert_not audits.exists?(auditable_type: membership.class.name, auditable_id: membership.id)
+    end
   end
 
   test "hands groups the user created to an admin" do
