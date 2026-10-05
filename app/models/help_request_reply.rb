@@ -10,7 +10,7 @@ class HelpRequestReply < ApplicationRecord
   private
 
   def touch_help_request
-    help_request.touch
+    help_request.update_column(:updated_at, created_at)
   end
 
   def notify_participants

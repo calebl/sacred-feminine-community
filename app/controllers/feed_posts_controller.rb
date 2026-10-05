@@ -1,5 +1,6 @@
 class FeedPostsController < ApplicationController
   include PhotoRemovable
+  include ReportedCommentTarget
 
   before_action :authenticate_user!
   before_action :set_post, only: [ :show, :edit, :update, :destroy ]
@@ -18,6 +19,7 @@ class FeedPostsController < ApplicationController
     load_sidebar
     @post.mark_as_read_by(current_user) unless request.headers["Purpose"] == "prefetch"
     @comments = filtered_comments(@post)
+    load_reported_comment_target(@post.feed_post_comments)
     @new_comment = @post.feed_post_comments.build
   end
 

@@ -88,6 +88,7 @@ Rails.application.routes.draw do
   resources :help_requests, only: [ :index, :show, :new, :create ] do
     resources :help_request_replies, only: [ :create ]
     resource :status, only: [ :update ], module: :help_requests
+    resource :reported_direct_message, only: [ :show ], module: :help_requests
   end
 
   # Notifications

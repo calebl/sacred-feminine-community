@@ -29,9 +29,11 @@ class HelpRequestTest < ActiveSupport::TestCase
     assert request.closed?
   end
 
-  test "newest_first scope orders by created_at desc" do
-    old = HelpRequest.create!(subject: "Old", body: "Old body", user: users.attendee, created_at: 2.days.ago)
-    recent = HelpRequest.create!(subject: "Recent", body: "Recent body", user: users.attendee, created_at: 1.hour.ago)
+  test "newest_first scope orders by latest activity" do
+    old = HelpRequest.create!(subject: "Old", body: "Old body", user: users.attendee)
+    recent = HelpRequest.create!(subject: "Recent", body: "Recent body", user: users.attendee)
+    old.update_column(:updated_at, 2.days.ago)
+    recent.update_column(:updated_at, 1.hour.ago)
 
     results = HelpRequest.newest_first
     assert results.index(recent) < results.index(old)
@@ -47,9 +49,15 @@ class HelpRequestTest < ActiveSupport::TestCase
     assert_includes HelpRequest.needs_admin_attention, request
   end
 
-  test "needs_admin_attention excludes requests with admin replies" do
-    # open_request has an admin reply via fixtures
-    assert_not_includes HelpRequest.needs_admin_attention, help_requests.open_request
+  test "needs_admin_attention includes requests with member activity after an admin reply" do
+    assert_includes HelpRequest.needs_admin_attention, help_requests.open_request
+  end
+
+  test "needs_admin_attention excludes requests whose latest activity is an admin reply" do
+    request = HelpRequest.create!(subject: "Question", body: "Please help", user: users.attendee)
+    request.help_request_replies.create!(user: users.admin, body: "Answered")
+
+    assert_not_includes HelpRequest.needs_admin_attention, request
   end
 
   test "needs_admin_attention excludes closed requests" do

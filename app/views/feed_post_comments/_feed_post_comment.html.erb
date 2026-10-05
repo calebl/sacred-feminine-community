@@ -1,5 +1,5 @@
 <% visible_replies = comment.visible_replies(current_user) %>
-<div id="<%= dom_id(comment) %>" data-controller="replies-toggle">
+<div id="<%= dom_id(comment) %>" class="<%= "scroll-mt-20 ring-2 ring-sf-red rounded-xl" if @reported_comment_id == comment.id %>" data-controller="replies-toggle">
   <div class="flex items-start gap-3 p-3 rounded-xl bg-sf-beige/30 dark:bg-gray-700/50">
     <%= render "shared/avatar", user: comment.user, size: :md %>
     <div class="flex-1 min-w-0">
@@ -69,7 +69,7 @@
   </div>
 
   <%# Nested replies %>
-  <div id="replies_for_<%= comment.id %>" data-replies-toggle-target="replies" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2 hidden">
+  <div id="replies_for_<%= comment.id %>" data-replies-toggle-target="replies" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2<%= " hidden" unless @reported_comment_ancestor_ids&.include?(comment.id) %>">
     <% visible_replies.each do |reply| %>
       <%= render "feed_post_comments/feed_post_comment", comment: reply, feed_post: feed_post %>
     <% end %>

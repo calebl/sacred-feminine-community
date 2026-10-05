@@ -65,12 +65,26 @@ class ContentReport
     case record
     when User then helpers.profile_path(record)
     when Post then helpers.cohort_post_path(record.cohort_id, record)
-    when PostComment then helpers.cohort_post_path(record.post.cohort_id, record.post_id)
+    when PostComment
+      helpers.cohort_post_path(record.post.cohort_id, record.post_id,
+                               reported_comment_id: record.id, anchor: ActionView::RecordIdentifier.dom_id(record))
     when GroupPost then helpers.group_group_post_path(record.group_id, record)
-    when GroupPostComment then helpers.group_group_post_path(record.group_post.group_id, record.group_post_id)
+    when GroupPostComment
+      helpers.group_group_post_path(record.group_post.group_id, record.group_post_id,
+                                    reported_comment_id: record.id, anchor: ActionView::RecordIdentifier.dom_id(record))
     when FeedPost then helpers.feed_post_path(record)
-    when FeedPostComment then helpers.feed_post_path(record.feed_post_id)
+    when FeedPostComment
+      helpers.feed_post_path(record.feed_post_id,
+                             reported_comment_id: record.id, anchor: ActionView::RecordIdentifier.dom_id(record))
     when DirectMessage then helpers.conversation_path(record.conversation_id)
+    end
+  end
+
+  def self.path_for_help_request(help_request)
+    if help_request.reportable_type == "DirectMessage" && help_request.open?
+      Rails.application.routes.url_helpers.help_request_reported_direct_message_path(help_request)
+    elsif help_request.reportable
+      path_for(help_request.reportable)
     end
   end
 
@@ -80,16 +94,19 @@ class ContentReport
     return report if reason.blank?
 
     report.update!(body: "#{report.body}\n\nAdditional reason:\n#{reason.strip.truncate(REASON_LENGTH)}")
+    report.notify_admins!
     report
   end
 
   def create_report
-    reporter.help_requests.create!(reportable: reportable, subject: subject, body: body)
+    report = reporter.help_requests.create!(reportable: reportable, subject: subject, body: body)
+    report.update!(body: body(self.class.path_for_help_request(report))) if reportable.is_a?(DirectMessage)
+    report
   end
 
-  def body
+  def body(link = path)
     lines = []
-    lines << "Link: #{path}" if path
+    lines << "Link: #{link}" if link
     lines << (reason.present? ? "Reason:\n#{reason.strip.truncate(REASON_LENGTH)}" : NO_REASON)
     lines.join("\n\n")
   end

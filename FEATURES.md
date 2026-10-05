@@ -109,7 +109,7 @@
 - **Threaded replies** - Admins and the request author can reply back and forth on each request
 - **Status management** - Admins can close and reopen help requests
 - **Notifications** - Admins are notified of new requests; participants are notified of new replies
-- **Content reports** - Members can report someone else's post, comment, direct message or profile from a "Report" link on it, with an optional reason. Each report becomes a help request from the reporter in the admin inbox and stores only the reporter, their reasons and a link to the item—never a copy of reported content. Reporting the same item again while an earlier report is still open appends the new reason instead of creating a duplicate. Members can only report content they can see, including its containing post and every ancestor of a nested comment, and never their own.
+- **Content reports** - Members can report someone else's post, comment, direct message or profile from a "Report" link on it, with an optional reason. Each report becomes a help request from the reporter in the admin inbox and stores only the reporter, their reasons and a link to the item—never a copy of reported content. Comment links expand their ancestor thread and highlight the exact comment. An open direct-message report lets admins view only that one message while it exists, never its conversation. Reporting the same item again while an earlier report is still open appends the new reason, alerts admins and returns it to attention instead of creating a duplicate. Members can only report content they can see, including its containing post and every ancestor of a nested comment, and never their own.
 
 ## Admin Panel
 - **Admin dashboard** - Overview panel for admin users

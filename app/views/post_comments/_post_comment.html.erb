@@ -1,6 +1,6 @@
 <% comment_unread = unread_dot_for?(comment) %>
 <% visible_replies = comment.visible_replies(current_user) %>
-<div id="<%= dom_id(comment) %>" data-controller="replies-toggle<%= " read-on-view" if comment_unread %>"
+<div id="<%= dom_id(comment) %>" class="<%= "scroll-mt-20 ring-2 ring-sf-red rounded-xl" if @reported_comment_id == comment.id %>" data-controller="replies-toggle<%= " read-on-view" if comment_unread %>"
      <%= tag.attributes(
        "data-read-on-view-type-value": "post_comment",
        "data-read-on-view-id-value": comment.id,
@@ -76,7 +76,7 @@
   </div>
 
   <%# Nested replies %>
-  <div id="replies_for_<%= comment.id %>" data-replies-toggle-target="replies" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2 hidden">
+  <div id="replies_for_<%= comment.id %>" data-replies-toggle-target="replies" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2<%= " hidden" unless @reported_comment_ancestor_ids&.include?(comment.id) %>">
     <% visible_replies.each do |reply| %>
       <%= render "post_comments/post_comment", comment: reply, cohort: cohort, post: post %>
     <% end %>

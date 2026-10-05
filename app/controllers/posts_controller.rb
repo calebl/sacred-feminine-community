@@ -1,5 +1,6 @@
 class PostsController < ApplicationController
   include PhotoRemovable
+  include ReportedCommentTarget
 
   before_action :authenticate_user!
   before_action :set_cohort
@@ -15,6 +16,7 @@ class PostsController < ApplicationController
       @post.mark_as_read_by(current_user)
     end
     @comments = filtered_comments(@post)
+    load_reported_comment_target(@post.post_comments)
     @new_comment = @post.post_comments.build
   end
 

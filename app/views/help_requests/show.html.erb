@@ -31,7 +31,7 @@
   </div>
 
   <% if @help_request.reportable_type.present? %>
-    <% reported_path = @help_request.reportable && ContentReport.path_for(@help_request.reportable) %>
+    <% reported_path = ContentReport.path_for_help_request(@help_request) %>
     <p class="mt-4 text-sm">
       <% if reported_path %>
         <%= link_to "View reported #{@help_request.reportable.is_a?(User) ? "profile" : "content"}", reported_path, class: "text-sf-gold hover:underline font-medium" %>

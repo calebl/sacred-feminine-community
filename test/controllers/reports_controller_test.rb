@@ -41,12 +41,19 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     request = HelpRequest.order(:id).last
     assert_not_includes request.body, "Profile details"
 
+    request.help_request_replies.create!(user: users.admin, body: "We reviewed this")
+    assert_not_includes HelpRequest.needs_admin_attention, request
+
     assert_no_difference -> { HelpRequest.count } do
-      post reports_path, params: { report: { reportable_type: "User", reportable_id: reportable.id, reason: "New reason" } }
+      assert_enqueued_jobs 2, only: CreateNotificationJob do
+        post reports_path, params: { report: { reportable_type: "User", reportable_id: reportable.id, reason: "New reason" } }
+      end
     end
 
     assert_match "First reason", request.reload.body
     assert_match "Additional reason:\nNew reason", request.body
+    assert_includes HelpRequest.needs_admin_attention, request
+    assert_equal request, HelpRequest.newest_first.first
   end
 
   test "reports a direct message without copying its text" do
@@ -56,7 +63,11 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
 
     request = HelpRequest.order(:id).last
     assert_not_includes request.body, "Something unkind"
-    assert_includes request.body, conversation_path(message.conversation)
+    assert_includes request.body, help_request_reported_direct_message_path(request)
+
+    sign_in users.admin_two
+    get help_request_path(request)
+    assert_select "a[href='#{help_request_reported_direct_message_path(request)}']", text: "View reported content"
   end
 
   test "a new report is created when the earlier report is closed" do
@@ -82,6 +93,30 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
 
     request = HelpRequest.order(:id).last
     assert_not_includes request.body, comment.body
+  end
+
+  test "comment report links reveal and highlight the exact nested comment" do
+    sign_in users.admin
+    comments = [
+      post_comments.nested_reply,
+      group_post_comments.nested_group_reply,
+      feed_post_comments.nested_feed_reply
+    ]
+
+    comments.each do |comment|
+      path = ContentReport.path_for(comment)
+      assert_equal "#{ActionView::RecordIdentifier.dom_id(comment)}", URI.parse(path).fragment
+
+      get path.split("#").first
+
+      assert_response :success
+      assert_select "##{ActionView::RecordIdentifier.dom_id(comment)}.ring-2"
+      ancestor = comment.parent
+      while ancestor
+        assert_select "#replies_for_#{ancestor.id}.hidden", count: 0
+        ancestor = ancestor.parent
+      end
+    end
   end
 
   test "cannot report your own content" do
