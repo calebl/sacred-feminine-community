@@ -77,6 +77,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     get help_request_path(request)
     assert_select "a[href='#{help_request_reported_direct_message_path(request)}']", count: 0
     assert_select "a[href='#{conversation_path(message.conversation)}']", count: 0
+    assert_select "span", text: "This item is no longer available to you."
 
     sign_in users.admin
     get help_request_path(request)

@@ -83,14 +83,40 @@ class ContentReport
   def self.path_for_help_request(help_request, viewer:)
     reportable = help_request.reportable
     if help_request.reportable_type == "DirectMessage"
-      if viewer.admin? && help_request.open?
-        Rails.application.routes.url_helpers.help_request_reported_direct_message_path(help_request)
-      elsif reportable&.conversation&.participants&.exists?(id: viewer.id)
-        path_for(reportable)
+      if reportable && ReportedDirectMessagePolicy.new(viewer, help_request).show?
+        return Rails.application.routes.url_helpers.help_request_reported_direct_message_path(help_request)
       end
-    elsif reportable
-      path_for(reportable)
+      return path_for(reportable) if reportable && Pundit.policy!(viewer, reportable.conversation).show?
+
+      return
     end
+
+    path_for(reportable) if reportable && viewable_by?(reportable, viewer)
+  end
+
+  def self.viewable_by?(reportable, viewer)
+    case reportable
+    when User
+      reportable.kept? && Pundit.policy!(viewer, reportable).show_profile?
+    when PostComment
+      visible_comment_to?(reportable, viewer) && Pundit.policy!(viewer, reportable.post).show?
+    when GroupPostComment
+      visible_comment_to?(reportable, viewer) && Pundit.policy!(viewer, reportable.group_post).show?
+    when FeedPostComment
+      visible_comment_to?(reportable, viewer) && Pundit.policy!(viewer, reportable.feed_post).show?
+    else
+      Pundit.policy!(viewer, reportable).show?
+    end
+  end
+
+  def self.visible_comment_to?(comment, viewer)
+    hidden_user_ids = viewer.hidden_content_user_ids
+    while comment
+      return false if hidden_user_ids.include?(comment.user_id)
+
+      comment = comment.parent
+    end
+    true
   end
 
   private

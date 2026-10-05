@@ -49,5 +49,9 @@ class HelpRequests::ReportedDirectMessagesControllerTest < ActionDispatch::Integ
 
     assert_response :success
     assert_select "p", text: "This reported message is no longer available."
+
+    get help_request_path(@report)
+    assert_select "a[href='#{help_request_reported_direct_message_path(@report)}']", count: 0
+    assert_select "span", text: "This item is no longer available to you."
   end
 end

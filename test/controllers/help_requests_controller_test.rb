@@ -64,6 +64,65 @@ class HelpRequestsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test "removed reported profile is shown as unavailable" do
+    report = HelpRequest.create!(user: @attendee, reportable: @attendee_two, subject: "Report: profile", body: "Reason")
+    @attendee_two.discard!
+    sign_in @admin
+
+    get help_request_path(report)
+
+    assert_select "a[href='#{profile_path(@attendee_two)}']", count: 0
+    assert_select "span", text: "This item is no longer available to you."
+  end
+
+  test "reports in archived containers are shown as unavailable" do
+    reportables = [
+      posts.attendee_post,
+      post_comments.admin_comment,
+      group_posts.book_club_post,
+      group_post_comments.admin_group_comment
+    ]
+    reports = reportables.map do |reportable|
+      HelpRequest.create!(user: @attendee, reportable: reportable, subject: "Report: content", body: "Reason")
+    end
+    cohorts.kabul_retreat.discard!
+    groups.book_club.discard!
+    sign_in @admin
+
+    reports.zip(reportables).each do |report, reportable|
+      get help_request_path(report)
+
+      assert_select "a[href='#{ContentReport.path_for(reportable)}']", count: 0
+      assert_select "span", text: "This item is no longer available to you."
+    end
+  end
+
+  test "reported cohort content is unavailable after membership is lost" do
+    reportable = posts.pinned_announcement
+    report = HelpRequest.create!(user: @attendee, reportable: reportable, subject: "Report: post", body: "Reason")
+    cohort_memberships.attendee_in_kabul.destroy!
+    sign_in @attendee
+
+    get help_request_path(report)
+
+    assert_select "a[href='#{ContentReport.path_for(reportable)}']", count: 0
+    assert_select "span", text: "This item is no longer available to you."
+  end
+
+  test "reported comment is unavailable after its author becomes hidden" do
+    viewer = users.women_only_member
+    viewer.update!(cohort_gender_privacy: :all_members)
+    comment = feed_post_comments.male_member_feed_reply
+    report = HelpRequest.create!(user: viewer, reportable: comment, subject: "Report: comment", body: "Reason")
+    viewer.update!(cohort_gender_privacy: :women_only)
+    sign_in viewer
+
+    get help_request_path(report)
+
+    assert_select "a[href='#{ContentReport.path_for(comment)}']", count: 0
+    assert_select "span", text: "This item is no longer available to you."
+  end
+
   # New
 
   test "attendee can access new request form" do
