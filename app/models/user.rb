@@ -241,13 +241,17 @@ class User < ApplicationRecord
       membership_audits.each do |type, ids|
         historical_ids = audits.where(auditable_type: type)
           .where(
-            "CAST(json_extract(audited_changes, '$.user_id[0]') AS INTEGER) = :id OR " \
+            "CAST(json_extract(audited_changes, '$.user_id') AS INTEGER) = :id OR " \
+              "CAST(json_extract(audited_changes, '$.user_id[0]') AS INTEGER) = :id OR " \
               "CAST(json_extract(audited_changes, '$.user_id[1]') AS INTEGER) = :id",
             id: id
           )
           .distinct.pluck(:auditable_id)
         membership_audits[type] = ids | historical_ids
       end
+
+      User.where(invited_by_type: "User", invited_by_id: id)
+        .update_all(invited_by_id: nil, invited_by_type: nil)
 
       destroy!
 

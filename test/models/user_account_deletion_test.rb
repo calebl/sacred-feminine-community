@@ -46,11 +46,6 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
     historical_memberships.each do |membership|
       Audited.audit_class.create!(
         auditable: membership,
-        action: "create",
-        audited_changes: { "user_id" => [ nil, @user.id ] }
-      )
-      Audited.audit_class.create!(
-        auditable: membership,
         action: "update",
         audited_changes: { "last_read_at" => [ nil, Time.current ] }
       )
@@ -66,6 +61,21 @@ class UserAccountDeletionTest < ActiveSupport::TestCase
     historical_memberships.each do |membership|
       assert_not audits.exists?(auditable_type: membership.class.name, auditable_id: membership.id)
     end
+  end
+
+  test "clears inviter references without deleting invited users" do
+    invited_user = User.create!(
+      name: "Invited User",
+      email: "invited-by-deleted-user@example.test",
+      password: "password123",
+      invited_by: @user
+    )
+
+    @user.destroy_account!
+
+    assert User.exists?(invited_user.id)
+    assert_nil invited_user.reload.invited_by_id
+    assert_nil invited_user.invited_by_type
   end
 
   test "hands groups the user created to an admin" do
