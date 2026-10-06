@@ -216,6 +216,13 @@
         <%= link_to "Change Email", edit_account_email_path, class: "text-sm text-sf-gold hover:text-sf-blue transition" %>
         <%= link_to "Change Password", edit_account_password_path, class: "text-sm text-sf-gold hover:text-sf-blue transition" %>
       </div>
+      <div class="mt-6">
+        <% if policy([ :account, @user ]).destroy_account? %>
+          <%= link_to "Delete my account", new_account_deletion_path, class: "text-sm text-sf-red hover:underline" %>
+        <% else %>
+          <p class="text-xs text-gray-400 dark:text-gray-500">You're the only admin, so make another member an admin before deleting your account.</p>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>

@@ -11,6 +11,7 @@ class GroupPostComment < ApplicationRecord
   has_many :replies, class_name: "GroupPostComment", foreign_key: :parent_id, dependent: :destroy
 
   validates :body, presence: true, length: { maximum: 2000 }
+  validate :parent_belongs_to_same_post, if: :parent_id?
 
   scope :top_level, -> { where(parent_id: nil) }
 
@@ -50,5 +51,11 @@ class GroupPostComment < ApplicationRecord
 
   def comment_notification_path
     "/groups/#{group_post.group_id}/group_posts/#{group_post_id}"
+  end
+
+  def parent_belongs_to_same_post
+    if parent && parent.group_post_id != group_post_id
+      errors.add(:parent_id, "must belong to the same post")
+    end
   end
 end

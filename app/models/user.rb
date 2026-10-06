@@ -51,6 +51,7 @@ class User < ApplicationRecord
   has_many :post_reads, dependent: :destroy
   has_many :created_cohorts, class_name: "Cohort", foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
   has_many :faqs, foreign_key: :created_by_id, dependent: :nullify, inverse_of: :creator
+  has_many :sent_bulk_invitations, class_name: "BulkInvitation", foreign_key: :invited_by_id, dependent: :destroy, inverse_of: :invited_by
 
   has_many :group_memberships, dependent: :destroy
   has_many :groups, -> { kept }, through: :group_memberships
@@ -70,6 +71,7 @@ class User < ApplicationRecord
   has_many :sent_direct_messages, class_name: "DirectMessage", foreign_key: :sender_id, dependent: :destroy, inverse_of: :sender
 
   has_many :notifications, dependent: :destroy
+  has_many :acted_notifications, class_name: "Notification", foreign_key: :actor_id, dependent: :destroy, inverse_of: :actor
   has_many :mentions, dependent: :destroy
   has_many :created_mentions, class_name: "Mention", foreign_key: :mentioner_id, dependent: :destroy, inverse_of: :mentioner
   has_many :reactions, dependent: :destroy
@@ -208,6 +210,88 @@ class User < ApplicationRecord
       (cohort_ids & sender.cohort_ids).any?
     when "nobody"
       false
+    end
+  end
+
+  # Self-service account deletion. Unlike an admin removal (a soft `discard`),
+  # this erases the member: their posts, comments, photos, messages, reactions,
+  # help requests and every audit row about or by them. Cohorts, groups and FAQs
+  # they created belong to the community, so they pass to another admin.
+  def destroy_account!
+    transaction do
+      User.admin.order(:id).lock.load
+      reload
+      successor = User.active_users.admin.where.not(id: id).order(:id).first
+      if admin? && !successor
+        raise ActiveRecord::RecordNotDestroyed.new("Another admin is required before this account can be deleted", self)
+      end
+
+      community_records = [ created_cohorts, created_groups, faqs ]
+      if community_records.any?(&:exists?)
+        raise ActiveRecord::RecordNotDestroyed.new("No other admin can take over this account's cohorts and groups", self) unless successor
+
+        community_records.each { |records| records.update_all(created_by_id: successor.id) }
+      end
+
+      audits = Audited.audit_class
+      membership_audits = {
+        "CohortMembership" => cohort_memberships.ids,
+        "GroupMembership" => group_memberships.ids
+      }
+      membership_audits.each do |type, ids|
+        historical_ids = audits.where(auditable_type: type)
+          .where(
+            "CAST(json_extract(audited_changes, '$.user_id') AS INTEGER) = :id OR " \
+              "CAST(json_extract(audited_changes, '$.user_id[0]') AS INTEGER) = :id OR " \
+              "CAST(json_extract(audited_changes, '$.user_id[1]') AS INTEGER) = :id",
+            id: id
+          )
+          .distinct.pluck(:auditable_id)
+        membership_audits[type] = ids | historical_ids
+      end
+
+      User.where(invited_by_type: "User", invited_by_id: id)
+        .update_all(invited_by_id: nil, invited_by_type: nil)
+
+      destroy!
+
+      audits.where(auditable_type: "User", auditable_id: id).delete_all
+      audits.where(user_type: "User", user_id: id).delete_all
+      membership_audits.each do |type, ids|
+        audits.where(auditable_type: type, auditable_id: ids).delete_all
+      end
+    end
+  end
+
+  def remove_from_community!(by:)
+    transaction do
+      User.admin.order(:id).lock.load
+      reload
+      unless User.active_users.admin.where(id: by.id).exists?
+        raise ActiveRecord::RecordNotDestroyed.new("An active admin is required to remove this account", self)
+      end
+      if admin? && User.active_users.where(id: id).exists? && !User.active_users.admin.where.not(id: id).exists?
+        raise ActiveRecord::RecordNotDestroyed.new("The only active admin cannot be removed", self)
+      end
+
+      invitation_accepted_at.nil? ? destroy! : discard!
+    end
+  end
+
+  def change_role!(new_role, by:)
+    transaction do
+      User.admin.order(:id).lock.load
+      reload
+      unless User.active_users.admin.where(id: by.id).exists?
+        errors.add(:role, "can only be changed by an active admin")
+        raise ActiveRecord::RecordInvalid, self
+      end
+      if admin? && User.active_users.where(id: id).exists? && new_role.to_sym != :admin && !User.active_users.admin.where.not(id: id).exists?
+        errors.add(:role, "cannot remove the only active admin")
+        raise ActiveRecord::RecordInvalid, self
+      end
+
+      update!(role: new_role)
     end
   end
 

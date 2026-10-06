@@ -109,6 +109,7 @@
 - **Threaded replies** - Admins and the request author can reply back and forth on each request
 - **Status management** - Admins can close and reopen help requests
 - **Notifications** - Admins are notified of new requests; participants are notified of new replies
+- **Content reports** - Members can report someone else's post, comment, direct message or profile from a "Report" link on it, with an optional reason. Each report becomes a help request from the reporter in the admin inbox and stores only the reporter, their reasons and a link to the item—never a copy of reported content. Comment links expand their ancestor thread and highlight the exact comment. An open direct-message report lets admins view only that one message while it exists, never its conversation. Reporting the same item again while an earlier report is still open appends the new reason, alerts admins and returns it to attention instead of creating a duplicate. Members can only report content they can see, including its containing post and every ancestor of a nested comment, and never their own.
 
 ## Admin Panel
 - **Admin dashboard** - Overview panel for admin users
@@ -141,6 +142,11 @@
 ## Account Settings
 - **Email change** - Users can update their email address
 - **Password change** - Users can update their password (requires current password)
+- **Delete my account** - From Account Settings on their profile, members can permanently delete their account after a warning page, re-entering their password and typing DELETE. This is a hard delete, unlike an admin removal: it erases the profile, avatar, posts, comments (and replies to them), photos, sent direct messages, reactions, mentions, notifications (including ones they caused for others), help requests, blocks, bulk-invitation records and every audit row about or by them. Cohorts, groups and FAQs they created pass to another admin. Reports filed by other members remain with their reasons and now-dead links; reports never retain a copy of content. The only remaining admin can't delete their account until someone else is made an admin.
+
+## Privacy Policy & Contact
+- **Public privacy policy** - `/privacy` is readable without signing in and describes what the site stores, who can see it, the outside services involved (Resend, OpenStreetMap, Sentry, browser push services, Google Fonts/unpkg), and how account deletion works
+- **Links** - Every page has a footer with "Privacy Policy" and, for members, "Contact Us" linking to the help desk. Signed-out visitors see an email contact link when a public contact address is configured.
 
 ## Native App API (`/api/v1`)
 - **Token sign-in** - `POST /api/v1/session` takes email, password and a device name and returns a bearer token once; only a SHA-256 digest is stored. Sign-in is rate limited (10 attempts per 3 minutes per IP). `DELETE /api/v1/session` signs the current device out

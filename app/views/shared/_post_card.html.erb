@@ -36,7 +36,7 @@
     </div>
 
     <%# Three-dot menu %>
-    <% if policy(post).edit? || policy(post).pin? || policy(post).destroy? %>
+    <% if post.user != current_user || policy(post).edit? || policy(post).pin? || policy(post).destroy? %>
       <div class="relative flex-shrink-0" data-controller="dropdown" data-action="click@window->dropdown#close">
         <button type="button" data-action="dropdown#toggle" class="p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -60,6 +60,8 @@
                 class: "block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition cursor-pointer",
                 data: { turbo_confirm: "Delete this post?" } %>
           <% end %>
+          <%= report_link post, author: post.user,
+              class: "block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition" %>
         </div>
       </div>
     <% end %>

@@ -23,6 +23,18 @@ class PostCommentTest < ActiveSupport::TestCase
     assert reply.valid?
   end
 
+  test "invalid with parent comment on different post" do
+    reply = PostComment.new(
+      body: "Cross-post reply",
+      post: posts.bali_post,
+      user: users.attendee,
+      parent: post_comments.admin_comment
+    )
+
+    assert_not reply.valid?
+    assert_includes reply.errors[:parent_id], "must belong to the same post"
+  end
+
   test "top_level scope excludes replies" do
     top_level = posts.attendee_post.post_comments.top_level
     assert_includes top_level, post_comments.admin_comment

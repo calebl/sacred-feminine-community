@@ -76,4 +76,4 @@ Alternatively, set the `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` environment va
 
 ### Deployment
 
-The app deploys with Kamal (Docker-based) using Thruster for HTTP acceleration. See `config/deploy.yml` for configuration.
+The app deploys with Kamal (Docker-based) using Thruster for HTTP acceleration. Add `CONTACT_EMAIL` to the `Sacred Feminine/Production` item in 1Password; `.kamal/secrets` fetches it and Kamal passes it to the app as the public address shown to signed-out visitors. Deployment stops if it is missing or blank. See `config/deploy.yml` for configuration.

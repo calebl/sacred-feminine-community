@@ -21,6 +21,8 @@
     &larr; <%= back_label %>
   <% end %>
   <div class="flex items-center gap-2">
+    <%= report_link post, author: post.user,
+        class: "px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-sf-red/10 transition" %>
     <% if policy(post).edit? %>
       <%= link_to "Edit", edit_path,
           class: "px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-sf-gold/10 transition" %>

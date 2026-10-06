@@ -23,13 +23,15 @@ module Admin
         return
       end
 
-      if @user.invitation_accepted_at.nil?
-        @user.destroy!
+      pending_invitation = @user.invitation_accepted_at.nil?
+      @user.remove_from_community!(by: current_user)
+      if pending_invitation
         redirect_to admin_dashboard_path, notice: "Invitation for #{@user.email} has been cancelled."
       else
-        @user.discard!
         redirect_to admin_dashboard_path, notice: "#{@user.name} has been removed."
       end
+    rescue ActiveRecord::RecordNotDestroyed, ActiveRecord::RecordNotFound => error
+      redirect_to admin_dashboard_path, alert: error.message
     end
   end
 end

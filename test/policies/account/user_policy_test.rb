@@ -26,4 +26,11 @@ class Account::UserPolicyTest < ActiveSupport::TestCase
   test "user cannot update another user's password" do
     assert_not Account::UserPolicy.new(@attendee, @attendee_two).update_password?
   end
+
+  test "pending invited admins do not permit the active admin to delete their account" do
+    users.admin_two.update!(role: :attendee)
+    users.pending_invite.update!(role: :admin)
+
+    assert_not Account::UserPolicy.new(@admin, @admin).destroy_account?
+  end
 end

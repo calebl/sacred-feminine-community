@@ -1,0 +1,39 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <%= render "shared/back_header", path: @report.path, title: "Report #{@report.kind.capitalize}" %>
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8">
+    <% if (existing = @report.open_report) %>
+      <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">
+        You've already reported this <%= @report.kind %>. You can add another reason to the existing report.
+      </p>
+      <%= form_with(scope: :report, url: reports_path, class: "space-y-4") do |f| %>
+        <%= f.hidden_field :reportable_type, value: @report.reportable.class.name %>
+        <%= f.hidden_field :reportable_id, value: @report.reportable.id %>
+        <%= f.label :reason, "Additional reason", class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+        <%= f.text_area :reason, rows: 4, maxlength: ContentReport::REASON_LENGTH, class: "w-full" %>
+        <div class="flex items-center gap-3">
+          <%= f.submit "Add to Report", class: "btn-danger" %>
+          <%= link_to "View your report", help_request_path(existing), class: "btn-secondary" %>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-sm text-gray-700 dark:text-gray-300 mb-6">
+        Report this <%= @report.kind %> by <strong><%= @report.author.name %></strong> to the community admins.
+        Your report goes to the admin help desk with a link to the <%= @report.kind %>. You can follow up on it under Help.
+      </p>
+
+      <%= form_with(scope: :report, url: reports_path, class: "space-y-6") do |f| %>
+        <%= f.hidden_field :reportable_type, value: @report.reportable.class.name %>
+        <%= f.hidden_field :reportable_id, value: @report.reportable.id %>
+
+        <div>
+          <%= f.label :reason, "What's wrong? (optional)", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+          <%= f.text_area :reason, rows: 4, maxlength: ContentReport::REASON_LENGTH, class: "w-full",
+              placeholder: "For example: harassment, hateful content, spam" %>
+        </div>
+
+        <%= f.submit "Send Report", class: "btn-danger" %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

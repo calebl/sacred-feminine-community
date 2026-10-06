@@ -1,5 +1,7 @@
 class HelpRequest < ApplicationRecord
   belongs_to :user
+  # Set when the request is a member's report of content (see ContentReport).
+  belongs_to :reportable, polymorphic: true, optional: true
   has_many :help_request_replies, dependent: :destroy
 
   enum :status, { open: 0, closed: 1 }
@@ -9,12 +11,19 @@ class HelpRequest < ApplicationRecord
 
   after_create_commit :notify_admins
 
-  scope :newest_first, -> { order(created_at: :desc) }
+  scope :newest_first, -> { order(updated_at: :desc) }
   scope :needs_admin_attention, -> {
     open.where.not(
-      id: HelpRequestReply.joins(:user).where(users: { role: :admin }).select(:help_request_id)
+      id: HelpRequestReply.joins(:user)
+        .where(users: { role: :admin })
+        .where("help_request_replies.created_at >= help_requests.updated_at")
+        .select(:help_request_id)
     )
   }
+
+  def notify_admins!
+    notify_admins
+  end
 
   private
 

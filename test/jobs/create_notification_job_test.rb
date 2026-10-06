@@ -200,6 +200,76 @@ class CreateNotificationJobTest < ActiveJob::TestCase
     end
   end
 
+  test "does nothing if actor was deleted" do
+    actor = User.create!(name: "Deleted Actor", email: "deleted-actor@example.test", password: "password123")
+    actor_id = actor.id
+    actor.destroy!
+
+    assert_no_enqueued_jobs only: [ SendPushNotificationJob, SendEmailNotificationJob, BroadcastUnreadBadgeJob ] do
+      assert_no_difference "Notification.count" do
+        CreateNotificationJob.perform_now(
+          user_id: @admin.id,
+          actor_id: actor_id,
+          event_type: "new_member",
+          title: "Test",
+          body: "Test",
+          path: "/test"
+        )
+      end
+    end
+  end
+
+  test "does nothing when grouped notification creation loses its actor" do
+    actor = User.create!(name: "Deleted Actor", email: "deleted-group-actor@example.test", password: "password123")
+    actor_id = actor.id
+    actor.destroy!
+
+    assert_no_enqueued_jobs only: [ SendPushNotificationJob, SendEmailNotificationJob, BroadcastUnreadBadgeJob ] do
+      assert_no_difference "Notification.count" do
+        CreateNotificationJob.perform_now(
+          user_id: @admin.id,
+          actor_id: actor_id,
+          event_type: "new_comment",
+          title: "Test",
+          body: "Test",
+          path: "/test",
+          group_key: "deleted-actor"
+        )
+      end
+    end
+  end
+
+  test "does nothing when grouped notification update loses its actor" do
+    CreateNotificationJob.perform_now(
+      user_id: @admin.id,
+      actor_id: @attendee.id,
+      event_type: "new_comment",
+      title: "Original",
+      body: "Original",
+      path: "/test",
+      group_key: "deleted-update-actor"
+    )
+    notification = Notification.find_by!(user: @admin, group_key: "deleted-update-actor")
+    actor = User.create!(name: "Deleted Actor", email: "deleted-update-actor@example.test", password: "password123")
+    actor_id = actor.id
+    actor.destroy!
+    clear_enqueued_jobs
+
+    assert_no_enqueued_jobs only: [ SendPushNotificationJob, SendEmailNotificationJob, BroadcastUnreadBadgeJob ] do
+      CreateNotificationJob.perform_now(
+        user_id: @admin.id,
+        actor_id: actor_id,
+        event_type: "new_comment",
+        title: "Changed",
+        body: "Changed",
+        path: "/test",
+        group_key: "deleted-update-actor"
+      )
+    end
+
+    assert_equal "Original", notification.reload.title
+  end
+
   test "sets notifiable when provided" do
     post = posts.pinned_announcement
 

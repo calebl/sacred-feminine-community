@@ -1,5 +1,5 @@
 <% visible_replies = comment.visible_replies(current_user) %>
-<div id="<%= dom_id(comment) %>" data-controller="replies-toggle">
+<div id="<%= dom_id(comment) %>" class="<%= "scroll-mt-20 ring-2 ring-sf-red rounded-xl" if @reported_comment_id == comment.id %>" data-controller="replies-toggle">
   <div class="flex items-start gap-3 p-3 rounded-xl bg-sf-beige/30 dark:bg-gray-700/50">
     <%= render "shared/avatar", user: comment.user, size: :md %>
     <div class="flex-1 min-w-0">
@@ -8,14 +8,17 @@
           <%= link_to comment.user.name, profile_path(comment.user), class: "text-sm font-semibold text-sf-black dark:text-white hover:text-sf-gold transition" %>
           <span class="text-xs text-gray-400 dark:text-gray-500"><%= time_ago_in_words(comment.created_at) %> ago</span>
         </div>
-        <% if policy(comment).destroy? %>
-          <%= button_to feed_post_feed_post_comment_path(feed_post, comment),
-              method: :delete,
-              class: "text-xs text-red-400 hover:text-red-600 transition cursor-pointer",
-              data: { turbo_confirm: "Delete this reply?" } do %>
-            Delete
+        <div class="flex items-center gap-3">
+          <%= report_link comment, author: comment.user, class: "text-xs text-gray-400 hover:text-sf-red transition" %>
+          <% if policy(comment).destroy? %>
+            <%= button_to feed_post_feed_post_comment_path(feed_post, comment),
+                method: :delete,
+                class: "text-xs text-red-400 hover:text-red-600 transition cursor-pointer",
+                data: { turbo_confirm: "Delete this reply?" } do %>
+              Delete
+            <% end %>
           <% end %>
-        <% end %>
+        </div>
       </div>
       <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"><%= format_user_content(comment.body) %></p>
       <div data-controller="reply-form" class="mt-1">
@@ -66,7 +69,7 @@
   </div>
 
   <%# Nested replies %>
-  <div id="replies_for_<%= comment.id %>" data-replies-toggle-target="replies" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2 hidden">
+  <div id="replies_for_<%= comment.id %>" data-replies-toggle-target="replies" class="ml-8 border-l-2 border-sf-sand/30 dark:border-gray-600 pl-3 mt-2 space-y-2<%= " hidden" unless @reported_comment_ancestor_ids&.include?(comment.id) %>">
     <% visible_replies.each do |reply| %>
       <%= render "feed_post_comments/feed_post_comment", comment: reply, feed_post: feed_post %>
     <% end %>

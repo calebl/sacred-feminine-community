@@ -1,5 +1,6 @@
 class GroupPostsController < ApplicationController
   include PhotoRemovable
+  include ReportedCommentTarget
 
   before_action :authenticate_user!
   before_action :set_group
@@ -15,6 +16,7 @@ class GroupPostsController < ApplicationController
       @post.mark_as_read_by(current_user)
     end
     @comments = filtered_comments(@post)
+    load_reported_comment_target(@post.group_post_comments)
     @new_comment = @post.group_post_comments.build
   end
 

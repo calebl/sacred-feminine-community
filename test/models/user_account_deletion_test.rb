@@ -1,0 +1,173 @@
+require "test_helper"
+
+class UserAccountDeletionTest < ActiveSupport::TestCase
+  setup do
+    @user = users.attendee
+  end
+
+  test "hard deletes the user and everything they shared" do
+    conversation = conversations.admin_attendee_convo
+    message = conversation.direct_messages.create!(sender: @user, body: "Hello there")
+    post = posts.attendee_post
+    feed_post = feed_posts.attendee_feed_post
+    cohort_membership = cohort_memberships.attendee_in_kabul
+    group_membership = group_memberships.attendee_in_yoga
+    group_post_comment = group_post_comments.attendee_group_comment
+    feed_post_comment = feed_post_comments.attendee_feed_comment
+    feed_post.photos.attach(io: file_fixture("avatar.png").open, filename: "photo.png", content_type: "image/png")
+    @user.avatar.attach(io: file_fixture("avatar.png").open, filename: "avatar.png", content_type: "image/png")
+    avatar_attachment = @user.avatar.attachment
+
+    @user.destroy_account!
+
+    assert_not User.exists?(@user.id)
+    assert_not Post.exists?(post.id)
+    assert_not FeedPost.exists?(feed_post.id)
+    assert_not DirectMessage.exists?(message.id)
+    assert_not PostComment.exists?(user_id: @user.id)
+    assert_not GroupPostComment.exists?(group_post_comment.id)
+    assert_not FeedPostComment.exists?(feed_post_comment.id)
+    assert_not CohortMembership.exists?(cohort_membership.id)
+    assert_not GroupMembership.exists?(group_membership.id)
+    assert_not HelpRequest.exists?(user_id: @user.id)
+    assert_not Reaction.exists?(user_id: @user.id)
+    assert_not ActiveStorage::Attachment.exists?(avatar_attachment.id)
+    assert_not ActiveStorage::Attachment.exists?(record_type: "FeedPost", record_id: feed_post.id)
+    assert Conversation.exists?(conversation.id), "the other participant keeps the conversation"
+  end
+
+  test "removes notifications the user caused for others" do
+    Notification.create!(user: users.admin, actor: @user, event_type: "mention", title: "Mention")
+
+    @user.destroy_account!
+
+    assert_not Notification.exists?(actor_id: @user.id)
+  end
+
+  test "clears audit rows about and by the user, including historical membership audits" do
+    @user.update!(bio: "A new bio")
+    current_membership = cohort_memberships.attendee_in_kabul
+    Audited.audit_class.create!(auditable: current_membership, action: "update", audited_changes: {})
+    Audited.audit_class.create!(auditable: cohorts.kabul_retreat, user: @user, action: "update", audited_changes: {})
+
+    historical_memberships = [
+      CohortMembership.create!(user: @user, cohort: cohorts.mens_gathering),
+      GroupMembership.create!(user: @user, group: groups.reading_group)
+    ]
+    historical_memberships.each do |membership|
+      Audited.audit_class.create!(
+        auditable: membership,
+        action: "update",
+        audited_changes: { "last_read_at" => [ nil, Time.current ] }
+      )
+      membership.destroy!
+    end
+
+    @user.destroy_account!
+
+    audits = Audited.audit_class
+    assert_not audits.exists?(auditable_type: "User", auditable_id: @user.id)
+    assert_not audits.exists?(user_type: "User", user_id: @user.id)
+    assert_not audits.exists?(auditable_type: "CohortMembership", auditable_id: current_membership.id)
+    historical_memberships.each do |membership|
+      assert_not audits.exists?(auditable_type: membership.class.name, auditable_id: membership.id)
+    end
+  end
+
+  test "clears inviter references without deleting invited users" do
+    invited_user = User.create!(
+      name: "Invited User",
+      email: "invited-by-deleted-user@example.test",
+      password: "password123",
+      invited_by: @user
+    )
+
+    @user.destroy_account!
+
+    assert User.exists?(invited_user.id)
+    assert_nil invited_user.reload.invited_by_id
+    assert_nil invited_user.invited_by_type
+  end
+
+  test "hands groups the user created to an admin" do
+    group = groups.book_club
+
+    @user.destroy_account!
+
+    assert_equal users.admin, group.reload.creator
+  end
+
+  test "an admin's cohorts and FAQs pass to another admin" do
+    admin = users.admin
+    cohort = cohorts.kabul_retreat
+
+    admin.destroy_account!
+
+    assert_not User.exists?(admin.id)
+    assert_equal users.admin_two, cohort.reload.creator
+    assert Faq.where(created_by_id: users.admin_two.id).exists?
+  end
+
+  test "retained reports keep reasons but no copy of deleted content" do
+    post = posts.attendee_post
+    report = ContentReport.new(
+      reporter: users.attendee_two,
+      reportable: post,
+      reason: "Keep this reason"
+    ).submit
+
+    @user.destroy_account!
+
+    report.reload
+    assert_equal "Report: post", report.subject
+    assert_includes report.body, "Keep this reason"
+    assert_not_includes report.body, post.body
+    assert_nil report.reportable
+  end
+
+  test "refuses to delete the only remaining active admin" do
+    users.admin_two.update!(role: :attendee)
+    users.pending_invite.update!(role: :admin)
+
+    error = assert_raises(ActiveRecord::RecordNotDestroyed) { users.admin.destroy_account! }
+
+    assert_match "Another admin is required", error.message
+    assert User.exists?(users.admin.id)
+  end
+
+  test "an admin deleted after authorization cannot remove the remaining admin" do
+    actor = users.admin
+    remaining_admin = users.admin_two
+    actor.destroy_account!
+
+    error = assert_raises(ActiveRecord::RecordNotDestroyed) do
+      remaining_admin.remove_from_community!(by: actor)
+    end
+
+    assert_match "active admin is required", error.message
+    assert remaining_admin.reload.kept?
+  end
+
+  test "an admin deleted after authorization cannot change roles" do
+    actor = users.admin
+    target = users.attendee
+    actor.destroy_account!
+
+    error = assert_raises(ActiveRecord::RecordInvalid) do
+      target.change_role!(:admin, by: actor)
+    end
+
+    assert_includes error.record.errors[:role], "can only be changed by an active admin"
+    assert target.reload.attendee?
+  end
+
+  test "refuses to demote the only remaining active admin" do
+    users.admin_two.update!(role: :attendee)
+    admin = users.admin
+
+    error = assert_raises(ActiveRecord::RecordInvalid) { admin.change_role!(:attendee, by: admin) }
+
+    assert_includes error.record.errors[:role], "cannot remove the only active admin"
+    assert admin.reload.admin?
+  end
+end

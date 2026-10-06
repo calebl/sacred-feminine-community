@@ -25,6 +25,7 @@ env:
     - RAILS_MASTER_KEY
     - RESEND_API_KEY
     - SENTRY_DSN
+    - CONTACT_EMAIL
   clear:
     SOLID_QUEUE_IN_PUMA: true
     APP_HOST: <%= ENV["APP_HOST"] %>

@@ -13,8 +13,10 @@ module Admin
         end
 
         new_role = @user.admin? ? :attendee : :admin
-        @user.update!(role: new_role)
+        @user.change_role!(new_role, by: current_user)
         redirect_to admin_dashboard_path, notice: "#{@user.name} is now #{new_role == :admin ? 'an admin' : 'an attendee'}."
+      rescue ActiveRecord::RecordInvalid => error
+        redirect_to admin_dashboard_path, alert: error.record.errors.full_messages.to_sentence
       end
     end
   end

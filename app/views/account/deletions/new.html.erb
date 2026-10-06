@@ -1,0 +1,45 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <%= render "shared/back_header", path: edit_profile_path(current_user), title: "Delete Account" %>
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-red/30 dark:border-red-900 p-8">
+    <div class="p-4 mb-6 bg-sf-red/10 border border-sf-red/20 rounded-xl text-sm text-red-800 dark:text-red-300 space-y-2">
+      <p class="font-semibold">This permanently deletes your account. It can't be undone.</p>
+      <p>Deleting your account also deletes everything you have shared here:</p>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>your profile, photo and map location</li>
+        <li>your posts and comments in cohorts, groups and the feed, with their photos, and any replies to them</li>
+        <li>the private messages you sent</li>
+        <li>your reactions, notifications, help requests and blocks</li>
+        <li>the activity history kept about your account</li>
+      </ul>
+      <% if @user.created_cohorts.exists? || @user.created_groups.exists? || @user.faqs.exists? %>
+        <p>Cohorts, groups and FAQs you created stay in the community and pass to another admin.</p>
+      <% end %>
+    </div>
+
+    <%= form_with(model: @user, scope: :user, url: account_deletion_path, method: :post, class: "space-y-6") do |f| %>
+      <% if @user.errors.any? %>
+        <div class="p-4 bg-sf-red/10 border border-sf-red/20 rounded-xl">
+          <% @user.errors.full_messages.each do |message| %>
+            <p class="text-sm text-red-800 dark:text-red-300"><%= message %></p>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :current_password, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.password_field :current_password, class: "w-full", autocomplete: "current-password" %>
+      </div>
+
+      <div>
+        <%= label_tag "user_confirmation", "Type #{Account::DeletionsController::CONFIRMATION_WORD} to confirm", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= text_field_tag "user[confirmation]", nil, id: "user_confirmation", class: "w-full", autocomplete: "off", autocapitalize: "characters" %>
+      </div>
+
+      <div>
+        <%= f.submit "Permanently Delete My Account", class: "btn-danger",
+            data: { turbo_confirm: "Delete your account and everything you shared? This can't be undone." } %>
+      </div>
+    <% end %>
+  </div>
+</div>

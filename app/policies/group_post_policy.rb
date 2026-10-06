@@ -1,6 +1,6 @@
 class GroupPostPolicy < ApplicationPolicy
   def show?
-    record.group.can_participate?(user)
+    !user.hides_content_from?(record.user) && record.group.kept? && record.group.can_participate?(user)
   end
 
   def create?

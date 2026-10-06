@@ -1,0 +1,75 @@
+<% content_for :title, "Privacy Policy" %>
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-sf-sand/20 dark:border-gray-700 p-8 space-y-6 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+    <div>
+      <h1 class="text-3xl font-display font-bold text-sf-black dark:text-white">Privacy Policy</h1>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Last updated October 3, 2026</p>
+    </div>
+
+    <p>
+      Sacred Feminine is a private, invitation-only community for people who have attended our retreats.
+      This page explains what we store about you, why, who else is involved in running the site, and how you can delete your account.
+      We do not sell your information or use it for advertising.
+    </p>
+
+    <section class="space-y-2">
+      <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white">What we store</h2>
+      <ul class="list-disc pl-5 space-y-2">
+        <li><strong>Your account:</strong> your name, email address and password (stored only as a one-way hash, never in readable form), your role, who invited you and when, and which cohorts you were invited to.</li>
+        <li><strong>Your profile:</strong> anything you choose to add: a bio, a profile photo, and your city, state and country. We turn your city, state and country into approximate map coordinates. Your location is shown to other members only if you turn on "show on map".</li>
+        <li><strong>Your settings:</strong> who may message or mention you, your cohort gender preference, your notification and email preferences, and your colour theme.</li>
+        <li><strong>What you share:</strong> posts, comments and replies in cohorts, groups and the community feed, the photos you attach, your reactions and @mentions, the groups and cohorts you belong to, and what you have read.</li>
+        <li><strong>Private messages:</strong> the messages you send and receive. Message text is encrypted when it is stored on our servers. Community admins cannot read your conversations, except a message a member reports to them.</li>
+        <li><strong>Help requests and reports:</strong> help requests you send to the admins, their replies, and reports you file about content. Reports store the reporter, their reasons and a link to the reported item, but no copy of its content.</li>
+        <li><strong>Blocks:</strong> the members you have blocked.</li>
+        <li><strong>Notifications:</strong> the notifications we show you and, if you turn on push notifications, the address your browser gives us for delivering them.</li>
+        <li><strong>Account history:</strong> a log of changes to your account (such as name, email, role and profile changes) and to cohort and group memberships, with the time and the network (IP) address the change came from.</li>
+        <li><strong>Technical data:</strong> a sign-in cookie that keeps you signed in, and our server and error logs, which record requests including network addresses and browser details.</li>
+      </ul>
+    </section>
+
+    <section class="space-y-2">
+      <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white">Who can see it</h2>
+      <p>
+        Your name, profile photo and profile are visible to other signed-in members. Posts in a cohort or group are visible to its members, and feed posts to every member.
+        Community admins cannot read your conversations, except a message a member reports to them. They can see account details and help requests, and can remove content.
+        Nothing on the site is visible to people who are not signed in, apart from this page and the sign-in pages.
+      </p>
+    </section>
+
+    <section class="space-y-2">
+      <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white">Services that help us run the site</h2>
+      <ul class="list-disc pl-5 space-y-2">
+        <li><strong>Resend</strong> sends our emails (invitations, password resets and notification emails), so it receives your email address and the email's contents.</li>
+        <li><strong>OpenStreetMap Nominatim</strong> turns the city, state and country on your profile into map coordinates. Map images come from <strong>OpenStreetMap</strong> tile servers, which see your network address when you view a map.</li>
+        <li><strong>Sentry</strong> receives error reports when something breaks, which can include your network address, browser details and the page you were using.</li>
+        <li><strong>Push services</strong> run by your browser's maker (such as Apple, Google or Mozilla) deliver push notifications if you turn them on.</li>
+        <li><strong>Google Fonts and unpkg</strong> serve the site's fonts and map styles, so they see your network address when a page loads.</li>
+      </ul>
+      <p>Photos and everything else you share are stored on our own server.</p>
+    </section>
+
+    <section class="space-y-2">
+      <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white">Deleting your account</h2>
+      <p>
+        You can delete your account from your profile, under <strong>Account Settings &rarr; Delete my account</strong>.
+        Deleting it permanently erases your account and everything you shared: your profile and photo, your posts, comments and their photos, the messages you sent, your reactions, notifications, help requests, blocks and your account history.
+        Cohorts, groups and FAQs that an admin created stay in the community. Reports that other members filed stay with the admins because they contain only the reporter's reasons and a link to content that is deleted with your account.
+        The only remaining admin must make someone else an admin before deleting their account. Copies in our backups and logs are overwritten over time.
+      </p>
+      <p>
+        If an admin removes you from the community instead, your account is switched off but your information is kept. You can ask the community admins to delete it.
+      </p>
+    </section>
+
+    <section class="space-y-2">
+      <h2 class="text-lg font-display font-semibold text-sf-black dark:text-white">Contact us</h2>
+      <p>
+        Members can reach the admins through <strong>Help</strong> in the site.
+        <% if contact_email.present? %>
+          Anyone can email us at <%= mail_to contact_email, contact_email, class: "text-sf-gold hover:underline" %> with questions about this policy or their information.
+        <% end %>
+      </p>
+    </section>
+  </div>
+</div>

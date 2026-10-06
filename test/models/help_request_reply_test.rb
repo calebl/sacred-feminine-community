@@ -22,4 +22,15 @@ class HelpRequestReplyTest < ActiveSupport::TestCase
 
     assert request.reload.updated_at > original_updated_at
   end
+
+  test "does not move help request activity backward" do
+    request = help_requests.open_request
+    reply = HelpRequestReply.create!(body: "Earlier activity", help_request: request, user: users.admin)
+    later_activity = reply.created_at + 1.minute
+    request.update_column(:updated_at, later_activity)
+
+    reply.send(:touch_help_request)
+
+    assert_equal later_activity, request.reload.updated_at
+  end
 end
