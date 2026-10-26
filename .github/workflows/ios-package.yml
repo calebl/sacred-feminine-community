@@ -25,6 +25,6 @@ jobs:
       run:
         working-directory: ios/SacredFeminineKit
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: swift build
       - run: swift test
