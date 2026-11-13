@@ -59,7 +59,7 @@ gem "geocoder", "~> 1.8"
 gem "audited", "~> 5.7"
 
 # Soft-delete
-gem "discard", "~> 1.4"
+gem "discard", "~> 2.0"
 
 # Markdown rendering
 gem "redcarpet", "~> 3.6"
