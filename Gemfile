@@ -43,7 +43,7 @@ gem "image_processing", "~> 1.2"
 
 # Authentication & Authorization
 gem "devise", "~> 5.0"
-gem "devise_invitable", "~> 2.0"
+gem "devise_invitable", "~> 3.1"
 gem "pundit", "~> 2.4"
 
 # Transactional email via Resend HTTP API
